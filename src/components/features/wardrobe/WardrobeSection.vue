@@ -10,17 +10,7 @@
       <div class="max-w-2xl">
         <h2 class="text-[clamp(1.8rem,4vw,3rem)] font-bold text-white leading-tight mb-3">打造你的专属衣橱</h2>
         <p class="text-white/90 text-balance text-[clamp(1rem,1.5vw,1.1rem)] mb-8 max-w-xl">智能管理衣物，轻松搭配，展现独特风格，让每一天都充满时尚感</p>
-        <div class="relative mb-6 group">
-          <div class="absolute inset-0 bg-white/20 rounded-2xl blur-md transform scale-105 opacity-0 group-hover:opacity-100 transition-all duration-300"></div>
-          <input
-            type="text"
-            placeholder="搜索衣物、风格或场合..."
-            class="w-full py-4 px-6 pr-14 rounded-2xl shadow-medium focus:outline-none focus:ring-2 focus:ring-white/30 transition-all bg-white/10 backdrop-blur border border-white/20 text-white placeholder-white/60 text-base"
-            v-model="searchKeyword"
-            @keyup.enter="handleSearch"
-          >
-          <font-awesome-icon :icon="['fas', 'search']" class="absolute right-5 top-1/2 -translate-y-1/2 text-white/70 group-hover:text-white transition-colors text-lg" />
-        </div>
+        <SearchBar @search="handleSearch" />
         <div class="flex flex-wrap gap-4">
           <button class="bg-white text-primary hover:bg-neutral-100 font-medium py-3 px-8 rounded-2xl shadow-medium transition-all flex items-center space-x-2 group" @click="$emit('showUpload')">
             <font-awesome-icon :icon="['fas', 'plus-circle']" class="group-hover:scale-110 transition-transform" />
@@ -83,34 +73,7 @@
   <FavoriteSection />
 
   <!-- 精选搭配 -->
-  <div v-if="!loading && !error" class="container mx-auto px-4 mb-12">
-    <div class="flex items-center justify-between mb-6">
-      <h3 class="text-xl md:text-2xl font-bold">精选搭配</h3>
-      <div class="flex space-x-2">
-        <button
-          @click="prevOutfit"
-          :disabled="outfitIndex === 0"
-          class="w-8 h-8 rounded-full bg-white shadow-soft flex items-center justify-center hover:bg-neutral-50 disabled:opacity-30 disabled:cursor-not-allowed transition-all"
-        >
-          <font-awesome-icon :icon="['fas', 'chevron-left']" class="text-neutral-600 text-xs" />
-        </button>
-        <button
-          @click="nextOutfit"
-          :disabled="outfitIndex >= outfits.length - 3"
-          class="w-8 h-8 rounded-full bg-white shadow-soft flex items-center justify-center hover:bg-neutral-50 disabled:opacity-30 disabled:cursor-not-allowed transition-all"
-        >
-          <font-awesome-icon :icon="['fas', 'chevron-right']" class="text-neutral-600 text-xs" />
-        </button>
-      </div>
-    </div>
-    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
-      <OutfitCard
-        v-for="outfit in displayedOutfits"
-        :key="outfit.title"
-        :outfit="outfit"
-      />
-    </div>
-  </div>
+  <FeaturedOutfits v-if="!loading && !error" :outfits="outfits" />
 
 
 
@@ -316,7 +279,10 @@ import ClothingCategory from '../../common/ui/ClothingCategory.vue'
 import OutfitCard from '../../common/ui/OutfitCard.vue'
 import ClothingItem from '../../common/ui/ClothingItem.vue'
 import FavoriteSection from './FavoriteSection.vue'
+import SearchBar from '../../common/ui/SearchBar.vue'
+import FeaturedOutfits from './FeaturedOutfits.vue'
 import { useWardrobeStore } from '../../../stores/wardrobeStore'
+import { outfitService } from '../../../services/outfitService'
 import { useRouter } from 'vue-router'
 import { showToast } from '../../../utils/toast'
 
@@ -325,112 +291,38 @@ const wardrobeStore = useWardrobeStore()
 const emit = defineEmits(['showUpload'])
 
 // 状态
-const searchKeyword = ref('')
-const outfitIndex = ref(0)
 const isDrawerOpen = ref(false)
 const searchResults = ref([])
 const isSearchMode = ref(false)
+const currentSearchKeyword = ref('')
 
 // 动画事件处理函数
 const beforeEnter = () => {
-  console.log('动画开始: beforeEnter')
   console.time('动画持续时间')
 }
 
 const afterEnter = () => {
   console.timeEnd('动画持续时间')
-  console.log('动画结束: afterEnter')
 }
 
 const beforeLeave = () => {
-  console.log('离开动画开始: beforeLeave')
+  // 动画开始前的处理
 }
 
 const afterLeave = () => {
-  console.log('离开动画结束: afterLeave')
+  // 动画结束后的处理
 }
 
 // 计算属性
 const categories = computed(() => wardrobeStore.categories)
-const selectedCategory = computed(() => {
-  const value = wardrobeStore.selectedCategory;
-  console.log("selectedCategory计算属性被调用，当前值:", value);
-  return value;
-})
-const loading = computed(() => {
-  const value = wardrobeStore.loading;
-  console.log("loading计算属性被调用，当前值:", value);
-  return value;
-})
-const error = computed(() => {
-  const value = wardrobeStore.error;
-  console.log("error计算属性被调用，当前值:", value);
-  return value;
-})
+const selectedCategory = computed(() => wardrobeStore.selectedCategory)
+const loading = computed(() => wardrobeStore.loading)
+const error = computed(() => wardrobeStore.error)
 const recentlyAddedItems = computed(() => wardrobeStore.recentlyAddedItems)
 const favoriteItems = computed(() => wardrobeStore.favoriteItems)
 
-// 精选搭配数据（静态数据，可以后续改为从API获取）
-const outfits = ref([
-  {
-    title: '简约休闲风',
-    desc: '适合周末出行，舒适又时尚',
-    tag: '休闲日常',
-    tagColor: 'white',
-    tagText: 'text-neutral-800',
-    img: 'https://picsum.photos/seed/outfit1/600/400',
-    items: [
-      { img: 'https://picsum.photos/seed/item1/100/100', alt: '白色T恤' },
-      { img: 'https://picsum.photos/seed/item2/100/100', alt: '牛仔裤' },
-      { img: 'https://picsum.photos/seed/item3/100/100', alt: '运动鞋' },
-      { more: 2 }
-    ],
-    liked: false,
-    likes: 24
-  },
-  {
-    title: '干练职场风',
-    desc: '适合办公室，专业又不失时尚',
-    tag: '职场通勤',
-    tagColor: 'white',
-    tagText: 'text-neutral-800',
-    img: 'https://picsum.photos/seed/outfit2/600/400',
-    items: [
-      { img: 'https://picsum.photos/seed/item4/100/100', alt: '衬衫' },
-      { img: 'https://picsum.photos/seed/item5/100/100', alt: '西装裤' },
-      { img: 'https://picsum.photos/seed/item6/100/100', alt: '高跟鞋' },
-      { more: 1 }
-    ],
-    liked: true,
-    likes: 42
-  },
-  {
-    title: '浪漫约会风',
-    desc: '适合约会场合，优雅迷人',
-    tag: '约会聚会',
-    tagColor: 'white',
-    tagText: 'text-neutral-800',
-    img: 'https://picsum.photos/seed/outfit3/600/400',
-    items: [
-      { img: 'https://picsum.photos/seed/item7/100/100', alt: '连衣裙' },
-      { img: 'https://picsum.photos/seed/item8/100/100', alt: '耳环' },
-      { img: 'https://picsum.photos/seed/item9/100/100', alt: '手包' }
-    ],
-    liked: false,
-    likes: 18
-  }
-])
-
-const displayedOutfits = computed(() => outfits.value.slice(outfitIndex.value, outfitIndex.value + 3))
-
-// 方法
-function prevOutfit() {
-  if (outfitIndex.value > 0) outfitIndex.value--
-}
-
-function nextOutfit() {
-  if (outfitIndex.value < outfits.value.length - 3) outfitIndex.value++
-}
+// 精选搭配数据
+const outfits = ref(outfitService.getOutfits())
 
 function getCategoryItemCount(categoryId) {
   if (isSearchMode.value) return searchResults.value.length;
@@ -439,7 +331,7 @@ function getCategoryItemCount(categoryId) {
 }
 
 function getSelectedCategoryName() {
-  if (isSearchMode.value) return `搜索结果: "${searchKeyword.value}"`;
+  if (isSearchMode.value) return `搜索结果: "${currentSearchKeyword.value}"`;
   if (!selectedCategory.value) return '';
   if (selectedCategory.value === "all") return '全部衣物';
   const category = categories.value.find(c => c.id === selectedCategory.value);
@@ -507,11 +399,13 @@ async function toggleFavorite(item) {
   }
 }
 
-async function handleSearch() {
-  if (!searchKeyword.value.trim()) return
+async function handleSearch(keyword) {
+  if (!keyword.trim()) return
 
   try {
-    const results = await wardrobeStore.searchClothingItems(searchKeyword.value)
+    // 保存搜索关键词
+    currentSearchKeyword.value = keyword
+    const results = await wardrobeStore.searchClothingItems(keyword)
     showToast(`找到 ${results.length} 件相关衣物`, 'success')
     // 保存搜索结果并打开抽屉展示
     searchResults.value = results
@@ -539,13 +433,11 @@ function closeDrawer() {
 
 function viewItemDetail(item) {
   // 查看衣物详情的逻辑
-  console.log("查看衣物详情:", item);
   // 这里可以添加导航到详情页面的逻辑
 }
 
 function viewAllCategories() {
   // 查看所有分类的逻辑
-  console.log("查看所有分类");
   // 如果当前是搜索模式，先退出搜索模式
   if (isSearchMode.value) {
     isSearchMode.value = false;

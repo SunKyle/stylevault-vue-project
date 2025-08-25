@@ -1,22 +1,28 @@
 <template>
-  <div class="flex-grow pt-20 pb-20 container mx-auto px-4">
-    <h1 class="text-3xl font-bold mb-6">风格定制</h1>
-    <div class="bg-white rounded-xl shadow-soft p-6">
-      <p class="text-gray-600 mb-4">在这里你可以定制自己的风格和搭配方案。</p>
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <div class="border border-gray-200 rounded-lg p-4">
-          <h2 class="text-xl font-semibold mb-3">风格偏好</h2>
-          <p class="text-gray-500">设置你的个人风格偏好，我们将为你推荐合适的搭配。</p>
-        </div>
-        <div class="border border-gray-200 rounded-lg p-4">
-          <h2 class="text-xl font-semibold mb-3">搭配方案</h2>
-          <p class="text-gray-500">创建和保存你的个性化搭配方案。</p>
-        </div>
-      </div>
+  <PageLayout title="风格定制">
+    <p class="text-gray-600 mb-4">在这里你可以定制自己的风格和搭配方案。</p>
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <FeatureCard 
+        title="风格偏好" 
+        description="设置你的个人风格偏好，我们将为你推荐合适的搭配。"
+      >
+        <template #actions>
+          <button class="text-primary hover:text-primary/80 font-medium">设置偏好</button>
+        </template>
+      </FeatureCard>
+      <FeatureCard 
+        title="搭配方案" 
+        description="创建和保存你的个性化搭配方案。"
+      >
+        <template #actions>
+          <button class="text-primary hover:text-primary/80 font-medium">创建方案</button>
+        </template>
+      </FeatureCard>
     </div>
-  </div>
+  </PageLayout>
 </template>
 
 <script setup>
-// 组件逻辑可以在这里添加
+import PageLayout from '../components/common/layout/PageLayout.vue'
+import FeatureCard from '../components/common/ui/FeatureCard.vue'
 </script>

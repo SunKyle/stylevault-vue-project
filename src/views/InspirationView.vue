@@ -1,9 +1,10 @@
 <template>
-<div class="flex-grow pt-20 pb-20 overflow-hidden">
+<ContentLayout>
   <InspirationSection />
-</div>
+</ContentLayout>
 </template>
 
 <script setup>
 import InspirationSection from '../components/features/inspiration/InspirationSection.vue'
+import ContentLayout from '../components/common/layout/ContentLayout.vue'
 </script>

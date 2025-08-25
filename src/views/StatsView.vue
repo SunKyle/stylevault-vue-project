@@ -1,26 +1,36 @@
 <template>
-  <div class="flex-grow pt-20 pb-20 container mx-auto px-4">
-    <h1 class="text-3xl font-bold mb-6">衣橱分析</h1>
-    <div class="bg-white rounded-xl shadow-soft p-6">
-      <p class="text-gray-600 mb-6">查看你的衣橱使用统计和分析数据。</p>
+  <PageLayout title="衣橱分析">
+    <p class="text-gray-600 mb-6">查看你的衣橱使用统计和分析数据。</p>
 
-      <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-        <div class="bg-blue-50 rounded-lg p-5">
-          <h3 class="text-lg font-semibold text-blue-800 mb-2">衣物总数</h3>
-          <p class="text-3xl font-bold text-blue-600">24</p>
-          <p class="text-sm text-blue-500 mt-1">件衣物</p>
-        </div>
-        <div class="bg-green-50 rounded-lg p-5">
-          <h3 class="text-lg font-semibold text-green-800 mb-2">最常穿着</h3>
-          <p class="text-3xl font-bold text-green-600">T恤</p>
-          <p class="text-sm text-green-500 mt-1">本月穿着12次</p>
-        </div>
-        <div class="bg-purple-50 rounded-lg p-5">
-          <h3 class="text-lg font-semibold text-purple-800 mb-2">利用率</h3>
-          <p class="text-3xl font-bold text-purple-600">78%</p>
-          <p class="text-sm text-purple-500 mt-1">衣物使用率</p>
-        </div>
-      </div>
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+      <StatCard 
+        title="衣物总数" 
+        value="24" 
+        subtitle="件衣物" 
+        bgColor="bg-blue-50" 
+        titleColor="text-blue-800" 
+        valueColor="text-blue-600" 
+        subtitleColor="text-blue-500" 
+      />
+      <StatCard 
+        title="最常穿着" 
+        value="T恤" 
+        subtitle="本月穿着12次" 
+        bgColor="bg-green-50" 
+        titleColor="text-green-800" 
+        valueColor="text-green-600" 
+        subtitleColor="text-green-500" 
+      />
+      <StatCard 
+        title="利用率" 
+        value="78%" 
+        subtitle="衣物使用率" 
+        bgColor="bg-purple-50" 
+        titleColor="text-purple-800" 
+        valueColor="text-purple-600" 
+        subtitleColor="text-purple-500" 
+      />
+    </div>
 
       <div class="border border-gray-200 rounded-lg p-5">
         <h2 class="text-xl font-semibold mb-4">分类统计</h2>
@@ -57,10 +67,10 @@
           </div>
         </div>
       </div>
-    </div>
-  </div>
+  </PageLayout>
 </template>
 
 <script setup>
-// 组件逻辑可以在这里添加
+import PageLayout from '../components/common/layout/PageLayout.vue'
+import StatCard from '../components/common/ui/StatCard.vue'
 </script>

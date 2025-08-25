@@ -1,9 +1,10 @@
 <template>
-<div class="flex-grow pt-20 pb-20 overflow-hidden">
+<ContentLayout>
   <AnalysisSection />
-</div>
+</ContentLayout>
 </template>
 
 <script setup>
 import AnalysisSection from '../components/features/analysis/AnalysisSection.vue'
+import ContentLayout from '../components/common/layout/ContentLayout.vue'
 </script>

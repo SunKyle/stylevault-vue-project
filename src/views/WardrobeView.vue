@@ -1,10 +1,11 @@
 <template>
-<div class="flex-grow pt-20 pb-20">
+<ContentLayout>
 <WardrobeSection @showUpload="$emit('showUpload')" />
-</div>
+</ContentLayout>
 </template>
 <script setup>
 import WardrobeSection from '../components/features/wardrobe/WardrobeSection.vue';
+import ContentLayout from '../components/common/layout/ContentLayout.vue';
 
 defineEmits(['showUpload']);
 </script>
