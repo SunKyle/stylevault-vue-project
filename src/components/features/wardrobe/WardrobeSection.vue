@@ -1,31 +1,7 @@
 <template>
 <section :key="forceUpdateKey">
-
-
   <!-- 搜索和上传区 -->
-  <div class="relative overflow-hidden mb-8">
-    <div class="absolute inset-0 bg-gradient-to-r from-primary/90 to-secondary/90 transform skew-y-3"></div>
-    <div class="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHZpZXdCb3g9IjAgMCA2MCA2MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZyBmaWxsPSJub25lIiBmaWxsLXJ1bGU9ImV2ZW5vZGciPjxnIGZpbGw9IiNmZmYiIGZpbGwtb3BhY2l0eT0iMC4wNSI+PHBhdGggZD0iTTMwIDM1Yy01IDAtOS00LTktOXMtNC05IDktOSA5IDQgOSA5LTQgOSA5IDkgOSA0IDkgOS00IDktOXptMCAxNWMtMTIuMSAwLTIyLTEwLTEyLjEtMjJzMTAtMjIgMjItMTAgMjIgMTAgMTAgMjItMjIgMTJ6bTAtMzRjLTExIDAtMjAgOS0yMCAyMHM5IDIwIDIwIDIwIDIwLTkgMjAtMjAtOS0yMC0yMC0yMHptLTMwIDIwYzAtMTYuNiAxMy40LTMwIDMwLTMwczMwIDEzLjQgMzAgMzAtMTMuNCAzMC0zMCAzMCIvPjwvZz48L2c+PC9zdmc+')] opacity-30"></div>
-    <div class="container mx-auto px-4 py-12 md:py-20 relative z-10">
-      <div class="max-w-2xl">
-        <h2 class="text-[clamp(1.8rem,4vw,3rem)] font-bold text-white leading-tight mb-3">打造你的专属衣橱</h2>
-        <p class="text-white/90 text-balance text-[clamp(1rem,1.5vw,1.1rem)] mb-8 max-w-xl">智能管理衣物，轻松搭配，展现独特风格，让每一天都充满时尚感</p>
-        <SearchBar @search="handleSearch" />
-        <div class="flex flex-wrap gap-4">
-          <button class="bg-white text-primary hover:bg-neutral-100 font-medium py-3 px-8 rounded-2xl shadow-medium transition-all flex items-center space-x-2 group" @click="$emit('showUpload')">
-            <font-awesome-icon :icon="['fas', 'plus-circle']" class="group-hover:scale-110 transition-transform" />
-            <span>添加新衣物</span>
-          </button>
-          <button class="bg-white/10 hover:bg-white/20 backdrop-blur text-white font-medium py-3 px-8 rounded-2xl shadow-medium transition-all flex items-center space-x-2">
-            <font-awesome-icon :icon="['fas', 'magic']" />
-            <span>智能搭配</span>
-          </button>
-        </div>
-      </div>
-    </div>
-    <div class="absolute -bottom-10 -right-10 w-64 h-64 bg-white/5 rounded-full"></div>
-    <div class="absolute top-1/3 right-1/4 w-32 h-32 bg-white/5 rounded-full"></div>
-  </div>
+  <WardrobeHeader :handleSearch="handleSearch" @showUpload="$emit('showUpload')" />
 
 
 
@@ -118,158 +94,19 @@
       </div>
     </div>
   </div>
-  <!-- 分类结果展示 - 全屏覆盖层 -->
-  <transition name="fade">
-    <div v-if="isDrawerOpen" class="fixed inset-0 bg-black bg-opacity-50 z-40" @click="closeDrawer"></div>
-  </transition>
-
-  <!-- 分类结果展示 - 优雅卡片 -->
-  <transition
-    enter-active-class="animated slide-up-enter-active"
-    leave-active-class="animated slide-up-leave-active"
-    enter-from-class="slide-up-enter-from"
-    enter-to-class="slide-up-enter-to"
-    leave-from-class="slide-up-leave-from"
-    leave-to-class="slide-up-leave-to"
-    @before-enter="beforeEnter"
-    @after-enter="afterEnter"
-    @before-leave="beforeLeave"
-    @after-leave="afterLeave">
-    <div v-if="isDrawerOpen" class="fixed inset-x-4 bottom-4 top-20 bg-white rounded-2xl shadow-2xl z-50 overflow-hidden flex flex-col transform origin-bottom">
-      <!-- 顶部导航栏 -->
-      <div class="bg-gradient-to-r from-primary to-secondary p-5 text-white">
-        <div class="flex items-center justify-between mb-3">
-          <div class="flex items-center space-x-3">
-            <div class="w-10 h-10 rounded-full bg-white/20 flex items-center justify-center">
-              <font-awesome-icon :icon="isSearchMode ? ['fas', 'search'] : ['fas', 'tag']" />
-            </div>
-            <div>
-              <h2 class="text-xl font-bold">{{ getSelectedCategoryName() }}</h2>
-              <p class="text-white/80 text-sm">{{ getCategoryItemCount(selectedCategory) }} 件衣物</p>
-            </div>
-          </div>
-          <button @click="closeDrawer" class="w-10 h-10 rounded-full bg-white/20 flex items-center justify-center hover:bg-white/30 transition-colors">
-            <font-awesome-icon :icon="['fas', 'times']" />
-          </button>
-        </div>
-
-        <!-- 筛选和排序栏 -->
-        <div class="flex space-x-2 overflow-x-auto pb-1 scrollbar-hide">
-          <button class="px-4 py-2 bg-white/20 rounded-full text-sm whitespace-nowrap flex items-center space-x-1 hover:bg-white/30 transition-colors">
-            <font-awesome-icon :icon="['fas', 'filter']" class="text-xs" />
-            <span>全部</span>
-          </button>
-          <button class="px-4 py-2 bg-white/10 rounded-full text-sm whitespace-nowrap flex items-center space-x-1 hover:bg-white/20 transition-colors">
-            <font-awesome-icon :icon="['fas', 'heart']" class="text-xs" />
-            <span>收藏</span>
-          </button>
-          <button class="px-4 py-2 bg-white/10 rounded-full text-sm whitespace-nowrap flex items-center space-x-1 hover:bg-white/20 transition-colors">
-            <font-awesome-icon :icon="['fas', 'clock']" class="text-xs" />
-            <span>最近添加</span>
-          </button>
-          <button class="px-4 py-2 bg-white/10 rounded-full text-sm whitespace-nowrap flex items-center space-x-1 hover:bg-white/20 transition-colors">
-            <font-awesome-icon :icon="['fas', 'sort-alpha-down']" class="text-xs" />
-            <span>名称</span>
-          </button>
-        </div>
-      </div>
-
-      <!-- 内容区域 -->
-      <div class="flex-1 overflow-y-auto p-4 bg-gray-50">
-        <!-- 有衣物时的展示 -->
-        <div v-if="getCategoryItems(selectedCategory).length > 0" class="space-y-6">
-          <!-- 网格视图 -->
-          <transition-group name="staggered-fade" tag="div" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
-            <div
-              v-for="(item, index) in getCategoryItems(selectedCategory)"
-              :key="item.id"
-              class="bg-white rounded-xl overflow-hidden shadow-sm hover:shadow-md transition-all duration-300 transform hover:-translate-y-1 cursor-pointer group"
-              @click="viewItemDetail(item)"
-              :style="{ 'transition-delay': `${index * 50}ms` }"
-            >
-              <div class="aspect-square overflow-hidden relative">
-                <div class="absolute inset-0 bg-gradient-to-br from-transparent to-black/5 z-10"></div>
-                <img
-                  :src="item.image || `https://picsum.photos/seed/${item.id}/300/300`"
-                  :alt="item.name"
-                  class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                >
-                <div class="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-all duration-300 transform translate-x-2 group-hover:translate-x-0">
-                  <button
-                    @click.stop="toggleFavorite(item)"
-                    class="w-8 h-8 rounded-full bg-white/90 backdrop-blur-sm flex items-center justify-center shadow-md hover:shadow-lg transition-all duration-300 transform hover:scale-110"
-                  >
-                    <font-awesome-icon
-                      :icon="['fas', 'heart']"
-                      :class="[item.favorite ? 'text-red-500 animate-pulse' : 'text-gray-400']"
-                    />
-                  </button>
-                </div>
-                <div v-if="item.favorite" class="absolute top-2 left-2 animate-bounce-in">
-                  <div class="w-8 h-8 rounded-full bg-red-500 flex items-center justify-center shadow-md">
-                    <font-awesome-icon :icon="['fas', 'heart']" class="text-white text-sm" />
-                  </div>
-                </div>
-              </div>
-              <div class="p-3 bg-gradient-to-b from-white to-gray-50">
-                <h3 class="font-medium text-gray-900 truncate">{{ item.name }}</h3>
-                <div class="flex justify-between items-center mt-1">
-                  <span class="text-xs text-gray-500 bg-gray-100 px-2 py-1 rounded-full">{{ item.brand || '未分类' }}</span>
-                  <span class="text-xs text-gray-500 bg-gray-100 px-2 py-1 rounded-full">{{ item.season || '四季' }}</span>
-                </div>
-              </div>
-            </div>
-          </transition-group>
-        </div>
-
-        <!-- 空状态展示 -->
-        <transition name="fade-up" appear>
-          <div v-if="getCategoryItems(selectedCategory).length === 0" class="flex flex-col items-center justify-center h-full py-12 text-center px-4">
-            <div class="relative mb-6 animate-float">
-              <div class="w-24 h-24 rounded-full bg-gradient-to-br from-primary/20 to-secondary/20 flex items-center justify-center mx-auto mb-4 shadow-lg">
-                <font-awesome-icon :icon="['fas', 'tshirt']" class="text-3xl text-primary animate-pulse-slow" />
-              </div>
-              <div class="absolute -top-2 -right-2 w-10 h-10 rounded-full bg-yellow-400 flex items-center justify-center animate-ping-slow">
-                <font-awesome-icon :icon="['fas', 'plus']" class="text-white" />
-              </div>
-            </div>
-            <h3 class="text-xl font-bold text-gray-900 mb-2 animate-fade-in-delay-1">
-              {{ isSearchMode ? '没有找到相关衣物' : `您的 ${getSelectedCategoryName()} 分类还是空的` }}
-            </h3>
-            <p class="text-gray-600 mb-6 max-w-md animate-fade-in-delay-2">
-              {{ isSearchMode ? '尝试使用其他关键词搜索' : '添加您的第一件衣物，开始构建您的专属数字衣橱，让每一天都充满时尚感' }}
-            </p>
-            <button
-              @click="$emit('showUpload')"
-              class="px-6 py-3 bg-gradient-to-r from-primary to-secondary text-white font-medium rounded-full shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 flex items-center space-x-2 animate-fade-in-delay-3 hover:animate-bounce-gentle"
-            >
-              <font-awesome-icon :icon="['fas', 'plus-circle']" />
-              <span>{{ isSearchMode ? '添加新衣物' : '添加第一件衣物' }}</span>
-            </button>
-          </div>
-        </transition>
-      </div>
-
-      <!-- 底部操作栏 -->
-      <div class="bg-white border-t border-gray-200 p-3 flex justify-between items-center">
-        <button class="text-gray-500 hover:text-gray-700 transition-colors flex items-center space-x-1">
-          <font-awesome-icon :icon="['fas', 'th-large']" />
-          <span class="text-sm">网格视图</span>
-        </button>
-        <button class="text-gray-500 hover:text-gray-700 transition-colors flex items-center space-x-1">
-          <font-awesome-icon :icon="['fas', 'list']" />
-          <span class="text-sm">列表视图</span>
-        </button>
-        <button
-          @click="$emit('showUpload')"
-          class="px-4 py-2 bg-primary text-white rounded-full text-sm font-medium hover:bg-primary-dark transition-colors flex items-center space-x-1"
-        >
-          <font-awesome-icon :icon="['fas', 'plus']" />
-          <span>添加衣物</span>
-        </button>
-      </div>
-    </div>
-  </transition>
+  <!-- 分类结果展示 -->
+  <CategoryDrawer 
+    :isDrawerOpen="isDrawerOpen" 
+    :isSearchMode="isSearchMode" 
+    :selectedCategory="selectedCategory"
+    :getCategoryItems="getCategoryItems"
+    :getSelectedCategoryName="getSelectedCategoryName"
+    :getCategoryItemCount="getCategoryItemCount"
+    @closeDrawer="closeDrawer"
+    @showUpload="$emit('showUpload')"
+    @toggleFavorite="toggleFavorite"
+    @viewItemDetail="viewItemDetail"
+  />
 </section>
 </template>
 
@@ -281,6 +118,8 @@ import ClothingItem from '../../common/ui/ClothingItem.vue'
 import FavoriteSection from './FavoriteSection.vue'
 import SearchBar from '../../common/ui/SearchBar.vue'
 import FeaturedOutfits from './FeaturedOutfits.vue'
+import WardrobeHeader from './WardrobeHeader.vue'
+import CategoryDrawer from './CategoryDrawer.vue'
 import { useWardrobeStore } from '../../../stores/wardrobeStore'
 import { outfitService } from '../../../services/outfitService'
 import { useRouter } from 'vue-router'
