@@ -97,6 +97,7 @@
     :getCategoryItems="getCategoryItems"
     :getSelectedCategoryName="getSelectedCategoryName"
     :getCategoryItemCount="getCategoryItemCount"
+    :key="forceUpdateKey"
     @closeDrawer="closeDrawer"
     @showUpload="$emit('showUpload')"
     @toggleFavorite="toggleFavorite"
@@ -198,7 +199,8 @@ function getCategoryItems(categoryId) {
     // 返回搜索结果
     items = [...searchResults.value];
   } else if (categoryId === "all") {
-    // 返回所有衣物
+    // 返回所有衣物 - 确保新添加的衣物也能显示
+    // 直接从store获取最新的衣物列表，避免响应式更新问题
     items = [...wardrobeStore.clothingItems];
   } else {
     items = [...(wardrobeStore.itemsByCategory[categoryId] || [])];
@@ -208,10 +210,10 @@ function getCategoryItems(categoryId) {
   if (currentFilter.value === 'favorites') {
     items = items.filter(item => item.favorite);
   } else if (currentFilter.value === 'recent') {
-    // 假设每个物品有createdAt属性，按添加时间排序并取最近添加的
+    // 按购买日期排序，与wardrobeStore中的recentlyAddedItems保持一致
     items = [...items].sort((a, b) => {
-      const dateA = new Date(a.createdAt || 0);
-      const dateB = new Date(b.createdAt || 0);
+      const dateA = new Date(a.purchaseDate || 0);
+      const dateB = new Date(b.purchaseDate || 0);
       return dateB - dateA;
     });
   }
@@ -223,6 +225,20 @@ function getCategoryItems(categoryId) {
   
   return items;
 }
+
+// 定义暴露的方法
+import { defineExpose } from 'vue'
+
+// 添加一个方法来刷新数据
+function refreshWardrobeData() {
+  // 强制更新组件，确保新添加的衣物能立即显示
+  forceUpdate();
+}
+
+// 在<script setup>中使用defineExpose暴露方法
+defineExpose({
+  refreshWardrobeData
+})
 
 // 强制更新组件的key
 const forceUpdateKey = ref(0);
@@ -355,6 +371,10 @@ function viewAllCategories() {
   currentSort.value = null;
   // 设置一个特殊值表示查看全部
   wardrobeStore.setSelectedCategory("all");
+  
+  // 强制更新组件，确保显示最新添加的衣物
+  forceUpdate();
+  
   isDrawerOpen.value = true;
 }
 

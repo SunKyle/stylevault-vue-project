@@ -51,8 +51,8 @@ stylevault-vue-project/
 │   ├── views/             # 视图组件
 │   │   ├── WardrobeView.vue    # 衣橱管理视图
 │   │   ├── WeatherView.vue     # 天气穿搭视图
-│   │   ├── CustomView.vue      # 搭配灵感视图
-│   │   ├── StatsView.vue       # 穿搭分析视图
+│   │   ├── InspirationView.vue  # 搭配灵感视图
+│   │   ├── AnalysisView.vue      # 穿搭分析视图
 │   │   └── UploadView.vue      # 上传视图
 │   ├── App.vue            # 根组件
 │   └── main.js            # 入口文件

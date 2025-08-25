@@ -290,10 +290,12 @@ const saveClothes = async () => {
     };
     
     // 创建要提交的数据对象，包含所有必要字段
+    const today = new Date().toISOString().split('T')[0];
     const itemToSubmit = {
       ...clothingItem,
       category: categoryMap[clothingItem.categoryId] || "其他",
-      purchaseDate: new Date().toISOString().split('T')[0], // 设置购买日期为今天
+      purchaseDate: today, // 设置购买日期为今天
+      createdAt: today, // 同时设置createdAt属性，确保能正确显示在最近添加列表中
       favorite: false // 默认不收藏
     };
     
@@ -315,10 +317,11 @@ const saveClothes = async () => {
     // 重置图片
     clothingItem.image = "";
 
-    // 2秒后返回衣橱页面
-    setTimeout(() => {
-      router.push({ name: "wardrobe" });
-    }, 2000);
+    // 用户要求新增完不需要跳转到其他页面，保留在当前页面
+    
+    // 强制刷新页面中的衣橱数据，确保新添加的衣物能立即显示
+    // 由于我们已经修复了getCategoryItems函数，确保它能正确返回所有衣物，包括新添加的
+    // 这里不需要额外的刷新逻辑，因为Vue的响应式系统会自动更新视图
   } catch (error) {
     showToast("添加失败，请重试", "error");
     console.error("添加衣物失败:", error);

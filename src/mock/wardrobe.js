@@ -8,6 +8,62 @@ export const categories = [
   { id: 6, name: '包包', icon: 'bag-shopping' }
 ]
 
+// 场景数据
+export const scenesMockData = [
+  '日常通勤',
+  '周末休闲',
+  '商务会议',
+  '约会聚餐',
+  '运动健身',
+  '旅行度假',
+  '正式场合',
+  '家庭聚会'
+]
+
+// 为衣物数据添加tags字段
+export const getClothesWithTags = (items) => {
+  const tagMap = {
+    '休闲': ['休闲'],
+    '运动': ['运动'],
+    '商务': ['商务', '正式'],
+    '摇滚': ['摇滚'],
+    '时尚': ['时尚']
+  };
+  
+  const seasonMap = {
+    '春季': ['春季'],
+    '夏季': ['夏季'],
+    '秋季': ['秋季'],
+    '冬季': ['冬季']
+  };
+  
+  return items.map(item => {
+    let tags = [];
+    
+    // 添加风格标签
+    if (item.style && tagMap[item.style]) {
+      tags = [...tags, ...tagMap[item.style]];
+    }
+    
+    // 添加季节标签
+    if (item.seasons && Array.isArray(item.seasons)) {
+      item.seasons.forEach(season => {
+        if (seasonMap[season]) {
+          tags = [...tags, ...seasonMap[season]];
+        }
+      });
+    }
+    
+    // 添加旧格式兼容字段
+    return {
+      ...item,
+      img: item.image,
+      type: `${item.category} · ${item.style}`,
+      tags: [...new Set(tags)] // 去重
+    };
+  });
+}
+
 // 衣物数据
 export const clothingItems = [
   {

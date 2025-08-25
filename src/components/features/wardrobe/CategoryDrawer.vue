@@ -307,7 +307,7 @@ export default {
 
 .slide-up-enter-active {
   animation-name: slideUpIn;
-  animation-duration: 1s;
+  animation-duration: 0.3s;
 }
 
 .slide-up-leave-active {

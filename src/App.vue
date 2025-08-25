@@ -23,8 +23,8 @@ import Footer from './components/common/layout/Footer.vue'
 // 导入视图组件
 import WardrobeView from './views/WardrobeView.vue'
 import WeatherView from './views/WeatherView.vue'
-import CustomView from './views/InspirationView.vue'
-import StatsView from './views/AnalysisView.vue'
+import InspirationView from './views/InspirationView.vue'
+import AnalysisView from './views/AnalysisView.vue'
 import UploadView from './views/UploadView.vue'
 
 const currentSection = ref('wardrobe')
@@ -33,8 +33,8 @@ const showUploadModal = ref(false)
 const components = {
   wardrobe: WardrobeView,
   weather: WeatherView,
-  custom: CustomView,
-  stats: StatsView,
+  custom: InspirationView,
+  stats: AnalysisView,
   upload: UploadView
 }
 
