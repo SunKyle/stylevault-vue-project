@@ -24,17 +24,32 @@
   <div class="px-1">
     <h4 class="font-medium truncate text-sm">{{ item.name }}</h4>
     <p class="text-xs text-neutral-500 mt-1">{{ item.category }} · {{ item.style }}</p>
+    <!-- 季节信息 -->
+    <div class="flex flex-wrap gap-1 mt-1" v-if="item.seasons && item.seasons.length > 0">
+      <span v-for="season in item.seasons" :key="season" class="text-xs px-1.5 py-0.5 rounded-full bg-primary/10 text-primary">
+        {{ season }}
+      </span>
+    </div>
   </div>
   
-  <!-- 非收藏区域显示的爱心按钮 -->
-  <button
-    v-if="!showInFavoriteMode"
-    class="absolute top-3 right-3 w-8 h-8 rounded-full flex items-center justify-center transition-all duration-300 shadow-md z-10"
-    :class="item.favorite ? 'bg-primary text-white animate-pulse-once' : 'bg-white/90 backdrop-blur text-neutral-400 hover:text-primary hover:bg-white'"
-    @click="$emit('like', item)"
-  >
-    <font-awesome-icon :icon="item.favorite ? ['fas', 'heart'] : ['far', 'heart']" class="text-sm" />
-  </button>
+  <!-- 非收藏区域显示的按钮组 -->
+  <div v-if="!showInFavoriteMode" class="absolute top-3 right-3 flex flex-col gap-2 z-10">
+    <!-- 爱心按钮 -->
+    <button
+      class="w-8 h-8 rounded-full flex items-center justify-center transition-all duration-300 shadow-md"
+      :class="item.favorite ? 'bg-primary text-white animate-pulse-once' : 'bg-white/90 backdrop-blur text-neutral-400 hover:text-primary hover:bg-white'"
+      @click="$emit('like', item)"
+    >
+      <font-awesome-icon :icon="item.favorite ? ['fas', 'heart'] : ['far', 'heart']" class="text-sm" />
+    </button>
+    <!-- 详细信息按钮 -->
+    <button
+      class="w-8 h-8 rounded-full bg-white/90 backdrop-blur text-neutral-400 hover:text-primary hover:bg-white flex items-center justify-center transition-all duration-300 shadow-md"
+      @click="$emit('viewDetail', item)"
+    >
+      <font-awesome-icon :icon="['fas', 'info']" class="text-sm" />
+    </button>
+  </div>
 </div>
 </template>
 
@@ -50,7 +65,9 @@ defineProps({
   }
 })
 
-defineEmits(['like'])
+defineEmits(['like', 'viewDetail'])
+
+// 季节信息现在统一使用seasons数组，无需格式化
 </script>
 
 <style scoped>

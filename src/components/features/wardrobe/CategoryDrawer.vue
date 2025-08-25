@@ -22,7 +22,7 @@
         <div class="flex items-center justify-between mb-3">
           <div class="flex items-center space-x-3">
             <div class="w-10 h-10 rounded-full bg-white/20 flex items-center justify-center">
-              <font-awesome-icon :icon="isSearchMode ? ['fas', 'search'] : ['fas', 'tag']" />
+              <font-awesome-icon :icon="isSearchMode ? ['fas', 'search'] : ['fas', getCategoryIcon()]" />
             </div>
             <div>
               <h2 class="text-xl font-bold">{{ getSelectedCategoryName() }}</h2>
@@ -36,19 +36,31 @@
 
         <!-- 筛选和排序栏 -->
         <div class="flex space-x-2 overflow-x-auto pb-1 scrollbar-hide">
-          <button class="px-4 py-2 bg-white/20 rounded-full text-sm whitespace-nowrap flex items-center space-x-1 hover:bg-white/30 transition-colors">
+          <button 
+            @click="applyFilter('all')" 
+            :class="['px-4 py-2 rounded-full text-sm whitespace-nowrap flex items-center space-x-1 transition-colors', currentFilter === 'all' ? 'bg-white/30' : 'bg-white/10 hover:bg-white/20']"
+          >
             <font-awesome-icon :icon="['fas', 'filter']" class="text-xs" />
             <span>全部</span>
           </button>
-          <button class="px-4 py-2 bg-white/10 rounded-full text-sm whitespace-nowrap flex items-center space-x-1 hover:bg-white/20 transition-colors">
+          <button 
+            @click="applyFilter('favorites')" 
+            :class="['px-4 py-2 rounded-full text-sm whitespace-nowrap flex items-center space-x-1 transition-colors', currentFilter === 'favorites' ? 'bg-white/30' : 'bg-white/10 hover:bg-white/20']"
+          >
             <font-awesome-icon :icon="['fas', 'heart']" class="text-xs" />
             <span>收藏</span>
           </button>
-          <button class="px-4 py-2 bg-white/10 rounded-full text-sm whitespace-nowrap flex items-center space-x-1 hover:bg-white/20 transition-colors">
+          <button 
+            @click="applyFilter('recent')" 
+            :class="['px-4 py-2 rounded-full text-sm whitespace-nowrap flex items-center space-x-1 transition-colors', currentFilter === 'recent' ? 'bg-white/30' : 'bg-white/10 hover:bg-white/20']"
+          >
             <font-awesome-icon :icon="['fas', 'clock']" class="text-xs" />
             <span>最近添加</span>
           </button>
-          <button class="px-4 py-2 bg-white/10 rounded-full text-sm whitespace-nowrap flex items-center space-x-1 hover:bg-white/20 transition-colors">
+          <button 
+            @click="applySort('name')" 
+            :class="['px-4 py-2 rounded-full text-sm whitespace-nowrap flex items-center space-x-1 transition-colors', currentSort === 'name' ? 'bg-white/30' : 'bg-white/10 hover:bg-white/20']"
+          >
             <font-awesome-icon :icon="['fas', 'sort-alpha-down']" class="text-xs" />
             <span>名称</span>
           </button>
@@ -60,43 +72,80 @@
         <!-- 有衣物时的展示 -->
         <div v-if="getCategoryItems(selectedCategory).length > 0" class="space-y-6">
           <!-- 网格视图 -->
-          <transition-group name="staggered-fade" tag="div" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
+          <transition-group name="staggered-fade" tag="div" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3">
             <div
               v-for="(item, index) in getCategoryItems(selectedCategory)"
               :key="item.id"
-              class="bg-white rounded-xl overflow-hidden shadow-sm hover:shadow-md transition-all duration-300 transform hover:-translate-y-1 cursor-pointer group"
+              class="bg-white rounded-lg overflow-hidden shadow-sm hover:shadow-md transition-all duration-300 transform hover:-translate-y-0.5 cursor-pointer group relative"
               @click="$emit('viewItemDetail', item)"
               :style="{ 'transition-delay': `${index * 50}ms` }"
             >
-              <div class="aspect-square overflow-hidden relative">
-                <div class="absolute inset-0 bg-gradient-to-br from-transparent to-black/5 z-10"></div>
+              <!-- 卡片操作按钮（悬停时显示） -->
+              <div class="absolute top-2 right-2 z-20 flex flex-col space-y-2 opacity-0 group-hover:opacity-100 transition-all duration-300 transform translate-x-2 group-hover:translate-x-0">
+                <!-- 收藏按钮 -->
+                <button
+                  @click.stop="$emit('toggleFavorite', item)"
+                  class="w-9 h-9 rounded-full bg-white/90 backdrop-blur-sm flex items-center justify-center shadow-md hover:shadow-lg transition-all duration-300 transform hover:scale-110"
+                >
+                  <font-awesome-icon
+                    :icon="['fas', 'heart']"
+                    :class="[item.favorite ? 'text-red-500 animate-pulse' : 'text-gray-400']"
+                    class="text-sm"
+                  />
+                </button>
+                <!-- 编辑按钮 -->
+                <button
+                  @click.stop="$emit('editItem', item)"
+                  class="w-9 h-9 rounded-full bg-white/90 backdrop-blur-sm flex items-center justify-center shadow-md hover:shadow-lg transition-all duration-300 transform hover:scale-110 text-blue-500 hover:text-blue-600"
+                >
+                  <font-awesome-icon :icon="['fas', 'edit']" class="text-sm" />
+                </button>
+                <!-- 删除按钮 -->
+                <button
+                  @click.stop="$emit('deleteItem', item)"
+                  class="w-9 h-9 rounded-full bg-white/90 backdrop-blur-sm flex items-center justify-center shadow-md hover:shadow-lg transition-all duration-300 transform hover:scale-110 text-red-500 hover:text-red-600"
+                >
+                  <font-awesome-icon :icon="['fas', 'trash-alt']" class="text-sm" />
+                </button>
+                <!-- 详细信息按钮 -->
+                <button
+                  @click.stop="$emit('viewItemDetail', item)"
+                  class="w-9 h-9 rounded-full bg-white/90 backdrop-blur-sm flex items-center justify-center shadow-md hover:shadow-lg transition-all duration-300 transform hover:scale-110 text-indigo-500 hover:text-indigo-600"
+                >
+                  <font-awesome-icon :icon="['fas', 'info']" class="text-sm" />
+                </button>
+              </div>
+              
+              <!-- 收藏状态标记 -->
+              <div v-if="item.favorite" class="absolute top-2 left-2 z-20 animate-bounce-in">
+                <div class="w-8 h-8 rounded-full bg-red-500 flex items-center justify-center shadow-md">
+                  <font-awesome-icon :icon="['fas', 'heart']" class="text-white text-sm" />
+                </div>
+              </div>
+              
+              <!-- 图片区域 -->
+              <div class="aspect-[3/4] overflow-hidden relative">
+                <div class="absolute inset-0 bg-gradient-to-br from-transparent to-black/10 z-10"></div>
                 <img
                   :src="item.image || `https://picsum.photos/seed/${item.id}/300/300`"
                   :alt="item.name"
                   class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                 >
-                <div class="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-all duration-300 transform translate-x-2 group-hover:translate-x-0">
-                  <button
-                    @click.stop="$emit('toggleFavorite', item)"
-                    class="w-8 h-8 rounded-full bg-white/90 backdrop-blur-sm flex items-center justify-center shadow-md hover:shadow-lg transition-all duration-300 transform hover:scale-110"
-                  >
-                    <font-awesome-icon
-                      :icon="['fas', 'heart']"
-                      :class="[item.favorite ? 'text-red-500 animate-pulse' : 'text-gray-400']"
-                    />
-                  </button>
-                </div>
-                <div v-if="item.favorite" class="absolute top-2 left-2 animate-bounce-in">
-                  <div class="w-8 h-8 rounded-full bg-red-500 flex items-center justify-center shadow-md">
-                    <font-awesome-icon :icon="['fas', 'heart']" class="text-white text-sm" />
-                  </div>
-                </div>
               </div>
-              <div class="p-3 bg-gradient-to-b from-white to-gray-50">
-                <h3 class="font-medium text-gray-900 truncate">{{ item.name }}</h3>
-                <div class="flex justify-between items-center mt-1">
-                  <span class="text-xs text-gray-500 bg-gray-100 px-2 py-1 rounded-full">{{ item.brand || '未分类' }}</span>
-                  <span class="text-xs text-gray-500 bg-gray-100 px-2 py-1 rounded-full">{{ item.season || '四季' }}</span>
+              
+              <!-- 信息区域 -->
+              <div class="p-3 bg-white border-t border-gray-100">
+                <h3 class="font-semibold text-gray-900 truncate text-sm mb-1.5">{{ item.name }}</h3>
+                
+                <div class="flex items-center text-xs text-gray-500 mb-2">
+                  <span v-if="item.brand" class="truncate">{{ item.brand }}</span>
+                  <span v-else class="text-gray-400">未分类</span>
+                </div>
+                
+                <div class="flex flex-wrap gap-1 mt-1.5">
+                  <span class="text-xs text-gray-600 bg-blue-50 px-2 py-1 rounded-md border border-blue-100">{{ item.season || '四季' }}</span>
+                  <span v-if="item.color" class="text-xs text-gray-600 bg-purple-50 px-2 py-1 rounded-md border border-purple-100">{{ item.color }}</span>
+                  <span v-if="item.category" class="text-xs text-gray-600 bg-green-50 px-2 py-1 rounded-md border border-green-100">{{ item.category }}</span>
                 </div>
               </div>
             </div>
@@ -154,6 +203,8 @@
 </template>
 
 <script>
+import { useWardrobeStore } from '../../../stores/wardrobeStore'
+
 export default {
   name: 'CategoryDrawer',
   props: {
@@ -182,7 +233,14 @@ export default {
       required: true
     }
   },
-  emits: ['closeDrawer', 'showUpload', 'toggleFavorite', 'viewItemDetail'],
+  emits: ['closeDrawer', 'showUpload', 'toggleFavorite', 'viewItemDetail', 'editItem', 'deleteItem', 'applyFilter', 'applySort'],
+  data() {
+    return {
+      currentFilter: 'all',
+      currentSort: null,
+      wardrobeStore: useWardrobeStore()
+    }
+  },
   methods: {
     beforeEnter() {
       console.time('动画持续时间')
@@ -195,6 +253,21 @@ export default {
     },
     afterLeave() {
       // 动画结束后的处理
+    },
+    applyFilter(filterType) {
+      this.currentFilter = filterType;
+      this.$emit('applyFilter', filterType);
+    },
+    applySort(sortType) {
+      // 切换排序状态：如果已经是该排序类型，则取消排序
+      this.currentSort = this.currentSort === sortType ? null : sortType;
+      this.$emit('applySort', this.currentSort);
+    },
+    getCategoryIcon() {
+      if (this.isSearchMode) return 'search';
+      if (!this.selectedCategory || this.selectedCategory === "all") return 'tag';
+      const category = this.wardrobeStore.categories.find(c => c.id === this.selectedCategory);
+      return category ? category.icon : 'tag';
     }
   }
 }

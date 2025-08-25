@@ -159,7 +159,10 @@
 </template>
 <script setup>
 import { ref, computed } from 'vue'
-const categories = ['全部', '上衣', '裤子', '外套', '裙装', '鞋子', '配饰']
+import { useWardrobeStore } from '../../../stores/wardrobeStore'
+
+const wardrobeStore = useWardrobeStore()
+const categories = computed(() => ['全部', ...wardrobeStore.categories.map(c => c.name)])
 const tags = ['休闲', '正式', '运动', '夏季', '最近穿着']
 const clothes = [
   { name: '白色T恤', type: '上衣 · 休闲', img: 'https://picsum.photos/seed/custom1/200/200', category: '上衣', tags: ['休闲', '夏季'] },

@@ -1,9 +1,7 @@
 <template>
 <section :key="forceUpdateKey">
   <!-- 搜索和上传区 -->
-  <WardrobeHeader :handleSearch="handleSearch" @showUpload="$emit('showUpload')" />
-
-
+  <WardrobeHeader :handleSearch="handleSearch" @showUpload="$emit('showUpload')" @viewAll="viewAllCategories" />
 
   <!-- 加载状态 -->
   <div v-if="loading" class="container mx-auto px-4 mb-12">
@@ -50,16 +48,13 @@
 
   <!-- 精选搭配 -->
   <FeaturedOutfits v-if="!loading && !error" :outfits="outfits" />
-
-
-
-
-    <div v-if="getCategoryItems(selectedCategory).length > 0" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-5">
+    <div v-if="getCategoryItems(selectedCategory).length > 0" class="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 xl:grid-cols-7 2xl:grid-cols-8 gap-4">
       <ClothingItem
         v-for="item in getCategoryItems(selectedCategory)"
         :key="item.id"
         :item="item"
         @like="toggleFavorite(item)"
+        @viewDetail="viewItemDetail"
         class="transform transition-transform hover:scale-105"
       />
     </div>
@@ -106,6 +101,19 @@
     @showUpload="$emit('showUpload')"
     @toggleFavorite="toggleFavorite"
     @viewItemDetail="viewItemDetail"
+    @editItem="editItem"
+    @deleteItem="deleteItem"
+    @applyFilter="handleFilter"
+    @applySort="handleSort"
+  />
+  
+  <!-- 衣物编辑器 -->
+  <ClothingItemEditor 
+    :isOpen="isEditorOpen" 
+    :item="editingItem"
+    :readOnly="isReadOnlyMode"
+    @close="closeEditor"
+    @saved="handleEditSaved"
   />
 </section>
 </template>
@@ -120,6 +128,7 @@ import SearchBar from '../../common/ui/SearchBar.vue'
 import FeaturedOutfits from './FeaturedOutfits.vue'
 import WardrobeHeader from './WardrobeHeader.vue'
 import CategoryDrawer from './CategoryDrawer.vue'
+import ClothingItemEditor from './ClothingItemEditor.vue'
 import { useWardrobeStore } from '../../../stores/wardrobeStore'
 import { outfitService } from '../../../services/outfitService'
 import { useRouter } from 'vue-router'
@@ -134,6 +143,11 @@ const isDrawerOpen = ref(false)
 const searchResults = ref([])
 const isSearchMode = ref(false)
 const currentSearchKeyword = ref('')
+const currentFilter = ref('all')
+const currentSort = ref(null)
+const editingItem = ref(null)
+const isEditorOpen = ref(false)
+const isReadOnlyMode = ref(false)
 
 // 动画事件处理函数
 const beforeEnter = () => {
@@ -178,15 +192,36 @@ function getSelectedCategoryName() {
 }
 
 function getCategoryItems(categoryId) {
+  // 获取基础数据
+  let items;
   if (isSearchMode.value) {
     // 返回搜索结果
-    return searchResults.value;
-  }
-  if (categoryId === "all") {
+    items = [...searchResults.value];
+  } else if (categoryId === "all") {
     // 返回所有衣物
-    return wardrobeStore.clothingItems;
+    items = [...wardrobeStore.clothingItems];
+  } else {
+    items = [...(wardrobeStore.itemsByCategory[categoryId] || [])];
   }
-  return wardrobeStore.itemsByCategory[categoryId] || [];
+  
+  // 应用筛选
+  if (currentFilter.value === 'favorites') {
+    items = items.filter(item => item.favorite);
+  } else if (currentFilter.value === 'recent') {
+    // 假设每个物品有createdAt属性，按添加时间排序并取最近添加的
+    items = [...items].sort((a, b) => {
+      const dateA = new Date(a.createdAt || 0);
+      const dateB = new Date(b.createdAt || 0);
+      return dateB - dateA;
+    });
+  }
+  
+  // 应用排序
+  if (currentSort.value === 'name') {
+    items = [...items].sort((a, b) => a.name.localeCompare(b.name));
+  }
+  
+  return items;
 }
 
 // 强制更新组件的key
@@ -210,6 +245,10 @@ function selectCategory(categoryId) {
     isSearchMode.value = false;
     searchResults.value = [];
   }
+
+  // 重置筛选和排序状态
+  currentFilter.value = 'all';
+  currentSort.value = null;
 
   if (wardrobeStore.selectedCategory === categoryId) {
     console.log("清除选中分类");
@@ -267,12 +306,41 @@ function closeDrawer() {
   } else {
     wardrobeStore.clearSelectedCategory();
   }
+  // 重置筛选和排序状态
+  currentFilter.value = 'all';
+  currentSort.value = null;
   isDrawerOpen.value = false;
 }
 
 function viewItemDetail(item) {
-  // 查看衣物详情的逻辑
-  // 这里可以添加导航到详情页面的逻辑
+  // 设置当前查看的衣物
+  editingItem.value = item
+  // 打开编辑模态框，设置为只读模式
+  isEditorOpen.value = true
+  isReadOnlyMode.value = true
+}
+
+function editItem(item) {
+  // 设置当前编辑的衣物
+  editingItem.value = item
+  // 打开编辑模态框
+  isEditorOpen.value = true
+}
+
+async function deleteItem(item) {
+  // 删除衣物的逻辑
+  if (confirm(`确定要删除 "${item.name}" 吗？此操作不可撤销。`)) {
+    try {
+      await wardrobeStore.deleteClothingItem(item.id)
+      showToast('衣物已成功删除', 'success')
+      // 如果删除后当前分类为空，关闭抽屉
+      if (getCategoryItems(selectedCategory.value).length === 1) {
+        closeDrawer()
+      }
+    } catch (error) {
+      showToast('删除失败，请重试', 'error')
+    }
+  }
 }
 
 function viewAllCategories() {
@@ -282,9 +350,39 @@ function viewAllCategories() {
     isSearchMode.value = false;
     searchResults.value = [];
   }
+  // 重置筛选和排序状态
+  currentFilter.value = 'all';
+  currentSort.value = null;
   // 设置一个特殊值表示查看全部
   wardrobeStore.setSelectedCategory("all");
   isDrawerOpen.value = true;
+}
+
+// 筛选处理函数
+function handleFilter(filterType) {
+  currentFilter.value = filterType;
+  // 强制更新组件，以应用筛选
+  forceUpdate();
+}
+
+// 排序处理函数
+function handleSort(sortType) {
+  currentSort.value = sortType;
+  // 强制更新组件，以应用排序
+  forceUpdate();
+}
+
+// 处理编辑保存
+function handleEditSaved() {
+  // 编辑保存后强制更新组件，刷新数据
+  forceUpdate();
+}
+
+// 关闭编辑器
+function closeEditor() {
+  isEditorOpen.value = false;
+  editingItem.value = null;
+  isReadOnlyMode.value = false;
 }
 
 // 生命周期

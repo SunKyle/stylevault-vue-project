@@ -12,6 +12,10 @@
             <font-awesome-icon :icon="['fas', 'plus-circle']" class="group-hover:scale-110 transition-transform" />
             <span>添加新衣物</span>
           </button>
+          <button class="bg-white text-primary hover:bg-neutral-100 font-medium py-3 px-8 rounded-2xl shadow-medium transition-all flex items-center space-x-2 group" @click="$emit('viewAll')">
+            <font-awesome-icon :icon="['fas', 'th-list']" class="group-hover:scale-110 transition-transform" />
+            <span>查看全部</span>
+          </button>
           <button class="bg-white/10 hover:bg-white/20 backdrop-blur text-white font-medium py-3 px-8 rounded-2xl shadow-medium transition-all flex items-center space-x-2">
             <font-awesome-icon :icon="['fas', 'magic']" />
             <span>智能搭配</span>
@@ -38,6 +42,6 @@ export default {
       required: true
     }
   },
-  emits: ['showUpload']
+  emits: ['showUpload', 'viewAll']
 }
 </script>
