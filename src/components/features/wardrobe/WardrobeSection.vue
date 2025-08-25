@@ -434,6 +434,7 @@ function nextOutfit() {
 
 function getCategoryItemCount(categoryId) {
   if (isSearchMode.value) return searchResults.value.length;
+  if (categoryId === "all") return wardrobeStore.clothingItems.length;
   return wardrobeStore.itemsByCategory[categoryId]?.length || 0
 }
 
@@ -452,11 +453,7 @@ function getCategoryItems(categoryId) {
   }
   if (categoryId === "all") {
     // 返回所有衣物
-    let allItems = [];
-    Object.values(wardrobeStore.itemsByCategory).forEach(items => {
-      allItems = [...allItems, ...items];
-    });
-    return allItems;
+    return wardrobeStore.clothingItems;
   }
   return wardrobeStore.itemsByCategory[categoryId] || [];
 }
