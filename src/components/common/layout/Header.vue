@@ -9,7 +9,7 @@
             <font-awesome-icon :icon="['fas', 'shirt']" class="text-white text-xl" />
           </div>
           <div class="absolute -top-1 -right-1 w-5 h-5 rounded-full bg-amber-400 flex items-center justify-center shadow-md">
-            <font-awesome-icon :icon="['fas', 'sparkles']" class="text-white text-xs" />
+            <font-awesome-icon :icon="['fas', 'star']" class="text-white text-xs" />
           </div>
         </div>
         <div>
