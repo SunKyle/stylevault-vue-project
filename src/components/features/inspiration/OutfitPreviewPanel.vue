@@ -18,7 +18,10 @@
 
     <div class="flex-1 p-5 flex flex-col">
       <!-- 搭配预览区 -->
-      <div class="bg-gradient-to-br from-indigo-100/30 via-white/50 to-purple-100/30 rounded-2xl p-5 h-64 md:h-72 flex flex-col items-center justify-center mb-5 border border-indigo-100/50 relative overflow-hidden shadow-inner backdrop-blur-sm">
+      <div class="bg-gradient-to-br from-indigo-100/30 via-white/50 to-purple-100/30 rounded-2xl p-5 h-64 md:h-72 flex flex-col items-center justify-center mb-5 border border-indigo-100/50 relative overflow-hidden shadow-inner backdrop-blur-sm outfit-preview-area"
+           @dragover.prevent="handleDragOver"
+           @dragleave.prevent="handleDragLeave"
+           @drop.prevent="handleDrop">
         <!-- 装饰元素 -->
         <div class="absolute -bottom-12 -right-12 w-48 h-48 bg-gradient-to-r from-indigo-200/20 to-purple-200/20 rounded-full blur-xl animate-pulse-slow"></div>
         <div class="absolute -top-8 -left-8 w-32 h-32 bg-gradient-to-r from-purple-200/20 to-indigo-200/20 rounded-full blur-lg animate-pulse-slow animation-delay-1000"></div>
@@ -34,10 +37,7 @@
         </div>
 
         <!-- 有衣物时的预览 -->
-        <div v-else class="w-full h-full flex flex-wrap justify-center items-center gap-3 md:gap-4 relative z-10 outfit-preview-area"
-             @dragover.prevent="handleDragOver"
-             @dragleave.prevent="handleDragLeave"
-             @drop.prevent="handleDrop">
+        <div v-else class="w-full h-full flex flex-wrap justify-center items-center gap-3 md:gap-4 relative z-10">
           <div v-for="(item, idx) in selectedClothes.slice(0, 8)" :key="idx"
                class="relative group transform transition-all duration-500 hover:z-10 outfit-item"
                :class="idx >= 6 ? 'opacity-70 scale-95' : ''"
@@ -61,13 +61,13 @@
               <font-awesome-icon :icon="['fas', 'times']" class="text-xs" />
             </button>
           </div>
+        </div>
 
-          <!-- 拖放提示 -->
-          <div v-if="isDragOver" class="absolute inset-0 bg-primary/10 backdrop-blur-sm rounded-2xl flex items-center justify-center border-2 border-dashed border-primary z-20 animate-pulse">
-            <div class="text-center p-6 bg-white/90 backdrop-blur rounded-xl shadow-lg">
-              <font-awesome-icon :icon="['fas', 'tshirt']" class="text-primary text-3xl mb-3" />
-              <p class="text-primary font-medium">拖放到此处添加到搭配</p>
-            </div>
+        <!-- 拖放提示 -->
+        <div v-if="isDragOver" class="absolute inset-0 bg-primary/10 backdrop-blur-sm rounded-2xl flex items-center justify-center z-20 animate-pulse">
+          <div class="text-center p-6 bg-white/90 backdrop-blur rounded-xl shadow-lg">
+            <font-awesome-icon :icon="['fas', 'tshirt']" class="text-primary text-3xl mb-3" />
+            <p class="text-primary font-medium">拖放到此处添加到搭配</p>
           </div>
         </div>
 

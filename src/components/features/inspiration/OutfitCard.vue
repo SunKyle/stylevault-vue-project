@@ -1,29 +1,29 @@
 <template>
-  <div class="bg-gradient-to-br from-white via-white to-neutral-50 rounded-2xl overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-500 group border border-white/80 flex flex-col transform hover:-translate-y-1.5 h-full">
+  <div class="bg-gradient-to-br from-indigo-50 via-white to-purple-50 rounded-2xl overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-500 group border border-indigo-100/80 flex flex-col transform hover:-translate-y-1.5 h-full">
     <!-- 搭配预览 - 优化后的卡片顶部 -->
     <div class="relative overflow-hidden">
       <!-- 卡片顶部渐变背景 -->
-      <div class="absolute inset-0 bg-gradient-to-br from-primary/15 via-secondary/10 to-white/80 transform transition-transform duration-700 group-hover:scale-110"></div>
+      <div class="absolute inset-0 bg-gradient-to-br from-indigo-500/15 via-purple-500/10 to-white/80 transform transition-transform duration-700 group-hover:scale-110"></div>
 
       <!-- 装饰元素 - 增强卡片深度感 -->
-      <div class="absolute -top-12 -right-12 w-28 h-28 bg-gradient-to-r from-primary/20 to-secondary/20 rounded-full blur-2xl opacity-70"></div>
-      <div class="absolute -bottom-12 -left-12 w-28 h-28 bg-gradient-to-r from-secondary/20 to-primary/20 rounded-full blur-2xl opacity-70"></div>
-      <div class="absolute top-1/4 left-1/4 w-4 h-4 rounded-full bg-primary/30 animate-pulse"></div>
-      <div class="absolute bottom-1/3 right-1/3 w-3 h-3 rounded-full bg-secondary/30 animate-pulse"></div>
+      <div class="absolute -top-12 -right-12 w-28 h-28 bg-gradient-to-r from-indigo-400/20 to-purple-400/20 rounded-full blur-2xl opacity-70 animate-pulse-slow"></div>
+      <div class="absolute -bottom-12 -left-12 w-28 h-28 bg-gradient-to-r from-purple-400/20 to-indigo-400/20 rounded-full blur-2xl opacity-70 animate-pulse-slow animation-delay-1000"></div>
+      <div class="absolute top-1/4 left-1/4 w-4 h-4 rounded-full bg-indigo-400/30 animate-ping"></div>
+      <div class="absolute bottom-1/3 right-1/3 w-3 h-3 rounded-full bg-purple-400/30 animate-ping animation-delay-700"></div>
 
       <!-- 卡片内容 -->
       <div class="p-5 h-56 flex flex-col relative z-10">
         <!-- 顶部信息区 -->
         <div class="flex justify-between items-start mb-3">
           <div>
-            <h4 class="font-bold text-neutral-800 text-lg truncate pr-2 group-hover:text-primary transition-colors">
+            <h4 class="font-bold text-indigo-900 text-lg truncate pr-2 group-hover:text-indigo-600 transition-colors">
               {{ outfit.name }}
             </h4>
             <div v-if="outfit?.scene" class="flex items-center mt-1.5">
-              <div class="w-5 h-5 rounded-full bg-primary/10 flex items-center justify-center mr-1.5">
-                <font-awesome-icon icon="map-marker-alt" class="text-primary text-xs" />
+              <div class="w-5 h-5 rounded-full bg-gradient-to-r from-indigo-500/10 to-purple-500/10 flex items-center justify-center mr-1.5 shadow-sm">
+                <font-awesome-icon icon="map-marker-alt" class="text-indigo-600 text-xs" />
               </div>
-              <span class="text-xs text-primary font-medium bg-white/70 backdrop-blur-sm px-2 py-1 rounded-full">
+              <span class="text-xs text-indigo-600 font-medium bg-white/70 backdrop-blur-sm px-2 py-1 rounded-full border border-indigo-100/50">
                 {{ outfit?.scene || '' }}
               </span>
             </div>
@@ -33,11 +33,11 @@
 
         <!-- 衣物预览区 - 堆叠效果 -->
         <div class="flex-1 flex items-center justify-center relative" @mouseleave="resetStack" style="height: 220px;">
-          <div v-if="(outfit?.items?.length || 0) === 0" class="text-center text-neutral-400">
-            <div class="w-16 h-16 rounded-2xl bg-gradient-to-br from-white/80 to-white/50 backdrop-blur-sm flex items-center justify-center mx-auto mb-3 shadow-lg border border-white/50">
-              <font-awesome-icon icon="tshirt" class="text-primary text-2xl" />
+          <div v-if="(outfit?.items?.length || 0) === 0" class="text-center text-indigo-400">
+            <div class="w-16 h-16 rounded-2xl bg-gradient-to-br from-indigo-100/80 to-purple-100/50 backdrop-blur-sm flex items-center justify-center mx-auto mb-3 shadow-lg border border-indigo-100/50">
+              <font-awesome-icon icon="tshirt" class="text-indigo-500 text-2xl" />
             </div>
-            <p class="text-sm text-neutral-500">暂无衣物</p>
+            <p class="text-sm text-indigo-500">暂无衣物</p>
           </div>
           <div v-else class="relative w-full h-full overflow-visible">
             <!-- 衣物图片堆叠效果 - 重新设计 -->
@@ -45,8 +45,8 @@
               <template v-for="(item, idx) in (outfit?.items || []).slice(0, 4)" :key="idx">
               <div 
                 v-if="item.img"
-                  class="absolute w-28 h-36 bg-white rounded-xl shadow-lg overflow-hidden transition-all duration-500 ease-out cursor-pointer border-2 border-white"
-                  :class="{ 'ring-2 ring-primary/30 ring-offset-1': hoveredIndex === idx }"
+                  class="absolute w-28 h-36 bg-gradient-to-br from-white to-indigo-50/50 rounded-xl shadow-lg overflow-hidden transition-all duration-500 ease-out cursor-pointer border-2 border-white/80 backdrop-blur-sm"
+                  :class="{ 'ring-2 ring-indigo-400/30 ring-offset-1': hoveredIndex === idx }"
                   :style="{
                     zIndex: 30 - idx,
                     transform: expanded ? 
@@ -83,7 +83,7 @@
             <!-- 更多衣物指示器 -->
             <div 
               v-if="(outfit?.items?.length || 0) > 4" 
-              class="absolute bottom-1 right-1 bg-gradient-to-r from-primary to-secondary text-white rounded-full w-10 h-10 flex items-center justify-center shadow-md text-sm font-bold border-2 border-white z-40 transition-all duration-300 hover:scale-110 hover:shadow-lg cursor-pointer flex-shrink-0"
+              class="absolute bottom-1 right-1 bg-gradient-to-r from-indigo-500 to-purple-500 text-white rounded-full w-10 h-10 flex items-center justify-center shadow-md text-sm font-bold border-2 border-white z-40 transition-all duration-300 hover:scale-110 hover:shadow-lg cursor-pointer flex-shrink-0"
               :class="{ 'animate-pulse': !expanded }"
               @click="toggleExpanded"
             >
@@ -93,7 +93,7 @@
             <!-- 提示 -->
             <div 
               v-if="!expanded" 
-              class="absolute bottom-0 left-0 right-0 text-center text-xs font-medium text-primary/70 transition-opacity duration-300"
+              class="absolute bottom-0 left-0 right-0 text-center text-xs font-medium text-indigo-600/70 transition-opacity duration-300"
             >
               点击展开查看更多
             </div>
@@ -104,29 +104,29 @@
     </div>
 
     <!-- 优化的搭配信息 -->
-    <div class="p-5 flex-1 flex flex-col bg-gradient-to-br from-white/90 to-white/70 backdrop-blur-sm" style="min-height: 200px;">
+    <div class="p-5 flex-1 flex flex-col bg-gradient-to-br from-indigo-50/80 via-white/90 to-purple-50/80 backdrop-blur-sm" style="min-height: 200px;">
       <!-- 衣物数量统计 -->
       <div class="mb-4 flex items-center justify-between">
-        <span class="text-sm font-medium text-neutral-600 flex items-center bg-white/70 backdrop-blur-sm px-3 py-1.5 rounded-full shadow-sm">
-          <div class="w-5 h-5 rounded-full bg-primary/10 flex items-center justify-center mr-2">
-            <font-awesome-icon icon="layer-group" class="text-primary text-xs" />
+        <span class="text-sm font-medium text-indigo-700 flex items-center bg-white/70 backdrop-blur-sm px-3 py-1.5 rounded-full shadow-sm border border-indigo-100/50">
+          <div class="w-5 h-5 rounded-full bg-gradient-to-r from-indigo-500/10 to-purple-500/10 flex items-center justify-center mr-2 shadow-sm">
+            <font-awesome-icon icon="layer-group" class="text-indigo-600 text-xs" />
           </div>
           {{ outfit?.items?.length || 0 }}件衣物
         </span>
         <!-- 操作按钮 -->
         <div class="flex gap-2">
           <button @click="toggleEditMode"
-                  class="w-9 h-9 rounded-full bg-white/80 backdrop-blur-sm flex items-center justify-center text-blue-500 hover:bg-blue-500 hover:text-white transition-all duration-300 shadow-md hover:shadow-lg border border-white/70"
+                  class="w-9 h-9 rounded-full bg-white/80 backdrop-blur-sm flex items-center justify-center text-indigo-500 hover:bg-indigo-500 hover:text-white transition-all duration-300 shadow-md hover:shadow-lg border border-indigo-100/50"
                   title="编辑搭配">
             <font-awesome-icon icon="edit" class="text-xs" />
           </button>
           <button @click="$emit('load-outfit', outfit)"
-                  class="w-9 h-9 rounded-full bg-white/80 backdrop-blur-sm flex items-center justify-center text-primary hover:bg-primary hover:text-white transition-all duration-300 shadow-md hover:shadow-lg border border-white/70"
+                  class="w-9 h-9 rounded-full bg-white/80 backdrop-blur-sm flex items-center justify-center text-indigo-600 hover:bg-indigo-600 hover:text-white transition-all duration-300 shadow-md hover:shadow-lg border border-indigo-100/50"
                   title="加载搭配">
             <font-awesome-icon icon="redo" class="text-xs" />
           </button>
           <button @click="$emit('delete-outfit', outfit.id)"
-                  class="w-9 h-9 rounded-full bg-white/80 backdrop-blur-sm flex items-center justify-center text-red-500 hover:bg-red-500 hover:text-white transition-all duration-300 shadow-md hover:shadow-lg border border-white/70"
+                  class="w-9 h-9 rounded-full bg-white/80 backdrop-blur-sm flex items-center justify-center text-red-500 hover:bg-red-500 hover:text-white transition-all duration-300 shadow-md hover:shadow-lg border border-indigo-100/50"
                   title="删除搭配">
             <font-awesome-icon icon="trash" class="text-xs" />
           </button>
@@ -136,9 +136,9 @@
       <!-- 编辑表单 -->
       <div v-if="isEditing" class="space-y-4 mt-auto">
         <div>
-          <label class="block text-sm font-medium text-neutral-700 mb-2 flex items-center">
-            <div class="w-5 h-5 rounded-full bg-primary/10 flex items-center justify-center mr-2">
-              <font-awesome-icon icon="tag" class="text-primary text-xs" />
+          <label class="block text-sm font-medium text-indigo-700 mb-2 flex items-center">
+            <div class="w-5 h-5 rounded-full bg-gradient-to-r from-indigo-500/10 to-purple-500/10 flex items-center justify-center mr-2 shadow-sm">
+              <font-awesome-icon icon="tag" class="text-indigo-600 text-xs" />
             </div>
             搭配名称
           </label>
