@@ -3,7 +3,7 @@
     <div class="bg-gradient-to-r from-primary/10 to-secondary/10 p-5 border-b border-neutral-100">
       <h3 class="font-bold text-lg flex items-center text-neutral-800">
         <div class="w-8 h-8 rounded-full bg-gradient-to-r from-primary to-secondary flex items-center justify-center mr-2 shadow-sm">
-          <font-awesome-icon :icon="['fas', 'hanger']" class="text-white text-sm" />
+          <font-awesome-icon :icon="['fas', 'shirt']" class="text-white text-sm" />
         </div>
         选择衣物
       </h3>

@@ -28,7 +28,7 @@
         <div class="absolute -bottom-20 -left-20 w-60 h-60 bg-secondary/5 rounded-full"></div>
 
         <!-- 已保存搭配列表 -->
-        <div v-if="savedOutfits.length > 0" class="relative z-10">
+        <div v-if="currentPageOutfits.length > 0" class="relative z-10">
           <!-- 搭配卡片自适应网格布局 -->
           <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
             <OutfitCard 
@@ -40,11 +40,10 @@
               @edit-outfit="handleEditOutfit"
             />
           </div>
-        </div>
 
-        <!-- 分页控件 - 优化设计 -->
-        <div v-if="totalPages > 1" class="flex justify-center mt-8">
-          <div class="flex items-center space-x-2 bg-white rounded-full px-4 py-2 shadow-sm border border-neutral-100">
+          <!-- 分页控件 - 优化设计 -->
+          <div v-if="filteredOutfits.length > props.itemsPerPage" class="flex justify-center mt-8">
+            <div class="flex items-center space-x-2 bg-white rounded-full px-4 py-2 shadow-sm border border-neutral-100">
             <!-- 上一页按钮 -->
             <button 
               @click="$emit('page-change', Math.max(1, currentPage - 1))"
@@ -72,6 +71,7 @@
               <font-awesome-icon :icon="['fas', 'chevron-right']" />
             </button>
           </div>
+        </div>
         </div>
 
         <!-- 空状态 - 增强视觉吸引力 -->
@@ -122,13 +122,21 @@ const emit = defineEmits(['load-outfit', 'delete-outfit', 'share-outfit', 'page-
 const currentPageOutfits = computed(() => {
   const start = (props.currentPage - 1) * props.itemsPerPage
   const end = start + props.itemsPerPage
-  // 过滤掉无效的搭配对象
-  return props.savedOutfits.slice(start, end).filter(outfit => outfit && outfit.id && outfit.name)
+  // 使用已经过滤后的搭配数据
+  return filteredOutfits.value.slice(start, end)
+})
+
+// 计算过滤后的搭配
+const filteredOutfits = computed(() => {
+  // 使用与currentPageOutfits相同的过滤条件
+  return props.savedOutfits.filter(outfit => {
+    return outfit && (outfit.id || outfit.name)
+  })
 })
 
 // 计算总页数
 const totalPages = computed(() => {
-  return Math.ceil(props.savedOutfits.length / props.itemsPerPage)
+  return Math.ceil(filteredOutfits.value.length / props.itemsPerPage)
 })
 
 // 格式化日期

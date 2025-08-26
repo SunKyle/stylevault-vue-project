@@ -1,54 +1,62 @@
 <template>
-  <div class="bg-white rounded-xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300 group border border-neutral-100 flex flex-col transform hover:-translate-y-1 h-full">
+  <div class="bg-gradient-to-br from-white via-white to-neutral-50 rounded-2xl overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-500 group border border-white/80 flex flex-col transform hover:-translate-y-1.5 h-full">
     <!-- 搭配预览 - 优化后的卡片顶部 -->
     <div class="relative overflow-hidden">
       <!-- 卡片顶部渐变背景 -->
-      <div class="absolute inset-0 bg-gradient-to-br from-primary/10 to-secondary/10 transform transition-transform duration-700 group-hover:scale-110"></div>
+      <div class="absolute inset-0 bg-gradient-to-br from-primary/15 via-secondary/10 to-white/80 transform transition-transform duration-700 group-hover:scale-110"></div>
 
       <!-- 装饰元素 - 增强卡片深度感 -->
-      <div class="absolute -top-10 -right-10 w-24 h-24 bg-primary/20 rounded-full blur-xl"></div>
-      <div class="absolute -bottom-10 -left-10 w-24 h-24 bg-secondary/20 rounded-full blur-xl"></div>
+      <div class="absolute -top-12 -right-12 w-28 h-28 bg-gradient-to-r from-primary/20 to-secondary/20 rounded-full blur-2xl opacity-70"></div>
+      <div class="absolute -bottom-12 -left-12 w-28 h-28 bg-gradient-to-r from-secondary/20 to-primary/20 rounded-full blur-2xl opacity-70"></div>
+      <div class="absolute top-1/4 left-1/4 w-4 h-4 rounded-full bg-primary/30 animate-pulse"></div>
+      <div class="absolute bottom-1/3 right-1/3 w-3 h-3 rounded-full bg-secondary/30 animate-pulse"></div>
 
       <!-- 卡片内容 -->
-      <div class="p-4 h-48 flex flex-col relative z-10">
+      <div class="p-5 h-52 flex flex-col relative z-10">
         <!-- 顶部信息区 -->
-        <div class="flex justify-between items-start mb-2">
+        <div class="flex justify-between items-start mb-3">
           <div>
-            <h4 class="font-bold text-neutral-800 text-base truncate pr-2 group-hover:text-primary transition-colors">
+            <h4 class="font-bold text-neutral-800 text-lg truncate pr-2 group-hover:text-primary transition-colors">
               {{ outfit.name }}
             </h4>
-            <div v-if="outfit?.scene" class="flex items-center mt-1">
-              <font-awesome-icon :icon="['fas', 'map-marker-alt']" class="text-primary text-xs mr-1" />
-              <span class="text-xs text-primary font-medium">{{ outfit?.scene || '' }}</span>
+            <div v-if="outfit?.scene" class="flex items-center mt-1.5">
+              <div class="w-5 h-5 rounded-full bg-primary/10 flex items-center justify-center mr-1.5">
+                <font-awesome-icon icon="map-marker-alt" class="text-primary text-xs" />
+              </div>
+              <span class="text-xs text-primary font-medium bg-white/70 backdrop-blur-sm px-2 py-1 rounded-full">
+                {{ outfit?.scene || '' }}
+              </span>
             </div>
           </div>
-          <div class="flex items-center bg-white/90 backdrop-blur-sm px-2 py-1 rounded-full shadow-sm">
-            <font-awesome-icon :icon="['fas', 'tshirt']" class="text-yellow-400 text-xs mr-1" />
-            <span class="text-xs font-medium text-neutral-800">
+          <div class="flex items-center bg-gradient-to-r from-amber-50 to-amber-100/70 backdrop-blur-sm px-3 py-1.5 rounded-full shadow-md border border-amber-100/50">
+            <font-awesome-icon icon="star" class="text-amber-400 text-xs mr-1.5" />
+            <span class="text-xs font-medium text-amber-800">
               {{ getOutfitRating(outfit) }}分
             </span>
           </div>
         </div>
 
-        <!-- 衣物预览区 - 简化布局 -->
+        <!-- 衣物预览区 - 优化布局 -->
         <div class="flex-1 flex items-center justify-center relative">
           <div v-if="(outfit?.items?.length || 0) === 0" class="text-center text-neutral-400">
-            <div class="w-12 h-12 rounded-full bg-neutral-100 flex items-center justify-center mx-auto mb-2">
-              <font-awesome-icon :icon="['fas', 'tshirt']" class="text-xl" />
+            <div class="w-16 h-16 rounded-2xl bg-gradient-to-br from-white/80 to-white/50 backdrop-blur-sm flex items-center justify-center mx-auto mb-3 shadow-lg border border-white/50">
+              <font-awesome-icon icon="tshirt" class="text-primary text-2xl" />
             </div>
-            <p class="text-sm">暂无衣物</p>
+            <p class="text-sm text-neutral-500">暂无衣物</p>
           </div>
-          <div v-else class="grid grid-cols-3 gap-2 w-full">
+          <div v-else class="grid grid-cols-3 gap-3 w-full px-2">
             <div v-for="(item, idx) in (outfit?.items || []).slice(0, 6)" :key="idx"
-                 class="aspect-square relative overflow-hidden rounded-lg shadow-sm group/item">
+                 class="aspect-square relative overflow-hidden rounded-2xl shadow-md group/item transform transition-all duration-500 hover:scale-105 hover:z-10"
+                 :style="{ zIndex: 10 + idx }">
+              <div class="absolute inset-0 bg-gradient-to-br from-white/90 to-white/60 backdrop-blur-sm rounded-2xl shadow-md border border-white/70 z-0"></div>
               <img :src="item.img" :alt="item.name"
-                   class="w-full h-full object-cover transition-transform duration-300 group-hover/item:scale-110"
+                   class="w-full h-full object-cover rounded-2xl relative z-10 transition-transform duration-500 group-hover/item:scale-110 group-hover/item:shadow-xl"
                    loading="lazy" />
-              <div class="absolute inset-0 bg-black/0 group-hover/item:bg-black/20 transition-colors duration-300"></div>
+              <div class="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent opacity-0 group-hover/item:opacity-100 transition-opacity duration-300 z-20"></div>
               <!-- 更多衣物指示器 -->
               <div v-if="idx === 5 && (outfit?.items?.length || 0) > 6" 
-                   class="absolute inset-0 bg-black/70 flex items-center justify-center text-white text-xs font-bold">
-                +{{ (outfit?.items?.length || 0) - 6 }}
+                   class="absolute inset-0 bg-gradient-to-br from-black/70 to-black/90 backdrop-blur-sm flex items-center justify-center text-white text-sm font-bold z-30 rounded-2xl">
+                <span class="transform -rotate-12">+{{ (outfit?.items?.length || 0) - 6 }}</span>
               </div>
             </div>
           </div>
@@ -56,38 +64,45 @@
       </div>
     </div>
 
-    <!-- 简化的搭配信息 -->
-    <div class="p-4 flex-1 flex flex-col bg-white">
+    <!-- 优化的搭配信息 -->
+    <div class="p-5 flex-1 flex flex-col bg-gradient-to-br from-white/90 to-white/70 backdrop-blur-sm">
       <!-- 衣物数量统计 -->
-      <div class="mb-3 flex items-center justify-between">
-        <span class="text-sm text-neutral-600 flex items-center">
-          <font-awesome-icon :icon="['fas', 'layer-group']" class="mr-1 text-primary" />
+      <div class="mb-4 flex items-center justify-between">
+        <span class="text-sm font-medium text-neutral-600 flex items-center bg-white/70 backdrop-blur-sm px-3 py-1.5 rounded-full shadow-sm">
+          <div class="w-5 h-5 rounded-full bg-primary/10 flex items-center justify-center mr-2">
+            <font-awesome-icon icon="layer-group" class="text-primary text-xs" />
+          </div>
           {{ outfit?.items?.length || 0 }}件衣物
         </span>
         <!-- 操作按钮 -->
         <div class="flex gap-2">
           <button @click="toggleEditMode"
-                  class="w-8 h-8 rounded-full bg-neutral-100 flex items-center justify-center text-blue-500 hover:bg-blue-500 hover:text-white transition-colors"
+                  class="w-9 h-9 rounded-full bg-white/80 backdrop-blur-sm flex items-center justify-center text-blue-500 hover:bg-blue-500 hover:text-white transition-all duration-300 shadow-md hover:shadow-lg border border-white/70"
                   title="编辑搭配">
-            <font-awesome-icon :icon="['fas', 'edit']" class="text-xs" />
+            <font-awesome-icon icon="edit" class="text-xs" />
           </button>
           <button @click="$emit('load-outfit', outfit)"
-                  class="w-8 h-8 rounded-full bg-neutral-100 flex items-center justify-center text-primary hover:bg-primary hover:text-white transition-colors"
+                  class="w-9 h-9 rounded-full bg-white/80 backdrop-blur-sm flex items-center justify-center text-primary hover:bg-primary hover:text-white transition-all duration-300 shadow-md hover:shadow-lg border border-white/70"
                   title="加载搭配">
-            <font-awesome-icon :icon="['fas', 'redo']" class="text-xs" />
+            <font-awesome-icon icon="redo" class="text-xs" />
           </button>
           <button @click="$emit('delete-outfit', outfit.id)"
-                  class="w-8 h-8 rounded-full bg-neutral-100 flex items-center justify-center text-red-500 hover:bg-red-500 hover:text-white transition-colors"
+                  class="w-9 h-9 rounded-full bg-white/80 backdrop-blur-sm flex items-center justify-center text-red-500 hover:bg-red-500 hover:text-white transition-all duration-300 shadow-md hover:shadow-lg border border-white/70"
                   title="删除搭配">
-            <font-awesome-icon :icon="['fas', 'trash']" class="text-xs" />
+            <font-awesome-icon icon="trash" class="text-xs" />
           </button>
         </div>
       </div>
 
       <!-- 编辑表单 -->
-      <div v-if="isEditing" class="space-y-3 mt-auto">
+      <div v-if="isEditing" class="space-y-4 mt-auto">
         <div>
-          <label class="block text-xs font-medium text-neutral-700 mb-1">搭配名称</label>
+          <label class="block text-sm font-medium text-neutral-700 mb-2 flex items-center">
+            <div class="w-5 h-5 rounded-full bg-primary/10 flex items-center justify-center mr-2">
+              <font-awesome-icon icon="tag" class="text-primary text-xs" />
+            </div>
+            搭配名称
+          </label>
           <input 
             v-model="editOutfit.name" 
             type="text" 

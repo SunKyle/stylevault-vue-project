@@ -4,7 +4,7 @@
       <div class="flex justify-between items-center">
         <h3 class="font-bold text-lg flex items-center text-neutral-800">
           <div class="w-8 h-8 rounded-full bg-gradient-to-r from-primary to-secondary flex items-center justify-center mr-2 shadow-sm">
-            <font-awesome-icon :icon="['fas', 'lightbulb']" class="text-white text-sm" />
+            <font-awesome-icon icon="lightbulb" class="text-white text-sm" />
           </div>
           搭配灵感
         </h3>
@@ -28,7 +28,7 @@
         <!-- 空状态 -->
         <div v-if="selectedClothes.length === 0" class="text-center relative z-10">
           <div class="w-24 h-24 rounded-full bg-white/80 backdrop-blur-sm flex items-center justify-center mx-auto mb-4 shadow-md border border-white/50">
-            <font-awesome-icon :icon="['fas', 'tshirt']" class="text-primary text-3xl" />
+            <font-awesome-icon icon="tshirt" class="text-primary text-3xl" />
           </div>
           <p class="text-neutral-600 font-medium">从右侧添加衣物进行搭配</p>
         </div>
