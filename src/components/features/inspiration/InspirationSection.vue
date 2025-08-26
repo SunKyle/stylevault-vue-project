@@ -159,19 +159,15 @@ function loadSavedOutfits() {
 }
 
 // 保存穿搭方案
-function saveOutfit() {
+function saveOutfit(outfitInfo) {
   if (selectedClothes.value.length === 0) {
     alert('请至少选择一件衣物')
     return
   }
 
-  // 获取搭配名称
-  const outfitName = prompt('请为您的搭配方案命名:', `搭配方案 ${new Date().toLocaleDateString()}`)
-  if (!outfitName) return // 用户取消了输入
-
-  // 获取适用场景
-  const sceneOptions = scenesMockData.join(', ')
-  const outfitScene = prompt(`请输入适用场景(如: ${sceneOptions}):`, '')
+  // 使用从组件传递的搭配信息
+  const outfitName = outfitInfo.name
+  const outfitScene = outfitInfo.scene
 
   // 创建一个新的穿搭方案
   const newOutfit = {
