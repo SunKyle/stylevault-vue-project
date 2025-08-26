@@ -282,6 +282,22 @@ function shareOutfit(outfit) {
   alert('分享功能已触发：' + outfit.name)
   // 实际实现时可以调用系统分享API或生成分享链接
 }
+
+// 编辑搭配方案
+function editOutfit({ index, outfit }) {
+  // 更新本地存储中的搭配信息
+  const outfits = JSON.parse(localStorage.getItem('savedOutfits') || '[]')
+  if (index >= 0 && index < outfits.length) {
+    outfits[index] = outfit
+    localStorage.setItem('savedOutfits', JSON.stringify(outfits))
+    
+    // 更新已保存搭配列表
+    loadSavedOutfits()
+    
+    // 显示成功消息
+    alert('搭配方案已更新！')
+  }
+}
 </script>
 
 <style scoped>

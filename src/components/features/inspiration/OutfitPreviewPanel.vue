@@ -143,10 +143,7 @@
             <font-awesome-icon :icon="['fas', 'heart']" class="mr-2 transition-transform duration-300 group-hover/button:scale-110" />
             <span class="transition-transform duration-300 group-hover/button:scale-105 font-medium">保存搭配</span>
           </button>
-          <button class="w-12 h-12 bg-white border border-neutral-200 text-neutral-700 rounded-xl hover:bg-neutral-50 transition-all duration-300 flex items-center justify-center shadow-md hover:shadow-lg"
-                  @click="$emit('reset-clothes')">
-            <font-awesome-icon :icon="['fas', 'undo-alt']" class="transition-transform duration-300 hover:rotate-180" />
-          </button>
+
         </div>
       </div>
     </div>

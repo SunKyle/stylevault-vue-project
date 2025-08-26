@@ -9,7 +9,7 @@
             <font-awesome-icon :icon="['fas', 'shirt']" class="text-white text-xl" />
           </div>
           <div class="absolute -top-1 -right-1 w-5 h-5 rounded-full bg-amber-400 flex items-center justify-center shadow-md">
-            <font-awesome-icon :icon="['fas', 'star']" class="text-white text-xs" />
+            <font-awesome-icon :icon="['fas', 'moon']" class="text-white text-xs" />
           </div>
         </div>
         <div>
@@ -109,7 +109,7 @@
           </div>
           <div class="absolute right-0 mt-3 w-64 bg-white rounded-2xl shadow-xl py-2 z-10 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 transform translate-y-2 group-hover:translate-y-0">
             <div class="px-5 py-4 border-b border-gray-100">
-              <p class="font-semibold text-gray-800">王小明</p>
+              <p class="font-semibold text-gray-800">王小月</p>
               <p class="text-sm text-gray-500">user@example.com</p>
               <div class="mt-2 flex items-center text-xs bg-amber-50 text-amber-700 px-2.5 py-1 rounded-full inline-block">
                 <font-awesome-icon :icon="['fas', 'crown']" class="mr-1" />
@@ -170,7 +170,7 @@
             </div>
             <div class="flex-1">
               <div class="flex items-center">
-                <p class="font-medium">王小明</p>
+                <p class="font-medium">王小月</p>
                 <span class="ml-2 text-xs bg-amber-50 text-amber-700 px-2 py-0.5 rounded-full">
                   <font-awesome-icon :icon="['fas', 'crown']" class="mr-1 text-xs" />
                   会员

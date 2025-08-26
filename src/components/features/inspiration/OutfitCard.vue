@@ -12,7 +12,7 @@
       <div class="absolute bottom-1/3 right-1/3 w-3 h-3 rounded-full bg-secondary/30 animate-pulse"></div>
 
       <!-- 卡片内容 -->
-      <div class="p-5 h-52 flex flex-col relative z-10">
+      <div class="p-5 h-56 flex flex-col relative z-10">
         <!-- 顶部信息区 -->
         <div class="flex justify-between items-start mb-3">
           <div>
@@ -28,44 +28,83 @@
               </span>
             </div>
           </div>
-          <div class="flex items-center bg-gradient-to-r from-amber-50 to-amber-100/70 backdrop-blur-sm px-3 py-1.5 rounded-full shadow-md border border-amber-100/50">
-            <font-awesome-icon icon="star" class="text-amber-400 text-xs mr-1.5" />
-            <span class="text-xs font-medium text-amber-800">
-              {{ getOutfitRating(outfit) }}分
-            </span>
-          </div>
+
         </div>
 
-        <!-- 衣物预览区 - 优化布局 -->
-        <div class="flex-1 flex items-center justify-center relative">
+        <!-- 衣物预览区 - 堆叠效果 -->
+        <div class="flex-1 flex items-center justify-center relative" @mouseleave="resetStack" style="height: 220px;">
           <div v-if="(outfit?.items?.length || 0) === 0" class="text-center text-neutral-400">
             <div class="w-16 h-16 rounded-2xl bg-gradient-to-br from-white/80 to-white/50 backdrop-blur-sm flex items-center justify-center mx-auto mb-3 shadow-lg border border-white/50">
               <font-awesome-icon icon="tshirt" class="text-primary text-2xl" />
             </div>
             <p class="text-sm text-neutral-500">暂无衣物</p>
           </div>
-          <div v-else class="grid grid-cols-3 gap-3 w-full px-2">
-            <div v-for="(item, idx) in (outfit?.items || []).slice(0, 6)" :key="idx"
-                 class="aspect-square relative overflow-hidden rounded-2xl shadow-md group/item transform transition-all duration-500 hover:scale-105 hover:z-10"
-                 :style="{ zIndex: 10 + idx }">
-              <div class="absolute inset-0 bg-gradient-to-br from-white/90 to-white/60 backdrop-blur-sm rounded-2xl shadow-md border border-white/70 z-0"></div>
-              <img :src="item.img" :alt="item.name"
-                   class="w-full h-full object-cover rounded-2xl relative z-10 transition-transform duration-500 group-hover/item:scale-110 group-hover/item:shadow-xl"
-                   loading="lazy" />
-              <div class="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent opacity-0 group-hover/item:opacity-100 transition-opacity duration-300 z-20"></div>
-              <!-- 更多衣物指示器 -->
-              <div v-if="idx === 5 && (outfit?.items?.length || 0) > 6" 
-                   class="absolute inset-0 bg-gradient-to-br from-black/70 to-black/90 backdrop-blur-sm flex items-center justify-center text-white text-sm font-bold z-30 rounded-2xl">
-                <span class="transform -rotate-12">+{{ (outfit?.items?.length || 0) - 6 }}</span>
-              </div>
+          <div v-else class="relative w-full h-full overflow-visible">
+            <!-- 衣物图片堆叠效果 - 重新设计 -->
+            <div class="relative w-full h-full flex items-center justify-center">
+              <template v-for="(item, idx) in (outfit?.items || []).slice(0, 4)" :key="idx">
+              <div 
+                v-if="item.img"
+                  class="absolute w-28 h-36 bg-white rounded-xl shadow-lg overflow-hidden transition-all duration-500 ease-out cursor-pointer border-2 border-white"
+                  :class="{ 'ring-2 ring-primary/30 ring-offset-1': hoveredIndex === idx }"
+                  :style="{
+                    zIndex: 30 - idx,
+                    transform: expanded ? 
+                      (hoveredIndex === idx ? 'translateY(0) translateX(0) rotate(0) scale(1.1)' : 
+                       `translateY(${idx * 2}px) translateX(${idx % 2 === 0 ? -idx * 6 : idx * 6}px) rotate(${idx % 2 === 0 ? -1 - idx * 0.5 : 1 + idx * 0.5}deg)`) :
+                      `translateY(${idx * 3}px) translateX(${idx % 2 === 0 ? -idx * 8 : idx * 8}px) rotate(${idx % 2 === 0 ? -2 - idx : 2 + idx}deg)`,
+                    opacity: expanded ? (hoveredIndex === idx ? 1 : 0.8) : 1,
+                    filter: expanded && hoveredIndex !== idx ? 'blur(1px)' : 'none'
+                  }"
+                @mouseenter="hoveredIndex = idx"
+                @click="toggleExpanded">
+                  <!-- 图片容器 -->
+                  <div class="relative w-full h-full overflow-hidden">
+                    <img 
+                      :src="item.img" 
+                      :alt="item.name" 
+                      class="w-full h-full object-cover transition-transform duration-500"
+                      :class="{ 'scale-110': hoveredIndex === idx }"
+                    >
+                    <!-- 悬停时的渐变遮罩 -->
+                    <div class="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent opacity-0 transition-opacity duration-400" 
+                         :class="{ 'opacity-100': hoveredIndex === idx }"></div>
+                    
+                    <!-- 物品标签 -->
+                    <div class="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/70 to-transparent p-2 text-white transition-opacity duration-300"
+                         :class="{ 'opacity-0': hoveredIndex !== idx && !expanded, 'opacity-100': hoveredIndex === idx || expanded }">
+                      <div class="text-xs font-medium truncate">{{ item.name || `物品 ${idx + 1}` }}</div>
+                    </div>
+                  </div>
+                </div>
+              </template>
             </div>
+            
+            <!-- 更多衣物指示器 -->
+            <div 
+              v-if="(outfit?.items?.length || 0) > 4" 
+              class="absolute bottom-1 right-1 bg-gradient-to-r from-primary to-secondary text-white rounded-full w-10 h-10 flex items-center justify-center shadow-md text-sm font-bold border-2 border-white z-40 transition-all duration-300 hover:scale-110 hover:shadow-lg cursor-pointer flex-shrink-0"
+              :class="{ 'animate-pulse': !expanded }"
+              @click="toggleExpanded"
+            >
+              +{{ (outfit?.items?.length || 0) - 4 }}
+            </div>
+            
+            <!-- 提示 -->
+            <div 
+              v-if="!expanded" 
+              class="absolute bottom-0 left-0 right-0 text-center text-xs font-medium text-primary/70 transition-opacity duration-300"
+            >
+              点击展开查看更多
+            </div>
+
           </div>
         </div>
       </div>
     </div>
 
     <!-- 优化的搭配信息 -->
-    <div class="p-5 flex-1 flex flex-col bg-gradient-to-br from-white/90 to-white/70 backdrop-blur-sm">
+    <div class="p-5 flex-1 flex flex-col bg-gradient-to-br from-white/90 to-white/70 backdrop-blur-sm" style="min-height: 200px;">
       <!-- 衣物数量统计 -->
       <div class="mb-4 flex items-center justify-between">
         <span class="text-sm font-medium text-neutral-600 flex items-center bg-white/70 backdrop-blur-sm px-3 py-1.5 rounded-full shadow-sm">
@@ -155,6 +194,25 @@ const props = defineProps({
 
 // 事件定义
 const emit = defineEmits(['load-outfit', 'delete-outfit', 'edit-outfit'])
+
+// 状态管理
+const expanded = ref(false);
+const hoveredIndex = ref(-1);
+
+// 切换展开状态
+const toggleExpanded = () => {
+  expanded.value = !expanded.value;
+  if (!expanded.value) {
+    hoveredIndex.value = -1;
+  }
+};
+
+// 重置堆叠状态
+const resetStack = () => {
+  if (!expanded.value) {
+    hoveredIndex.value = -1;
+  }
+};
 
 // 编辑状态
 const isEditing = ref(false)
