@@ -1,7 +1,7 @@
 <template>
   <!-- 分类结果展示 - 全屏覆盖层 -->
   <transition name="fade">
-    <div v-if="isDrawerOpen" class="fixed inset-0 bg-black bg-opacity-50 z-40" @click="$emit('closeDrawer')"></div>
+    <div v-if="isDrawerOpen" class="fixed inset-0 bg-black bg-opacity-50 backdrop-blur-sm z-40" @click="$emit('closeDrawer')"></div>
   </transition>
 
   <!-- 分类结果展示 - 优雅卡片 -->

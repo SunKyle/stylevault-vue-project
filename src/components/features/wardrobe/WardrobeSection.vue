@@ -203,7 +203,11 @@ function getCategoryItems(categoryId) {
     // 直接从store获取最新的衣物列表，避免响应式更新问题
     items = [...wardrobeStore.clothingItems];
   } else {
-    items = [...(wardrobeStore.itemsByCategory[categoryId] || [])];
+    // 不使用计算属性，直接从store中过滤，确保能获取到最新添加的衣物
+    items = wardrobeStore.clothingItems.filter(item => 
+      String(item.categoryId) === String(categoryId) || 
+      (item.category && String(item.category) === String(categoryId))
+    );
   }
   
   // 应用筛选

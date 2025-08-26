@@ -568,20 +568,23 @@ export const wardrobeAPI = {
   // 获取所有衣物
   getClothingItems: async () => {
     await delay(500) // 模拟网络延迟
-    return { success: true, data: clothingItems }
+    // 返回数组的副本，确保包含最新添加的衣物
+    return { success: true, data: [...clothingItems] }
   },
 
   // 根据类别获取衣物
   getClothingItemsByCategory: async (categoryId) => {
     await delay(400) // 模拟网络延迟
-    const items = clothingItems.filter(item => item.categoryId === categoryId)
+    // 使用数组的副本进行过滤，确保包含最新添加的衣物
+    const items = [...clothingItems].filter(item => item.categoryId === categoryId)
     return { success: true, data: items }
   },
 
   // 获取衣物详情
   getClothingItemDetail: async (id) => {
     await delay(300) // 模拟网络延迟
-    const item = clothingItems.find(item => item.id === id)
+    // 使用数组的副本进行查找，确保包含最新添加的衣物
+    const item = [...clothingItems].find(item => item.id === id)
     if (item) {
       return { success: true, data: item }
     } else {
@@ -599,13 +602,16 @@ export const wardrobeAPI = {
       lastWorn: null
     }
     clothingItems.push(newItem)
-    return { success: true, data: newItem }
+    // 返回新添加的衣物，确保包含所有必要字段
+    return { success: true, data: { ...newItem } }
   },
 
   // 更新衣物信息
   updateClothingItem: async (id, updates) => {
     await delay(500) // 模拟网络延迟
-    const index = clothingItems.findIndex(item => item.id === id)
+    // 使用数组的副本进行查找和更新，确保包含最新添加的衣物
+    const items = [...clothingItems]
+    const index = items.findIndex(item => item.id === id)
     if (index !== -1) {
       clothingItems[index] = { ...clothingItems[index], ...updates }
       return { success: true, data: { ...clothingItems[index] } }

@@ -303,6 +303,9 @@ const saveClothes = async () => {
     await wardrobeStore.addClothingItem(itemToSubmit);
     showToast("衣物添加成功", "success");
 
+    // 刷新衣橱数据，确保新添加的衣物能立即显示
+    await wardrobeStore.fetchClothingItems();
+
     // 使用nextTick确保DOM更新后再清空表单
     await nextTick();
     
@@ -316,12 +319,6 @@ const saveClothes = async () => {
     clothingItem.notes = "";
     // 重置图片
     clothingItem.image = "";
-
-    // 用户要求新增完不需要跳转到其他页面，保留在当前页面
-    
-    // 强制刷新页面中的衣橱数据，确保新添加的衣物能立即显示
-    // 由于我们已经修复了getCategoryItems函数，确保它能正确返回所有衣物，包括新添加的
-    // 这里不需要额外的刷新逻辑，因为Vue的响应式系统会自动更新视图
   } catch (error) {
     showToast("添加失败，请重试", "error");
     console.error("添加衣物失败:", error);

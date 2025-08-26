@@ -138,6 +138,8 @@ export const useWardrobeStore = defineStore('wardrobe', {
       try {
         const newItem = await wardrobeService.addClothingItem(item)
         this.clothingItems.push(newItem)
+        // 添加新衣物后刷新数据，确保能立即查询到新添加的衣物
+        await this.fetchClothingItems()
         return newItem
       } catch (error) {
         this.setError('添加衣物失败')

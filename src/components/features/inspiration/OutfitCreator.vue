@@ -9,6 +9,7 @@
         @remove-cloth="$emit('remove-cloth', $event)"
         @reset-clothes="$emit('reset-clothes')"
         @save-outfit="handleSaveOutfit"
+        @add-cloth="$emit('toggle-cloth', $event)"
       />
     </div>
 
