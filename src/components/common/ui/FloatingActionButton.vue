@@ -9,7 +9,7 @@
     
     <!-- 扇形展开的功能菜单容器 - 使用统一的布局参考系 -->
     <div class="relative w-72 h-72">
-    
+      
       <!-- 添加衣物按钮 - 扇形位置1 (左下位置) -->
       <button 
         class="absolute w-14 h-14 rounded-full bg-white text-indigo-600 shadow-lg flex items-center justify-center transition-all duration-600 ease-out"
@@ -57,10 +57,10 @@
         @click="handleAddOutfit"
         aria-label="添加搭配"
       >
-        <font-awesome-icon icon="layer-group" class="text-xl" />
+        <font-awesome-icon icon="lightbulb" class="text-xl" />
       </button>
       
-      <!-- 上传照片按钮 - 扇形位置3 (正上位置) -->
+      <!-- 查看全部衣物按钮 - 扇形位置3 (正上位置) -->
       <button 
         class="absolute w-14 h-14 rounded-full bg-white text-blue-600 shadow-lg flex items-center justify-center transition-all duration-600 ease-out"
         :style="showMenu ? 
@@ -79,10 +79,10 @@
             transform: 'scale(0.7) rotate(90deg)' 
           }
         "
-        @click="handleUpload"
-        aria-label="上传照片"
+        @click="handleViewAllClothing"
+        aria-label="查看全部衣物"
       >
-        <font-awesome-icon icon="upload" class="text-xl" />
+        <font-awesome-icon icon="th-large" class="text-xl" />
       </button>
       
       <!-- 主按钮 - 增强静置状态的阴影效果 -->
@@ -106,7 +106,7 @@ import { ref, onMounted, onUnmounted } from 'vue'
 
 const showMenu = ref(false)
 
-const emit = defineEmits(['addClothing', 'addOutfit', 'upload'])
+const emit = defineEmits(['addClothing', 'addOutfit', 'upload', 'viewAllClothing'])
 
 function toggleMenu() {
   showMenu.value = !showMenu.value
@@ -124,6 +124,11 @@ function handleAddOutfit() {
 
 function handleUpload() {
   emit('upload')
+  showMenu.value = false
+}
+
+function handleViewAllClothing() {
+  emit('viewAllClothing')
   showMenu.value = false
 }
 

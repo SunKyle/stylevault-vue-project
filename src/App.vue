@@ -18,12 +18,13 @@
       @addClothing="handleAddClothing"
       @addOutfit="handleAddOutfit"
       @upload="handleUpload"
+      @viewAllClothing="handleViewAllClothing"
     />
   </div>
 </template>
 
 <script setup>
-import { ref, computed, watch } from 'vue'
+import { ref, computed, watch, nextTick } from 'vue'
 import Header from './components/common/layout/Header.vue'
 import Footer from './components/common/layout/Footer.vue'
 import FloatingActionButton from './components/common/ui/FloatingActionButton.vue'
@@ -74,5 +75,19 @@ function handleAddOutfit() {
 function handleUpload() {
   // 这里可以实现上传照片的逻辑
   currentSection.value = 'upload'
+}
+
+function handleViewAllClothing() {
+  // 跳转到衣橱页面并确保组件已加载
+  currentSection.value = 'wardrobe'
+  // 这里需要确保WardrobeSection组件已加载，然后调用其查看全部方法
+  // 在下一个tick中发送自定义事件给WardrobeSection组件
+  nextTick(() => {
+    const event = new CustomEvent('view-all-clothing', {
+      bubbles: true,
+      composed: true
+    })
+    document.dispatchEvent(event)
+  })
 }
 </script>

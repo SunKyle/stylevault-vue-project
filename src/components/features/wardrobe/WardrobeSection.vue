@@ -120,7 +120,7 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted, nextTick } from 'vue'
+import { ref, computed, onMounted, nextTick,onUnmounted } from 'vue'
 import ClothingCategory from '../../common/ui/ClothingCategory.vue'
 import OutfitCard from '../../common/ui/OutfitCard.vue'
 import ClothingItem from '../../common/ui/ClothingItem.vue'
@@ -253,6 +253,18 @@ function forceUpdate() {
     console.log("组件已强制更新");
   });
 }
+
+onMounted(() => {
+  initializeData()
+  
+  // 监听全局查看全部衣物事件
+  document.addEventListener('view-all-clothing', viewAllCategories)
+})
+
+onUnmounted(() => {
+  // 清理事件监听器
+  document.removeEventListener('view-all-clothing', viewAllCategories)
+})
 
 function selectCategory(categoryId) {
   console.log("点击分类，ID:", categoryId);
