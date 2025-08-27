@@ -27,6 +27,26 @@
                 {{ outfit?.scene || '' }}
               </span>
             </div>
+
+            <!-- 季节信息 -->
+            <div v-if="outfit?.season" class="flex items-center mt-1.5">
+              <div class="w-5 h-5 rounded-full bg-gradient-to-r from-green-500/10 to-emerald-500/10 flex items-center justify-center mr-1.5 shadow-sm">
+                <font-awesome-icon icon="leaf" class="text-green-600 text-xs" />
+              </div>
+              <span class="text-xs text-green-600 font-medium bg-white/70 backdrop-blur-sm px-2 py-1 rounded-full border border-green-100/50">
+                {{ getSeasonLabel(outfit.season) }}
+              </span>
+            </div>
+
+            <!-- 风格信息 -->
+            <div v-if="outfit?.style" class="flex items-center mt-1.5">
+              <div class="w-5 h-5 rounded-full bg-gradient-to-r from-purple-500/10 to-pink-500/10 flex items-center justify-center mr-1.5 shadow-sm">
+                <font-awesome-icon icon="palette" class="text-purple-600 text-xs" />
+              </div>
+              <span class="text-xs text-purple-600 font-medium bg-white/70 backdrop-blur-sm px-2 py-1 rounded-full border border-purple-100/50">
+                {{ getStyleLabel(outfit.style) }}
+              </span>
+            </div>
           </div>
 
         </div>
@@ -43,68 +63,34 @@
             <!-- 衣物图片堆叠效果 - 重新设计 -->
             <div class="relative w-full h-full flex items-center justify-center">
               <template v-for="(item, idx) in (outfit?.items || []).slice(0, 4)" :key="idx">
-              <div 
+              <div
                 v-if="item.img"
                   class="absolute w-28 h-36 bg-gradient-to-br from-white to-indigo-50/50 rounded-xl shadow-lg overflow-hidden transition-all duration-500 ease-out cursor-pointer border-2 border-white/80 backdrop-blur-sm"
                   :class="{ 'ring-2 ring-indigo-400/30 ring-offset-1': hoveredIndex === idx }"
-                  :style="{
-                    zIndex: 30 - idx,
-                    transform: expanded ? 
-                      (hoveredIndex === idx ? 'translateY(0) translateX(0) rotate(0) scale(1.1)' : 
-                       `translateY(${idx * 2}px) translateX(${idx % 2 === 0 ? -idx * 6 : idx * 6}px) rotate(${idx % 2 === 0 ? -1 - idx * 0.5 : 1 + idx * 0.5}deg)`) :
-                      `translateY(${idx * 3}px) translateX(${idx % 2 === 0 ? -idx * 8 : idx * 8}px) rotate(${idx % 2 === 0 ? -2 - idx : 2 + idx}deg)`,
-                    opacity: expanded ? (hoveredIndex === idx ? 1 : 0.8) : 1,
-                    filter: expanded && hoveredIndex !== idx ? 'blur(1px)' : 'none'
-                  }"
-                @mouseenter="hoveredIndex = idx"
-                @click="toggleExpanded">
-                  <!-- 图片容器 -->
-                  <div class="relative w-full h-full overflow-hidden">
-                    <img 
-                      :src="item.img" 
-                      :alt="item.name" 
-                      class="w-full h-full object-cover transition-transform duration-500"
-                      :class="{ 'scale-110': hoveredIndex === idx }"
-                    >
-                    <!-- 悬停时的渐变遮罩 -->
-                    <div class="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent opacity-0 transition-opacity duration-400" 
-                         :class="{ 'opacity-100': hoveredIndex === idx }"></div>
-                    
-                    <!-- 物品标签 -->
-                    <div class="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/70 to-transparent p-2 text-white transition-opacity duration-300"
-                         :class="{ 'opacity-0': hoveredIndex !== idx && !expanded, 'opacity-100': hoveredIndex === idx || expanded }">
-                      <div class="text-xs font-medium truncate">{{ item.name || `物品 ${idx + 1}` }}</div>
-                    </div>
+                  :style="getItemStyle(idx)"
+                  @mouseenter="hoveredIndex = idx"
+                  @click="openImagePreview(item)"
+                >
+                  <img :src="item.img" :alt="item.name" class="w-full h-full object-cover" loading="lazy" />
+                  <div class="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/70 to-transparent p-2">
+                    <p class="text-white text-xs font-medium truncate">{{ item.name }}</p>
+                    <p class="text-white/80 text-xs truncate">{{ item.type }}</p>
                   </div>
                 </div>
               </template>
             </div>
-            
+
             <!-- 更多衣物指示器 -->
-            <div 
-              v-if="(outfit?.items?.length || 0) > 4" 
-              class="absolute bottom-1 right-1 bg-gradient-to-r from-indigo-500 to-purple-500 text-white rounded-full w-10 h-10 flex items-center justify-center shadow-md text-sm font-bold border-2 border-white z-40 transition-all duration-300 hover:scale-110 hover:shadow-lg cursor-pointer flex-shrink-0"
-              :class="{ 'animate-pulse': !expanded }"
-              @click="toggleExpanded"
-            >
+            <div v-if="(outfit?.items?.length || 0) > 4" class="absolute bottom-2 right-2 w-8 h-8 rounded-full bg-indigo-500 text-white flex items-center justify-center text-xs font-bold shadow-lg z-10">
               +{{ (outfit?.items?.length || 0) - 4 }}
             </div>
-            
-            <!-- 提示 -->
-            <div 
-              v-if="!expanded" 
-              class="absolute bottom-0 left-0 right-0 text-center text-xs font-medium text-indigo-600/70 transition-opacity duration-300"
-            >
-              点击展开查看更多
-            </div>
-
           </div>
         </div>
       </div>
     </div>
 
     <!-- 优化的搭配信息 -->
-    <div class="p-5 flex-1 flex flex-col bg-gradient-to-br from-indigo-50/80 via-white/90 to-purple-50/80 backdrop-blur-sm" style="min-height: 200px;">
+    <div class="p-5 flex-1 flex flex-col bg-gradient-to-br from-indigo-50/80 via-white/90 to-purple-50/80 backdrop-blur-sm">
       <!-- 衣物数量统计 -->
       <div class="mb-4 flex items-center justify-between">
         <span class="text-sm font-medium text-indigo-700 flex items-center bg-white/70 backdrop-blur-sm px-3 py-1.5 rounded-full shadow-sm border border-indigo-100/50">
@@ -133,8 +119,19 @@
         </div>
       </div>
 
-      <!-- 编辑表单 -->
-      <div v-if="isEditing" class="space-y-4 mt-auto">
+
+
+      <!-- 主要操作按钮 -->
+      <button v-if="!isEditing" @click="$emit('load-outfit', outfit)"
+              class="w-full bg-gradient-to-r from-primary to-secondary hover:from-primary/90 hover:to-secondary/90 text-white font-medium py-2.5 rounded-xl transition-all duration-300 flex items-center justify-center shadow-md hover:shadow-lg transform hover:-translate-y-1 active:translate-y-0 mt-auto">
+        <font-awesome-icon :icon="['fas', 'eye']" class="mr-2" />
+        <span>查看详情</span>
+      </button>
+    </div>
+    
+    <!-- 编辑表单 - 延伸区域 -->
+    <div v-if="isEditing" class="p-5 bg-gradient-to-br from-indigo-50/80 via-white/90 to-purple-50/80 backdrop-blur-sm border-t border-indigo-100/50 transition-all duration-500 ease-in-out">
+      <div class="space-y-4">
         <div>
           <label class="block text-sm font-medium text-indigo-700 mb-2 flex items-center">
             <div class="w-5 h-5 rounded-full bg-gradient-to-r from-indigo-500/10 to-purple-500/10 flex items-center justify-center mr-2 shadow-sm">
@@ -142,21 +139,57 @@
             </div>
             搭配名称
           </label>
-          <input 
-            v-model="editOutfit.name" 
-            type="text" 
+          <input
+            v-model="editOutfit.name"
+            type="text"
             class="w-full px-3 py-2 border border-neutral-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary text-sm"
             placeholder="输入搭配名称"
           />
         </div>
         <div>
           <label class="block text-xs font-medium text-neutral-700 mb-1">适用场景</label>
-          <input 
-            v-model="editOutfit.scene" 
-            type="text" 
+          <input
+            v-model="editOutfit.scene"
+            type="text"
             class="w-full px-3 py-2 border border-neutral-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary text-sm"
             placeholder="输入适用场景"
           />
+        </div>
+        
+        <!-- 季节选择 -->
+        <div>
+          <label class="block text-xs font-medium text-neutral-700 mb-1">适用季节</label>
+          <div class="grid grid-cols-2 gap-2">
+            <button
+              v-for="season in seasonOptions"
+              :key="season.value"
+              @click="selectSeason(season.value)"
+              class="py-1.5 px-2 rounded-lg text-xs font-medium transition-all duration-300 flex items-center justify-center"
+              :class="editOutfit.season === season.value 
+                ? 'bg-green-500 text-white shadow-md' 
+                : 'bg-green-50 text-green-700 hover:bg-green-100 border border-green-100'"
+            >
+              <span>{{ season.label }}</span>
+            </button>
+          </div>
+        </div>
+        
+        <!-- 风格选择 -->
+        <div>
+          <label class="block text-xs font-medium text-neutral-700 mb-1">搭配风格</label>
+          <div class="grid grid-cols-3 gap-1.5">
+            <button
+              v-for="style in styleOptions"
+              :key="style.value"
+              @click="selectStyle(style.value)"
+              class="py-1.5 px-2 rounded-lg text-xs font-medium transition-all duration-300 flex items-center justify-center"
+              :class="editOutfit.style === style.value 
+                ? 'bg-purple-500 text-white shadow-md' 
+                : 'bg-purple-50 text-purple-700 hover:bg-purple-100 border border-purple-100'"
+            >
+              <span>{{ style.label }}</span>
+            </button>
+          </div>
         </div>
         <div class="flex gap-2">
           <button @click="saveEdit"
@@ -170,13 +203,6 @@
           </button>
         </div>
       </div>
-
-      <!-- 主要操作按钮 -->
-      <button v-else @click="$emit('load-outfit', outfit)"
-              class="w-full bg-gradient-to-r from-primary to-secondary hover:from-primary/90 hover:to-secondary/90 text-white font-medium py-2.5 rounded-xl transition-all duration-300 flex items-center justify-center shadow-md hover:shadow-lg transform hover:-translate-y-1 active:translate-y-0 mt-auto">
-        <font-awesome-icon :icon="['fas', 'eye']" class="mr-2" />
-        <span>查看详情</span>
-      </button>
     </div>
   </div>
 </template>
@@ -197,108 +223,171 @@ const emit = defineEmits(['load-outfit', 'delete-outfit', 'edit-outfit'])
 
 // 状态管理
 const expanded = ref(false);
+
+// 季节选项映射
+const seasonOptions = [
+  { value: 'spring', label: '春季' },
+  { value: 'summer', label: '夏季' },
+  { value: 'autumn', label: '秋季' },
+  { value: 'winter', label: '冬季' }
+]
+
+// 风格选项映射
+const styleOptions = [
+  { value: 'casual', label: '休闲' },
+  { value: 'formal', label: '正式' },
+  { value: 'business', label: '商务' },
+  { value: 'street', label: '街头' },
+  { value: 'vintage', label: '复古' },
+  { value: 'minimalist', label: '极简' }
+]
+
+// 获取季节标签
+function getSeasonLabel(value) {
+  const season = seasonOptions.find(option => option.value === value)
+  return season ? season.label : value
+}
+
+// 获取风格标签
+function getStyleLabel(value) {
+  const style = styleOptions.find(option => option.value === value)
+  return style ? style.label : value
+}
+
+// 选择季节
+function selectSeason(value) {
+  if (editOutfit.season === value) {
+    editOutfit.season = '' // 如果已选中，则取消选择
+  } else {
+    editOutfit.season = value
+  }
+}
+
+// 选择风格
+function selectStyle(value) {
+  if (editOutfit.style === value) {
+    editOutfit.style = '' // 如果已选中，则取消选择
+  } else {
+    editOutfit.style = value
+  }
+}
 const hoveredIndex = ref(-1);
 
 // 切换展开状态
-const toggleExpanded = () => {
+function toggleExpand() {
   expanded.value = !expanded.value;
-  if (!expanded.value) {
-    hoveredIndex.value = -1;
-  }
-};
+}
 
-// 重置堆叠状态
-const resetStack = () => {
-  if (!expanded.value) {
-    hoveredIndex.value = -1;
-  }
-};
+// 获取堆叠样式
+function getItemStyle(index) {
+  const totalItems = Math.min((props.outfit?.items?.length || 0), 4);
+  const maxRotation = 15; // 最大旋转角度
+  const maxOffset = 15; // 最大偏移量
+
+  // 根据索引计算位置和旋转
+  const rotation = (index - (totalItems - 1) / 2) * (maxRotation / totalItems);
+  const offset = (index - (totalItems - 1) / 2) * (maxOffset / totalItems);
+
+  return {
+    transform: `translateX(${offset}px) rotate(${rotation}deg)`,
+    zIndex: 10 + index,
+    opacity: hoveredIndex.value === -1 || hoveredIndex.value === index ? 1 : 0.7
+  };
+}
+
+// 重置堆叠效果
+function resetStack() {
+  hoveredIndex.value = -1;
+}
+
+// 图片预览
+const previewImage = ref({
+  show: false,
+  url: '',
+  name: '',
+  type: ''
+});
+
+// 打开图片预览
+function openImagePreview(item) {
+  previewImage.value = {
+    show: true,
+    url: item.img,
+    name: item.name,
+    type: item.type
+  };
+}
+
+// 关闭图片预览
+function closeImagePreview() {
+  previewImage.value.show = false;
+}
 
 // 编辑状态
-const isEditing = ref(false)
-const editOutfit = reactive({})
+const isEditing = ref(false);
+const editOutfit = reactive({
+  id: '',
+  name: '',
+  scene: '',
+  season: '',
+  style: ''
+});
 
 // 切换编辑模式
 function toggleEditMode() {
-  if (!isEditing.value) {
-    // 进入编辑模式，复制当前数据
-    Object.assign(editOutfit, {
-      id: props.outfit.id,
-      name: props.outfit.name,
-      scene: props.outfit.scene || ''
-    })
+  if (isEditing.value) {
+    cancelEdit();
+  } else {
+    // 进入编辑模式，初始化编辑数据
+    editOutfit.id = props.outfit.id;
+    editOutfit.name = props.outfit.name;
+    editOutfit.scene = props.outfit.scene || '';
+    editOutfit.season = props.outfit.season || '';
+    editOutfit.style = props.outfit.style || '';
+    isEditing.value = true;
   }
-  isEditing.value = !isEditing.value
 }
 
 // 保存编辑
 function saveEdit() {
-  // 验证数据
-  if (!editOutfit.name.trim()) {
-    alert('搭配名称不能为空')
-    return
-  }
-
-  // 发送编辑事件
-  emit('edit-outfit', { ...editOutfit })
-  // 退出编辑模式
-  isEditing.value = false
+  emit('edit-outfit', {
+    id: editOutfit.id,
+    name: editOutfit.name,
+    scene: editOutfit.scene,
+    season: editOutfit.season,
+    style: editOutfit.style
+  });
+  isEditing.value = false;
 }
 
 // 取消编辑
 function cancelEdit() {
-  isEditing.value = false
-}
-
-// 获取搭配评分（模拟）
-function getOutfitRating(outfit) {
-  // 基于衣物数量和搭配多样性计算评分
-  if (!outfit.items || outfit.items.length === 0) return 0
-
-  // 基础分 5 分
-  let baseScore = 5
-
-  // 衣物数量加分 (最多 3 分)
-  const quantityBonus = Math.min(Math.floor(outfit.items.length / 2), 3)
-
-  // 搭配多样性加分 (最多 2 分)
-  const types = new Set(outfit.items.map(item => item.type.split(' · ')[0]))
-  const diversityBonus = Math.min(types.size - 1, 2)
-
-  return baseScore + quantityBonus + diversityBonus
+  isEditing.value = false;
 }
 </script>
 
 <style scoped>
-/* 自定义滚动条样式 */
-.scrollbar-thin::-webkit-scrollbar {
-  width: 4px;
+/* 自定义动画 */
+@keyframes pulse-slow {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.7;
+  }
 }
 
-.scrollbar-thin::-webkit-scrollbar-track {
-  background: transparent;
+.animate-pulse-slow {
+  animation: pulse-slow 3s cubic-bezier(0.4, 0, 0.6, 1) infinite;
 }
 
-.scrollbar-thin::-webkit-scrollbar-thumb {
-  background: rgba(0, 0, 0, 0.1);
-  border-radius: 2px;
+.animation-delay-1000 {
+  animation-delay: 1s;
 }
 
-.scrollbar-thin::-webkit-scrollbar-thumb:hover {
-  background: rgba(0, 0, 0, 0.2);
-}
-
-/* 悬停动画增强 */
-.group:hover .text-primary {
-  color: theme('colors.primary', #3b82f6);
-}
-
-/* 卡片悬停效果增强 */
-.shadow-md {
-  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
-}
-
-.shadow-lg {
-  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.08), 0 4px 6px -2px rgba(0, 0, 0, 0.04);
+/* 图片预览模态框 */
+:deep(.modal-backdrop) {
+  backdrop-filter: blur(8px);
+  background-color: rgba(0, 0, 0, 0.5);
 }
 </style>

@@ -12,14 +12,135 @@
 
     <!-- 已保存搭配区域 -->
     <div class="mb-12">
-      <div class="flex justify-between items-center mb-6">
-        <h2 class="text-2xl font-bold flex items-center">
-          <font-awesome-icon :icon="['fas', 'heart']" class="text-primary mr-2" />
-          我的搭配
-        </h2>
-        <span class="bg-primary/10 text-primary px-3 py-1 rounded-full text-sm font-medium">
-          {{ savedOutfits.length }}套方案
-        </span>
+      <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4">
+        <div class="flex items-center">
+          <h2 class="text-2xl font-bold flex items-center">
+            <font-awesome-icon :icon="['fas', 'heart']" class="text-primary mr-2" />
+            我的搭配
+          </h2>
+          <span class="bg-primary/10 text-primary px-3 py-1 rounded-full text-sm font-medium ml-3">
+            {{ filteredOutfits.length }}套方案
+          </span>
+        </div>
+        
+        <!-- 搜索和筛选区域 -->
+        <div class="flex flex-col md:flex-row gap-3 w-full md:w-auto">
+          <!-- 搜索框 -->
+          <div class="relative w-full md:w-64">
+            <div class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
+              <font-awesome-icon :icon="['fas', 'search']" class="text-gray-400" />
+            </div>
+            <input
+              v-model="searchQuery"
+              type="text"
+              class="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary text-sm"
+              placeholder="搜索搭配名称或标签..."
+            />
+          </div>
+          
+          <!-- 筛选按钮 -->
+          <div class="relative">
+            <button
+              @click="toggleFilterPanel"
+              class="flex items-center gap-2 px-4 py-2 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary text-sm transition-colors"
+            >
+              <font-awesome-icon :icon="['fas', 'filter']" />
+              <span>筛选</span>
+              <span v-if="activeFiltersCount > 0" class="bg-primary text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
+                {{ activeFiltersCount }}
+              </span>
+            </button>
+            
+            <!-- 筛选面板 -->
+            <div v-if="showFilterPanel" class="absolute right-0 mt-2 w-80 bg-white rounded-xl shadow-lg border border-gray-200 z-20 p-5">
+              <div class="flex justify-between items-center mb-4">
+                <h3 class="font-medium text-gray-900">筛选条件</h3>
+                <button @click="resetFilters" class="text-sm text-primary hover:text-primary/80">
+                  重置
+                </button>
+              </div>
+              
+              <!-- 场景筛选 -->
+              <div class="mb-5">
+                <h4 class="text-sm font-medium text-gray-700 mb-2">场景</h4>
+                <div class="flex flex-wrap gap-2">
+                  <button
+                    v-for="scene in sceneOptions"
+                    :key="scene.value"
+                    @click="toggleFilter('scene', scene.value)"
+                    class="px-3 py-1.5 text-xs rounded-full transition-colors"
+                    :class="filters.scene.includes(scene.value) 
+                      ? 'bg-primary text-white' 
+                      : 'bg-gray-100 text-gray-700 hover:bg-gray-200'"
+                  >
+                    {{ scene.label }}
+                  </button>
+                </div>
+              </div>
+              
+              <!-- 季节筛选 -->
+              <div class="mb-5">
+                <h4 class="text-sm font-medium text-gray-700 mb-2">季节</h4>
+                <div class="flex flex-wrap gap-2">
+                  <button
+                    v-for="season in seasonOptions"
+                    :key="season.value"
+                    @click="toggleFilter('season', season.value)"
+                    class="px-3 py-1.5 text-xs rounded-full transition-colors"
+                    :class="filters.season.includes(season.value) 
+                      ? 'bg-primary text-white' 
+                      : 'bg-gray-100 text-gray-700 hover:bg-gray-200'"
+                  >
+                    {{ season.label }}
+                  </button>
+                </div>
+              </div>
+              
+              <!-- 风格筛选 -->
+              <div class="mb-5">
+                <h4 class="text-sm font-medium text-gray-700 mb-2">风格</h4>
+                <div class="flex flex-wrap gap-2">
+                  <button
+                    v-for="style in styleOptions"
+                    :key="style.value"
+                    @click="toggleFilter('style', style.value)"
+                    class="px-3 py-1.5 text-xs rounded-full transition-colors"
+                    :class="filters.style.includes(style.value) 
+                      ? 'bg-primary text-white' 
+                      : 'bg-gray-100 text-gray-700 hover:bg-gray-200'"
+                  >
+                    {{ style.label }}
+                  </button>
+                </div>
+              </div>
+              
+              <!-- 应用筛选按钮 -->
+              <button
+                @click="applyFilters"
+                class="w-full bg-primary hover:bg-primary/90 text-white font-medium py-2 rounded-lg transition-colors mt-2"
+              >
+                应用筛选
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <!-- 当前筛选条件显示 -->
+      <div v-if="activeFiltersCount > 0" class="mb-6 flex flex-wrap gap-2">
+        <span class="text-sm text-gray-600">当前筛选:</span>
+        <div v-for="(filter, type) in activeFilters" :key="type" class="flex flex-wrap gap-2">
+          <span
+            v-for="value in filter"
+            :key="value"
+            class="inline-flex items-center gap-1 px-3 py-1 bg-primary/10 text-primary rounded-full text-sm"
+          >
+            {{ getFilterLabel(type, value) }}
+            <button @click="removeFilter(type, value)" class="hover:text-primary/80">
+              <font-awesome-icon :icon="['fas', 'times']" class="text-xs" />
+            </button>
+          </span>
+        </div>
       </div>
 
       <div class="bg-white rounded-2xl p-6 shadow-md relative overflow-hidden">
@@ -30,7 +151,7 @@
         <!-- 已保存搭配列表 -->
         <div v-if="currentPageOutfits.length > 0" class="relative z-10">
           <!-- 搭配卡片自适应网格布局 -->
-          <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+          <div class="grid gap-6 grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
             <OutfitCard 
               v-for="outfit in currentPageOutfits" 
               :key="outfit.id" 
@@ -41,8 +162,22 @@
             />
           </div>
 
-          <!-- 分页控件 - 优化设计 -->
-          <div v-if="filteredOutfits.length > props.itemsPerPage" class="flex justify-center mt-8">
+          <!-- 分页控件和显示模式切换 - 优化设计 -->
+          <div v-if="filteredOutfits.length > props.itemsPerPage" class="flex justify-between items-center mt-8 px-4">
+            <!-- 显示模式切换按钮 -->
+            <button
+              @click="toggleDisplayMode"
+              class="flex items-center gap-2 px-4 py-2 bg-white rounded-lg border border-gray-200 hover:bg-gray-50 transition-colors shadow-sm"
+              :title="expandedDisplay ? '收起显示' : '展开显示'"
+            >
+              <font-awesome-icon 
+                :icon="['fas', expandedDisplay ? 'compress-alt' : 'expand-alt']" 
+                class="text-gray-600" 
+              />
+              <span class="text-sm text-gray-700">{{ expandedDisplay ? '收起' : '展开' }}</span>
+            </button>
+            
+            <!-- 分页控件 -->
             <div class="flex items-center space-x-2 bg-white rounded-full px-4 py-2 shadow-sm border border-neutral-100">
             <!-- 上一页按钮 -->
             <button 
@@ -96,7 +231,7 @@
 </template>
 
 <script setup>
-import { computed } from 'vue'
+import { ref, computed } from 'vue'
 import OutfitCard from './OutfitCard.vue'
 
 // Props定义
@@ -120,23 +255,101 @@ const emit = defineEmits(['load-outfit', 'delete-outfit', 'share-outfit', 'page-
 
 // 计算当前页要显示的搭配
 const currentPageOutfits = computed(() => {
+  // 如果处于展开状态，显示双倍数量的卡片
+  const itemsToShow = expandedDisplay.value ? props.itemsPerPage * 2 : props.itemsPerPage
   const start = (props.currentPage - 1) * props.itemsPerPage
-  const end = start + props.itemsPerPage
+  const end = start + itemsToShow
   // 使用已经过滤后的搭配数据
   return filteredOutfits.value.slice(start, end)
 })
 
+// 搜索和筛选状态
+const searchQuery = ref('')
+const showFilterPanel = ref(false)
+
+// 显示模式状态
+const expandedDisplay = ref(false)
+const filters = ref({
+  scene: [],
+  season: [],
+  style: []
+})
+const appliedFilters = ref({
+  scene: [],
+  season: [],
+  style: []
+})
+
+// 筛选选项
+const sceneOptions = [
+  { value: 'daily', label: '日常' },
+  { value: 'work', label: '工作' },
+  { value: 'party', label: '聚会' },
+  { value: 'date', label: '约会' },
+  { value: 'travel', label: '旅行' },
+  { value: 'sports', label: '运动' }
+]
+
+const seasonOptions = [
+  { value: 'spring', label: '春季' },
+  { value: 'summer', label: '夏季' },
+  { value: 'autumn', label: '秋季' },
+  { value: 'winter', label: '冬季' }
+]
+
+const styleOptions = [
+  { value: 'casual', label: '休闲' },
+  { value: 'formal', label: '正式' },
+  { value: 'business', label: '商务' },
+  { value: 'street', label: '街头' },
+  { value: 'vintage', label: '复古' },
+  { value: 'minimalist', label: '极简' }
+]
+
 // 计算过滤后的搭配
 const filteredOutfits = computed(() => {
-  // 使用与currentPageOutfits相同的过滤条件
   return props.savedOutfits.filter(outfit => {
-    return outfit && (outfit.id || outfit.name)
+    // 基本过滤
+    if (!outfit || (!outfit.id && !outfit.name)) return false
+    
+    // 搜索过滤
+    if (searchQuery.value) {
+      const query = searchQuery.value.toLowerCase()
+      const nameMatch = outfit.name && outfit.name.toLowerCase().includes(query)
+      const sceneMatch = outfit.scene && outfit.scene.toLowerCase().includes(query)
+      const tagsMatch = outfit.tags && outfit.tags.some(tag => tag.toLowerCase().includes(query))
+      
+      if (!nameMatch && !sceneMatch && !tagsMatch) return false
+    }
+    
+    // 筛选条件过滤
+    if (appliedFilters.value.scene.length > 0) {
+      if (!outfit.scene || !appliedFilters.value.scene.includes(outfit.scene.toLowerCase())) {
+        return false
+      }
+    }
+    
+    if (appliedFilters.value.season.length > 0) {
+      if (!outfit.season || !appliedFilters.value.season.includes(outfit.season.toLowerCase())) {
+        return false
+      }
+    }
+    
+    if (appliedFilters.value.style.length > 0) {
+      if (!outfit.style || !appliedFilters.value.style.includes(outfit.style.toLowerCase())) {
+        return false
+      }
+    }
+    
+    return true
   })
 })
 
 // 计算总页数
 const totalPages = computed(() => {
-  return Math.ceil(filteredOutfits.value.length / props.itemsPerPage)
+  // 根据展开状态计算总页数
+  const itemsPerPage = expandedDisplay.value ? props.itemsPerPage * 2 : props.itemsPerPage
+  return Math.ceil(filteredOutfits.value.length / itemsPerPage)
 })
 
 // 格式化日期
@@ -204,6 +417,111 @@ function getRandomLikes() {
 // 获取随机评论数（模拟）
 function getRandomComments() {
   return Math.floor(Math.random() * 20) + 1
+}
+
+// 筛选和搜索功能方法
+// 切换筛选面板显示
+function toggleFilterPanel() {
+  showFilterPanel.value = !showFilterPanel.value
+}
+
+// 切换筛选条件
+function toggleFilter(type, value) {
+  const index = filters.value[type].indexOf(value)
+  if (index > -1) {
+    filters.value[type].splice(index, 1)
+  } else {
+    filters.value[type].push(value)
+  }
+}
+
+// 应用筛选
+function applyFilters() {
+  // 深拷贝当前筛选条件
+  appliedFilters.value = {
+    scene: [...filters.value.scene],
+    season: [...filters.value.season],
+    style: [...filters.value.style]
+  }
+  // 关闭筛选面板
+  showFilterPanel.value = false
+}
+
+// 重置筛选
+function resetFilters() {
+  filters.value = {
+    scene: [],
+    season: [],
+    style: []
+  }
+  appliedFilters.value = {
+    scene: [],
+    season: [],
+    style: []
+  }
+}
+
+// 移除单个筛选条件
+function removeFilter(type, value) {
+  const index = appliedFilters.value[type].indexOf(value)
+  if (index > -1) {
+    appliedFilters.value[type].splice(index, 1)
+    // 同步更新当前筛选面板中的状态
+    const filterIndex = filters.value[type].indexOf(value)
+    if (filterIndex > -1) {
+      filters.value[type].splice(filterIndex, 1)
+    }
+  }
+}
+
+// 获取筛选条件标签
+function getFilterLabel(type, value) {
+  let options = []
+  switch (type) {
+    case 'scene':
+      options = sceneOptions
+      break
+    case 'season':
+      options = seasonOptions
+      break
+    case 'style':
+      options = styleOptions
+      break
+  }
+  
+  const option = options.find(opt => opt.value === value)
+  return option ? option.label : value
+}
+
+// 计算当前激活的筛选条件数量
+const activeFiltersCount = computed(() => {
+  return appliedFilters.value.scene.length + 
+         appliedFilters.value.season.length + 
+         appliedFilters.value.style.length
+})
+
+// 获取当前激活的筛选条件
+const activeFilters = computed(() => {
+  const result = {}
+  
+  if (appliedFilters.value.scene.length > 0) {
+    result.scene = appliedFilters.value.scene
+  }
+  
+  if (appliedFilters.value.season.length > 0) {
+    result.season = appliedFilters.value.season
+  }
+  
+  if (appliedFilters.value.style.length > 0) {
+    result.style = appliedFilters.value.style
+  }
+  
+  return result
+})
+
+// 切换显示模式
+function toggleDisplayMode() {
+  expandedDisplay.value = !expandedDisplay.value
 }
 </script>
 

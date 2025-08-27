@@ -127,6 +127,42 @@
               </div>
             </div>
           </div>
+          
+          <!-- 季节选择 -->
+          <div>
+            <label class="block text-xs font-medium text-indigo-700 mb-1.5">适用季节</label>
+            <div class="grid grid-cols-2 gap-2">
+              <button
+                v-for="season in seasonOptions"
+                :key="season.value"
+                @click="selectSeason(season.value)"
+                class="py-2 px-3 rounded-lg text-sm font-medium transition-all duration-300 flex items-center justify-center"
+                :class="outfitSeason === season.value 
+                  ? 'bg-indigo-500 text-white shadow-md' 
+                  : 'bg-indigo-50 text-indigo-700 hover:bg-indigo-100 border border-indigo-100'"
+              >
+                <span>{{ season.label }}</span>
+              </button>
+            </div>
+          </div>
+          
+          <!-- 风格选择 -->
+          <div>
+            <label class="block text-xs font-medium text-indigo-700 mb-1.5">搭配风格</label>
+            <div class="grid grid-cols-3 gap-2">
+              <button
+                v-for="style in styleOptions"
+                :key="style.value"
+                @click="selectStyle(style.value)"
+                class="py-2 px-3 rounded-lg text-sm font-medium transition-all duration-300 flex items-center justify-center"
+                :class="outfitStyle === style.value 
+                  ? 'bg-purple-500 text-white shadow-md' 
+                  : 'bg-purple-50 text-purple-700 hover:bg-purple-100 border border-purple-100'"
+              >
+                <span>{{ style.label }}</span>
+              </button>
+            </div>
+          </div>
         </div>
       </div>
 
@@ -191,6 +227,44 @@ import { showToast } from '../../../utils/toast'
 // 搭配信息
 const outfitName = defineModel('outfitName', { type: String, default: '' })
 const outfitScene = defineModel('outfitScene', { type: String, default: '' })
+const outfitSeason = defineModel('outfitSeason', { type: String, default: '' })
+const outfitStyle = defineModel('outfitStyle', { type: String, default: '' })
+
+// 季节选项
+const seasonOptions = [
+  { value: 'spring', label: '春季' },
+  { value: 'summer', label: '夏季' },
+  { value: 'autumn', label: '秋季' },
+  { value: 'winter', label: '冬季' }
+]
+
+// 风格选项
+const styleOptions = [
+  { value: 'casual', label: '休闲' },
+  { value: 'formal', label: '正式' },
+  { value: 'business', label: '商务' },
+  { value: 'street', label: '街头' },
+  { value: 'vintage', label: '复古' },
+  { value: 'minimalist', label: '极简' }
+]
+
+// 选择季节
+function selectSeason(value) {
+  if (outfitSeason.value === value) {
+    outfitSeason.value = '' // 如果已选中，则取消选择
+  } else {
+    outfitSeason.value = value
+  }
+}
+
+// 选择风格
+function selectStyle(value) {
+  if (outfitStyle.value === value) {
+    outfitStyle.value = '' // 如果已选中，则取消选择
+  } else {
+    outfitStyle.value = value
+  }
+}
 
 // 图片预览状态
 const previewImage = ref({
@@ -276,7 +350,9 @@ function handleSaveOutfit() {
 
   emit('save-outfit', {
     name: outfitName.value,
-    scene: outfitScene.value
+    scene: outfitScene.value,
+    season: outfitSeason.value,
+    style: outfitStyle.value
   })
 }
 

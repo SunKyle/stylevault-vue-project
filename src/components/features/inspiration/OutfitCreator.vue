@@ -5,6 +5,8 @@
       <OutfitPreviewPanel
         v-model:outfitName="outfitName"
         v-model:outfitScene="outfitScene"
+        v-model:outfitSeason="outfitSeason"
+        v-model:outfitStyle="outfitStyle"
         :selectedClothes="selectedClothes"
         @remove-cloth="$emit('remove-cloth', $event)"
         @reset-clothes="$emit('reset-clothes')"
@@ -40,6 +42,8 @@ import ClothingSelectionPanel from './ClothingSelectionPanel.vue'
 // 搭配信息
 const outfitName = ref('')
 const outfitScene = ref('')
+const outfitSeason = ref('')
+const outfitStyle = ref('')
 
 // 定义emit
 const emit = defineEmits([
