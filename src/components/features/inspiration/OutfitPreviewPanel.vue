@@ -232,14 +232,12 @@ const outfitName = defineModel('outfitName', { type: String, default: '' })
 
 // 使用场景选项
 const sceneOptions = [
-  { value: 'daily', label: '日常通勤' },
-  { value: 'date', label: '约会' },
-  { value: 'business', label: '商务会议' },
+  { value: 'daily', label: '日常' },
+  { value: 'work', label: '工作' },
   { value: 'party', label: '聚会' },
-  { value: 'casual', label: '休闲外出' },
+  { value: 'date', label: '约会' },
   { value: 'travel', label: '旅行' },
-  { value: 'sports', label: '运动' },
-  { value: 'formal', label: '正式场合' }
+  { value: 'sports', label: '运动' }
 ]
 
 // 季节选项
