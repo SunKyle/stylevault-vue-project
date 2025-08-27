@@ -108,7 +108,7 @@
           </button>
           <button @click="$emit('load-outfit', outfit)"
                   class="w-9 h-9 rounded-full bg-white/80 backdrop-blur-sm flex items-center justify-center text-indigo-600 hover:bg-indigo-600 hover:text-white transition-all duration-300 shadow-md hover:shadow-lg border border-indigo-100/50"
-                  title="加载搭配">
+                  title="复制搭配">
             <font-awesome-icon icon="redo" class="text-xs" />
           </button>
           <button @click="$emit('delete-outfit', outfit.id)"

@@ -1,24 +1,32 @@
 <template>
-<div class="font-sans bg-neutral-50 text-neutral-800 min-h-screen flex flex-col">
-  <Header :currentSection="currentSection" @changeSection="changeSection" />
-  <main class="flex-grow pt-20 pb-20 overflow-hidden">
-    <transition name="fade-slide" mode="out-in">
-      <component
-        :is="currentComponent"
-        :key="currentSection"
-        class="transition-all duration-500"
-        @showUpload="showUploadModal = true"
-      />
-    </transition>
-  </main>
-  <Footer :currentSection="currentSection" @changeSection="changeSection" @showUpload="showUploadModal = true" />
-</div>
+  <div class="font-sans bg-neutral-50 text-neutral-800 min-h-screen flex flex-col">
+    <Header :currentSection="currentSection" @changeSection="changeSection" />
+    <main class="flex-grow pt-20 pb-20 overflow-hidden">
+      <transition name="fade-slide" mode="out-in">
+        <component
+          :is="currentComponent"
+          :key="currentSection"
+          class="transition-all duration-500"
+          @showUpload="showUploadModal = true"
+        />
+      </transition>
+    </main>
+    <Footer :currentSection="currentSection" @changeSection="changeSection" @showUpload="showUploadModal = true" />
+    
+    <!-- 全局快捷操作按钮 -->
+    <FloatingActionButton 
+      @addClothing="handleAddClothing"
+      @addOutfit="handleAddOutfit"
+      @upload="handleUpload"
+    />
+  </div>
 </template>
 
 <script setup>
 import { ref, computed, watch } from 'vue'
 import Header from './components/common/layout/Header.vue'
 import Footer from './components/common/layout/Footer.vue'
+import FloatingActionButton from './components/common/ui/FloatingActionButton.vue'
 
 // 导入视图组件
 import WardrobeView from './views/WardrobeView.vue'
@@ -51,4 +59,20 @@ watch(showUploadModal, (newValue) => {
     showUploadModal.value = false
   }
 })
+
+// 处理全局快捷操作按钮的事件
+function handleAddClothing() {
+  // 这里可以实现添加衣物的逻辑，例如跳转到相应页面或打开模态框
+  currentSection.value = 'upload'
+}
+
+function handleAddOutfit() {
+  // 这里可以实现添加搭配的逻辑
+  currentSection.value = 'custom'
+}
+
+function handleUpload() {
+  // 这里可以实现上传照片的逻辑
+  currentSection.value = 'upload'
+}
 </script>
