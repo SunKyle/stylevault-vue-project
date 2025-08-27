@@ -39,7 +39,7 @@
       </div>
 
       <!-- 衣物列表 -->
-      <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-5 max-h-[600px] overflow-y-auto pr-2 scrollbar-thin scrollbar-thumb-indigo-200 scrollbar-track-transparent">
+      <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-5 max-h-[600px] overflow-y-auto pr-2 scrollbar-thin scrollbar-thumb-indigo-200 scrollbar-track-transparent pt-2">
         <transition-group name="fade" tag="div" class="contents">
           <div v-for="item in filteredClothes" :key="item.name" class="group relative">
             <div class="aspect-[3/4] bg-white/80 backdrop-blur-sm rounded-2xl overflow-hidden shadow-md hover:shadow-xl transition-all duration-300 border-2 cursor-pointer relative transform hover:-translate-y-2 draggable-item"
@@ -62,10 +62,6 @@
               <!-- 未选中状态指示器 -->
               <div v-else class="absolute top-3 right-3 w-10 h-10 rounded-full bg-white/90 backdrop-blur-sm flex items-center justify-center shadow-md transform transition-transform duration-300 group-hover:scale-110 group-hover:bg-white">
                 <font-awesome-icon :icon="['fas', 'plus']" class="text-indigo-500" />
-              </div>
-              <!-- 拖拽指示器 -->
-              <div class="absolute top-3 left-3 w-8 h-8 rounded-full bg-white/80 backdrop-blur-sm flex items-center justify-center shadow-md opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                <font-awesome-icon :icon="['fas', 'grip-vertical']" class="text-indigo-500 text-sm" />
               </div>
               <!-- 衣物信息 -->
               <div class="absolute bottom-0 left-0 right-0 p-3 bg-gradient-to-t from-black/80 to-transparent">
