@@ -112,32 +112,35 @@
               </div>
             </div>
           </div>
+          
+          <!-- 使用场景：从输入框改为多选按钮组，调整为一行显示3个 -->
           <div>
             <label class="block text-xs font-medium text-indigo-700 mb-1.5">使用场景</label>
-            <div class="relative">
-              <input
-                :value="outfitScene"
-                @input="$emit('update:outfitScene', $event.target.value)"
-                type="text"
-                class="w-full px-4 py-3 border border-indigo-200 rounded-xl focus:ring-2 focus:ring-indigo-300/50 focus:border-indigo-400 text-sm bg-white/80 backdrop-blur-sm shadow-sm transition-all duration-300 hover:shadow-md"
-                placeholder="例如：日常通勤、约会、商务会议等"
-              />
-              <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
-                <font-awesome-icon :icon="['fas', 'map-marker-alt']" class="text-indigo-400 text-xs" />
-              </div>
+            <div class="grid grid-cols-3 gap-2">
+              <button
+                v-for="scene in sceneOptions"
+                :key="scene.value"
+                @click="toggleScene(scene.value)"
+                class="py-2 px-3 rounded-lg text-sm font-medium transition-all duration-300 flex items-center justify-center"
+                :class="selectedScenes.includes(scene.value) 
+                  ? 'bg-teal-500 text-white shadow-md' 
+                  : 'bg-teal-50 text-teal-700 hover:bg-teal-100 border border-teal-100'"
+              >
+                <span>{{ scene.label }}</span>
+              </button>
             </div>
           </div>
           
-          <!-- 季节选择 -->
+          <!-- 季节选择：从单选改为多选 -->
           <div>
             <label class="block text-xs font-medium text-indigo-700 mb-1.5">适用季节</label>
             <div class="grid grid-cols-2 gap-2">
               <button
                 v-for="season in seasonOptions"
                 :key="season.value"
-                @click="selectSeason(season.value)"
+                @click="toggleSeason(season.value)"
                 class="py-2 px-3 rounded-lg text-sm font-medium transition-all duration-300 flex items-center justify-center"
-                :class="outfitSeason === season.value 
+                :class="selectedSeasons.includes(season.value) 
                   ? 'bg-indigo-500 text-white shadow-md' 
                   : 'bg-indigo-50 text-indigo-700 hover:bg-indigo-100 border border-indigo-100'"
               >
@@ -146,16 +149,16 @@
             </div>
           </div>
           
-          <!-- 风格选择 -->
+          <!-- 风格选择：从单选改为多选 -->
           <div>
             <label class="block text-xs font-medium text-indigo-700 mb-1.5">搭配风格</label>
             <div class="grid grid-cols-3 gap-2">
               <button
                 v-for="style in styleOptions"
                 :key="style.value"
-                @click="selectStyle(style.value)"
+                @click="toggleStyle(style.value)"
                 class="py-2 px-3 rounded-lg text-sm font-medium transition-all duration-300 flex items-center justify-center"
-                :class="outfitStyle === style.value 
+                :class="selectedStyles.includes(style.value) 
                   ? 'bg-purple-500 text-white shadow-md' 
                   : 'bg-purple-50 text-purple-700 hover:bg-purple-100 border border-purple-100'"
               >
@@ -221,14 +224,23 @@
 </template>
 
 <script setup>
-import { ref, defineModel } from 'vue'
+import { ref, defineModel, watch } from 'vue'
 import { showToast } from '../../../utils/toast' 
 
 // 搭配信息
 const outfitName = defineModel('outfitName', { type: String, default: '' })
-const outfitScene = defineModel('outfitScene', { type: String, default: '' })
-const outfitSeason = defineModel('outfitSeason', { type: String, default: '' })
-const outfitStyle = defineModel('outfitStyle', { type: String, default: '' })
+
+// 使用场景选项
+const sceneOptions = [
+  { value: 'daily', label: '日常通勤' },
+  { value: 'date', label: '约会' },
+  { value: 'business', label: '商务会议' },
+  { value: 'party', label: '聚会' },
+  { value: 'casual', label: '休闲外出' },
+  { value: 'travel', label: '旅行' },
+  { value: 'sports', label: '运动' },
+  { value: 'formal', label: '正式场合' }
+]
 
 // 季节选项
 const seasonOptions = [
@@ -248,21 +260,36 @@ const styleOptions = [
   { value: 'minimalist', label: '极简' }
 ]
 
-// 选择季节
-function selectSeason(value) {
-  if (outfitSeason.value === value) {
-    outfitSeason.value = '' // 如果已选中，则取消选择
+// 多选值状态
+const selectedScenes = ref([])
+const selectedSeasons = ref([])
+const selectedStyles = ref([])
+
+// 场景、季节和风格的多选处理函数
+function toggleScene(value) {
+  const index = selectedScenes.value.indexOf(value)
+  if (index > -1) {
+    selectedScenes.value.splice(index, 1) // 如果已选中，则取消选择
   } else {
-    outfitSeason.value = value
+    selectedScenes.value.push(value) // 如果未选中，则添加选择
   }
 }
 
-// 选择风格
-function selectStyle(value) {
-  if (outfitStyle.value === value) {
-    outfitStyle.value = '' // 如果已选中，则取消选择
+function toggleSeason(value) {
+  const index = selectedSeasons.value.indexOf(value)
+  if (index > -1) {
+    selectedSeasons.value.splice(index, 1)
   } else {
-    outfitStyle.value = value
+    selectedSeasons.value.push(value)
+  }
+}
+
+function toggleStyle(value) {
+  const index = selectedStyles.value.indexOf(value)
+  if (index > -1) {
+    selectedStyles.value.splice(index, 1)
+  } else {
+    selectedStyles.value.push(value)
   }
 }
 
@@ -350,9 +377,9 @@ function handleSaveOutfit() {
 
   emit('save-outfit', {
     name: outfitName.value,
-    scene: outfitScene.value,
-    season: outfitSeason.value,
-    style: outfitStyle.value
+    scenes: selectedScenes.value,
+    seasons: selectedSeasons.value,
+    styles: selectedStyles.value
   })
 }
 
