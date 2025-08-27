@@ -216,10 +216,10 @@
             <div class="flex items-center space-x-2 bg-white rounded-full px-4 py-2 shadow-sm border border-neutral-100">
             <!-- 上一页按钮 -->
             <button 
-              @click="$emit('page-change', Math.max(1, currentPage - 1))"
-              :disabled="currentPage === 1"
+              @click="handlePageChange(currentPage - 1)"
+              :disabled="currentPage === 1 || isLoading"
               class="w-9 h-9 flex items-center justify-center rounded-full transition-all duration-300"
-              :class="currentPage === 1 ? 'text-neutral-300 cursor-not-allowed' : 'text-neutral-600 hover:bg-neutral-100 hover:text-primary'"
+              :class="currentPage === 1 || isLoading ? 'text-neutral-300 cursor-not-allowed' : 'text-neutral-600 hover:bg-neutral-100 hover:text-primary'"
             >
               <font-awesome-icon :icon="['fas', 'chevron-left']" />
             </button>
@@ -233,10 +233,10 @@
 
             <!-- 下一页按钮 -->
             <button 
-              @click="$emit('page-change', Math.min(totalPages, currentPage + 1))"
-              :disabled="currentPage === totalPages"
+              @click="handlePageChange(currentPage + 1)"
+              :disabled="currentPage === totalPages || isLoading"
               class="w-9 h-9 flex items-center justify-center rounded-full transition-all duration-300"
-              :class="currentPage === totalPages ? 'text-neutral-300 cursor-not-allowed' : 'text-neutral-600 hover:bg-neutral-100 hover:text-primary'"
+              :class="currentPage === totalPages || isLoading ? 'text-neutral-300 cursor-not-allowed' : 'text-neutral-600 hover:bg-neutral-100 hover:text-primary'"
             >
               <font-awesome-icon :icon="['fas', 'chevron-right']" />
             </button>
@@ -268,6 +268,7 @@
 <script setup>
 import { ref, computed } from 'vue'
 import OutfitCard from './OutfitCard.vue'
+import { scenesMockData, seasonsMockData, stylesMockData } from '../../../mock/wardrobe'
 
 // Props定义
 const props = defineProps({
@@ -325,21 +326,9 @@ const sceneOptions = [
   { value: 'sports', label: '运动' }
 ]
 
-const seasonOptions = [
-  { value: 'spring', label: '春季' },
-  { value: 'summer', label: '夏季' },
-  { value: 'autumn', label: '秋季' },
-  { value: 'winter', label: '冬季' }
-]
+const seasonOptions = seasonsMockData
 
-const styleOptions = [
-  { value: 'casual', label: '休闲' },
-  { value: 'formal', label: '正式' },
-  { value: 'business', label: '商务' },
-  { value: 'street', label: '街头' },
-  { value: 'vintage', label: '复古' },
-  { value: 'minimalist', label: '极简' }
-]
+const styleOptions = stylesMockData
 
 // 计算过滤后的搭配
 const filteredOutfits = computed(() => {

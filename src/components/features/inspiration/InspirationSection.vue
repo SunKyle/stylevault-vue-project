@@ -49,6 +49,7 @@ const categories = computed(() => ['全部', ...wardrobeStore.categories.map(c =
 // 分页相关数据
 const currentPage = ref(1)
 const itemsPerPage = ref(4) // 每页显示的卡片数量
+const isLoading = ref(true) // 数据加载状态
 
 // 从wardrobeStore获取转换后的数据
 const clothes = ref([])
@@ -101,14 +102,18 @@ const totalPages = computed(() => {
 
 // 组件挂载时加载已保存的搭配
 onMounted(() => {
+  // 先加载搭配数据，这是分页所需的唯一数据
   loadSavedOutfits()
-  // 确保从store获取数据
-  if (wardrobeStore.categories.length === 0) {
-    wardrobeStore.fetchCategories()
-  }
-  if (wardrobeStore.clothingItems.length === 0) {
-    wardrobeStore.fetchClothingItems()
-  }
+  // 搭配数据加载完成后立即启用分页
+  isLoading.value = false
+  
+  // 异步加载其他数据，不阻塞分页功能
+  Promise.all([
+    wardrobeStore.categories.length === 0 ? wardrobeStore.fetchCategories() : Promise.resolve(),
+    wardrobeStore.clothingItems.length === 0 ? wardrobeStore.fetchClothingItems() : Promise.resolve()
+  ]).catch(error => {
+    console.error('加载衣物数据失败:', error)
+  })
 })
 
 const filteredClothes = computed(() => {

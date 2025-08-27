@@ -225,38 +225,20 @@
 
 <script setup>
 import { ref, defineModel, watch } from 'vue'
-import { showToast } from '../../../utils/toast' 
+import { showToast } from '../../../utils/toast'
+import { scenesMockData, seasonsMockData, stylesMockData } from '../../../mock/wardrobe' 
 
 // 搭配信息
 const outfitName = defineModel('outfitName', { type: String, default: '' })
 
 // 使用场景选项
-const sceneOptions = [
-  { value: 'daily', label: '日常' },
-  { value: 'work', label: '工作' },
-  { value: 'party', label: '聚会' },
-  { value: 'date', label: '约会' },
-  { value: 'travel', label: '旅行' },
-  { value: 'sports', label: '运动' }
-]
+const sceneOptions = scenesMockData
 
 // 季节选项
-const seasonOptions = [
-  { value: 'spring', label: '春季' },
-  { value: 'summer', label: '夏季' },
-  { value: 'autumn', label: '秋季' },
-  { value: 'winter', label: '冬季' }
-]
+const seasonOptions = seasonsMockData
 
 // 风格选项
-const styleOptions = [
-  { value: 'casual', label: '休闲' },
-  { value: 'formal', label: '正式' },
-  { value: 'business', label: '商务' },
-  { value: 'street', label: '街头' },
-  { value: 'vintage', label: '复古' },
-  { value: 'minimalist', label: '极简' }
-]
+const styleOptions = stylesMockData
 
 // 多选值状态
 const selectedScenes = ref([])

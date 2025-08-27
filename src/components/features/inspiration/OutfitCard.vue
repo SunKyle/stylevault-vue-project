@@ -16,38 +16,48 @@
         <!-- 顶部信息区 -->
         <div class="flex justify-between items-start mb-3">
           <div>
-            <h4 class="font-bold text-indigo-900 text-lg truncate pr-2 group-hover:text-indigo-600 transition-colors">
+            <h4 class="font-bold text-indigo-900 text-lg truncate pr-2 group-hover:text-indigo-600 transition-colors mb-2">
               {{ outfit.name }}
             </h4>
-            <div v-if="outfit?.scene" class="flex items-center mt-1.5 flex-wrap gap-1">
-              <div class="w-5 h-5 rounded-full bg-gradient-to-r from-indigo-500/10 to-purple-500/10 flex items-center justify-center mr-1.5 shadow-sm">
-                <font-awesome-icon icon="map-marker-alt" class="text-indigo-600 text-xs" />
+            
+            <!-- 优化的搭配信息 -->
+            <div class="flex flex-wrap gap-2 mt-1">
+              <!-- 场景信息 -->
+              <div v-if="outfit?.scene" class="flex items-center px-2 py-1 bg-indigo-50/80 backdrop-blur-sm rounded-lg border border-indigo-100/50 shadow-sm">
+                <div class="w-4 h-4 rounded-full bg-gradient-to-r from-indigo-500/20 to-purple-500/20 flex items-center justify-center mr-1.5">
+                  <font-awesome-icon icon="map-marker-alt" class="text-indigo-600 text-xs" />
+                </div>
+                <span class="text-xs text-indigo-700 font-medium">场景:</span>
+                <div class="flex flex-wrap gap-1 ml-1">
+                  <template v-for="(sceneValue, index) in (outfit?.scene ? outfit.scene.split(',') : [])" :key="index">
+                    <span class="text-xs text-indigo-600 font-medium bg-white/80 px-1.5 py-0.5 rounded-full border border-indigo-100/50">
+                      {{ getSceneLabel(sceneValue) || '' }}
+                    </span>
+                  </template>
+                </div>
               </div>
-              <template v-for="(sceneValue, index) in (outfit?.scene ? outfit.scene.split(',') : [])" :key="index">
-                <span class="text-xs text-indigo-600 font-medium bg-white/70 backdrop-blur-sm px-2 py-1 rounded-full border border-indigo-100/50">
-                  {{ getSceneLabel(sceneValue) || '' }}
+              
+              <!-- 季节信息 -->
+              <div v-if="outfit?.season" class="flex items-center px-2 py-1 bg-green-50/80 backdrop-blur-sm rounded-lg border border-green-100/50 shadow-sm">
+                <div class="w-4 h-4 rounded-full bg-gradient-to-r from-green-500/20 to-emerald-500/20 flex items-center justify-center mr-1.5">
+                  <font-awesome-icon icon="leaf" class="text-green-600 text-xs" />
+                </div>
+                <span class="text-xs text-green-700 font-medium">季节:</span>
+                <span class="text-xs text-green-600 font-medium bg-white/80 px-1.5 py-0.5 rounded-full border border-green-100/50 ml-1">
+                  {{ getSeasonLabel(outfit.season) }}
                 </span>
-              </template>
-            </div>
-
-            <!-- 季节信息 -->
-            <div v-if="outfit?.season" class="flex items-center mt-1.5">
-              <div class="w-5 h-5 rounded-full bg-gradient-to-r from-green-500/10 to-emerald-500/10 flex items-center justify-center mr-1.5 shadow-sm">
-                <font-awesome-icon icon="leaf" class="text-green-600 text-xs" />
               </div>
-              <span class="text-xs text-green-600 font-medium bg-white/70 backdrop-blur-sm px-2 py-1 rounded-full border border-green-100/50">
-                {{ getSeasonLabel(outfit.season) }}
-              </span>
-            </div>
-
-            <!-- 风格信息 -->
-            <div v-if="outfit?.style" class="flex items-center mt-1.5">
-              <div class="w-5 h-5 rounded-full bg-gradient-to-r from-purple-500/10 to-pink-500/10 flex items-center justify-center mr-1.5 shadow-sm">
-                <font-awesome-icon icon="palette" class="text-purple-600 text-xs" />
+              
+              <!-- 风格信息 -->
+              <div v-if="outfit?.style" class="flex items-center px-2 py-1 bg-purple-50/80 backdrop-blur-sm rounded-lg border border-purple-100/50 shadow-sm">
+                <div class="w-4 h-4 rounded-full bg-gradient-to-r from-purple-500/20 to-pink-500/20 flex items-center justify-center mr-1.5">
+                  <font-awesome-icon icon="palette" class="text-purple-600 text-xs" />
+                </div>
+                <span class="text-xs text-purple-700 font-medium">风格:</span>
+                <span class="text-xs text-purple-600 font-medium bg-white/80 px-1.5 py-0.5 rounded-full border border-purple-100/50 ml-1">
+                  {{ getStyleLabel(outfit.style) }}
+                </span>
               </div>
-              <span class="text-xs text-purple-600 font-medium bg-white/70 backdrop-blur-sm px-2 py-1 rounded-full border border-purple-100/50">
-                {{ getStyleLabel(outfit.style) }}
-              </span>
             </div>
           </div>
 
@@ -166,13 +176,14 @@
           </div>
         </div>
         <div>
+          <!-- 场景选择 -->
           <label class="block text-sm font-medium text-indigo-700 mb-2 flex items-center">
             <div class="w-5 h-5 rounded-full bg-gradient-to-r from-indigo-500/10 to-purple-500/10 flex items-center justify-center mr-2 shadow-sm">
               <font-awesome-icon icon="map-marker-alt" class="text-indigo-600 text-xs" />
             </div>
             适用场景
           </label>
-          <div class="grid grid-cols-2 gap-2">
+          <div class="grid grid-cols-3 gap-2">
             <button
               v-for="scene in sceneOptions"
               :key="scene.value"
@@ -253,6 +264,7 @@
 
 <script setup>
 import { ref, reactive, computed } from 'vue'
+import { scenesMockData, seasonsMockData, stylesMockData } from '../../../mock/wardrobe'
 
 // Props定义
 const props = defineProps({
@@ -269,32 +281,13 @@ const emit = defineEmits(['load-outfit', 'delete-outfit', 'edit-outfit'])
 const expanded = ref(false);
 
 // 场景选项映射
-const sceneOptions = [
-  { value: 'daily', label: '日常' },
-  { value: 'work', label: '工作' },
-  { value: 'party', label: '聚会' },
-  { value: 'date', label: '约会' },
-  { value: 'travel', label: '旅行' },
-  { value: 'sports', label: '运动' }
-]
+const sceneOptions = scenesMockData
 
 // 季节选项映射
-const seasonOptions = [
-  { value: 'spring', label: '春季' },
-  { value: 'summer', label: '夏季' },
-  { value: 'autumn', label: '秋季' },
-  { value: 'winter', label: '冬季' }
-]
+const seasonOptions = seasonsMockData
 
 // 风格选项映射
-const styleOptions = [
-  { value: 'casual', label: '休闲' },
-  { value: 'formal', label: '正式' },
-  { value: 'business', label: '商务' },
-  { value: 'street', label: '街头' },
-  { value: 'vintage', label: '复古' },
-  { value: 'minimalist', label: '极简' }
-]
+const styleOptions = stylesMockData
 
 // 获取场景标签
 function getSceneLabel(value) {

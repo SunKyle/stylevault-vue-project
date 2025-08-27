@@ -10,14 +10,30 @@ export const categories = [
 
 // 场景数据
 export const scenesMockData = [
-  '日常通勤',
-  '周末休闲',
-  '商务会议',
-  '约会聚餐',
-  '运动健身',
-  '旅行度假',
-  '正式场合',
-  '家庭聚会'
+  { value: 'daily', label: '日常' },
+  { value: 'work', label: '工作' },
+  { value: 'party', label: '聚会' },
+  { value: 'date', label: '约会' },
+  { value: 'travel', label: '旅行' },
+  { value: 'sports', label: '运动' }
+]
+
+// 季节数据
+export const seasonsMockData = [
+  { value: 'spring', label: '春季' },
+  { value: 'summer', label: '夏季' },
+  { value: 'autumn', label: '秋季' },
+  { value: 'winter', label: '冬季' }
+]
+
+// 风格数据
+export const stylesMockData = [
+  { value: 'casual', label: '休闲' },
+  { value: 'formal', label: '正式' },
+  { value: 'business', label: '商务' },
+  { value: 'street', label: '街头' },
+  { value: 'vintage', label: '复古' },
+  { value: 'minimalist', label: '极简' }
 ]
 
 // 为衣物数据添加tags字段
