@@ -58,6 +58,10 @@
 3. **Service导入错误**: 修复了`clothingService`的导入方式
 4. **分类选择方法缺失**: 修复了`clothingStore`中`setSelectedCategory`和`clearSelectedCategory`方法缺失的问题
 5. **图片加载错误**: 外部图片链接的ORB错误不影响核心功能
+6. **getClothesWithTags函数缺失**: 修复了InspirationSection.vue中调用不存在的getClothesWithTags函数
+   - 在mock/wardrobe.js中添加getClothesWithTags函数实现
+   - 修复InspirationSection.vue、OutfitCard.vue、SavedOutfits.vue、OutfitPreviewPanel.vue中的导入路径
+   - 将mock数据从wardrobe.js移动到data.js的正确导入
 
 ### 遗留问题 (非关键)
 1. **图片加载**: 部分外部图片链接可能因网络原因加载失败

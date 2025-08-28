@@ -90,4 +90,17 @@ export const wardrobeAPI = {
     );
     return { success: true, data: results };
   },
+
+  // 为衣物添加标签信息
+  getClothesWithTags: items => {
+    return items.map(item => ({
+      ...item,
+      tags: [
+        item.style || '未分类',
+        item.category || '未分类',
+        ...(item.seasons || []).map(s => s),
+        item.brand || '未知品牌',
+      ].filter(tag => tag && tag !== '未分类' && tag !== '未知品牌'),
+    }));
+  },
 };

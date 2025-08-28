@@ -362,7 +362,7 @@
 
 <script setup>
   import { ref, reactive, computed } from 'vue';
-  import { scenesMockData, seasonsMockData, stylesMockData } from '../../mock/wardrobe';
+  import { scenesMockData, seasonsMockData, stylesMockData } from '../../mock/data';
 
   // Props定义
   const props = defineProps({
@@ -555,5 +555,47 @@
   :deep(.modal-backdrop) {
     backdrop-filter: blur(8px);
     background-color: rgba(0, 0, 0, 0.5);
+  }
+
+  /* 响应式设计 */
+  @media (max-width: 640px) {
+    .outfit-card {
+      @apply rounded-lg shadow-md;
+    }
+
+    .outfit-info {
+      @apply p-3;
+    }
+
+    .clothing-preview {
+      @apply grid-cols-2 gap-2;
+    }
+
+    .outfit-actions {
+      @apply flex-col space-y-2;
+    }
+  }
+
+  @media (max-width: 768px) {
+    .clothing-stack {
+      @apply grid-cols-2 gap-4;
+    }
+
+    .outfit-meta {
+      @apply flex-col space-y-2;
+    }
+  }
+
+  @media (min-width: 1024px) {
+    .outfit-card:hover {
+      @apply transform scale-105;
+    }
+  }
+
+  /* 移动端优化 */
+  @media (hover: none) {
+    .outfit-card:active {
+      @apply transform scale-95;
+    }
   }
 </style>

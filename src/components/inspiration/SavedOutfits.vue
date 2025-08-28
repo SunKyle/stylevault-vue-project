@@ -224,17 +224,32 @@
         <div class="absolute -bottom-20 -left-20 w-60 h-60 bg-secondary/5 rounded-full"></div>
 
         <!-- 已保存搭配列表 -->
-        <div v-if="currentPageOutfits.length > 0" class="relative z-10">
+        <div v-if="visibleOutfits.length > 0" class="relative z-10">
           <!-- 搭配卡片自适应网格布局 -->
           <div class="grid gap-6 grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
             <OutfitCard
-              v-for="outfit in currentPageOutfits"
+              v-for="outfit in visibleOutfits"
               :key="outfit.id"
               :outfit="outfit"
               @load-outfit="$emit('load-outfit', $event)"
               @delete-outfit="handleDeleteOutfit"
               @edit-outfit="handleEditOutfit"
             />
+          </div>
+
+          <!-- 加载更多按钮 -->
+          <div v-if="hasMoreOutfits" class="flex justify-center mt-8">
+            <button
+              @click="loadMoreOutfits"
+              :disabled="isLoadingMore"
+              class="flex items-center gap-2 px-6 py-3 bg-primary hover:bg-primary/90 text-white rounded-lg transition-colors disabled:opacity-50"
+            >
+              <font-awesome-icon
+                :icon="['fas', isLoadingMore ? 'spinner' : 'plus']"
+                :class="{ 'animate-spin': isLoadingMore }"
+              />
+              {{ isLoadingMore ? '加载中...' : '加载更多' }}
+            </button>
           </div>
 
           <!-- 分页控件和显示模式切换 - 优化设计 -->
@@ -330,9 +345,9 @@
 </template>
 
 <script setup>
-  import { ref, computed } from 'vue';
+  import { ref, computed, watch, onMounted, onUnmounted } from 'vue';
   import OutfitCard from './OutfitCard.vue';
-  import { scenesMockData, seasonsMockData, stylesMockData } from '../../mock/wardrobe';
+  import { scenesMockData, seasonsMockData, stylesMockData } from '../../mock/data';
 
   // Props定义
   const props = defineProps({
@@ -437,6 +452,73 @@
 
       return true;
     });
+  });
+
+  // 懒加载相关状态
+  const visibleOutfits = ref([]);
+  const pageSize = ref(12);
+  const currentPage = ref(1);
+  const isLoadingMore = ref(false);
+
+  // 计算属性：当前可见的搭配数量
+  const visibleCount = computed(() =>
+    Math.min(currentPage.value * pageSize.value, filteredOutfits.value.length)
+  );
+
+  // 计算属性：是否还有更多搭配可加载
+  const hasMoreOutfits = computed(
+    () => currentPage.value * pageSize.value < filteredOutfits.value.length
+  );
+
+  // 更新可见搭配
+  const updateVisibleOutfits = () => {
+    const startIndex = 0;
+    const endIndex = currentPage.value * pageSize.value;
+    visibleOutfits.value = filteredOutfits.value.slice(startIndex, endIndex);
+  };
+
+  // 加载更多搭配
+  const loadMoreOutfits = async () => {
+    if (isLoadingMore.value || !hasMoreOutfits.value) return;
+
+    isLoadingMore.value = true;
+
+    // 模拟加载延迟
+    await new Promise(resolve => setTimeout(resolve, 300));
+
+    currentPage.value++;
+    updateVisibleOutfits();
+    isLoadingMore.value = false;
+  };
+
+  // 监听筛选变化，重置分页
+  watch([filteredOutfits], () => {
+    currentPage.value = 1;
+    updateVisibleOutfits();
+  });
+
+  // 初始化可见搭配
+  onMounted(() => {
+    updateVisibleOutfits();
+  });
+
+  // 滚动加载更多
+  const handleScroll = () => {
+    const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+    const windowHeight = window.innerHeight;
+    const documentHeight = document.documentElement.scrollHeight;
+
+    if (scrollTop + windowHeight >= documentHeight - 100) {
+      loadMoreOutfits();
+    }
+  };
+
+  onMounted(() => {
+    window.addEventListener('scroll', handleScroll);
+  });
+
+  onUnmounted(() => {
+    window.removeEventListener('scroll', handleScroll);
   });
 
   // 计算总页数

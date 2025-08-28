@@ -1,0 +1,23 @@
+{
+  "imageOptimization": {
+    "lazyLoading": true,
+    "webpFormat": true,
+    "responsiveImages": true
+  },
+  "componentOptimization": {
+    "vShow": true,
+    "vIf": true,
+    "computed": true,
+    "watch": true
+  },
+  "responsiveDesign": {
+    "mobileFirst": true,
+    "breakpoints": [
+      "sm",
+      "md",
+      "lg",
+      "xl"
+    ],
+    "fluidTypography": true
+  }
+}

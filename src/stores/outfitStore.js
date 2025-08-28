@@ -1,5 +1,5 @@
 import { defineStore } from 'pinia';
-import outfitService from '../services/outfitService';
+import { outfitService } from '../services/outfitService';
 
 export const useOutfitStore = defineStore('outfit', {
   state: () => ({
@@ -54,7 +54,7 @@ export const useOutfitStore = defineStore('outfit', {
       this.clearError();
 
       try {
-        const outfits = outfitService.getOutfits();
+        const outfits = await outfitService.getOutfits();
         this.outfits = outfits;
         return outfits;
       } catch (error) {
@@ -71,7 +71,7 @@ export const useOutfitStore = defineStore('outfit', {
       this.clearError();
 
       try {
-        const outfits = outfitService.getOutfitsByTag(tag);
+        const outfits = await outfitService.getOutfitsByTag(tag);
         return outfits;
       } catch (error) {
         this.setError(`获取标签为"${tag}"的搭配失败`);
@@ -87,7 +87,7 @@ export const useOutfitStore = defineStore('outfit', {
       this.clearError();
 
       try {
-        const newOutfit = outfitService.addOutfit(outfit);
+        const newOutfit = await outfitService.addOutfit(outfit);
         this.outfits.push(newOutfit);
         return newOutfit;
       } catch (error) {
@@ -104,7 +104,7 @@ export const useOutfitStore = defineStore('outfit', {
       this.clearError();
 
       try {
-        const removedOutfit = outfitService.removeOutfit(outfitTitle);
+        const removedOutfit = await outfitService.deleteOutfit(outfitTitle);
         if (removedOutfit) {
           this.outfits = this.outfits.filter(outfit => outfit.title !== outfitTitle);
         }
@@ -123,7 +123,7 @@ export const useOutfitStore = defineStore('outfit', {
       this.clearError();
 
       try {
-        const updatedOutfit = outfitService.toggleLike(outfitTitle);
+        const updatedOutfit = await outfitService.toggleLike(outfitTitle);
         if (updatedOutfit) {
           const index = this.outfits.findIndex(outfit => outfit.title === outfitTitle);
           if (index !== -1) {
