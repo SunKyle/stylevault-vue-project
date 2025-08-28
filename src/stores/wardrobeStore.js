@@ -1,5 +1,5 @@
 import { defineStore } from 'pinia'
-import wardrobeService from '../services/wardrobeService'
+import { clothingService } from '../services/wardrobeService'
 
 export const useWardrobeStore = defineStore('wardrobe', {
   state: () => ({
@@ -70,7 +70,7 @@ export const useWardrobeStore = defineStore('wardrobe', {
       this.clearError()
 
       try {
-        const categories = await wardrobeService.getCategories()
+        const categories = await clothingService.getCategories()
         this.categories = categories
         return categories
       } catch (error) {
@@ -87,7 +87,7 @@ export const useWardrobeStore = defineStore('wardrobe', {
       this.clearError()
 
       try {
-        const items = await wardrobeService.getClothingItems()
+        const items = await clothingService.getClothingItems()
         this.clothingItems = items
         return items
       } catch (error) {
@@ -104,7 +104,7 @@ export const useWardrobeStore = defineStore('wardrobe', {
       this.clearError()
 
       try {
-        const items = await wardrobeService.getClothingItemsByCategory(categoryId)
+        const items = await clothingService.getClothingItemsByCategory(categoryId)
         return items
       } catch (error) {
         this.setError('获取类别衣物失败')
@@ -120,7 +120,7 @@ export const useWardrobeStore = defineStore('wardrobe', {
       this.clearError()
 
       try {
-        const item = await wardrobeService.getClothingItemDetail(id)
+        const item = await clothingService.getClothingItemDetail(id)
         return item
       } catch (error) {
         this.setError('获取衣物详情失败')
@@ -136,7 +136,7 @@ export const useWardrobeStore = defineStore('wardrobe', {
       this.clearError()
 
       try {
-        const newItem = await wardrobeService.addClothingItem(item)
+        const newItem = await clothingService.addClothingItem(item)
         this.clothingItems.push(newItem)
         // 添加新衣物后刷新数据，确保能立即查询到新添加的衣物
         await this.fetchClothingItems()
@@ -155,7 +155,7 @@ export const useWardrobeStore = defineStore('wardrobe', {
       this.clearError()
 
       try {
-        const updatedItem = await wardrobeService.updateClothingItem(id, updates)
+        const updatedItem = await clothingService.updateClothingItem(id, updates)
         const index = this.clothingItems.findIndex(item => item.id === id)
         if (index !== -1) {
           this.clothingItems[index] = updatedItem
@@ -175,7 +175,7 @@ export const useWardrobeStore = defineStore('wardrobe', {
       this.clearError()
 
       try {
-        await wardrobeService.deleteClothingItem(id)
+        await clothingService.deleteClothingItem(id)
         this.clothingItems = this.clothingItems.filter(item => item.id !== id)
         return true
       } catch (error) {
@@ -192,7 +192,7 @@ export const useWardrobeStore = defineStore('wardrobe', {
       this.clearError()
 
       try {
-        const results = await wardrobeService.searchClothingItems(keyword)
+        const results = await clothingService.searchClothingItems(keyword)
         return results
       } catch (error) {
         this.setError('搜索衣物失败')
@@ -267,7 +267,7 @@ export const useWardrobeStore = defineStore('wardrobe', {
           const newFavoriteStatus = !currentFavoriteStatus
           
           // 调用API更新收藏状态
-          const result = await wardrobeService.updateClothingItem(id, { favorite: newFavoriteStatus })
+          const result = await clothingService.updateClothingItem(id, { favorite: newFavoriteStatus })
           
           // 创建一个新的对象，确保Vue能够检测到变化
           const updatedItem = {

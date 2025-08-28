@@ -1,11 +1,11 @@
-import { userApi } from './adapter'
+import { userAdaptorApi } from './adapter'
 
 // 用户API
 export default {
   // 用户登录
   login: async (credentials) => {
     try {
-      return await userApi.login(credentials)
+      return await userAdaptorApi.login(credentials)
     } catch (error) {
       console.error('用户登录失败:', error)
       throw error
@@ -15,7 +15,7 @@ export default {
   // 用户注册
   register: async (userData) => {
     try {
-      return await userApi.register(userData)
+      return await userAdaptorApi.register(userData)
     } catch (error) {
       console.error('用户注册失败:', error)
       throw error
@@ -25,7 +25,7 @@ export default {
   // 获取用户信息
   getUserProfile: async (userId) => {
     try {
-      return await userApi.getUserProfile(userId)
+      return await userAdaptorApi.getUserProfile(userId)
     } catch (error) {
       console.error('获取用户信息失败:', error)
       throw error
@@ -35,7 +35,7 @@ export default {
   // 更新用户信息
   updateUserProfile: async (userId, updates) => {
     try {
-      return await userApi.updateUserProfile(userId, updates)
+      return await userAdaptorApi.updateUserProfile(userId, updates)
     } catch (error) {
       console.error('更新用户信息失败:', error)
       throw error

@@ -174,7 +174,18 @@ const recentlyAddedItems = computed(() => wardrobeStore.recentlyAddedItems)
 const favoriteItems = computed(() => wardrobeStore.favoriteItems)
 
 // 精选搭配数据
-const outfits = ref(outfitService.getOutfits())
+const outfits = ref([])
+
+// 获取搭配数据
+const fetchOutfits = async () => {
+  try {
+    const response = await outfitService.getOutfits()
+    outfits.value = response.data || []
+  } catch (error) {
+    console.error('获取搭配数据失败:', error)
+    outfits.value = []
+  }
+}
 
 function getCategoryItemCount(categoryId) {
   if (isSearchMode.value) return searchResults.value.length;

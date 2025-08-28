@@ -12,7 +12,7 @@
         </button>
         <button
           @click="nextOutfit"
-          :disabled="currentIndex >= outfits.length - itemsPerPage"
+          :disabled="Array.isArray(outfits) ? currentIndex >= outfits.length - itemsPerPage : true"
           class="w-8 h-8 rounded-full bg-white shadow-soft flex items-center justify-center hover:bg-neutral-50 disabled:opacity-30 disabled:cursor-not-allowed transition-all"
         >
           <font-awesome-icon :icon="['fas', 'chevron-right']" class="text-neutral-600 text-xs" />
@@ -47,7 +47,9 @@ const props = defineProps({
 const currentIndex = ref(0)
 
 const displayedOutfits = computed(() => {
-  return props.outfits.slice(currentIndex.value, currentIndex.value + props.itemsPerPage)
+  // 确保outfits是数组
+  const outfitsArray = Array.isArray(props.outfits) ? props.outfits : []
+  return outfitsArray.slice(currentIndex.value, currentIndex.value + props.itemsPerPage)
 })
 
 function prevOutfit() {
@@ -57,7 +59,9 @@ function prevOutfit() {
 }
 
 function nextOutfit() {
-  if (currentIndex.value < props.outfits.length - props.itemsPerPage) {
+  // 确保outfits是数组
+  const outfitsArray = Array.isArray(props.outfits) ? props.outfits : []
+  if (currentIndex.value < outfitsArray.length - props.itemsPerPage) {
     currentIndex.value++
   }
 }

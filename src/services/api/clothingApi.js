@@ -1,11 +1,11 @@
-import { clothingApi } from './adapter'
+import { clothingAdaptorApi } from './adapter'
 
 // 衣物API
 export default {
   // 获取所有衣物类别
   getCategories: async () => {
     try {
-      return await clothingApi.getCategories()
+      return await clothingAdaptorApi.getCategories()
     } catch (error) {
       console.error('获取衣物类别失败:', error)
       throw error
@@ -15,7 +15,7 @@ export default {
   // 获取所有衣物
   getClothingItems: async () => {
     try {
-      return await clothingApi.getClothingItems()
+      return await clothingAdaptorApi.getClothingItems()
     } catch (error) {
       console.error('获取衣物列表失败:', error)
       throw error
@@ -25,7 +25,7 @@ export default {
   // 根据类别获取衣物
   getClothingItemsByCategory: async (categoryId) => {
     try {
-      return await clothingApi.getClothingItemsByCategory(categoryId)
+      return await clothingAdaptorApi.getClothingItemsByCategory(categoryId)
     } catch (error) {
       console.error('获取类别衣物失败:', error)
       throw error
@@ -35,7 +35,7 @@ export default {
   // 获取衣物详情
   getClothingItemDetail: async (id) => {
     try {
-      return await clothingApi.getClothingItemDetail(id)
+      return await clothingAdaptorApi.getClothingItemDetail(id)
     } catch (error) {
       console.error('获取衣物详情失败:', error)
       throw error
@@ -45,7 +45,7 @@ export default {
   // 添加衣物
   addClothingItem: async (item) => {
     try {
-      return await clothingApi.addClothingItem(item)
+      return await clothingAdaptorApi.addClothingItem(item)
     } catch (error) {
       console.error('添加衣物失败:', error)
       throw error
@@ -55,7 +55,7 @@ export default {
   // 更新衣物信息
   updateClothingItem: async (id, updates) => {
     try {
-      return await clothingApi.updateClothingItem(id, updates)
+      return await clothingAdaptorApi.updateClothingItem(id, updates)
     } catch (error) {
       console.error('更新衣物失败:', error)
       throw error
@@ -65,7 +65,7 @@ export default {
   // 删除衣物
   deleteClothingItem: async (id) => {
     try {
-      return await clothingApi.deleteClothingItem(id)
+      return await clothingAdaptorApi.deleteClothingItem(id)
     } catch (error) {
       console.error('删除衣物失败:', error)
       throw error
@@ -75,7 +75,7 @@ export default {
   // 搜索衣物
   searchClothingItems: async (keyword) => {
     try {
-      return await clothingApi.searchClothingItems(keyword)
+      return await clothingAdaptorApi.searchClothingItems(keyword)
     } catch (error) {
       console.error('搜索衣物失败:', error)
       throw error

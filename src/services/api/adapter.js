@@ -63,7 +63,7 @@ apiClient.interceptors.response.use(
 const isDevelopment = process.env.NODE_ENV === 'development'
 
 // 衣物API适配器
-export const clothingApi = {
+export const clothingAdaptorApi = {
   // 获取所有衣物类别
   getCategories: async () => {
     if (isDevelopment) {
@@ -130,7 +130,7 @@ export const clothingApi = {
 }
 
 // 用户API适配器
-export const userApi = {
+export const userAdaptorApi = {
   // 用户登录
   login: async (credentials) => {
     if (isDevelopment) {
@@ -165,7 +165,7 @@ export const userApi = {
 }
 
 // 搭配API适配器
-export const outfitApi = {
+export const outfitAdaptorApi = {
   // 获取所有搭配
   getOutfits: async () => {
     if (isDevelopment) {
@@ -224,7 +224,7 @@ export const outfitApi = {
 }
 
 // 分析API适配器
-export const analyticsApi = {
+export const analyticsAdaptorApi = {
   // 获取衣物统计信息
   getClothingStats: async () => {
     if (isDevelopment) {
