@@ -12,6 +12,9 @@ import { fas } from '@fortawesome/free-solid-svg-icons'
 import { far } from '@fortawesome/free-regular-svg-icons'
 library.add(fas, far)
 
+// 引入状态管理初始化函数
+import { initializeStores } from './stores'
+
 // 创建应用实例
 const app = createApp(App)
 
@@ -25,5 +28,12 @@ app.use(pinia)
 // 使用路由
 app.use(router)
 
+// 初始化状态管理
+// 注意：这里使用异步初始化，确保所有store数据准备就绪
+initializeStores().catch(error => {
+  console.error('初始化状态管理失败:', error)
+})
+
 // 挂载应用
 app.mount('#app')
+
