@@ -7,8 +7,8 @@ export const categories = [
   { id: 3, name: '外套', icon: 'vest' },
   { id: 4, name: '鞋履', icon: 'shoe-prints' },
   { id: 5, name: '配饰', icon: 'gem' },
-  { id: 6, name: '包包', icon: 'bag-shopping' }
-]
+  { id: 6, name: '包包', icon: 'bag-shopping' },
+];
 
 // 场景数据
 export const scenesMockData = [
@@ -17,16 +17,16 @@ export const scenesMockData = [
   { value: 'party', label: '聚会' },
   { value: 'date', label: '约会' },
   { value: 'travel', label: '旅行' },
-  { value: 'sports', label: '运动' }
-]
+  { value: 'sports', label: '运动' },
+];
 
 // 季节数据
 export const seasonsMockData = [
   { value: 'spring', label: '春季' },
   { value: 'summer', label: '夏季' },
   { value: 'autumn', label: '秋季' },
-  { value: 'winter', label: '冬季' }
-]
+  { value: 'winter', label: '冬季' },
+];
 
 // 风格数据
 export const stylesMockData = [
@@ -35,33 +35,33 @@ export const stylesMockData = [
   { value: 'business', label: '商务' },
   { value: 'street', label: '街头' },
   { value: 'vintage', label: '复古' },
-  { value: 'minimalist', label: '极简' }
-]
+  { value: 'minimalist', label: '极简' },
+];
 
 // 用户数据
 export const users = [
   {
     id: 1,
-    username: "stylefan",
-    email: "user@example.com",
-    nickname: "时尚达人",
-    avatar: "https://picsum.photos/seed/user1/200/200",
-    bio: "热爱时尚，喜欢尝试不同风格的穿搭",
+    username: 'stylefan',
+    email: 'user@example.com',
+    nickname: '时尚达人',
+    avatar: 'https://picsum.photos/seed/user1/200/200',
+    bio: '热爱时尚，喜欢尝试不同风格的穿搭',
     preferences: {
-      favoriteStyles: ["休闲", "商务"],
-      favoriteColors: ["#000000", "#4A5568", "#FFFFFF"],
-      preferredSeasons: ["春季", "秋季"]
+      favoriteStyles: ['休闲', '商务'],
+      favoriteColors: ['#000000', '#4A5568', '#FFFFFF'],
+      preferredSeasons: ['春季', '秋季'],
     },
     stats: {
       totalItems: 30,
       totalOutfits: 12,
       favoriteItems: 20,
-      itemsWornThisMonth: 15
+      itemsWornThisMonth: 15,
     },
-    createdAt: "2023-01-15",
-    lastLogin: "2023-08-21"
-  }
-]
+    createdAt: '2023-01-15',
+    lastLogin: '2023-08-21',
+  },
+];
 
 // 衣物数据
 export const clothingItems = [
@@ -79,7 +79,7 @@ export const clothingItems = [
     purchaseDate: '2023-05-15',
     lastWorn: '2023-08-20',
     wearCount: 8,
-    favorite: true
+    favorite: true,
   },
   {
     id: 2,
@@ -95,7 +95,7 @@ export const clothingItems = [
     purchaseDate: '2023-03-10',
     lastWorn: '2023-08-18',
     wearCount: 12,
-    favorite: true
+    favorite: true,
   },
   {
     id: 3,
@@ -111,7 +111,7 @@ export const clothingItems = [
     purchaseDate: '2022-11-20',
     lastWorn: '2023-08-15',
     wearCount: 15,
-    favorite: false
+    favorite: false,
   },
   {
     id: 4,
@@ -127,7 +127,7 @@ export const clothingItems = [
     purchaseDate: '2023-02-05',
     lastWorn: '2023-08-10',
     wearCount: 5,
-    favorite: true
+    favorite: true,
   },
   {
     id: 5,
@@ -143,7 +143,7 @@ export const clothingItems = [
     purchaseDate: '2023-01-15',
     lastWorn: '2023-08-19',
     wearCount: 20,
-    favorite: true
+    favorite: true,
   },
   {
     id: 6,
@@ -159,7 +159,7 @@ export const clothingItems = [
     purchaseDate: '2022-12-25',
     lastWorn: '2023-08-21',
     wearCount: 30,
-    favorite: true
+    favorite: true,
   },
   {
     id: 7,
@@ -175,7 +175,7 @@ export const clothingItems = [
     purchaseDate: '2023-04-10',
     lastWorn: '2023-08-17',
     wearCount: 18,
-    favorite: true
+    favorite: true,
   },
   {
     id: 8,
@@ -191,7 +191,7 @@ export const clothingItems = [
     purchaseDate: '2023-06-01',
     lastWorn: '2023-08-16',
     wearCount: 7,
-    favorite: true
+    favorite: true,
   },
   {
     id: 9,
@@ -207,7 +207,7 @@ export const clothingItems = [
     purchaseDate: '2023-05-20',
     lastWorn: '2023-08-14',
     wearCount: 10,
-    favorite: true
+    favorite: true,
   },
   {
     id: 10,
@@ -223,7 +223,7 @@ export const clothingItems = [
     purchaseDate: '2022-10-15',
     lastWorn: '2023-08-12',
     wearCount: 6,
-    favorite: true
+    favorite: true,
   },
   {
     id: 11,
@@ -239,7 +239,7 @@ export const clothingItems = [
     purchaseDate: '2023-01-30',
     lastWorn: '2023-08-11',
     wearCount: 9,
-    favorite: false
+    favorite: false,
   },
   {
     id: 12,
@@ -255,7 +255,7 @@ export const clothingItems = [
     purchaseDate: '2023-04-25',
     lastWorn: '2023-08-13',
     wearCount: 15,
-    favorite: true
+    favorite: true,
   },
   // 上装类别更多数据
   {
@@ -272,7 +272,7 @@ export const clothingItems = [
     purchaseDate: '2023-06-10',
     lastWorn: '2023-08-19',
     wearCount: 5,
-    favorite: false
+    favorite: false,
   },
   {
     id: 14,
@@ -288,7 +288,7 @@ export const clothingItems = [
     purchaseDate: '2023-05-20',
     lastWorn: '2023-08-18',
     wearCount: 7,
-    favorite: true
+    favorite: true,
   },
   {
     id: 15,
@@ -304,7 +304,7 @@ export const clothingItems = [
     purchaseDate: '2022-10-15',
     lastWorn: '2023-08-10',
     wearCount: 20,
-    favorite: true
+    favorite: true,
   },
   // 下装类别更多数据
   {
@@ -321,7 +321,7 @@ export const clothingItems = [
     purchaseDate: '2023-04-05',
     lastWorn: '2023-08-17',
     wearCount: 10,
-    favorite: false
+    favorite: false,
   },
   {
     id: 17,
@@ -337,7 +337,7 @@ export const clothingItems = [
     purchaseDate: '2023-06-01',
     lastWorn: '2023-08-16',
     wearCount: 8,
-    favorite: true
+    favorite: true,
   },
   {
     id: 18,
@@ -353,7 +353,7 @@ export const clothingItems = [
     purchaseDate: '2022-12-10',
     lastWorn: '2023-08-15',
     wearCount: 25,
-    favorite: true
+    favorite: true,
   },
   // 外套类别更多数据
   {
@@ -370,7 +370,7 @@ export const clothingItems = [
     purchaseDate: '2022-11-05',
     lastWorn: '2023-08-14',
     wearCount: 12,
-    favorite: true
+    favorite: true,
   },
   {
     id: 20,
@@ -386,7 +386,7 @@ export const clothingItems = [
     purchaseDate: '2023-03-15',
     lastWorn: '2023-08-13',
     wearCount: 15,
-    favorite: false
+    favorite: false,
   },
   {
     id: 21,
@@ -402,7 +402,7 @@ export const clothingItems = [
     purchaseDate: '2023-04-20',
     lastWorn: '2023-08-12',
     wearCount: 8,
-    favorite: true
+    favorite: true,
   },
   // 鞋履类别更多数据
   {
@@ -419,7 +419,7 @@ export const clothingItems = [
     purchaseDate: '2023-05-10',
     lastWorn: '2023-08-20',
     wearCount: 30,
-    favorite: true
+    favorite: true,
   },
   {
     id: 23,
@@ -435,7 +435,7 @@ export const clothingItems = [
     purchaseDate: '2022-10-25',
     lastWorn: '2023-08-19',
     wearCount: 18,
-    favorite: true
+    favorite: true,
   },
   {
     id: 24,
@@ -451,7 +451,7 @@ export const clothingItems = [
     purchaseDate: '2022-11-15',
     lastWorn: '2023-08-18',
     wearCount: 14,
-    favorite: false
+    favorite: false,
   },
   // 配饰类别更多数据
   {
@@ -468,7 +468,7 @@ export const clothingItems = [
     purchaseDate: '2023-01-10',
     lastWorn: '2023-08-17',
     wearCount: 40,
-    favorite: true
+    favorite: true,
   },
   {
     id: 26,
@@ -484,7 +484,7 @@ export const clothingItems = [
     purchaseDate: '2022-12-05',
     lastWorn: '2023-08-16',
     wearCount: 20,
-    favorite: true
+    favorite: true,
   },
   {
     id: 27,
@@ -500,7 +500,7 @@ export const clothingItems = [
     purchaseDate: '2023-06-15',
     lastWorn: '2023-08-15',
     wearCount: 10,
-    favorite: false
+    favorite: false,
   },
   // 包包类别更多数据
   {
@@ -517,7 +517,7 @@ export const clothingItems = [
     purchaseDate: '2023-02-20',
     lastWorn: '2023-08-20',
     wearCount: 50,
-    favorite: true
+    favorite: true,
   },
   {
     id: 29,
@@ -533,7 +533,7 @@ export const clothingItems = [
     purchaseDate: '2023-04-10',
     lastWorn: '2023-08-19',
     wearCount: 15,
-    favorite: true
+    favorite: true,
   },
   {
     id: 30,
@@ -549,103 +549,103 @@ export const clothingItems = [
     purchaseDate: '2023-05-25',
     lastWorn: '2023-08-18',
     wearCount: 12,
-    favorite: false
-  }
-]
+    favorite: false,
+  },
+];
 
 // 搭配数据
 export const outfits = [
   {
     id: 1,
-    name: "商务休闲",
-    description: "适合办公室的商务休闲搭配",
-    image: "https://picsum.photos/seed/outfit1/400/500",
+    name: '商务休闲',
+    description: '适合办公室的商务休闲搭配',
+    image: 'https://picsum.photos/seed/outfit1/400/500',
     items: [1, 8, 16, 11], // 衣物ID数组
-    tags: ["商务", "休闲"],
-    seasons: ["春季", "秋季"],
-    style: "商务",
-    scene: "work",
+    tags: ['商务', '休闲'],
+    seasons: ['春季', '秋季'],
+    style: '商务',
+    scene: 'work',
     favorite: true,
     likes: 15,
-    createdAt: "2023-06-10",
-    lastWorn: "2023-08-15"
+    createdAt: '2023-06-10',
+    lastWorn: '2023-08-15',
   },
   {
     id: 2,
-    name: "周末休闲",
-    description: "舒适的周末休闲搭配",
-    image: "https://picsum.photos/seed/outfit2/400/500",
+    name: '周末休闲',
+    description: '舒适的周末休闲搭配',
+    image: 'https://picsum.photos/seed/outfit2/400/500',
     items: [1, 2, 5], // 衣物ID数组
-    tags: ["休闲"],
-    seasons: ["春季", "夏季"],
-    style: "休闲",
-    scene: "daily",
+    tags: ['休闲'],
+    seasons: ['春季', '夏季'],
+    style: '休闲',
+    scene: 'daily',
     favorite: true,
     likes: 20,
-    createdAt: "2023-05-20",
-    lastWorn: "2023-08-19"
+    createdAt: '2023-05-20',
+    lastWorn: '2023-08-19',
   },
   {
     id: 3,
-    name: "运动风",
-    description: "适合运动和健身的搭配",
-    image: "https://picsum.photos/seed/outfit3/400/500",
+    name: '运动风',
+    description: '适合运动和健身的搭配',
+    image: 'https://picsum.photos/seed/outfit3/400/500',
     items: [3, 18, 5], // 衣物ID数组
-    tags: ["运动"],
-    seasons: ["春季", "秋季"],
-    style: "运动",
-    scene: "sports",
+    tags: ['运动'],
+    seasons: ['春季', '秋季'],
+    style: '运动',
+    scene: 'sports',
     favorite: false,
     likes: 10,
-    createdAt: "2023-04-15",
-    lastWorn: "2023-08-12"
+    createdAt: '2023-04-15',
+    lastWorn: '2023-08-12',
   },
   {
     id: 4,
-    name: "约会穿搭",
-    description: "适合约会的时尚搭配",
-    image: "https://picsum.photos/seed/outfit4/400/500",
+    name: '约会穿搭',
+    description: '适合约会的时尚搭配',
+    image: 'https://picsum.photos/seed/outfit4/400/500',
     items: [8, 2, 23, 25], // 衣物ID数组
-    tags: ["时尚", "正式"],
-    seasons: ["春季", "夏季", "秋季"],
-    style: "商务",
-    scene: "date",
+    tags: ['时尚', '正式'],
+    seasons: ['春季', '夏季', '秋季'],
+    style: '商务',
+    scene: 'date',
     favorite: true,
     likes: 25,
-    createdAt: "2023-07-01",
-    lastWorn: "2023-08-20"
+    createdAt: '2023-07-01',
+    lastWorn: '2023-08-20',
   },
   {
     id: 5,
-    name: "摇滚风格",
-    description: "个性的摇滚风格搭配",
-    image: "https://picsum.photos/seed/outfit5/400/500",
+    name: '摇滚风格',
+    description: '个性的摇滚风格搭配',
+    image: 'https://picsum.photos/seed/outfit5/400/500',
     items: [10, 2, 24], // 衣物ID数组
-    tags: ["摇滚", "个性"],
-    seasons: ["秋季", "冬季"],
-    style: "摇滚",
-    scene: "party",
+    tags: ['摇滚', '个性'],
+    seasons: ['秋季', '冬季'],
+    style: '摇滚',
+    scene: 'party',
     favorite: true,
     likes: 18,
-    createdAt: "2023-03-25",
-    lastWorn: "2023-08-14"
+    createdAt: '2023-03-25',
+    lastWorn: '2023-08-14',
   },
   {
     id: 6,
-    name: "旅行装备",
-    description: "舒适实用的旅行搭配",
-    image: "https://picsum.photos/seed/outfit6/400/500",
+    name: '旅行装备',
+    description: '舒适实用的旅行搭配',
+    image: 'https://picsum.photos/seed/outfit6/400/500',
     items: [1, 17, 22, 28], // 衣物ID数组
-    tags: ["休闲", "舒适"],
-    seasons: ["春季", "夏季"],
-    style: "休闲",
-    scene: "travel",
+    tags: ['休闲', '舒适'],
+    seasons: ['春季', '夏季'],
+    style: '休闲',
+    scene: 'travel',
     favorite: false,
     likes: 12,
-    createdAt: "2023-06-20",
-    lastWorn: "2023-08-10"
-  }
-]
+    createdAt: '2023-06-20',
+    lastWorn: '2023-08-10',
+  },
+];
 
 // 分析数据
 export const analyticsData = {
@@ -656,17 +656,17 @@ export const analyticsData = {
     averageWearCount: 12,
     mostWornItem: {
       id: 5,
-      name: "运动鞋",
-      wearCount: 30
+      name: '运动鞋',
+      wearCount: 30,
     },
     leastWornItem: {
       id: 4,
-      name: "风衣",
-      wearCount: 5
+      name: '风衣',
+      wearCount: 5,
     },
     favoriteItems: 20,
     itemsAddedThisMonth: 3,
-    itemsWornThisMonth: 15
+    itemsWornThisMonth: 15,
   },
 
   // 搭配统计信息
@@ -675,48 +675,48 @@ export const analyticsData = {
     favoriteOutfits: 8,
     mostUsedOutfit: {
       id: 2,
-      name: "周末休闲",
-      usageCount: 8
+      name: '周末休闲',
+      usageCount: 8,
     },
     outfitsCreatedThisMonth: 2,
-    averageItemsPerOutfit: 3.5
+    averageItemsPerOutfit: 3.5,
   },
 
   // 穿着频率分析
   wearFrequency: [
-    { name: "白色T恤", count: 8 },
-    { name: "牛仔裤", count: 12 },
-    { name: "连帽卫衣", count: 15 },
-    { name: "风衣", count: 5 },
-    { name: "运动鞋", count: 30 },
-    { name: "手表", count: 30 },
-    { name: "双肩包", count: 18 }
+    { name: '白色T恤', count: 8 },
+    { name: '牛仔裤', count: 12 },
+    { name: '连帽卫衣', count: 15 },
+    { name: '风衣', count: 5 },
+    { name: '运动鞋', count: 30 },
+    { name: '手表', count: 30 },
+    { name: '双肩包', count: 18 },
   ],
 
   // 类别分布
   categoryDistribution: [
-    { name: "上装", count: 8, percentage: 27 },
-    { name: "下装", count: 5, percentage: 17 },
-    { name: "外套", count: 4, percentage: 13 },
-    { name: "鞋履", count: 5, percentage: 17 },
-    { name: "配饰", count: 4, percentage: 13 },
-    { name: "包包", count: 4, percentage: 13 }
+    { name: '上装', count: 8, percentage: 27 },
+    { name: '下装', count: 5, percentage: 17 },
+    { name: '外套', count: 4, percentage: 13 },
+    { name: '鞋履', count: 5, percentage: 17 },
+    { name: '配饰', count: 4, percentage: 13 },
+    { name: '包包', count: 4, percentage: 13 },
   ],
 
   // 季节穿着分析
   seasonalAnalysis: [
-    { season: "春季", count: 20, percentage: 35 },
-    { season: "夏季", count: 15, percentage: 26 },
-    { season: "秋季", count: 18, percentage: 32 },
-    { season: "冬季", count: 4, percentage: 7 }
+    { season: '春季', count: 20, percentage: 35 },
+    { season: '夏季', count: 15, percentage: 26 },
+    { season: '秋季', count: 18, percentage: 32 },
+    { season: '冬季', count: 4, percentage: 7 },
   ],
 
   // 风格偏好分析
   stylePreferences: [
-    { style: "休闲", count: 18, percentage: 60 },
-    { style: "商务", count: 8, percentage: 27 },
-    { style: "运动", count: 3, percentage: 10 },
-    { style: "摇滚", count: 1, percentage: 3 }
+    { style: '休闲', count: 18, percentage: 60 },
+    { style: '商务', count: 8, percentage: 27 },
+    { style: '运动', count: 3, percentage: 10 },
+    { style: '摇滚', count: 1, percentage: 3 },
   ],
 
   // 价值分析
@@ -725,29 +725,29 @@ export const analyticsData = {
     averageItemValue: 500,
     highestValueItem: {
       id: 21,
-      name: "灰色风衣",
-      value: 2500
+      name: '灰色风衣',
+      value: 2500,
     },
     lowestValueItem: {
       id: 1,
-      name: "白色T恤",
-      value: 99
+      name: '白色T恤',
+      value: 99,
     },
     valuePerWear: {
       highest: {
         id: 5,
-        name: "运动鞋",
+        name: '运动鞋',
         value: 800,
         wearCount: 30,
-        valuePerWear: 26.67
+        valuePerWear: 26.67,
       },
       lowest: {
         id: 4,
-        name: "风衣",
+        name: '风衣',
         value: 1500,
         wearCount: 5,
-        valuePerWear: 300
-      }
-    }
-  }
-}
+        valuePerWear: 300,
+      },
+    },
+  },
+};

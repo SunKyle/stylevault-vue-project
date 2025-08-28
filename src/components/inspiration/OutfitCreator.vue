@@ -35,60 +35,60 @@
 </template>
 
 <script setup>
-import { ref } from 'vue'
-import OutfitPreviewPanel from './OutfitPreviewPanel.vue'
-import ClothingSelectionPanel from './ClothingSelectionPanel.vue'
+  import { ref } from 'vue';
+  import OutfitPreviewPanel from './OutfitPreviewPanel.vue';
+  import ClothingSelectionPanel from './ClothingSelectionPanel.vue';
 
-// 搭配信息
-const outfitName = ref('')
-const outfitScene = ref('')
-const outfitSeason = ref('')
-const outfitStyle = ref('')
+  // 搭配信息
+  const outfitName = ref('');
+  const outfitScene = ref('');
+  const outfitSeason = ref('');
+  const outfitStyle = ref('');
 
-// 定义emit
-const emit = defineEmits([
-  'remove-cloth',
-  'reset-clothes',
-  'save-outfit',
-  'category-change',
-  'tag-change',
-  'toggle-cloth',
-  'reset-filters'
-])
+  // 定义emit
+  const emit = defineEmits([
+    'remove-cloth',
+    'reset-clothes',
+    'save-outfit',
+    'category-change',
+    'tag-change',
+    'toggle-cloth',
+    'reset-filters',
+  ]);
 
-// 处理保存搭配
-function handleSaveOutfit(outfitInfo) {
-  emit('save-outfit', outfitInfo)
-}
-
-defineProps({
-  selectedClothes: {
-    type: Array,
-    default: () => []
-  },
-  categories: {
-    type: Array,
-    default: () => []
-  },
-  tags: {
-    type: Array,
-    default: () => []
-  },
-  activeCategory: {
-    type: String,
-    default: '全部'
-  },
-  activeTag: {
-    type: String,
-    default: ''
-  },
-  clothes: {
-    type: Array,
-    default: () => []
-  },
-  filteredClothes: {
-    type: Array,
-    default: () => []
+  // 处理保存搭配
+  function handleSaveOutfit(outfitInfo) {
+    emit('save-outfit', outfitInfo);
   }
-})
+
+  defineProps({
+    selectedClothes: {
+      type: Array,
+      default: () => [],
+    },
+    categories: {
+      type: Array,
+      default: () => [],
+    },
+    tags: {
+      type: Array,
+      default: () => [],
+    },
+    activeCategory: {
+      type: String,
+      default: '全部',
+    },
+    activeTag: {
+      type: String,
+      default: '',
+    },
+    clothes: {
+      type: Array,
+      default: () => [],
+    },
+    filteredClothes: {
+      type: Array,
+      default: () => [],
+    },
+  });
 </script>

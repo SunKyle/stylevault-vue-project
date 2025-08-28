@@ -54,7 +54,8 @@
 
 /* 缓慢脉冲动画 */
 @keyframes ping-slow {
-  0%, 100% {
+  0%,
+  100% {
     transform: scale(1);
     opacity: 1;
   }
@@ -70,7 +71,8 @@
 
 /* 标题悬停动画 */
 @keyframes title-pulse {
-  0%, 100% {
+  0%,
+  100% {
     transform: scale(1);
   }
   50% {

@@ -20,49 +20,45 @@
       </div>
     </div>
     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
-      <OutfitCard
-        v-for="outfit in displayedOutfits"
-        :key="outfit.title"
-        :outfit="outfit"
-      />
+      <OutfitCard v-for="outfit in displayedOutfits" :key="outfit.title" :outfit="outfit" />
     </div>
   </div>
 </template>
 
 <script setup>
-import { ref, computed } from 'vue'
-import OutfitCard from '../ui/OutfitCard.vue'
+  import { ref, computed } from 'vue';
+  import OutfitCard from '../ui/OutfitCard.vue';
 
-const props = defineProps({
-  outfits: {
-    type: Array,
-    required: true
-  },
-  itemsPerPage: {
-    type: Number,
-    default: 3
+  const props = defineProps({
+    outfits: {
+      type: Array,
+      required: true,
+    },
+    itemsPerPage: {
+      type: Number,
+      default: 3,
+    },
+  });
+
+  const currentIndex = ref(0);
+
+  const displayedOutfits = computed(() => {
+    // 确保outfits是数组
+    const outfitsArray = Array.isArray(props.outfits) ? props.outfits : [];
+    return outfitsArray.slice(currentIndex.value, currentIndex.value + props.itemsPerPage);
+  });
+
+  function prevOutfit() {
+    if (currentIndex.value > 0) {
+      currentIndex.value--;
+    }
   }
-})
 
-const currentIndex = ref(0)
-
-const displayedOutfits = computed(() => {
-  // 确保outfits是数组
-  const outfitsArray = Array.isArray(props.outfits) ? props.outfits : []
-  return outfitsArray.slice(currentIndex.value, currentIndex.value + props.itemsPerPage)
-})
-
-function prevOutfit() {
-  if (currentIndex.value > 0) {
-    currentIndex.value--
+  function nextOutfit() {
+    // 确保outfits是数组
+    const outfitsArray = Array.isArray(props.outfits) ? props.outfits : [];
+    if (currentIndex.value < outfitsArray.length - props.itemsPerPage) {
+      currentIndex.value++;
+    }
   }
-}
-
-function nextOutfit() {
-  // 确保outfits是数组
-  const outfitsArray = Array.isArray(props.outfits) ? props.outfits : []
-  if (currentIndex.value < outfitsArray.length - props.itemsPerPage) {
-    currentIndex.value++
-  }
-}
 </script>

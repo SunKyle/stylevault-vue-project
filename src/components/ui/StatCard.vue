@@ -7,34 +7,34 @@
 </template>
 
 <script setup>
-defineProps({
-  title: {
-    type: String,
-    required: true
-  },
-  value: {
-    type: [String, Number],
-    required: true
-  },
-  subtitle: {
-    type: String,
-    default: ''
-  },
-  bgColor: {
-    type: String,
-    default: 'bg-blue-50'
-  },
-  titleColor: {
-    type: String,
-    default: 'text-blue-800'
-  },
-  valueColor: {
-    type: String,
-    default: 'text-blue-600'
-  },
-  subtitleColor: {
-    type: String,
-    default: 'text-blue-500'
-  }
-})
+  defineProps({
+    title: {
+      type: String,
+      required: true,
+    },
+    value: {
+      type: [String, Number],
+      required: true,
+    },
+    subtitle: {
+      type: String,
+      default: '',
+    },
+    bgColor: {
+      type: String,
+      default: 'bg-blue-50',
+    },
+    titleColor: {
+      type: String,
+      default: 'text-blue-800',
+    },
+    valueColor: {
+      type: String,
+      default: 'text-blue-600',
+    },
+    subtitleColor: {
+      type: String,
+      default: 'text-blue-500',
+    },
+  });
 </script>

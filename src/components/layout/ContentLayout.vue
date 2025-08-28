@@ -5,5 +5,5 @@
 </template>
 
 <script setup>
-// 这个组件不需要任何props
+  // 这个组件不需要任何props
 </script>
