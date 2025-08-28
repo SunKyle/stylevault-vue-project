@@ -44,8 +44,32 @@ stylevault-vue-project/
 │   │   │       └── AnalysisSection.vue    # 分析功能区块
 │   │   └── form/           # 表单组件
 │   │       └── UploadForm.vue    # 上传表单组件
+│   ├── mock/              # Mock数据和API
+│   │   ├── data.js        # 统一的Mock数据管理
+│   │   ├── index.js       # Mock API入口
+│   │   ├── wardrobe.js    # 衣物相关Mock API
+│   │   ├── outfit.js     # 搭配相关Mock API
+│   │   ├── user.js       # 用户相关Mock API
+│   │   └── analytics.js  # 分析相关Mock API
 │   ├── router/            # 路由配置
 │   │   └── index.js        # 路由配置文件
+│   ├── services/          # 业务逻辑服务层
+│   │   ├── api/           # API服务层
+│   │   │   ├── adapter.js # API适配器
+│   │   │   ├── clothingApi.js # 衣物API
+│   │   │   ├── outfitApi.js   # 搭配API
+│   │   │   ├── userApi.js     # 用户API
+│   │   │   └── analyticsApi.js # 分析API
+│   │   ├── baseService.js # 基础服务类
+│   │   ├── clothingService.js # 衣物服务
+│   │   ├── outfitService.js   # 搭配服务
+│   │   ├── userService.js     # 用户服务
+│   │   └── wardrobeService.js # 衣橱服务
+│   ├── stores/            # Pinia状态管理
+│   │   ├── authStore.js   # 认证状态
+│   │   ├── clothingStore.js # 衣物状态
+│   │   ├── outfitStore.js # 搭配状态
+│   │   └── userStore.js   # 用户状态
 │   ├── utils/             # 工具函数
 │   │   └── toast.js       # 提示工具函数
 │   ├── views/             # 视图组件
@@ -82,6 +106,39 @@ stylevault-vue-project/
 
 - **form**：表单相关组件
 
+### src/mock
+Mock层提供模拟的后端数据和API接口，支持前端独立开发和测试。
+
+- **data.js**：统一的Mock数据管理，包含衣物、搭配、用户等所有模拟数据
+- **index.js**：Mock API入口，导出所有Mock API
+- **wardrobe.js**：衣物相关Mock API，提供衣物的增删改查功能
+- **outfit.js**：搭配相关Mock API，提供搭配的增删改查功能
+- **user.js**：用户相关Mock API，提供用户认证和信息管理功能
+- **analytics.js**：分析相关Mock API，提供数据分析功能
+
+### src/services
+Service层处理业务逻辑，组合多个API调用，提供高级功能。
+
+- **api/**：API服务层
+  - **adapter.js**：API适配器，根据环境选择数据源（开发环境使用Mock API，生产环境使用真实API）
+  - **clothingApi.js**：衣物API，封装衣物相关的API调用
+  - **outfitApi.js**：搭配API，封装搭配相关的API调用
+  - **userApi.js**：用户API，封装用户相关的API调用
+  - **analyticsApi.js**：分析API，封装分析相关的API调用
+- **baseService.js**：基础服务类，提供通用的CRUD能力
+- **clothingService.js**：衣物服务，处理衣物相关的业务逻辑
+- **outfitService.js**：搭配服务，处理搭配相关的业务逻辑
+- **userService.js**：用户服务，处理用户相关的业务逻辑
+- **wardrobeService.js**：衣橱服务，处理衣橱相关的业务逻辑
+
+### src/stores
+使用Pinia进行状态管理，集中管理应用的状态。
+
+- **authStore.js**：认证状态，管理用户登录状态和权限
+- **clothingStore.js**：衣物状态，管理衣物数据
+- **outfitStore.js**：搭配状态，管理搭配数据
+- **userStore.js**：用户状态，管理用户信息
+
 ### src/router
 存放Vue Router的路由配置，定义应用的页面路由。
 
@@ -96,6 +153,77 @@ stylevault-vue-project/
 
 ### main.js
 应用的入口文件，负责初始化Vue应用并挂载到DOM上。
+
+## 核心模块详解
+
+### 1. 数据流设计
+
+#### 开发环境数据流
+```
+Components → Services → API层 → Mock API → Mock数据
+```
+
+1. **Components** 调用 **Services** 的方法获取数据
+2. **Services** 处理业务逻辑，调用 **API层** 的方法
+3. **API层** 根据环境判断，选择调用 **Mock API**
+4. **Mock API** 返回模拟数据
+5. 数据依次返回到 **Components** 进行展示
+
+#### 生产环境数据流
+```
+Components → Services → API层 → API客户端 → 真实API
+```
+
+1. **Components** 调用 **Services** 的方法获取数据
+2. **Services** 处理业务逻辑，调用 **API层** 的方法
+3. **API层** 根据环境判断，选择调用 **API客户端**
+4. **API客户端** 发送HTTP请求到 **真实API**
+5. **真实API** 返回真实数据
+6. 数据依次返回到 **Components** 进行展示
+
+### 2. Mock层
+
+Mock层提供完整的模拟数据和API接口，支持前端独立开发和测试。
+
+**主要特点：**
+- 统一的数据管理：所有Mock数据集中在`data.js`文件中管理
+- 完整的API模拟：提供与真实API一致的接口
+- 环境切换：通过API适配器实现开发环境和生产环境的无缝切换
+- 数据一致性：确保Mock数据与真实API的数据结构一致
+
+**数据结构：**
+- 衣物数据：包含衣物的基本信息、分类、季节、风格等
+- 搭配数据：包含搭配的基本信息、关联的衣物、季节、风格等
+- 用户数据：包含用户的基本信息、偏好、统计数据等
+- 分析数据：包含各种统计和分析数据
+
+### 3. Service层
+
+Service层是业务逻辑的核心，负责处理复杂的业务逻辑和数据转换。
+
+**主要职责：**
+- 封装业务逻辑
+- 组合多个API调用
+- 数据转换和处理
+- 错误处理和日志记录
+
+**设计模式：**
+- 基础服务类：提供通用的CRUD能力
+- 具体服务类：继承基础服务类，实现特定业务逻辑
+
+### 4. API适配器层
+
+API适配器层是连接Service层和数据源（Mock API或真实API）的桥梁。
+
+**主要功能：**
+- 环境判断：根据`process.env.NODE_ENV`判断当前环境
+- 数据源选择：开发环境使用Mock API，生产环境使用真实API
+- 统一接口：提供统一的API接口，屏蔽底层差异
+- 错误处理：统一处理API调用中的错误
+
+**实现方式：**
+- 使用适配器模式，根据环境选择不同的数据源
+- 提供统一的API接口，确保Service层的调用方式一致
 
 ## 功能模块
 
