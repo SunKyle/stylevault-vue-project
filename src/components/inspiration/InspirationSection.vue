@@ -40,26 +40,29 @@
 </template>
 
 <script setup>
-  import { ref, computed, onMounted, watch, nextTick } from 'vue';
-  import { useWardrobeStore } from '../../stores/wardrobeStore';
+  import { ref, computed, onMounted, watch } from 'vue';
+  import { useClothingStore } from '@/stores';
+  import { useOutfitStore } from '../../stores/outfitStore';
   import { scenesMockData, getClothesWithTags } from '../../mock/wardrobe';
   import SavedOutfits from './SavedOutfits.vue';
   import OutfitCreator from './OutfitCreator.vue';
 
-  const wardrobeStore = useWardrobeStore();
-  const categories = computed(() => ['全部', ...wardrobeStore.categories.map(c => c.name)]);
+  const clothingStore = useClothingStore();
+  const outfitStore = useOutfitStore();
+  const categories = computed(() => ['全部', ...clothingStore.categories.map(c => c.name)]);
 
   // 分页相关数据
   const currentPage = ref(1);
-  const itemsPerPage = ref(4); // 每页显示的卡片数量
-  const isLoading = ref(true); // 数据加载状态
+  const itemsPerPage = ref(4);
+  const isLoading = ref(true);
 
-  // 从wardrobeStore获取转换后的数据
+  // 从store获取数据
   const clothes = ref([]);
+  const savedOutfits = computed(() => outfitStore.allOutfits);
 
-  // 监听clothingItems变化，自动转换数据
+  // 监听clothingItems变化
   watch(
-    () => wardrobeStore.clothingItems,
+    () => clothingStore.clothingItems,
     newItems => {
       if (newItems.length > 0) {
         clothes.value = getClothesWithTags(newItems);
@@ -68,58 +71,44 @@
     { immediate: true }
   );
 
-  // 获取所有唯一的标签
+  // 获取标签
   const allTags = computed(() => {
     const tagSet = new Set();
-    if (Array.isArray(clothes.value)) {
-      clothes.value.forEach(item => {
-        if (item.tags && Array.isArray(item.tags)) {
-          item.tags.forEach(tag => tagSet.add(tag));
-        }
-      });
-    }
+    clothes.value.forEach(item => {
+      item.tags?.forEach(tag => tagSet.add(tag));
+    });
     return Array.from(tagSet);
   });
 
-  // 添加"最近穿着"标签
-  const tags = computed(() => {
-    return ['最近穿着', ...allTags.value];
-  });
+  const tags = computed(() => ['最近穿着', ...allTags.value]);
   const activeCategory = ref('全部');
   const activeTag = ref('');
   const selectedClothes = ref([]);
-  const savedOutfits = ref([]);
 
-  // 计算当前页要显示的搭配
+  // 计算分页数据
   const currentPageOutfits = computed(() => {
     const start = (currentPage.value - 1) * itemsPerPage.value;
     const end = start + itemsPerPage.value;
-    // 过滤掉无效的搭配对象
-    return savedOutfits.value
-      .slice(start, end)
-      .filter(outfit => outfit && outfit.id && outfit.name);
+    return savedOutfits.value.slice(start, end);
   });
 
-  // 计算总页数
   const totalPages = computed(() => {
     return Math.ceil(savedOutfits.value.length / itemsPerPage.value);
   });
 
-  // 组件挂载时加载已保存的搭配
-  onMounted(() => {
-    // 先加载搭配数据，这是分页所需的唯一数据
-    loadSavedOutfits();
-    // 搭配数据加载完成后立即启用分页
+  // 组件挂载时初始化数据
+  onMounted(async () => {
+    await outfitStore.fetchOutfits();
     isLoading.value = false;
 
-    // 异步加载其他数据，不阻塞分页功能
+    // 异步加载其他数据
     Promise.all([
-      wardrobeStore.categories.length === 0 ? wardrobeStore.fetchCategories() : Promise.resolve(),
-      wardrobeStore.clothingItems.length === 0
-        ? wardrobeStore.fetchClothingItems()
+      clothingStore.categories.length === 0 ? clothingStore.fetchCategories() : Promise.resolve(),
+      clothingStore.clothingItems.length === 0
+        ? clothingStore.fetchClothingItems()
         : Promise.resolve(),
     ]).catch(error => {
-      console.error('加载衣物数据失败:', error);
+      console.error('加载数据失败:', error);
     });
   });
 
@@ -131,9 +120,13 @@
     });
   });
 
-  function addCloth(item) {
-    if (!selectedClothes.value.find(i => i.name === item.name)) {
+  // 操作方法
+  function toggleCloth(item) {
+    const index = selectedClothes.value.findIndex(i => i.name === item.name);
+    if (index === -1) {
       selectedClothes.value.push(item);
+    } else {
+      selectedClothes.value.splice(index, 1);
     }
   }
 
@@ -145,18 +138,6 @@
     selectedClothes.value = [];
   }
 
-  function toggleCloth(item) {
-    const index = selectedClothes.value.findIndex(i => i.name === item.name);
-    if (index === -1) {
-      // 如果未选中，则添加
-      selectedClothes.value.push(item);
-    } else {
-      // 如果已选中，则移除
-      selectedClothes.value.splice(index, 1);
-    }
-  }
-
-  // 滚动到创建搭配区域
   function scrollToCreateSection() {
     const element = document.getElementById('create-section');
     if (element) {
@@ -164,187 +145,47 @@
     }
   }
 
-  // 加载已保存的搭配
-  function loadSavedOutfits() {
-    const outfits = JSON.parse(localStorage.getItem('savedOutfits') || '[]');
-    savedOutfits.value = outfits;
-  }
-
-  // 保存穿搭方案
-  function saveOutfit(outfitInfo) {
+  // 使用store的方法替代直接localStorage操作
+  async function saveOutfit(outfitInfo) {
     if (selectedClothes.value.length === 0) {
       alert('请至少选择一件衣物');
       return;
     }
 
-    // 使用从组件传递的搭配信息
-    const outfitName = outfitInfo.name;
-    const outfitScene = outfitInfo.scene;
-
-    // 创建一个新的穿搭方案
     const newOutfit = {
-      id: Date.now(), // 使用时间戳作为ID
-      name: outfitName,
-      scene: outfitScene || undefined,
+      name: outfitInfo.name,
+      scene: outfitInfo.scene || undefined,
       items: [...selectedClothes.value],
       createdAt: new Date(),
     };
 
-    // 保存到本地存储
-    const outfits = JSON.parse(localStorage.getItem('savedOutfits') || '[]');
-    outfits.push(newOutfit);
-    localStorage.setItem('savedOutfits', JSON.stringify(outfits));
-
-    // 更新已保存搭配列表
-    loadSavedOutfits();
-
-    // 显示成功消息
-    alert('穿搭方案已保存！');
-
-    // 重置当前搭配
-    resetClothes();
+    try {
+      await outfitStore.addOutfit(newOutfit);
+      alert('穿搭方案已保存！');
+      resetClothes();
+    } catch (error) {
+      console.error('保存搭配失败:', error);
+      alert('保存失败，请重试');
+    }
   }
 
-  // 加载搭配方案
   function loadOutfit(outfit) {
     selectedClothes.value = Array.isArray(outfit.items) ? [...outfit.items] : [];
-    // 滚动到搭配预览区域
-    nextTick(() => {
-      const element = document.getElementById('create-section');
-      if (element) {
-        element.scrollIntoView({ behavior: 'smooth' });
-      }
-    });
   }
 
-  // 删除搭配方案
-  function deleteOutfit(index) {
+  async function deleteOutfit(outfit) {
     if (confirm('确定要删除这个搭配方案吗？')) {
-      const outfits = JSON.parse(localStorage.getItem('savedOutfits') || '[]');
-      outfits.splice(index, 1);
-      localStorage.setItem('savedOutfits', JSON.stringify(outfits));
-
-      // 更新已保存搭配列表
-      loadSavedOutfits();
+      try {
+        await outfitStore.removeOutfit(outfit.id);
+      } catch (error) {
+        console.error('删除搭配失败:', error);
+        alert('删除失败，请重试');
+      }
     }
   }
 
-  // 格式化日期
-  function formatDate(date) {
-    const d = new Date(date);
-    return `${d.getFullYear()}/${(d.getMonth() + 1).toString().padStart(2, '0')}/${d
-      .getDate()
-      .toString()
-      .padStart(2, '0')}`;
-  }
-
-  // 获取搭配衣物类型统计
-  function getOutfitStats(items) {
-    const stats = {};
-    items.forEach(item => {
-      // 提取类型（如"上衣"、"裤子"等）
-      const type = item.type.split(' · ')[0];
-      if (stats[type]) {
-        stats[type]++;
-      } else {
-        stats[type] = 1;
-      }
-    });
-    return stats;
-  }
-
-  // 获取搭配标签
-  function getOutfitTags(items) {
-    const tags = new Set();
-    items.forEach(item => {
-      if (item.tags && Array.isArray(item.tags)) {
-        item.tags.forEach(tag => tags.add(tag));
-      }
-    });
-    return Array.from(tags);
-  }
-
-  // 获取搭配评分（模拟）
-  function getOutfitRating(outfit) {
-    // 基于衣物数量和搭配多样性计算评分
-    if (!outfit.items || outfit.items.length === 0) return 0;
-
-    // 基础分 5 分
-    let baseScore = 5;
-
-    // 衣物数量加分 (最多 3 分)
-    const quantityBonus = Math.min(Math.floor(outfit.items.length / 2), 3);
-
-    // 搭配多样性加分 (最多 2 分)
-    const types = new Set(outfit.items.map(item => item.type.split(' · ')[0]));
-    const diversityBonus = Math.min(types.size - 1, 2);
-
-    return baseScore + quantityBonus + diversityBonus;
-  }
-
-  // 获取随机点赞数（模拟）
-  function getRandomLikes() {
-    return Math.floor(Math.random() * 100) + 1;
-  }
-
-  // 获取随机评论数（模拟）
-  function getRandomComments() {
-    return Math.floor(Math.random() * 20) + 1;
-  }
-
-  // 分享搭配方案
   function shareOutfit(outfit) {
-    alert('分享功能已触发：' + outfit.name);
-    // 实际实现时可以调用系统分享API或生成分享链接
-  }
-
-  // 编辑搭配方案
-  function editOutfit({ index, outfit }) {
-    // 更新本地存储中的搭配信息
-    const outfits = JSON.parse(localStorage.getItem('savedOutfits') || '[]');
-    if (index >= 0 && index < outfits.length) {
-      outfits[index] = outfit;
-      localStorage.setItem('savedOutfits', JSON.stringify(outfits));
-
-      // 更新已保存搭配列表
-      loadSavedOutfits();
-
-      // 显示成功消息
-      alert('搭配方案已更新！');
-    }
+    // 使用store的分享功能
+    outfitStore.shareOutfit(outfit);
   }
 </script>
-
-<style scoped>
-  /* 自定义滚动条样式 */
-  .scrollbar-thin::-webkit-scrollbar {
-    width: 4px;
-  }
-
-  .scrollbar-thin::-webkit-scrollbar-track {
-    background: transparent;
-  }
-
-  .scrollbar-thin::-webkit-scrollbar-thumb {
-    background: rgba(0, 0, 0, 0.1);
-    border-radius: 2px;
-  }
-
-  .scrollbar-thin::-webkit-scrollbar-thumb:hover {
-    background: rgba(0, 0, 0, 0.2);
-  }
-
-  /* 悬停动画增强 */
-  .group:hover .text-primary {
-    color: theme('colors.primary', #3b82f6);
-  }
-
-  /* 卡片悬停效果增强 */
-  .shadow-md {
-    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
-  }
-
-  .shadow-lg {
-    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.08), 0 4px 6px -2px rgba(0, 0, 0, 0.04);
-  }
-</style>

@@ -274,7 +274,7 @@
 </template>
 
 <script>
-  import { useWardrobeStore } from '../../stores/wardrobeStore';
+  import { useClothingStore } from '@/stores';
 
   export default {
     name: 'CategoryDrawer',
@@ -318,7 +318,7 @@
       return {
         currentFilter: 'all',
         currentSort: null,
-        wardrobeStore: useWardrobeStore(),
+        clothingStore: useClothingStore(),
       };
     },
     methods: {
@@ -346,7 +346,7 @@
       getCategoryIcon() {
         if (this.isSearchMode) return 'search';
         if (!this.selectedCategory || this.selectedCategory === 'all') return 'tag';
-        const category = this.wardrobeStore.categories.find(c => c.id === this.selectedCategory);
+        const category = this.clothingStore.categories.find(c => c.id === this.selectedCategory);
         return category ? category.icon : 'tag';
       },
     },

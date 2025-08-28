@@ -462,7 +462,7 @@
 
 <script>
   import { ref, computed, watch } from 'vue';
-  import { useWardrobeStore } from '../../stores/wardrobeStore';
+  import { useClothingStore } from '@/stores';
   import { showToast } from '../../utils/toast';
 
   export default {
@@ -483,7 +483,7 @@
     },
     emits: ['close', 'saved'],
     setup(props, { emit }) {
-      const wardrobeStore = useWardrobeStore();
+      const clothingStore = useClothingStore();
       const fileInput = ref(null);
 
       // 表单数据
@@ -501,7 +501,7 @@
       });
 
       // 分类数据
-      const categories = computed(() => wardrobeStore.categories);
+      const categories = computed(() => clothingStore.categories);
 
       // 表单验证
       const isFormValid = computed(() => {
@@ -644,11 +644,11 @@
         try {
           if (form.value.id) {
             // 更新现有衣物
-            await wardrobeStore.updateClothingItem(form.value.id, form.value);
+            await clothingStore.updateClothingItem(form.value.id, form.value);
             showToast('衣物信息已更新', 'success');
           } else {
             // 添加新衣物
-            await wardrobeStore.addClothingItem(form.value);
+            await clothingStore.addClothingItem(form.value);
             showToast('新衣物已添加', 'success');
           }
 

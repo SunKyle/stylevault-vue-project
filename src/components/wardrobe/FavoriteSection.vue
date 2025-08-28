@@ -79,10 +79,10 @@
 
 <script setup>
   import { computed, ref, watch } from 'vue';
-  import { useWardrobeStore } from '@/stores/wardrobeStore';
+  import { useClothingStore } from '@/stores/clothingStore';
   import ClothingItem from '../ui/ClothingItem.vue';
 
-  const wardrobeStore = useWardrobeStore();
+  const clothingStore = useClothingStore();
 
   // 状态
   const favoriteIndex = ref(0);
@@ -91,8 +91,8 @@
   const sortBy = ref('recent'); // 排序方式
 
   // 计算属性
-  const categories = computed(() => wardrobeStore.categories);
-  const favoriteItems = computed(() => wardrobeStore.favoriteItems);
+  const categories = computed(() => clothingStore.categories);
+  const favoriteItems = computed(() => clothingStore.favoriteItems);
 
   // 筛选和排序后的收藏物品
   const filteredFavoriteItems = computed(() => {
@@ -136,8 +136,8 @@
   const totalPages = computed(() =>
     Math.ceil(filteredFavoriteItems.value.length / itemsPerPage.value)
   );
-  const loading = computed(() => wardrobeStore.loading);
-  const error = computed(() => wardrobeStore.error);
+  const loading = computed(() => clothingStore.loading);
+  const error = computed(() => clothingStore.error);
 
   // 方法
   function prevFavorite() {
@@ -162,7 +162,7 @@
 
   async function toggleFavorite(item) {
     try {
-      await wardrobeStore.toggleFavorite(item.id);
+      await clothingStore.toggleFavorite(item.id);
     } catch (error) {
       console.error('切换收藏状态失败:', error);
     }

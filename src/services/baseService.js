@@ -5,6 +5,17 @@ export default class BaseService {
     this.resourcePath = resourcePath;
   }
 
+  // 通用请求方法
+  async request(config) {
+    try {
+      const response = await apiClient(config);
+      return response;
+    } catch (error) {
+      this.handleError(error, '请求失败');
+      throw error;
+    }
+  }
+
   // 通用获取所有资源
   async getAll(params = {}) {
     try {

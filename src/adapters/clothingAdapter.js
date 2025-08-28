@@ -1,10 +1,9 @@
-import clothingService from '../services/clothingService';
+import { clothingService } from '../services/clothingService';
 import { showToast } from '../utils/toast';
 
 export class ClothingAdapter {
   constructor() {
     this.service = clothingService;
-    this.toast = showToast();
   }
 
   // 获取所有衣物，并处理错误和加载状态
@@ -13,7 +12,7 @@ export class ClothingAdapter {
       const items = await this.service.getClothingItems();
       return items;
     } catch (error) {
-      this.toast.error('获取衣物列表失败');
+      showToast('获取衣物列表失败', 'error');
       throw error;
     }
   }
@@ -24,7 +23,7 @@ export class ClothingAdapter {
       const categories = await this.service.getCategories();
       return categories;
     } catch (error) {
-      this.toast.error('获取衣物类别失败');
+      showToast('获取衣物类别失败', 'error');
       throw error;
     }
   }
@@ -35,7 +34,7 @@ export class ClothingAdapter {
       const items = await this.service.getClothingItemsByCategory(categoryId);
       return items;
     } catch (error) {
-      this.toast.error('获取类别衣物失败');
+      showToast('获取类别衣物失败', 'error');
       throw error;
     }
   }
@@ -46,7 +45,7 @@ export class ClothingAdapter {
       const item = await this.service.getClothingItemDetail(id);
       return item;
     } catch (error) {
-      this.toast.error('获取衣物详情失败');
+      showToast('获取衣物详情失败', 'error');
       throw error;
     }
   }
@@ -55,10 +54,10 @@ export class ClothingAdapter {
   async addClothingItem(item) {
     try {
       const newItem = await this.service.addClothingItem(item);
-      this.toast.success('衣物添加成功');
+      showToast('衣物添加成功', 'success');
       return newItem;
     } catch (error) {
-      this.toast.error('添加衣物失败');
+      showToast('添加衣物失败', 'error');
       throw error;
     }
   }
@@ -67,10 +66,10 @@ export class ClothingAdapter {
   async updateClothingItem(id, updates) {
     try {
       const updatedItem = await this.service.updateClothingItem(id, updates);
-      this.toast.success('衣物更新成功');
+      showToast('衣物更新成功', 'success');
       return updatedItem;
     } catch (error) {
-      this.toast.error('更新衣物失败');
+      showToast('更新衣物失败', 'error');
       throw error;
     }
   }
@@ -79,10 +78,10 @@ export class ClothingAdapter {
   async deleteClothingItem(id) {
     try {
       await this.service.deleteClothingItem(id);
-      this.toast.success('衣物删除成功');
+      showToast('衣物删除成功', 'success');
       return true;
     } catch (error) {
-      this.toast.error('删除衣物失败');
+      showToast('删除衣物失败', 'error');
       throw error;
     }
   }
@@ -93,7 +92,7 @@ export class ClothingAdapter {
       const results = await this.service.searchClothingItems(keyword);
       return results;
     } catch (error) {
-      this.toast.error('搜索衣物失败');
+      showToast('搜索衣物失败', 'error');
       throw error;
     }
   }
@@ -102,10 +101,10 @@ export class ClothingAdapter {
   async toggleFavorite(id) {
     try {
       const result = await this.service.toggleFavorite(id);
-      this.toast.success(result.favorite ? '已添加到收藏' : '已取消收藏');
+      showToast(result.favorite ? '已添加到收藏' : '已取消收藏', 'success');
       return result;
     } catch (error) {
-      this.toast.error('切换收藏状态失败');
+      showToast('切换收藏状态失败', 'error');
       throw error;
     }
   }

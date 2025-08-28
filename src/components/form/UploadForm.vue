@@ -210,11 +210,11 @@
 <script setup>
   import { reactive, ref, computed, nextTick } from 'vue';
   import { useRouter } from 'vue-router';
-  import { useWardrobeStore } from '../../stores/wardrobeStore';
+  import { useClothingStore } from '@/stores';
   import { showToast } from '../../utils/toast';
 
   const router = useRouter();
-  const wardrobeStore = useWardrobeStore();
+  const clothingStore = useClothingStore();
 
   // 季节选项
   const seasonOptions = [
@@ -374,11 +374,11 @@
       };
 
       // 调用 store 方法保存衣物
-      await wardrobeStore.addClothingItem(itemToSubmit);
+      await clothingStore.addClothingItem(itemToSubmit);
       showToast('衣物添加成功', 'success');
 
       // 刷新衣橱数据，确保新添加的衣物能立即显示
-      await wardrobeStore.fetchClothingItems();
+      await clothingStore.fetchClothingItems();
 
       // 使用nextTick确保DOM更新后再清空表单
       await nextTick();
