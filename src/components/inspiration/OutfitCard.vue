@@ -264,7 +264,7 @@
 
 <script setup>
 import { ref, reactive, computed } from 'vue'
-import { scenesMockData, seasonsMockData, stylesMockData } from '../../../mock/wardrobe'
+import { scenesMockData, seasonsMockData, stylesMockData } from '../../mock/wardrobe'
 
 // Props定义
 const props = defineProps({

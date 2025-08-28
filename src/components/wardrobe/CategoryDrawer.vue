@@ -203,7 +203,7 @@
 </template>
 
 <script>
-import { useWardrobeStore } from '../../../stores/wardrobeStore'
+import { useWardrobeStore } from '../../stores/wardrobeStore'
 
 export default {
   name: 'CategoryDrawer',

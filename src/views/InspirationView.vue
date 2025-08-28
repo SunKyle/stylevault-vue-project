@@ -5,6 +5,6 @@
 </template>
 
 <script setup>
-import InspirationSection from '../components/features/inspiration/InspirationSection.vue'
-import ContentLayout from '../components/common/layout/ContentLayout.vue'
+import InspirationSection from '../components/inspiration/InspirationSection.vue'
+import ContentLayout from '../components/layout/ContentLayout.vue'
 </script>

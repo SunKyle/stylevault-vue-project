@@ -31,7 +31,7 @@
 
 <script setup>
 import { ref, computed } from 'vue'
-import OutfitCard from '../../common/ui/OutfitCard.vue'
+import OutfitCard from '../ui/OutfitCard.vue'
 
 const props = defineProps({
   outfits: {

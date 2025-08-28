@@ -23,6 +23,6 @@
 </template>
 
 <script setup>
-import PageLayout from '../components/common/layout/PageLayout.vue'
-import FeatureCard from '../components/common/ui/FeatureCard.vue'
+import PageLayout from '../components/layout/PageLayout.vue'
+import FeatureCard from '../components/ui/FeatureCard.vue'
 </script>

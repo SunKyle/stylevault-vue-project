@@ -268,7 +268,7 @@
 <script setup>
 import { ref, computed } from 'vue'
 import OutfitCard from './OutfitCard.vue'
-import { scenesMockData, seasonsMockData, stylesMockData } from '../../../mock/wardrobe'
+import { scenesMockData, seasonsMockData, stylesMockData } from '../../mock/wardrobe'
 
 // Props定义
 const props = defineProps({

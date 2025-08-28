@@ -225,8 +225,8 @@
 
 <script setup>
 import { ref, defineModel, watch } from 'vue'
-import { showToast } from '../../../utils/toast'
-import { scenesMockData, seasonsMockData, stylesMockData } from '../../../mock/wardrobe' 
+import { showToast } from '../../utils/toast'
+import { scenesMockData, seasonsMockData, stylesMockData } from '../../mock/wardrobe' 
 
 // 搭配信息
 const outfitName = defineModel('outfitName', { type: String, default: '' })

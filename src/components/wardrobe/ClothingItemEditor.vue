@@ -319,8 +319,8 @@
 
 <script>
 import { ref, computed, watch } from 'vue'
-import { useWardrobeStore } from '../../../stores/wardrobeStore'
-import { showToast } from '../../../utils/toast'
+import { useWardrobeStore } from '../../stores/wardrobeStore'
+import { showToast } from '../../utils/toast'
 
 export default {
   name: 'ClothingItemEditor',

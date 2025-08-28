@@ -75,7 +75,7 @@
 <script setup>
 import { computed, ref, watch } from 'vue'
 import { useWardrobeStore } from '@/stores/wardrobeStore'
-import ClothingItem from '../../common/ui/ClothingItem.vue'
+import ClothingItem from '../ui/ClothingItem.vue'
 
 const wardrobeStore = useWardrobeStore()
 

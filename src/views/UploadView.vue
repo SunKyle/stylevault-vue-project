@@ -7,5 +7,5 @@
 </template>
 <script setup>
 import UploadForm from '../components/form/UploadForm.vue';
-import ContentLayout from '../components/common/layout/ContentLayout.vue';
+import ContentLayout from '../components/layout/ContentLayout.vue';
 </script>

@@ -25,9 +25,9 @@
 
 <script setup>
 import { ref, computed, watch, nextTick } from 'vue'
-import Header from './components/common/layout/Header.vue'
-import Footer from './components/common/layout/Footer.vue'
-import FloatingActionButton from './components/common/ui/FloatingActionButton.vue'
+import Header from './components/layout/Header.vue'
+import Footer from './components/layout/Footer.vue'
+import FloatingActionButton from './components/ui/FloatingActionButton.vue'
 
 // 导入视图组件
 import WardrobeView from './views/WardrobeView.vue'

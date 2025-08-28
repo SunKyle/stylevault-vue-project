@@ -29,7 +29,7 @@
 </template>
 
 <script>
-import SearchBar from '../../common/ui/SearchBar.vue'
+import SearchBar from '../ui/SearchBar.vue'
 
 export default {
   name: 'WardrobeHeader',

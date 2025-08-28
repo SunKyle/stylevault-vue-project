@@ -4,6 +4,6 @@
 </ContentLayout>
 </template>
 <script setup>
-import WeatherSection from '../components/features/weather/WeatherSection.vue';
-import ContentLayout from '../components/common/layout/ContentLayout.vue';
+import WeatherSection from '../components/weather/WeatherSection.vue';
+import ContentLayout from '../components/layout/ContentLayout.vue';
 </script>
