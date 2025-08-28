@@ -1,6 +1,6 @@
 
 import { defineStore } from 'pinia'
-import wardrobeService from '../../services/wardrobeService'
+import { clothingAdapter } from '../../adapters/clothingAdapter'
 
 export const useClothingStore = defineStore('clothing', {
   state: () => ({
@@ -71,9 +71,8 @@ export const useClothingStore = defineStore('clothing', {
       this.clearError()
 
       try {
-        const categories = await wardrobeService.getCategories()
-        this.categories = categories
-        return categories
+        this.categories = await clothingAdapter.fetchCategories()
+        return this.categories
       } catch (error) {
         this.setError('获取衣物类别失败')
         throw error
@@ -88,9 +87,8 @@ export const useClothingStore = defineStore('clothing', {
       this.clearError()
 
       try {
-        const items = await wardrobeService.getClothingItems()
-        this.clothingItems = items
-        return items
+        this.clothingItems = await clothingAdapter.fetchClothingItems()
+        return this.clothingItems
       } catch (error) {
         this.setError('获取衣物列表失败')
         throw error
@@ -105,7 +103,7 @@ export const useClothingStore = defineStore('clothing', {
       this.clearError()
 
       try {
-        const items = await wardrobeService.getClothingItemsByCategory(categoryId)
+        const items = await clothingAdapter.fetchClothingItemsByCategory(categoryId)
         return items
       } catch (error) {
         this.setError('获取类别衣物失败')
@@ -121,7 +119,7 @@ export const useClothingStore = defineStore('clothing', {
       this.clearError()
 
       try {
-        const item = await wardrobeService.getClothingItemDetail(id)
+        const item = await clothingAdapter.fetchClothingItemDetail(id)
         return item
       } catch (error) {
         this.setError('获取衣物详情失败')
@@ -137,7 +135,7 @@ export const useClothingStore = defineStore('clothing', {
       this.clearError()
 
       try {
-        const newItem = await wardrobeService.addClothingItem(item)
+        const newItem = await clothingAdapter.addClothingItem(item)
         this.clothingItems.push(newItem)
         // 添加新衣物后刷新数据，确保能立即查询到新添加的衣物
         await this.fetchClothingItems()
@@ -156,7 +154,7 @@ export const useClothingStore = defineStore('clothing', {
       this.clearError()
 
       try {
-        const updatedItem = await wardrobeService.updateClothingItem(id, updates)
+        const updatedItem = await clothingAdapter.updateClothingItem(id, updates)
         const index = this.clothingItems.findIndex(item => item.id === id)
         if (index !== -1) {
           this.clothingItems[index] = updatedItem
@@ -176,7 +174,7 @@ export const useClothingStore = defineStore('clothing', {
       this.clearError()
 
       try {
-        await wardrobeService.deleteClothingItem(id)
+        await clothingAdapter.deleteClothingItem(id)
         this.clothingItems = this.clothingItems.filter(item => item.id !== id)
         return true
       } catch (error) {
@@ -193,7 +191,7 @@ export const useClothingStore = defineStore('clothing', {
       this.clearError()
 
       try {
-        const results = await wardrobeService.searchClothingItems(keyword)
+        const results = await clothingAdapter.searchClothingItems(keyword)
         return results
       } catch (error) {
         this.setError('搜索衣物失败')
@@ -265,21 +263,14 @@ export const useClothingStore = defineStore('clothing', {
         if (itemIndex !== -1) {
           // 获取当前收藏状态
           const currentFavoriteStatus = this.clothingItems[itemIndex].favorite
-          const newFavoriteStatus = !currentFavoriteStatus
 
-          // 调用API更新收藏状态
-          const result = await wardrobeService.updateClothingItem(id, { favorite: newFavoriteStatus })
-
-          // 创建一个新的对象，确保Vue能够检测到变化
-          const updatedItem = {
-            ...this.clothingItems[itemIndex],
-            favorite: newFavoriteStatus
-          }
+          // 调用适配器切换收藏状态
+          const updatedItem = await clothingAdapter.toggleFavorite(id)
 
           // 使用splice替换数组中的元素，确保Vue能够检测到变化
           this.clothingItems.splice(itemIndex, 1, updatedItem)
 
-          return result
+          return updatedItem
         }
         throw new Error('衣物不存在')
       } catch (error) {
