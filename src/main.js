@@ -2,8 +2,8 @@ import { createApp } from 'vue'
 import { createPinia } from 'pinia'
 import App from './App.vue'
 import router from './router'
-import './assets/css/global/tailwind.css'
-import './assets/css/global/transitions.css'
+import './assets/styles/global/tailwind.css'
+import './assets/styles/global/transitions.css'
 
 // 引入 Font Awesome
 import { library } from '@fortawesome/fontawesome-svg-core'
