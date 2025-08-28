@@ -7,7 +7,7 @@ export const outfits = [
     image: "https://picsum.photos/seed/outfit1/400/500",
     items: [1, 8, 16, 11], // 衣物ID数组
     tags: ["商务", "休闲"],
-    season: ["春季", "秋季"],
+    seasons: ["春季", "秋季"],
     style: "商务",
     scene: "work",
     favorite: true,
@@ -22,7 +22,7 @@ export const outfits = [
     image: "https://picsum.photos/seed/outfit2/400/500",
     items: [1, 2, 5], // 衣物ID数组
     tags: ["休闲"],
-    season: ["春季", "夏季"],
+    seasons: ["春季", "夏季"],
     style: "休闲",
     scene: "daily",
     favorite: true,
@@ -37,7 +37,7 @@ export const outfits = [
     image: "https://picsum.photos/seed/outfit3/400/500",
     items: [3, 18, 5], // 衣物ID数组
     tags: ["运动"],
-    season: ["春季", "秋季"],
+    seasons: ["春季", "秋季"],
     style: "运动",
     scene: "sports",
     favorite: false,
@@ -52,7 +52,7 @@ export const outfits = [
     image: "https://picsum.photos/seed/outfit4/400/500",
     items: [8, 2, 23, 25], // 衣物ID数组
     tags: ["时尚", "正式"],
-    season: ["春季", "夏季", "秋季"],
+    seasons: ["春季", "夏季", "秋季"],
     style: "商务",
     scene: "date",
     favorite: true,
@@ -67,7 +67,7 @@ export const outfits = [
     image: "https://picsum.photos/seed/outfit5/400/500",
     items: [10, 2, 24], // 衣物ID数组
     tags: ["摇滚", "个性"],
-    season: ["秋季", "冬季"],
+    seasons: ["秋季", "冬季"],
     style: "摇滚",
     scene: "party",
     favorite: true,
@@ -82,7 +82,7 @@ export const outfits = [
     image: "https://picsum.photos/seed/outfit6/400/500",
     items: [1, 17, 22, 28], // 衣物ID数组
     tags: ["休闲", "舒适"],
-    season: ["春季", "夏季"],
+    seasons: ["春季", "夏季"],
     style: "休闲",
     scene: "travel",
     favorite: false,
@@ -123,7 +123,7 @@ export const outfitAPI = {
   getOutfitsBySeason: async (season) => {
     await delay(400) // 模拟网络延迟
     const results = outfits.filter(outfit => 
-      outfit.season.includes(season)
+      outfit.seasons.includes(season)
     )
     return { success: true, data: results }
   },

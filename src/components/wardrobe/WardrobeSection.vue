@@ -122,10 +122,8 @@
 <script setup>
 import { ref, computed, onMounted, nextTick,onUnmounted } from 'vue'
 import ClothingCategory from '../ui/ClothingCategory.vue'
-import OutfitCard from '../ui/OutfitCard.vue'
 import ClothingItem from '../ui/ClothingItem.vue'
 import FavoriteSection from './FavoriteSection.vue'
-import SearchBar from '../ui/SearchBar.vue'
 import FeaturedOutfits from './FeaturedOutfits.vue'
 import WardrobeHeader from './WardrobeHeader.vue'
 import CategoryDrawer from './CategoryDrawer.vue'
