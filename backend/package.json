@@ -1,0 +1,56 @@
+{
+  "name": "stylevault-backend",
+  "version": "1.0.0",
+  "description": "StyleVault backend API server",
+  "main": "dist/app.js",
+  "scripts": {
+    "dev": "nodemon --exec ts-node src/app.ts",
+    "build": "tsc",
+    "start": "node dist/app.js",
+    "test": "jest",
+    "test:watch": "jest --watch",
+    "lint": "eslint src/**/*.ts",
+    "lint:fix": "eslint src/**/*.ts --fix"
+  },
+  "keywords": ["stylevault", "fashion", "api", "nodejs", "typescript"],
+  "author": "StyleVault Team",
+  "license": "MIT",
+  "dependencies": {
+    "express": "^4.18.2",
+    "mysql2": "^3.9.1",
+    "sequelize": "^6.37.1",
+    "sequelize-typescript": "^2.1.6",
+    "jsonwebtoken": "^9.0.2",
+    "bcryptjs": "^2.4.3",
+    "cors": "^2.8.5",
+    "helmet": "^7.1.0",
+    "express-rate-limit": "^7.1.5",
+    "multer": "^1.4.5-lts.1",
+    "sharp": "^0.33.2",
+    "redis": "^4.6.13",
+    "dotenv": "^16.4.1",
+    "joi": "^17.12.1",
+    "winston": "^3.11.0"
+  },
+  "devDependencies": {
+    "@types/express": "^4.17.21",
+    "@types/node": "^20.11.20",
+    "@types/jsonwebtoken": "^9.0.5",
+    "@types/bcryptjs": "^2.4.6",
+    "@types/cors": "^2.8.17",
+    "@types/multer": "^1.4.11",
+    "@types/jest": "^29.5.12",
+    "typescript": "^5.3.3",
+    "nodemon": "^3.0.3",
+    "ts-node": "^10.9.2",
+    "jest": "^29.7.0",
+    "ts-jest": "^29.1.2",
+    "@types/sequelize": "^4.28.20",
+    "eslint": "^8.56.0",
+    "@typescript-eslint/eslint-plugin": "^6.21.0",
+    "@typescript-eslint/parser": "^6.21.0"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}
