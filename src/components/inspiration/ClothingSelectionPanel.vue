@@ -158,6 +158,9 @@
 
 <script setup>
   import { ref } from 'vue';
+  import { useOutfitCreator } from '@/services/outfitCreatorService';
+
+  const service = useOutfitCreator();
 
   // 拖拽状态
   const draggedItem = ref(null);
@@ -193,8 +196,6 @@
     event.target.classList.remove('dragging');
     draggedItem.value = null;
   }
-
-  defineEmits(['category-change', 'tag-change', 'toggle-cloth', 'reset-filters']);
 
   defineProps({
     categories: {

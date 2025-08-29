@@ -188,7 +188,7 @@
                 @click="toggleScene(scene.value)"
                 class="py-2 px-3 rounded-lg text-sm font-medium transition-all duration-300 flex items-center justify-center"
                 :class="
-                  selectedScenes.includes(scene.value)
+                  outfitScene && Array.isArray(outfitScene) && outfitScene.includes(scene.value)
                     ? 'bg-teal-500 text-white shadow-md'
                     : 'bg-teal-50 text-teal-700 hover:bg-teal-100 border border-teal-100'
                 "
@@ -208,7 +208,7 @@
                 @click="toggleSeason(season.value)"
                 class="py-2 px-3 rounded-lg text-sm font-medium transition-all duration-300 flex items-center justify-center"
                 :class="
-                  selectedSeasons.includes(season.value)
+                  outfitSeason && Array.isArray(outfitSeason) && outfitSeason.includes(season.value)
                     ? 'bg-indigo-500 text-white shadow-md'
                     : 'bg-indigo-50 text-indigo-700 hover:bg-indigo-100 border border-indigo-100'
                 "
@@ -228,7 +228,7 @@
                 @click="toggleStyle(style.value)"
                 class="py-2 px-3 rounded-lg text-sm font-medium transition-all duration-300 flex items-center justify-center"
                 :class="
-                  selectedStyles.includes(style.value)
+                  outfitStyle && Array.isArray(outfitStyle) && outfitStyle.includes(style.value)
                     ? 'bg-purple-500 text-white shadow-md'
                     : 'bg-purple-50 text-purple-700 hover:bg-purple-100 border border-purple-100'
                 "
@@ -337,8 +337,11 @@
   import { showToast } from '../../utils/toast';
   import { scenesMockData, seasonsMockData, stylesMockData } from '../../mock/data';
 
-  // 搭配信息
+  // 定义模型
   const outfitName = defineModel('outfitName', { type: String, default: '' });
+  const outfitScene = defineModel('outfitScene', { type: Array, default: () => [] });
+  const outfitSeason = defineModel('outfitSeason', { type: Array, default: () => [] });
+  const outfitStyle = defineModel('outfitStyle', { type: Array, default: () => [] });
 
   // 使用场景选项
   const sceneOptions = scenesMockData;
@@ -349,36 +352,40 @@
   // 风格选项
   const styleOptions = stylesMockData;
 
-  // 多选值状态
-  const selectedScenes = ref([]);
-  const selectedSeasons = ref([]);
-  const selectedStyles = ref([]);
-
   // 场景、季节和风格的多选处理函数
   function toggleScene(value) {
-    const index = selectedScenes.value.indexOf(value);
+    if (!Array.isArray(outfitScene.value)) {
+      outfitScene.value = [];
+    }
+    const index = outfitScene.value.indexOf(value);
     if (index > -1) {
-      selectedScenes.value.splice(index, 1); // 如果已选中，则取消选择
+      outfitScene.value.splice(index, 1);
     } else {
-      selectedScenes.value.push(value); // 如果未选中，则添加选择
+      outfitScene.value.push(value);
     }
   }
 
   function toggleSeason(value) {
-    const index = selectedSeasons.value.indexOf(value);
+    if (!Array.isArray(outfitSeason.value)) {
+      outfitSeason.value = [];
+    }
+    const index = outfitSeason.value.indexOf(value);
     if (index > -1) {
-      selectedSeasons.value.splice(index, 1);
+      outfitSeason.value.splice(index, 1);
     } else {
-      selectedSeasons.value.push(value);
+      outfitSeason.value.push(value);
     }
   }
 
   function toggleStyle(value) {
-    const index = selectedStyles.value.indexOf(value);
+    if (!Array.isArray(outfitStyle.value)) {
+      outfitStyle.value = [];
+    }
+    const index = outfitStyle.value.indexOf(value);
     if (index > -1) {
-      selectedStyles.value.splice(index, 1);
+      outfitStyle.value.splice(index, 1);
     } else {
-      selectedStyles.value.push(value);
+      outfitStyle.value.push(value);
     }
   }
 
@@ -454,16 +461,16 @@
 
   // 处理保存搭配
   function handleSaveOutfit() {
-    if (!outfitName.value.trim()) {
+    if (!outfitName.value?.trim()) {
       alert('请输入搭配名称');
       return;
     }
 
     emit('save-outfit', {
       name: outfitName.value,
-      scenes: selectedScenes.value,
-      seasons: selectedSeasons.value,
-      styles: selectedStyles.value,
+      scenes: outfitScene.value,
+      seasons: outfitSeason.value,
+      styles: outfitStyle.value,
     });
   }
 
