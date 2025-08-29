@@ -10,44 +10,61 @@
 
         <!-- 空状态 -->
         <div
-          v-else-if="!isLoading && savedOutfits.length === 0 && clothes.length === 0"
+          v-else-if="clothes.length === 0 || savedOutfits.length === 0"
           class="text-center py-20"
         >
-          <div class="text-gray-400 mb-4">
-            <svg class="w-24 h-24 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                stroke-width="2"
-                d="M7 4V2a1 1 0 011-1h8a1 1 0 011 1v2h4a1 1 0 011 1v1a1 1 0 01-1 1h-1v12a2 2 0 01-2 2H5a2 2 0 01-2-2V7H2a1 1 0 01-1-1V5a1 1 0 011-1h4zM9 3v1h6V3H9zm6 3H9v12h6V6z"
-              ></path>
-            </svg>
-          </div>
-          <h3 class="text-lg font-medium text-gray-900 mb-2">暂无搭配灵感</h3>
-          <p class="text-gray-600 mb-4">先添加一些衣物，然后开始创建你的第一个搭配吧！</p>
-          <button
-            @click="$router.push('/upload')"
-            class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700"
-          >
-            添加衣物
-          </button>
+          <!-- 无衣物状态 -->
+          <template v-if="clothes.length === 0">
+            <div class="text-gray-400 mb-4">
+              <svg class="w-24 h-24 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M7 4V2a1 1 0 011-1h8a1 1 0 011 1v2h4a1 1 0 011 1v1a1 1 0 01-1 1h-1v12a2 2 0 01-2 2H5a2 2 0 01-2-2V7H2a1 1 0 01-1-1V5a1 1 0 011-1h4zM9 3v1h6V3H9zm6 3H9v12h6V6z"
+                ></path>
+              </svg>
+            </div>
+            <h3 class="text-lg font-medium text-gray-900 mb-2">暂无搭配灵感</h3>
+            <p class="text-gray-600 mb-4">先添加一些衣物，然后开始创建你的第一个搭配吧！</p>
+            <button
+              @click="$router.push('/upload')"
+              class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700"
+            >
+              添加衣物
+            </button>
+          </template>
+
+          <!-- 有衣物无搭配状态 -->
+          <template v-else-if="clothes.length > 0 && savedOutfits.length === 0">
+            <div class="text-gray-400 mb-4">
+              <svg class="w-24 h-24 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M12 6v6m0 0v6m0-6h6m-6 0H6"
+                ></path>
+              </svg>
+            </div>
+            <h3 class="text-lg font-medium text-gray-900 mb-2">还没有搭配方案</h3>
+            <p class="text-gray-600 mb-4">用你已有的衣物创建第一个搭配吧！</p>
+          </template>
         </div>
 
         <!-- 主要内容 -->
-        <div v-else>
+        <div v-else-if="clothes.length > 0 && savedOutfits.length > 0">
           <!-- 已保存搭配展示区域 -->
           <SavedOutfits
             v-show="savedOutfits.length > 0"
-            :savedOutfits="savedOutfits"
-            :currentPage="currentPage"
-            :itemsPerPage="itemsPerPage"
-            :totalPages="totalPages"
-            :currentPageOutfits="currentPageOutfits"
+            :savedOutfits="visibleOutfits"
+            :allOutfits="savedOutfits"
+            :hasMore="hasMore"
             :isLoading="isLoading"
             @load-outfit="loadOutfit"
             @delete-outfit="deleteOutfit"
             @share-outfit="shareOutfit"
-            @page-change="currentPage = $event"
+            @load-more="loadMoreOutfits"
             @scroll-to-create="scrollToCreateSection"
           />
 
@@ -81,124 +98,124 @@
 
 <script setup>
   import { ref, computed, onMounted, watch } from 'vue';
-  import { useClothingStore } from '@/stores';
-  import { useOutfitStore } from '../stores/outfitStore';
-  import { scenesMockData } from '../mock/data';
-  import { wardrobeAPI } from '../mock/wardrobe';
-  import SavedOutfits from '../components/inspiration/SavedOutfits.vue';
-  import OutfitCreator from '../components/inspiration/OutfitCreator.vue';
-  import ContentLayout from '../components/layout/ContentLayout.vue';
+  import { useClothingStore } from '@/stores/clothingStore';
+  import { useOutfitStore } from '@/stores/outfitStore';
+  import SavedOutfits from '@/components/inspiration/SavedOutfits.vue';
+  import OutfitCreator from '@/components/inspiration/OutfitCreator.vue';
+  import ContentLayout from '@/components/layout/ContentLayout.vue';
 
   const clothingStore = useClothingStore();
   const outfitStore = useOutfitStore();
   const categories = computed(() => ['全部', ...clothingStore.categories.map(c => c.name)]);
 
-  // 分页相关数据
-  const currentPage = ref(1);
-  const itemsPerPage = ref(4);
+  // 核心状态管理
   const isLoading = ref(true);
 
   // 从store获取数据
-  const clothes = ref([]);
+  const clothes = computed(() => clothingStore.clothingItems);
   const savedOutfits = computed(() => outfitStore.allOutfits);
 
-  // 监听clothingItems变化
-  watch(
-    () => clothingStore.clothingItems,
-    newItems => {
-      if (newItems.length > 0) {
-        clothes.value = wardrobeAPI.getClothesWithTags(newItems);
-      }
-    },
-    { immediate: true }
-  );
+  // 懒加载状态
+  const visibleOutfits = ref([]);
+  const pageSize = ref(12);
+  const hasMore = ref(true);
 
-  // 获取标签
-  const allTags = computed(() => {
-    const tagSet = new Set();
+  // 标签计算 - 使用Set去重，优化性能
+  const tags = computed(() => {
+    const uniqueTags = new Set(['最近穿着']);
     clothes.value.forEach(item => {
-      item.tags?.forEach(tag => tagSet.add(tag));
+      if (Array.isArray(item.tags)) {
+        item.tags.forEach(tag => uniqueTags.add(tag));
+      }
     });
-    return Array.from(tagSet);
+    return Array.from(uniqueTags);
   });
-
-  const tags = computed(() => ['最近穿着', ...allTags.value]);
   const activeCategory = ref('全部');
   const activeTag = ref('');
   const selectedClothes = ref([]);
 
-  // 计算分页数据
-  const currentPageOutfits = computed(() => {
-    const start = (currentPage.value - 1) * itemsPerPage.value;
-    const end = start + itemsPerPage.value;
-    return savedOutfits.value.slice(start, end);
-  });
+  // 懒加载方法
+  function updateVisibleOutfits() {
+    const start = 0;
+    const end = pageSize.value;
+    visibleOutfits.value = savedOutfits.value.slice(start, end);
+    hasMore.value = end < savedOutfits.value.length;
+  }
 
-  const totalPages = computed(() => {
-    return Math.ceil(savedOutfits.value.length / itemsPerPage.value);
-  });
+  function loadMoreOutfits() {
+    if (!hasMore.value) return;
 
-  // 组件挂载时初始化数据
+    const currentLength = visibleOutfits.value.length;
+    const newItems = savedOutfits.value.slice(currentLength, currentLength + pageSize.value);
+    visibleOutfits.value = [...visibleOutfits.value, ...newItems];
+    hasMore.value = visibleOutfits.value.length < savedOutfits.value.length;
+  }
+
+  // 数据初始化
   onMounted(async () => {
-    await outfitStore.fetchOutfits();
-    isLoading.value = false;
+    try {
+      const promises = [outfitStore.fetchOutfits()];
 
-    // 异步加载其他数据
-    Promise.all([
-      clothingStore.categories.length === 0 ? clothingStore.fetchCategories() : Promise.resolve(),
-      clothingStore.clothingItems.length === 0
-        ? clothingStore.fetchClothingItems()
-        : Promise.resolve(),
-    ]).catch(error => {
+      // 仅当数据不存在时获取
+      if (clothingStore.categories.length === 0) {
+        promises.push(clothingStore.fetchCategories());
+      }
+      if (clothingStore.clothingItems.length === 0) {
+        promises.push(clothingStore.fetchClothingItems());
+      }
+
+      await Promise.all(promises);
+      updateVisibleOutfits();
+    } catch (error) {
       console.error('加载数据失败:', error);
-    });
+    } finally {
+      isLoading.value = false;
+    }
   });
 
+  // 监听搭配数据变化，更新可见数据
+  watch(() => savedOutfits.value, updateVisibleOutfits, { deep: true });
+
+  // 衣物筛选 - 简洁的条件判断
   const filteredClothes = computed(() => {
     return clothes.value.filter(item => {
-      const catMatch = activeCategory.value === '全部' || item.category === activeCategory.value;
-      const tagMatch = !activeTag.value || item.tags.includes(activeTag.value);
-      return catMatch && tagMatch;
+      const matchCategory =
+        activeCategory.value === '全部' || item.category === activeCategory.value;
+      const matchTag = !activeTag.value || item.tags?.includes(activeTag.value);
+      return matchCategory && matchTag;
     });
   });
 
-  // 操作方法
-  function toggleCloth(item) {
-    const index = selectedClothes.value.findIndex(i => i.name === item.name);
-    if (index === -1) {
-      selectedClothes.value.push(item);
-    } else {
-      selectedClothes.value.splice(index, 1);
-    }
-  }
+  // 操作方法 - 简洁实用
+  const toggleCloth = item => {
+    const index = selectedClothes.value.findIndex(i => i.id === item.id);
+    index === -1 ? selectedClothes.value.push(item) : selectedClothes.value.splice(index, 1);
+  };
 
-  function removeCloth(idx) {
-    selectedClothes.value.splice(idx, 1);
-  }
+  const removeCloth = idx => selectedClothes.value.splice(idx, 1);
+  const resetClothes = () => (selectedClothes.value = []);
 
-  function resetClothes() {
-    selectedClothes.value = [];
-  }
+  const scrollToCreateSection = () => {
+    const element = document.querySelector('.outfit-creator');
+    element?.scrollIntoView({ behavior: 'smooth' });
+  };
 
-  function scrollToCreateSection() {
-    const element = document.getElementById('create-section');
-    if (element) {
-      element.scrollIntoView({ behavior: 'smooth' });
-    }
-  }
-
-  // 使用store的方法替代直接localStorage操作
-  async function saveOutfit(outfitInfo) {
+  // 业务方法 - 统一错误处理
+  const saveOutfit = async outfitInfo => {
     if (selectedClothes.value.length === 0) {
       alert('请至少选择一件衣物');
       return;
     }
 
     const newOutfit = {
-      name: outfitInfo.name,
-      scene: outfitInfo.scene || undefined,
+      title: outfitInfo.name,
+      description: outfitInfo.description || '',
       items: [...selectedClothes.value],
-      createdAt: new Date(),
+      occasion: outfitInfo.scene || '日常',
+      tag: outfitInfo.tag || '未分类',
+      liked: false,
+      likes: 0,
+      createdAt: new Date().toISOString(),
     };
 
     try {
@@ -209,61 +226,71 @@
       console.error('保存搭配失败:', error);
       alert('保存失败，请重试');
     }
-  }
+  };
 
-  function loadOutfit(outfit) {
-    selectedClothes.value = Array.isArray(outfit.items) ? [...outfit.items] : [];
-  }
+  const loadOutfit = outfit => {
+    selectedClothes.value = [...(outfit.items || [])];
+  };
 
-  async function deleteOutfit(outfit) {
-    if (confirm('确定要删除这个搭配方案吗？')) {
-      try {
-        await outfitStore.removeOutfit(outfit.id);
-      } catch (error) {
-        console.error('删除搭配失败:', error);
-        alert('删除失败，请重试');
-      }
+  const deleteOutfit = async outfit => {
+    if (!confirm('确定要删除这个搭配方案吗？')) return;
+
+    try {
+      await outfitStore.removeOutfit(outfit.title);
+    } catch (error) {
+      console.error('删除搭配失败:', error);
+      alert('删除失败，请重试');
     }
-  }
+  };
 
-  function shareOutfit(outfit) {
-    // 使用store的分享功能
-    outfitStore.shareOutfit(outfit);
-  }
+  const shareOutfit = async outfit => {
+    const shareData = {
+      title: `搭配方案: ${outfit.title}`,
+      text: `分享我的穿搭方案：${outfit.description || '无描述'}`,
+      url: window.location.href,
+    };
+
+    try {
+      if (navigator.share) {
+        await navigator.share(shareData);
+      } else {
+        await navigator.clipboard.writeText(
+          `${shareData.title}\n${shareData.text}\n${shareData.url}`
+        );
+        alert('已复制到剪贴板！');
+      }
+    } catch (error) {
+      console.error('分享失败:', error);
+      alert('分享失败，请重试');
+    }
+  };
 </script>
 
 <style scoped>
-  .inspiration-container {
-    min-height: 100vh;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  }
-
-  .loading-spinner {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    height: 200px;
-  }
-
-  .empty-state {
-    text-align: center;
-    padding: 60px 20px;
-    color: #6b7280;
-  }
-
-  .fade-enter-active,
-  .fade-leave-active {
-    transition: opacity 0.3s ease;
-  }
-
-  .fade-enter-from,
-  .fade-leave-to {
-    opacity: 0;
-  }
-
+  /* 响应式样式优化 */
   @media (max-width: 768px) {
-    .inspiration-container {
-      padding: 1rem;
+    section {
+      padding-top: 1rem;
+      padding-bottom: 1rem;
+    }
+
+    .container {
+      padding-left: 1rem;
+      padding-right: 1rem;
+    }
+  }
+
+  /* 加载动画优化 */
+  .animate-spin {
+    animation: spin 1s linear infinite;
+  }
+
+  @keyframes spin {
+    from {
+      transform: rotate(0deg);
+    }
+    to {
+      transform: rotate(360deg);
     }
   }
 </style>

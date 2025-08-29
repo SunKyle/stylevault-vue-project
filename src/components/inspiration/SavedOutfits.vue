@@ -82,7 +82,7 @@
             我的搭配
           </h2>
           <span class="bg-primary/10 text-primary px-3 py-1 rounded-full text-sm font-medium ml-3">
-            {{ filteredOutfits.length }}套方案
+            {{ savedOutfits.length }}套方案
           </span>
         </div>
 
@@ -224,11 +224,11 @@
         <div class="absolute -bottom-20 -left-20 w-60 h-60 bg-secondary/5 rounded-full"></div>
 
         <!-- 已保存搭配列表 -->
-        <div v-if="visibleOutfits.length > 0" class="relative z-10">
+        <div v-if="savedOutfits.length > 0" class="relative z-10">
           <!-- 搭配卡片自适应网格布局 -->
           <div class="grid gap-6 grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
             <OutfitCard
-              v-for="outfit in visibleOutfits"
+              v-for="outfit in savedOutfits"
               :key="outfit.id"
               :outfit="outfit"
               @load-outfit="$emit('load-outfit', $event)"
@@ -238,77 +238,18 @@
           </div>
 
           <!-- 加载更多按钮 -->
-          <div v-if="hasMoreOutfits" class="flex justify-center mt-8">
+          <div v-if="hasMore" class="flex justify-center mt-8">
             <button
-              @click="loadMoreOutfits"
-              :disabled="isLoadingMore"
+              @click="$emit('load-more')"
+              :disabled="isLoading"
               class="flex items-center gap-2 px-6 py-3 bg-primary hover:bg-primary/90 text-white rounded-lg transition-colors disabled:opacity-50"
             >
               <font-awesome-icon
-                :icon="['fas', isLoadingMore ? 'spinner' : 'plus']"
-                :class="{ 'animate-spin': isLoadingMore }"
+                :icon="['fas', isLoading ? 'spinner' : 'plus']"
+                :class="{ 'animate-spin': isLoading }"
               />
-              {{ isLoadingMore ? '加载中...' : '加载更多' }}
+              {{ isLoading ? '加载中...' : '加载更多' }}
             </button>
-          </div>
-
-          <!-- 分页控件和显示模式切换 - 优化设计 -->
-          <div
-            v-if="filteredOutfits.length > props.itemsPerPage"
-            class="flex justify-between items-center mt-8 px-4"
-          >
-            <!-- 显示模式切换按钮 -->
-            <button
-              @click="toggleDisplayMode"
-              class="flex items-center gap-2 px-4 py-2 bg-white rounded-lg border border-gray-200 hover:bg-gray-50 transition-colors shadow-sm"
-              :title="expandedDisplay ? '收起显示' : '展开显示'"
-            >
-              <font-awesome-icon
-                :icon="['fas', expandedDisplay ? 'compress-alt' : 'expand-alt']"
-                class="text-gray-600"
-              />
-              <span class="text-sm text-gray-700">{{ expandedDisplay ? '收起' : '展开' }}</span>
-            </button>
-
-            <!-- 分页控件 -->
-            <div
-              class="flex items-center space-x-2 bg-white rounded-full px-4 py-2 shadow-sm border border-neutral-100"
-            >
-              <!-- 上一页按钮 -->
-              <button
-                @click="handlePageChange(currentPage - 1)"
-                :disabled="currentPage === 1 || isLoading"
-                class="w-9 h-9 flex items-center justify-center rounded-full transition-all duration-300"
-                :class="
-                  currentPage === 1 || isLoading
-                    ? 'text-neutral-300 cursor-not-allowed'
-                    : 'text-neutral-600 hover:bg-neutral-100 hover:text-primary'
-                "
-              >
-                <font-awesome-icon :icon="['fas', 'chevron-left']" />
-              </button>
-
-              <!-- 页码显示 -->
-              <div class="flex items-center px-2">
-                <span class="text-sm font-medium text-neutral-700">{{ currentPage }}</span>
-                <span class="text-sm text-neutral-400 mx-1">/</span>
-                <span class="text-sm text-neutral-500">{{ totalPages }}</span>
-              </div>
-
-              <!-- 下一页按钮 -->
-              <button
-                @click="handlePageChange(currentPage + 1)"
-                :disabled="currentPage === totalPages || isLoading"
-                class="w-9 h-9 flex items-center justify-center rounded-full transition-all duration-300"
-                :class="
-                  currentPage === totalPages || isLoading
-                    ? 'text-neutral-300 cursor-not-allowed'
-                    : 'text-neutral-600 hover:bg-neutral-100 hover:text-primary'
-                "
-              >
-                <font-awesome-icon :icon="['fas', 'chevron-right']" />
-              </button>
-            </div>
           </div>
         </div>
 
@@ -355,13 +296,17 @@
       type: Array,
       default: () => [],
     },
-    currentPage: {
-      type: Number,
-      default: 1,
+    allOutfits: {
+      type: Array,
+      default: () => [],
     },
-    itemsPerPage: {
-      type: Number,
-      default: 4,
+    hasMore: {
+      type: Boolean,
+      default: false,
+    },
+    isLoading: {
+      type: Boolean,
+      default: false,
     },
   });
 
@@ -370,26 +315,14 @@
     'load-outfit',
     'delete-outfit',
     'share-outfit',
-    'page-change',
+    'load-more',
     'scroll-to-create',
   ]);
-
-  // 计算当前页要显示的搭配
-  const currentPageOutfits = computed(() => {
-    // 如果处于展开状态，显示双倍数量的卡片
-    const itemsToShow = expandedDisplay.value ? props.itemsPerPage * 2 : props.itemsPerPage;
-    const start = (props.currentPage - 1) * props.itemsPerPage;
-    const end = start + itemsToShow;
-    // 使用已经过滤后的搭配数据
-    return filteredOutfits.value.slice(start, end);
-  });
 
   // 搜索和筛选状态
   const searchQuery = ref('');
   const showFilterPanel = ref(false);
 
-  // 显示模式状态
-  const expandedDisplay = ref(false);
   const filters = ref({
     scene: [],
     season: [],
@@ -417,23 +350,26 @@
 
   // 计算过滤后的搭配
   const filteredOutfits = computed(() => {
-    return props.savedOutfits.filter(outfit => {
+    return props.allOutfits.filter(outfit => {
       // 基本过滤
-      if (!outfit || (!outfit.id && !outfit.name)) return false;
+      if (!outfit || (!outfit.id && !outfit.title)) return false;
 
       // 搜索过滤
       if (searchQuery.value) {
         const query = searchQuery.value.toLowerCase();
-        const nameMatch = outfit.name && outfit.name.toLowerCase().includes(query);
-        const sceneMatch = outfit.scene && outfit.scene.toLowerCase().includes(query);
-        const tagsMatch = outfit.tags && outfit.tags.some(tag => tag.toLowerCase().includes(query));
+        const nameMatch = outfit.title && outfit.title.toLowerCase().includes(query);
+        const sceneMatch = outfit.occasion && outfit.occasion.toLowerCase().includes(query);
+        const tagsMatch = outfit.tag && outfit.tag.toLowerCase().includes(query);
 
         if (!nameMatch && !sceneMatch && !tagsMatch) return false;
       }
 
       // 筛选条件过滤
       if (appliedFilters.value.scene.length > 0) {
-        if (!outfit.scene || !appliedFilters.value.scene.includes(outfit.scene.toLowerCase())) {
+        if (
+          !outfit.occasion ||
+          !appliedFilters.value.scene.includes(outfit.occasion.toLowerCase())
+        ) {
           return false;
         }
       }
@@ -454,78 +390,9 @@
     });
   });
 
-  // 懒加载相关状态
-  const visibleOutfits = ref([]);
-  const pageSize = ref(12);
-  const currentPage = ref(1);
-  const isLoadingMore = ref(false);
-
-  // 计算属性：当前可见的搭配数量
-  const visibleCount = computed(() =>
-    Math.min(currentPage.value * pageSize.value, filteredOutfits.value.length)
-  );
-
-  // 计算属性：是否还有更多搭配可加载
-  const hasMoreOutfits = computed(
-    () => currentPage.value * pageSize.value < filteredOutfits.value.length
-  );
-
-  // 更新可见搭配
-  const updateVisibleOutfits = () => {
-    const startIndex = 0;
-    const endIndex = currentPage.value * pageSize.value;
-    visibleOutfits.value = filteredOutfits.value.slice(startIndex, endIndex);
-  };
-
-  // 加载更多搭配
-  const loadMoreOutfits = async () => {
-    if (isLoadingMore.value || !hasMoreOutfits.value) return;
-
-    isLoadingMore.value = true;
-
-    // 模拟加载延迟
-    await new Promise(resolve => setTimeout(resolve, 300));
-
-    currentPage.value++;
-    updateVisibleOutfits();
-    isLoadingMore.value = false;
-  };
-
-  // 监听筛选变化，重置分页
+  // 监听筛选变化
   watch([filteredOutfits], () => {
-    currentPage.value = 1;
-    updateVisibleOutfits();
-  });
-
-  // 初始化可见搭配
-  onMounted(() => {
-    updateVisibleOutfits();
-  });
-
-  // 滚动加载更多
-  const handleScroll = () => {
-    const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
-    const windowHeight = window.innerHeight;
-    const documentHeight = document.documentElement.scrollHeight;
-
-    if (scrollTop + windowHeight >= documentHeight - 100) {
-      loadMoreOutfits();
-    }
-  };
-
-  onMounted(() => {
-    window.addEventListener('scroll', handleScroll);
-  });
-
-  onUnmounted(() => {
-    window.removeEventListener('scroll', handleScroll);
-  });
-
-  // 计算总页数
-  const totalPages = computed(() => {
-    // 根据展开状态计算总页数
-    const itemsPerPage = expandedDisplay.value ? props.itemsPerPage * 2 : props.itemsPerPage;
-    return Math.ceil(filteredOutfits.value.length / itemsPerPage);
+    // 筛选变化时的逻辑可以在这里添加
   });
 
   // 格式化日期
@@ -699,11 +566,6 @@
 
     return result;
   });
-
-  // 切换显示模式
-  function toggleDisplayMode() {
-    expandedDisplay.value = !expandedDisplay.value;
-  }
 </script>
 
 <style scoped>

@@ -36,66 +36,33 @@
 
             <!-- 优化的搭配信息 -->
             <div class="flex flex-wrap gap-2 mt-1">
-              <!-- 场景信息 -->
-              <div
+              <!-- 统一的信息展示组件 -->
+              <InfoChip
                 v-if="outfit?.scene"
-                class="flex items-center px-2 py-1 bg-indigo-50/80 backdrop-blur-sm rounded-lg border border-indigo-100/50 shadow-sm"
-              >
-                <div
-                  class="w-4 h-4 rounded-full bg-gradient-to-r from-indigo-500/20 to-purple-500/20 flex items-center justify-center mr-1.5"
-                >
-                  <font-awesome-icon icon="map-marker-alt" class="text-indigo-600 text-xs" />
-                </div>
-                <span class="text-xs text-indigo-700 font-medium">场景:</span>
-                <div class="flex flex-wrap gap-1 ml-1">
-                  <template
-                    v-for="(sceneValue, index) in outfit?.scene ? outfit.scene.split(',') : []"
-                    :key="index"
-                  >
-                    <span
-                      class="text-xs text-indigo-600 font-medium bg-white/80 px-1.5 py-0.5 rounded-full border border-indigo-100/50"
-                    >
-                      {{ getSceneLabel(sceneValue) || '' }}
-                    </span>
-                  </template>
-                </div>
-              </div>
+                icon="map-marker-alt"
+                label="场景"
+                :values="outfit.scene.split(',')"
+                :get-label="getSceneLabel"
+                color-scheme="indigo"
+              />
 
-              <!-- 季节信息 -->
-              <div
+              <InfoChip
                 v-if="outfit?.season"
-                class="flex items-center px-2 py-1 bg-green-50/80 backdrop-blur-sm rounded-lg border border-green-100/50 shadow-sm"
-              >
-                <div
-                  class="w-4 h-4 rounded-full bg-gradient-to-r from-green-500/20 to-emerald-500/20 flex items-center justify-center mr-1.5"
-                >
-                  <font-awesome-icon icon="leaf" class="text-green-600 text-xs" />
-                </div>
-                <span class="text-xs text-green-700 font-medium">季节:</span>
-                <span
-                  class="text-xs text-green-600 font-medium bg-white/80 px-1.5 py-0.5 rounded-full border border-green-100/50 ml-1"
-                >
-                  {{ getSeasonLabel(outfit.season) }}
-                </span>
-              </div>
+                icon="leaf"
+                label="季节"
+                :values="[outfit.season]"
+                :get-label="getSeasonLabel"
+                color-scheme="green"
+              />
 
-              <!-- 风格信息 -->
-              <div
+              <InfoChip
                 v-if="outfit?.style"
-                class="flex items-center px-2 py-1 bg-purple-50/80 backdrop-blur-sm rounded-lg border border-purple-100/50 shadow-sm"
-              >
-                <div
-                  class="w-4 h-4 rounded-full bg-gradient-to-r from-purple-500/20 to-pink-500/20 flex items-center justify-center mr-1.5"
-                >
-                  <font-awesome-icon icon="palette" class="text-purple-600 text-xs" />
-                </div>
-                <span class="text-xs text-purple-700 font-medium">风格:</span>
-                <span
-                  class="text-xs text-purple-600 font-medium bg-white/80 px-1.5 py-0.5 rounded-full border border-purple-100/50 ml-1"
-                >
-                  {{ getStyleLabel(outfit.style) }}
-                </span>
-              </div>
+                icon="palette"
+                label="风格"
+                :values="[outfit.style]"
+                :get-label="getStyleLabel"
+                color-scheme="purple"
+              />
             </div>
           </div>
         </div>
@@ -363,6 +330,7 @@
 <script setup>
   import { ref, reactive, computed } from 'vue';
   import { scenesMockData, seasonsMockData, stylesMockData } from '../../mock/data';
+  import InfoChip from './InfoChip.vue';
 
   // Props定义
   const props = defineProps({
@@ -387,53 +355,23 @@
   // 风格选项映射
   const styleOptions = stylesMockData;
 
-  // 获取场景标签
-  function getSceneLabel(value) {
-    const scene = sceneOptions.find(option => option.value === value);
-    return scene ? scene.label : value;
-  }
+  // 通用工具函数 - 获取标签
+  const getLabel = (options, value) => options.find(opt => opt.value === value)?.label || value;
 
-  // 获取季节标签
-  function getSeasonLabel(value) {
-    const season = seasonOptions.find(option => option.value === value);
-    return season ? season.label : value;
-  }
+  const getSceneLabel = value => getLabel(sceneOptions, value);
+  const getSeasonLabel = value => getLabel(seasonOptions, value);
+  const getStyleLabel = value => getLabel(styleOptions, value);
 
-  // 获取风格标签
-  function getStyleLabel(value) {
-    const style = styleOptions.find(option => option.value === value);
-    return style ? style.label : value;
-  }
+  // 通用数组切换函数
+  const toggleArrayItem = (array, value) => {
+    const index = array.indexOf(value);
+    index > -1 ? array.splice(index, 1) : array.push(value);
+  };
 
-  // 选择场景
-  function selectScene(value) {
-    const index = editOutfit.scenes.indexOf(value);
-    if (index > -1) {
-      editOutfit.scenes.splice(index, 1); // 如果已选中，则取消选择
-    } else {
-      editOutfit.scenes.push(value); // 添加到选择数组
-    }
-  }
-
-  // 选择季节
-  function selectSeason(value) {
-    const index = editOutfit.seasons.indexOf(value);
-    if (index > -1) {
-      editOutfit.seasons.splice(index, 1); // 如果已选中，则取消选择
-    } else {
-      editOutfit.seasons.push(value); // 添加到选择数组
-    }
-  }
-
-  // 选择风格
-  function selectStyle(value) {
-    const index = editOutfit.styles.indexOf(value);
-    if (index > -1) {
-      editOutfit.styles.splice(index, 1); // 如果已选中，则取消选择
-    } else {
-      editOutfit.styles.push(value); // 添加到选择数组
-    }
-  }
+  // 统一的选择函数
+  const selectScene = value => toggleArrayItem(editOutfit.scenes, value);
+  const selectSeason = value => toggleArrayItem(editOutfit.seasons, value);
+  const selectStyle = value => toggleArrayItem(editOutfit.styles, value);
   const hoveredIndex = ref(-1);
 
   // 切换展开状态
@@ -443,16 +381,15 @@
 
   // 获取堆叠样式
   function getItemStyle(index) {
-    const totalItems = Math.min(props.outfit?.items?.length || 0, 4);
-    const maxRotation = 15; // 最大旋转角度
-    const maxOffset = 15; // 最大偏移量
+    const items = props.outfit?.items || [];
+    const totalItems = Math.min(items.length, 4);
+    if (totalItems === 0) return {};
 
-    // 根据索引计算位置和旋转
-    const rotation = (index - (totalItems - 1) / 2) * (maxRotation / totalItems);
-    const offset = (index - (totalItems - 1) / 2) * (maxOffset / totalItems);
+    const centerIndex = (totalItems - 1) / 2;
+    const offset = index - centerIndex;
 
     return {
-      transform: `translateX(${offset}px) rotate(${rotation}deg)`,
+      transform: `translateX(${offset * 15}px) rotate(${offset * 4}deg)`,
       zIndex: 10 + index,
       opacity: hoveredIndex.value === -1 || hoveredIndex.value === index ? 1 : 0.7,
     };
@@ -496,39 +433,41 @@
     styles: [], // 改为数组，支持多选
   });
 
-  // 切换编辑模式
-  function toggleEditMode() {
-    if (isEditing.value) {
-      cancelEdit();
-    } else {
-      // 进入编辑模式，初始化编辑数据
-      editOutfit.id = props.outfit.id;
-      editOutfit.name = props.outfit.name;
-      // 将字符串转换为数组，支持多选
-      editOutfit.scenes = props.outfit.scene ? props.outfit.scene.split(',') : [];
-      editOutfit.seasons = props.outfit.season ? [props.outfit.season] : [];
-      editOutfit.styles = props.outfit.style ? [props.outfit.style] : [];
-      isEditing.value = true;
-    }
-  }
+  // 编辑相关方法
+  const editMethods = {
+    toggleEditMode: () => {
+      if (isEditing.value) {
+        editMethods.cancelEdit();
+      } else {
+        editOutfit.id = props.outfit.id;
+        editOutfit.name = props.outfit.name;
+        editOutfit.scenes = props.outfit.scene ? props.outfit.scene.split(',') : [];
+        editOutfit.seasons = props.outfit.season ? [props.outfit.season] : [];
+        editOutfit.styles = props.outfit.style ? [props.outfit.style] : [];
+        isEditing.value = true;
+      }
+    },
 
-  // 保存编辑
-  function saveEdit() {
-    emit('edit-outfit', {
-      id: editOutfit.id,
-      name: editOutfit.name,
-      // 将数组转换为字符串，兼容后端
-      scene: editOutfit.scenes.length > 0 ? editOutfit.scenes.join(',') : '',
-      season: editOutfit.seasons.length > 0 ? editOutfit.seasons[0] : '',
-      style: editOutfit.styles.length > 0 ? editOutfit.styles[0] : '',
-    });
-    isEditing.value = false;
-  }
+    saveEdit: () => {
+      emit('edit-outfit', {
+        id: editOutfit.id,
+        name: editOutfit.name,
+        scene: editOutfit.scenes.length > 0 ? editOutfit.scenes.join(',') : '',
+        season: editOutfit.seasons.length > 0 ? editOutfit.seasons[0] : '',
+        style: editOutfit.styles.length > 0 ? editOutfit.styles[0] : '',
+      });
+      isEditing.value = false;
+    },
 
-  // 取消编辑
-  function cancelEdit() {
-    isEditing.value = false;
-  }
+    cancelEdit: () => {
+      isEditing.value = false;
+    },
+  };
+
+  // 保持向后兼容
+  const toggleEditMode = editMethods.toggleEditMode;
+  const saveEdit = editMethods.saveEdit;
+  const cancelEdit = editMethods.cancelEdit;
 </script>
 
 <style scoped>
