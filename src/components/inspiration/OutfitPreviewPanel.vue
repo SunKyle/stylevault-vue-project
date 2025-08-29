@@ -306,7 +306,7 @@
           <button
             class="flex-1 bg-gradient-to-r from-indigo-500 to-purple-500 hover:from-indigo-600 hover:to-purple-600 text-white font-medium py-3.5 rounded-xl transition-all duration-300 transform hover:scale-[1.02] active:scale-[0.98] shadow-lg hover:shadow-xl flex items-center justify-center disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none relative overflow-hidden group/button"
             @click="handleSaveOutfit"
-            :disabled="selectedClothes.length === 0 || !outfitName.trim()"
+            :disabled="selectedClothes.length === 0 || !trimmedOutfitName"
           >
             <!-- 按钮装饰效果 -->
             <div
@@ -333,12 +333,19 @@
 </template>
 
 <script setup>
-  import { ref, defineModel, watch } from 'vue';
+  import { ref, defineModel, watch, computed } from 'vue';
   import { showToast } from '../../utils/toast';
   import { scenesMockData, seasonsMockData, stylesMockData } from '../../mock/data';
 
   // 定义模型
   const outfitName = defineModel('outfitName', { type: String, default: '' });
+
+  // 计算属性处理 outfitName 的 trim 操作
+  const trimmedOutfitName = computed(() => {
+    // 确保 outfitName 是字符串类型
+    const name = String(outfitName.value || '');
+    return name.trim();
+  });
   const outfitScene = defineModel('outfitScene', { type: Array, default: () => [] });
   const outfitSeason = defineModel('outfitSeason', { type: Array, default: () => [] });
   const outfitStyle = defineModel('outfitStyle', { type: Array, default: () => [] });
@@ -461,7 +468,7 @@
 
   // 处理保存搭配
   function handleSaveOutfit() {
-    if (!outfitName.value?.trim()) {
+    if (!trimmedOutfitName.value) {
       alert('请输入搭配名称');
       return;
     }
