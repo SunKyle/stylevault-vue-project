@@ -35,60 +35,27 @@
 </template>
 
 <script setup>
-  import { ref } from 'vue';
+  import { useInspirationStore } from '@/stores/inspirationStore';
   import OutfitPreviewPanel from './OutfitPreviewPanel.vue';
   import ClothingSelectionPanel from './ClothingSelectionPanel.vue';
 
-  // 搭配信息
-  const outfitName = ref('');
-  const outfitScene = ref('');
-  const outfitSeason = ref('');
-  const outfitStyle = ref('');
+  const inspirationStore = useInspirationStore();
 
-  // 定义emit
-  const emit = defineEmits([
-    'remove-cloth',
-    'reset-clothes',
-    'save-outfit',
-    'category-change',
-    'tag-change',
-    'toggle-cloth',
-    'reset-filters',
-  ]);
+  // 直接从store获取数据
+  const {
+    outfitName,
+    outfitScene,
+    outfitSeason,
+    outfitStyle,
+    filteredClothes,
+    selectedClothes,
+    categories,
+    tags,
+    activeCategory,
+    activeTag,
+  } = inspirationStore;
 
-  // 处理保存搭配
-  function handleSaveOutfit(outfitInfo) {
-    emit('save-outfit', outfitInfo);
-  }
-
-  defineProps({
-    selectedClothes: {
-      type: Array,
-      default: () => [],
-    },
-    categories: {
-      type: Array,
-      default: () => [],
-    },
-    tags: {
-      type: Array,
-      default: () => [],
-    },
-    activeCategory: {
-      type: String,
-      default: '全部',
-    },
-    activeTag: {
-      type: String,
-      default: '',
-    },
-    clothes: {
-      type: Array,
-      default: () => [],
-    },
-    filteredClothes: {
-      type: Array,
-      default: () => [],
-    },
-  });
+  // 方法委托给store
+  const { removeCloth, resetClothes, saveOutfit, toggleCloth, setCategory, setTag, resetFilters } =
+    inspirationStore;
 </script>

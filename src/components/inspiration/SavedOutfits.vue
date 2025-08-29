@@ -224,11 +224,11 @@
         <div class="absolute -bottom-20 -left-20 w-60 h-60 bg-secondary/5 rounded-full"></div>
 
         <!-- 已保存搭配列表 -->
-        <div v-if="savedOutfits.length > 0" class="relative z-10">
+        <div v-if="visibleOutfits.length > 0" class="relative z-10">
           <!-- 搭配卡片自适应网格布局 -->
           <div class="grid gap-6 grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
             <OutfitCard
-              v-for="outfit in savedOutfits"
+              v-for="outfit in visibleOutfits"
               :key="outfit.id"
               :outfit="outfit"
               @load-outfit="$emit('load-outfit', $event)"
@@ -240,7 +240,7 @@
           <!-- 加载更多按钮 -->
           <div v-if="hasMore" class="flex justify-center mt-8">
             <button
-              @click="$emit('load-more')"
+              @click="loadMore"
               :disabled="isLoading"
               class="flex items-center gap-2 px-6 py-3 bg-primary hover:bg-primary/90 text-white rounded-lg transition-colors disabled:opacity-50"
             >
@@ -287,28 +287,14 @@
 
 <script setup>
   import { ref, computed, watch, onMounted, onUnmounted } from 'vue';
+  import { useInspirationStore } from '@/stores/inspirationStore';
   import OutfitCard from './OutfitCard.vue';
   import { scenesMockData, seasonsMockData, stylesMockData } from '../../mock/data';
 
-  // Props定义
-  const props = defineProps({
-    savedOutfits: {
-      type: Array,
-      default: () => [],
-    },
-    allOutfits: {
-      type: Array,
-      default: () => [],
-    },
-    hasMore: {
-      type: Boolean,
-      default: false,
-    },
-    isLoading: {
-      type: Boolean,
-      default: false,
-    },
-  });
+  const inspirationStore = useInspirationStore();
+
+  // 从store获取数据
+  const { savedOutfits, visibleOutfits, hasMore, isLoading } = inspirationStore;
 
   // 事件定义
   const emit = defineEmits([
@@ -319,15 +305,11 @@
     'scroll-to-create',
   ]);
 
-  // 搜索和筛选状态
-  const searchQuery = ref('');
+  // 从store获取筛选相关数据
+  const searchQuery = computed(() => inspirationStore.filters.search);
   const showFilterPanel = ref(false);
 
-  const filters = ref({
-    scene: [],
-    season: [],
-    style: [],
-  });
+  const filters = computed(() => inspirationStore.filters);
   const appliedFilters = ref({
     scene: [],
     season: [],
@@ -350,7 +332,10 @@
 
   // 计算过滤后的搭配
   const filteredOutfits = computed(() => {
-    return props.allOutfits.filter(outfit => {
+    if (!savedOutfits.value || !Array.isArray(savedOutfits.value)) {
+      return [];
+    }
+    return savedOutfits.value.filter(outfit => {
       // 基本过滤
       if (!outfit || (!outfit.id && !outfit.title)) return false;
 
@@ -432,8 +417,10 @@
 
   // 处理删除搭配事件
   function handleDeleteOutfit(outfitId) {
+    if (!savedOutfits.value || !Array.isArray(savedOutfits.value)) return;
+
     // 找到搭配在数组中的索引
-    const index = props.savedOutfits.findIndex(outfit => outfit.id === outfitId);
+    const index = savedOutfits.value.findIndex(outfit => outfit.id === outfitId);
     if (index !== -1) {
       emit('delete-outfit', index);
     }
@@ -441,12 +428,14 @@
 
   // 处理编辑搭配事件
   function handleEditOutfit(editedOutfit) {
+    if (!savedOutfits.value || !Array.isArray(savedOutfits.value)) return;
+
     // 找到搭配在数组中的索引
-    const index = props.savedOutfits.findIndex(outfit => outfit.id === editedOutfit.id);
+    const index = savedOutfits.value.findIndex(outfit => outfit.id === editedOutfit.id);
     if (index !== -1) {
       // 更新搭配信息
       const updatedOutfit = {
-        ...props.savedOutfits[index],
+        ...savedOutfits.value[index],
         name: editedOutfit.name,
         scene: editedOutfit.scene,
       };
@@ -548,22 +537,13 @@
     );
   });
 
-  // 获取当前激活的筛选条件
+  // 激活的筛选标签
   const activeFilters = computed(() => {
-    const result = {};
-
-    if (appliedFilters.value.scene.length > 0) {
-      result.scene = appliedFilters.value.scene;
-    }
-
-    if (appliedFilters.value.season.length > 0) {
-      result.season = appliedFilters.value.season;
-    }
-
-    if (appliedFilters.value.style.length > 0) {
-      result.style = appliedFilters.value.style;
-    }
-
+    const result = {
+      scene: appliedFilters.value.scene || [],
+      season: appliedFilters.value.season || [],
+      style: appliedFilters.value.style || [],
+    };
     return result;
   });
 </script>
