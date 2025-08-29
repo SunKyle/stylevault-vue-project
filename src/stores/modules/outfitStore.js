@@ -1,5 +1,5 @@
 import { defineStore } from 'pinia';
-import { outfitService } from '../services/outfitService';
+import { outfitService } from '../../services/outfitService';
 
 export const useOutfitStore = defineStore('outfit', {
   state: () => ({

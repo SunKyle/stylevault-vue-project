@@ -29,7 +29,7 @@
 
 <script setup>
   import { onMounted } from 'vue';
-  import { useInspirationStore } from '@/stores/inspirationStore';
+  import { useInspirationStore } from '@/stores/modules/inspirationStore';
   import SavedOutfits from '@/components/inspiration/SavedOutfits.vue';
   import OutfitCreator from '@/components/inspiration/OutfitCreator.vue';
   import ContentLayout from '@/components/layout/ContentLayout.vue';

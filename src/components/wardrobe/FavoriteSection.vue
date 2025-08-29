@@ -79,7 +79,7 @@
 
 <script setup>
   import { computed, ref, watch } from 'vue';
-  import { useClothingStore } from '@/stores/clothingStore';
+  import { useClothingStore } from '@/stores/modules/clothingStore';
   import ClothingItem from '../ui/ClothingItem.vue';
 
   const clothingStore = useClothingStore();

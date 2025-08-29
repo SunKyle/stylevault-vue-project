@@ -1,5 +1,5 @@
 import { defineStore } from 'pinia';
-import { clothingAdapter } from '../adapters/clothingAdapter';
+import { clothingAdapter } from '../../adapters/clothingAdapter';
 
 // 缓存工具
 const cache = new Map();

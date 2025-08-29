@@ -1,18 +1,18 @@
 // Stores 入口文件 - 统一导出所有 store
-export { useAnalyticsStore } from './analyticsStore';
-export { useClothingStore } from './clothingStore';
-export { useOutfitStore } from './outfitStore';
-export { useUserStore } from './userStore';
-export { useUiStore } from './uiStore';
-export { useWeatherStore } from './weatherStore';
+export { useAnalyticsStore } from './modules/analyticsStore';
+export { useClothingStore } from './modules/clothingStore';
+export { useOutfitStore } from './modules/outfitStore';
+export { useUserStore } from './modules/userStore';
+export { useUiStore } from './modules/uiStore';
+export { useWeatherStore } from './modules/weatherStore';
 // 注意：wardrobeStore已被clothingStore替代，保留兼容导出
 
 // 创建 store 初始化函数
 export const initializeStores = async () => {
   try {
     // 按需初始化核心 store
-    const { useUserStore } = await import('./userStore');
-    const { useUiStore } = await import('./uiStore');
+    const { useUserStore } = await import('./modules/userStore');
+    const { useUiStore } = await import('./modules/uiStore');
 
     const userStore = useUserStore();
     const uiStore = useUiStore();
@@ -34,9 +34,9 @@ export const refreshAllStores = async () => {
   const promises = [];
 
   try {
-    const { useClothingStore } = await import('./clothingStore');
-    const { useAnalyticsStore } = await import('./analyticsStore');
-    const { useWeatherStore } = await import('./weatherStore');
+    const { useClothingStore } = await import('./modules/clothingStore');
+    const { useAnalyticsStore } = await import('./modules/analyticsStore');
+    const { useWeatherStore } = await import('./modules/weatherStore');
 
     const clothingStore = useClothingStore();
     const analyticsStore = useAnalyticsStore();

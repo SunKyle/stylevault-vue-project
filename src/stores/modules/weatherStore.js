@@ -1,5 +1,5 @@
 import { defineStore } from 'pinia';
-import { weatherService } from '../services/weatherService';
+import { weatherService } from '../../services/weatherService';
 import { useClothingStore } from './clothingStore';
 import { useOutfitStore } from './outfitStore';
 

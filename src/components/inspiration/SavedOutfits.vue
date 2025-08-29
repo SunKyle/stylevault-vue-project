@@ -287,7 +287,7 @@
 
 <script setup>
   import { ref, computed, watch, onMounted, onUnmounted } from 'vue';
-  import { useInspirationStore } from '@/stores/inspirationStore';
+  import { useInspirationStore } from '@/stores';
   import OutfitCard from './OutfitCard.vue';
   import { scenesMockData, seasonsMockData, stylesMockData } from '../../mock/data';
 

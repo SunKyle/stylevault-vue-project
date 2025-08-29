@@ -3,7 +3,7 @@
  * 提供创建搭配的独立服务，解耦组件间通信
  */
 import { ref, computed } from 'vue';
-import { useInspirationStore } from '@/stores/inspirationStore';
+import { useInspirationStore } from '@/stores/modules/inspirationStore';
 import { showToast } from '@/utils/toast';
 
 export class OutfitCreatorService {
