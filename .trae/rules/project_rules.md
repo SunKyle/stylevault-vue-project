@@ -226,14 +226,6 @@
 - **询问并等待人工干预**
 - **从中断点任务继续执行**
 
-## 系统环境说明
-
-### 操作系统
-- **macOS ARM 架构优先**
-- 安装依赖时：`npm install --target_arch=arm64`
-- Node.js安装：推荐从官网下载arm架构专属安装包
-- 性能优化：`export NODE_OPTIONS=--max-old-space-size=4096`
-
 ### 项目结构
 - 工作目录：`/Users/sunxiaokai/Desktop/stylevault-vue-project`
 - Vue 3 + Vite 项目

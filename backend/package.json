@@ -12,7 +12,11 @@
     "lint": "eslint src/**/*.ts",
     "lint:fix": "eslint src/**/*.ts --fix",
     "db:test": "ts-node src/scripts/test-database.ts",
-    "db:sync": "ts-node src/scripts/sync-database.ts"
+    "db:sync": "ts-node src/scripts/sync-database.ts",
+    "init-db": "ts-node src/scripts/init-models.ts",
+    "validate-models": "ts-node src/scripts/validate-models.ts",
+    "quick-setup": "./scripts/quick-setup.sh",
+    "check-env": "node -e \"console.log('Node:', process.version, 'Arch:', process.arch)\""
   },
   "keywords": [
     "stylevault",

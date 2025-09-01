@@ -1,201 +1,454 @@
-/**
- * 模型类型扩展定义
- * 为装饰器模式提供类型支持
- */
+// 模型类型定义
+// 包含所有模型的枚举类型和接口定义
 
-import { Model, Optional } from 'sequelize';
-import { BaseModelAttributes, UserOwnedModelAttributes } from '../models/BaseModel';
-
-/**
- * 基础模型类型
- */
-export interface BaseEntity extends BaseModelAttributes {
-  // 基础字段已在BaseModelAttributes中定义
+// 用户行为类型枚举
+export enum BehaviorType {
+  VIEW = 'view',
+  LIKE = 'like',
+  SAVE = 'save',
+  SHARE = 'share',
+  CREATE = 'create',
+  UPDATE = 'update',
+  DELETE = 'delete',
+  PURCHASE = 'purchase',
+  WEAR = 'wear',
+  RECOMMEND = 'recommend'
 }
 
-/**
- * 用户相关模型类型
- */
-export interface UserEntity extends UserOwnedModelAttributes {
-  // 用户相关字段已在UserOwnedModelAttributes中定义
+// 推荐类型枚举
+export enum RecommendationType {
+  OUTFIT = 'outfit',
+  PURCHASE = 'purchase',
+  STYLE = 'style',
+  SEASONAL = 'seasonal',
+  TRENDING = 'trending',
+  PERSONALIZED = 'personalized'
 }
 
-/**
- * 模型创建属性（排除自动生成字段）
- */
-export type CreationAttributes<T extends BaseEntity> = Optional<T, 'id' | 'createdAt' | 'updatedAt' | 'deletedAt'>;
+// 推荐状态枚举
+export enum RecommendationStatus {
+  PENDING = 'pending',
+  ACCEPTED = 'accepted',
+  REJECTED = 'rejected',
+  EXPIRED = 'expired'
+}
 
-/**
- * 用户模型创建属性
- */
-export type UserCreationAttributes<T extends UserEntity> = Optional<T, 'id' | 'createdAt' | 'updatedAt' | 'deletedAt' | 'isActive'>;
+// 用户状态枚举
+export enum UserStatus {
+  ACTIVE = 'active',
+  INACTIVE = 'inactive',
+  SUSPENDED = 'suspended',
+  DELETED = 'deleted'
+}
 
-/**
- * 分页查询参数
- */
+// 衣物类型枚举
+export enum ClothingType {
+  TOP = 'top',
+  BOTTOM = 'bottom',
+  DRESS = 'dress',
+  OUTERWEAR = 'outerwear',
+  SHOES = 'shoes',
+  ACCESSORIES = 'accessories',
+  BAG = 'bag',
+  HAT = 'hat'
+}
+
+// 季节枚举
+export enum Season {
+  SPRING = 'spring',
+  SUMMER = 'summer',
+  AUTUMN = 'autumn',
+  WINTER = 'winter'
+}
+
+// 场合枚举
+export enum Occasion {
+  CASUAL = 'casual',
+  FORMAL = 'formal',
+  BUSINESS = 'business',
+  SPORT = 'sport',
+  PARTY = 'party',
+  DAILY = 'daily',
+  DATE = 'date',
+  TRAVEL = 'travel'
+}
+
+// 颜色枚举
+export enum ColorCategory {
+  RED = 'red',
+  ORANGE = 'orange',
+  YELLOW = 'yellow',
+  GREEN = 'green',
+  BLUE = 'blue',
+  PURPLE = 'purple',
+  PINK = 'pink',
+  BROWN = 'brown',
+  BLACK = 'black',
+  WHITE = 'white',
+  GRAY = 'gray',
+  GOLD = 'gold',
+  SILVER = 'silver'
+}
+
+// 材质枚举
+export enum Material {
+  COTTON = 'cotton',
+  LINEN = 'linen',
+  WOOL = 'wool',
+  SILK = 'silks',
+  POLYESTER = 'polyester',
+  LEATHER = 'leather',
+  DENIM = 'denim',
+  VELVET = 'velvet',
+  CHIFFON = 'chiffon',
+  LACE = 'lace'
+}
+
+// 属性分类枚举
+export enum AttributeCategory {
+  BASIC = 'basic',
+  STYLE = 'style',
+  SEASON = 'season',
+  OCCASION = 'occasion',
+  COLOR = 'color',
+  MATERIAL = 'material',
+  SIZE = 'size',
+  BRAND = 'brand',
+  PATTERN = 'pattern',
+  FIT = 'fit',
+  PRICE = 'price',
+  CUSTOM = 'custom'
+}
+
+// 属性类型枚举
+export enum AttributeType {
+  COLOR = 'color',
+  MATERIAL = 'material',
+  STYLE = 'style',
+  PATTERN = 'pattern',
+  BRAND = 'brand',
+  SIZE = 'size',
+  FIT = 'fit',
+  SEASON = 'season',
+  OCCASION = 'occasion',
+  PRICE = 'price'
+}
+
+// 天气条件枚举
+export enum WeatherCondition {
+  SUNNY = 'sunny',
+  CLOUDY = 'cloudy',
+  RAINY = 'rainy',
+  SNOWY = 'snowy',
+  WINDY = 'windy',
+  FOGGY = 'foggy',
+  STORMY = 'stormy'
+}
+
+// 行为上下文接口
+export interface BehaviorContext {
+  page?: string;
+  section?: string;
+  action?: string;
+  source?: string;
+  metadata?: Record<string, any>;
+}
+
+// 风格画像接口
+export interface StyleProfile {
+  preferredStyles?: string[];
+  colorPalette?: string[];
+  fitPreference?: string;
+  complexity?: 'simple' | 'moderate' | 'complex';
+  riskLevel?: 'conservative' | 'moderate' | 'adventurous';
+  occasions?: string[];
+  seasons?: string[];
+  brands?: string[];
+  priceRange?: {
+    min: number;
+    max: number;
+  };
+  weight?: number;
+}
+
+// 天气偏好接口
+export interface WeatherPreference {
+  temperatureRange?: {
+    min: number;
+    max: number;
+  };
+  humidityPreference?: 'low' | 'medium' | 'high';
+  windTolerance?: 'low' | 'medium' | 'high';
+  conditionPreferences?: WeatherCondition[];
+  seasonalAdjustments?: boolean;
+  weight?: number;
+}
+
+// 尺码偏好接口
+export interface SizePreference {
+  tops?: string;
+  bottoms?: string;
+  shoes?: string;
+  accessories?: string;
+  custom?: Record<string, string>;
+  weight?: number;
+}
+
+// 用户偏好接口
+export interface UserPreferences {
+  styleProfile?: StyleProfile;
+  weatherPreference?: WeatherPreference;
+  sizePreference?: SizePreference;
+  colorPreferences?: number[];
+  brandPreferences?: string[];
+  priceRange?: {
+    min: number;
+    max: number;
+  };
+  seasonPreferences?: Season[];
+  occasionPreferences?: Occasion[];
+  notificationSettings?: {
+    email: boolean;
+    push: boolean;
+    outfitRecommendations: boolean;
+    weatherAlerts: boolean;
+    newFeatures: boolean;
+  };
+  privacySettings?: {
+    profilePublic: boolean;
+    outfitsPublic: boolean;
+    clothingPublic: boolean;
+    allowComments: boolean;
+    allowSharing: boolean;
+  };
+  recommendationSettings?: {
+    enabled: boolean;
+    frequency: 'daily' | 'weekly' | 'monthly';
+    types: string[];
+    sensitivity: number;
+  };
+  uiSettings?: {
+    theme: 'light' | 'dark' | 'auto';
+    language: string;
+    currency: string;
+    temperatureUnit: 'celsius' | 'fahrenheit';
+    dateFormat: string;
+  };
+}
+
+// 推荐上下文接口
+export interface RecommendationContext {
+  algorithm: string;
+  score: number;
+  reason: string;
+  source: string;
+  metadata?: Record<string, any>;
+}
+
+// 设备信息接口
+export interface DeviceInfo {
+  type: 'mobile' | 'tablet' | 'desktop';
+  os: string;
+  browser: string;
+  appVersion?: string;
+}
+
+// 位置信息接口
+export interface LocationInfo {
+  latitude: number;
+  longitude: number;
+  city?: string;
+  country?: string;
+}
+
+// 天气信息接口
+export interface WeatherInfo {
+  temperature: number;
+  condition: WeatherCondition;
+  humidity: number;
+  windSpeed: number;
+}
+
+// 分页参数接口
 export interface PaginationParams {
-  /** 页码（从1开始） */
   page?: number;
-  /** 每页条数 */
   limit?: number;
-  /** 排序字段 */
-  orderBy?: string;
-  /** 排序方向 */
-  orderDirection?: 'ASC' | 'DESC';
-  /** 过滤条件 */
-  where?: any;
+  offset?: number;
 }
 
-/**
- * 分页结果
- */
-export interface PaginatedResult<T> {
-  /** 数据列表 */
-  data: T[];
-  /** 总条数 */
-  total: number;
-  /** 当前页码 */
-  page: number;
-  /** 每页条数 */
-  limit: number;
-  /** 总页数 */
-  totalPages: number;
-  /** 是否有下一页 */
-  hasNext: boolean;
-  /** 是否有上一页 */
-  hasPrev: boolean;
-}
-
-/**
- * 查询选项
- */
-export interface QueryOptions {
-  /** 包含关联 */
-  include?: any[];
-  /** 排序 */
-  order?: any[];
-  /** 限制字段 */
-  attributes?: any;
-  /** 事务 */
-  transaction?: any;
-  /** 作用域 */
-  scope?: string | string[];
-}
-
-/**
- * 用户查询选项
- */
-export interface UserQueryOptions extends QueryOptions {
-  /** 用户ID */
-  userId?: number;
-  /** 是否包含软删除数据 */
-  paranoid?: boolean;
-}
-
-/**
- * 模型装饰器接口
- */
-export interface ModelDecorator<T extends Model> {
-  /** 应用装饰器到模型 */
-  apply(target: typeof Model): void;
-  /** 获取模型元数据 */
-  getMetadata(): any;
-}
-
-/**
- * 模型构建器接口
- */
-export interface ModelBuilder<T extends Model> {
-  /** 设置表名 */
-  tableName(name: string): this;
-  /** 设置模型名 */
-  modelName(name: string): this;
-  /** 设置时间戳 */
-  timestamps(enabled: boolean): this;
-  /** 设置软删除 */
-  paranoid(enabled: boolean): this;
-  /** 构建模型 */
-  build(): typeof Model;
-}
-
-/**
- * 关联查询配置
- */
-export interface AssociationQueryOptions {
-  /** 关联模型 */
-  model: typeof Model;
-  /** 关联别名 */
-  as?: string;
-  /** 关联条件 */
-  where?: any;
-  /** 关联字段 */
-  attributes?: string[];
-  /** 嵌套关联 */
-  include?: AssociationQueryOptions[];
-}
-
-/**
- * 模型验证结果
- */
-export interface ValidationResult {
-  /** 是否有效 */
-  valid: boolean;
-  /** 错误信息 */
-  errors: ValidationError[];
-}
-
-/**
- * 验证错误
- */
-export interface ValidationError {
-  /** 字段名 */
+// 排序参数接口
+export interface SortParams {
   field: string;
-  /** 错误消息 */
-  message: string;
-  /** 验证规则 */
-  rule?: string;
-  /** 实际值 */
-  value?: any;
+  direction: 'ASC' | 'DESC';
 }
 
-/**
- * 模型生命周期钩子
- */
-export interface ModelHooks {
-  beforeValidate?: (instance: any, options: any) => Promise<void>;
-  afterValidate?: (instance: any, options: any) => Promise<void>;
-  beforeCreate?: (instance: any, options: any) => Promise<void>;
-  afterCreate?: (instance: any, options: any) => Promise<void>;
-  beforeUpdate?: (instance: any, options: any) => Promise<void>;
-  afterUpdate?: (instance: any, options: any) => Promise<void>;
-  beforeDestroy?: (instance: any, options: any) => Promise<void>;
-  afterDestroy?: (instance: any, options: any) => Promise<void>;
-  beforeRestore?: (instance: any, options: any) => Promise<void>;
-  afterRestore?: (instance: any, options: any) => Promise<void>;
+// 过滤参数接口
+export interface FilterParams {
+  [key: string]: any;
 }
 
-/**
- * 模型配置选项
- */
-export interface ModelOptions {
-  /** 表名 */
-  tableName?: string;
-  /** 模型名称 */
-  modelName?: string;
-  /** 时间戳 */
-  timestamps?: boolean;
-  /** 软删除 */
-  paranoid?: boolean;
-  /** 引擎 */
-  engine?: string;
-  /** 字符集 */
-  charset?: string;
-  /** 排序规则 */
-  collate?: string;
-  /** 钩子 */
-  hooks?: ModelHooks;
-  /** 作用域 */
-  scopes?: any;
-  /** 默认作用域 */
-  defaultScope?: any;
+// 搜索参数接口
+export interface SearchParams {
+  query?: string;
+  filters?: FilterParams;
+  pagination?: PaginationParams;
+  sort?: SortParams;
+}
+
+// API响应接口
+export interface ApiResponse<T> {
+  success: boolean;
+  data?: T;
+  message?: string;
+  errors?: string[];
+  pagination?: {
+    page: number;
+    limit: number;
+    total: number;
+    pages: number;
+  };
+}
+
+// 数据库配置接口
+export interface DatabaseConfig {
+  host: string;
+  port: number;
+  username: string;
+  password: string;
+  database: string;
+  dialect: 'mysql' | 'postgres' | 'sqlite' | 'mariadb';
+  logging?: boolean | ((sql: string, timing?: number) => void);
+  pool?: {
+    max: number;
+    min: number;
+    acquire: number;
+    idle: number;
+  };
+}
+
+// JWT配置接口
+export interface JwtConfig {
+  secret: string;
+  expiresIn: string;
+  refreshSecret?: string;
+  refreshExpiresIn?: string;
+}
+
+// Redis配置接口
+export interface RedisConfig {
+  host: string;
+  port: number;
+  password?: string;
+  db?: number;
+}
+
+// 衣物状况枚举
+export enum ClothingCondition {
+  NEW = 'new',
+  LIKE_NEW = 'like_new',
+  GOOD = 'good',
+  FAIR = 'fair',
+  POOR = 'poor'
+}
+
+// 衣物元数据接口
+export interface ClothingMetadata {
+  usageCount?: number;
+  lastWorn?: Date;
+  favorite?: boolean;
+  seasonalUsage?: {
+    spring?: number;
+    summer?: number;
+    autumn?: number;
+    winter?: number;
+  };
+  occasionUsage?: Record<string, number>;
+  weatherSuitability?: Record<string, number>;
+  styleTags?: string[];
+  careInstructions?: string[];
+  purchaseInfo?: {
+    store?: string;
+    purchaseDate?: Date;
+    price?: number;
+    currency?: string;
+  };
+  wearCount?: number;
+  rating?: number;
+  tags?: string[];
+}
+
+// 文件上传配置接口
+export interface UploadConfig {
+  maxFileSize: number;
+  allowedTypes: string[];
+  uploadDir: string;
+  maxFiles: number;
+}
+
+// 邮件配置接口
+export interface EmailConfig {
+  host: string;
+  port: number;
+  secure: boolean;
+  auth: {
+    user: string;
+    pass: string;
+  };
+  from: string;
+}
+
+// 搭配状态枚举
+export enum OutfitStatus {
+  DRAFT = 'draft',
+  PUBLISHED = 'published',
+  ARCHIVED = 'archived',
+  DELETED = 'deleted'
+}
+
+// 搭配元数据接口
+export interface OutfitMetadata {
+  viewCount?: number;
+  likeCount?: number;
+  saveCount?: number;
+  shareCount?: number;
+  wearCount?: number;
+  usageCount?: number;
+  lastWornAt?: Date;
+  lastUsedAt?: Date;
+  lastRatedAt?: Date;
+  ratingCount?: number;
+  tags?: string[];
+  publishedAt?: Date;
+  archivedAt?: Date;
+  featured?: boolean;
+  featuredAt?: Date;
+  seasonalScore?: number;
+  occasionScore?: number;
+  styleScore?: number;
+  weatherCompatibility?: number;
+  userRating?: number;
+  complexity?: 'simple' | 'moderate' | 'complex';
+  colors?: string[];
+  materials?: string[];
+  brands?: string[];
+  priceRange?: {
+    min: number;
+    max: number;
+  };
+}
+
+// 环境配置接口
+export interface EnvironmentConfig {
+  nodeEnv: string;
+  port: number;
+  database: DatabaseConfig;
+  jwt: JwtConfig;
+  redis: RedisConfig;
+  upload: UploadConfig;
+  email: EmailConfig;
+  logging: {
+    level: string;
+    file: string;
+    console: boolean;
+  };
 }
