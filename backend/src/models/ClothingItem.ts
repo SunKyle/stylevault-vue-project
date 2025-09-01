@@ -1,130 +1,151 @@
+import { DataTypes, Op } from 'sequelize';
+import { UserOwnedModel, UserOwnedModelAttributes } from './BaseModel';
+import { sequelize } from '../config/database';
 import {
-  Table,
-  Column,
-  DataType,
-  AllowNull,
-  Length,
+  Field,
+  StringField,
+  TextField,
+  IntegerField,
+  BooleanField,
+  DecimalField,
+  DateTimeField,
+  JSONField,
   ForeignKey,
-  BelongsTo,
-  HasMany,
-  Default
-} from 'sequelize-typescript';
-import { BaseModel } from './BaseModel';
-import { User } from './User';
-import { Category } from './Category';
-// import { ClothingTag } from './ClothingTag';
+  createFieldDefinitions,
+} from '../decorators/field-decorator';
 
-export enum ClothingType {
-  TOP = 'top',
-  BOTTOM = 'bottom',
-  SHOES = 'shoes',
-  ACCESSORIES = 'accessories',
-  OUTERWEAR = 'outerwear',
-  DRESS = 'dress'
-}
-
-export enum Season {
-  SPRING = 'spring',
-  SUMMER = 'summer',
-  AUTUMN = 'autumn',
-  WINTER = 'winter',
-  ALL_SEASON = 'all_season'
-}
-
-@Table({
-  tableName: 'clothing_items'
-})
-export class ClothingItem extends BaseModel {
-  @AllowNull(false)
-  @Length({ min: 1, max: 100 })
-  @Column(DataType.STRING(100))
-  name!: string;
-
-  @Column(DataType.TEXT)
+/**
+ * 服装项目属性接口
+ */
+export interface ClothingItemAttributes extends UserOwnedModelAttributes {
+  name: string;
   description?: string;
-
-  @ForeignKey(() => User)
-  @AllowNull(false)
-  @Column(DataType.INTEGER)
-  userId!: number;
-
-  @ForeignKey(() => Category)
-  @Column(DataType.INTEGER)
-  categoryId?: number;
-
-  @AllowNull(false)
-  @Column(DataType.ENUM(...Object.values(ClothingType)))
-  type!: ClothingType;
-
-  @Column(DataType.STRING(50))
+  categoryId: number;
   brand?: string;
-
-  @Column(DataType.DECIMAL(10, 2))
-  price?: number;
-
-  @Column(DataType.STRING(20))
-  size?: string;
-
-  @Column(DataType.STRING(50))
   color?: string;
-
-  @Column(DataType.STRING(50))
+  size?: string;
   material?: string;
-
-  @Column(DataType.ENUM(...Object.values(Season)))
-  season?: Season;
-
-  @Column(DataType.TEXT)
-  occasion?: string;
-
-  @Column({ type: DataType.BOOLEAN, defaultValue: false })
-  isClean!: boolean;
-
-  @Column({ type: DataType.BOOLEAN, defaultValue: true })
-  isAvailable!: boolean;
-
-  @Column(DataType.STRING(500))
+  price?: number;
+  purchaseDate?: Date;
   imageUrl?: string;
+  isFavorite: boolean;
+  tags?: string[];
+  metadata?: object;
+}
 
-  @Column(DataType.JSON)
-  images?: string[];
+/**
+ * 服装项目创建属性接口
+ */
+export interface ClothingItemCreationAttributes extends Partial<ClothingItemAttributes> {
+  name: string;
+  categoryId: number;
+}
 
-  @Column(DataType.DATE)
-  lastWorn?: Date;
+/**
+ * 服装项目模型
+ * 管理用户的服装项目信息
+ */
+export class ClothingItem extends UserOwnedModel<ClothingItemAttributes> {
+  @Field({ primaryKey: true, autoIncrement: true, type: DataTypes.INTEGER })
+  declare id: number;
 
-  @Column(DataType.INTEGER)
-  wearCount?: number;
+  @StringField({ length: 200, allowNull: false })
+  declare name: string;
 
-  @Default(0)
-  @Column(DataType.INTEGER)
-  viewCount!: number;
+  @TextField({ allowNull: true })
+  declare description?: string;
 
-  @Default(0)
-  @Column(DataType.INTEGER)
-  likeCount!: number;
+  @ForeignKey(() => require('./Category').Category, { allowNull: false })
+  declare categoryId: number;
 
-  // 关联定义
-  @BelongsTo(() => User)
-  user!: User;
+  @StringField({ length: 100, allowNull: true })
+  declare brand?: string;
 
-  @BelongsTo(() => Category)
-  category?: Category;
+  @StringField({ length: 50, allowNull: true })
+  declare color?: string;
 
-  // @HasMany(() => ClothingTag)
-  // clothingTags!: ClothingTag[];
+  @StringField({ length: 20, allowNull: true })
+  declare size?: string;
 
-  // @HasMany(() => OutfitItem)
-  // outfitItems!: OutfitItem[];
+  @StringField({ length: 100, allowNull: true })
+  declare material?: string;
 
-  // 虚拟字段
-  get imageCount(): number {
-    return this.images?.length || 0;
+  @DecimalField({ precision: 10, scale: 2, allowNull: true })
+  declare price?: number;
+
+  @DateTimeField({ allowNull: true })
+  declare purchaseDate?: Date;
+
+  @StringField({ length: 500, allowNull: true })
+  declare imageUrl?: string;
+
+  @BooleanField({ defaultValue: false })
+  declare isFavorite: boolean;
+
+  @Field({ type: DataTypes.ARRAY(DataTypes.STRING), allowNull: true })
+  declare tags?: string[];
+
+  @JSONField({ allowNull: true })
+  declare metadata?: object;
+
+  /**
+   * 按分类获取服装项目
+   */
+  static async getByCategory(categoryId: number): Promise<ClothingItem[]> {
+    return this.findAll({
+      where: { categoryId, isActive: true },
+      order: [['createdAt', 'DESC']],
+    });
   }
 
-  get isWornRecently(): boolean {
-    if (!this.lastWorn) return false;
-    const thirtyDaysAgo = new Date();
-    thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
-    return this.lastWorn > thirtyDaysAgo;
+  /**
+   * 获取收藏的服装项目
+   */
+  static async getFavorites(userId: number): Promise<ClothingItem[]> {
+    return this.findAll({
+      where: { userId, isFavorite: true, isActive: true },
+      order: [['createdAt', 'DESC']],
+    });
+  }
+
+  /**
+   * 搜索服装项目
+   */
+  static async search(userId: number, query: string): Promise<ClothingItem[]> {
+    return this.findAll({
+      where: {
+        userId,
+        isActive: true,
+        name: { [Op.like]: `%${query}%` },
+      },
+      order: [['createdAt', 'DESC']],
+    });
   }
 }
+
+// 使用装饰器构建模型定义
+const fieldDefinitions = createFieldDefinitions(ClothingItem);
+
+// 初始化模型
+ClothingItem.init(fieldDefinitions, {
+  sequelize,
+  tableName: 'ClothingItems',
+  timestamps: true,
+  paranoid: true,
+  indexes: [
+    {
+      fields: ['user_id', 'is_active'],
+    },
+    {
+      fields: ['category_id', 'is_active'],
+    },
+    {
+      fields: ['user_id', 'is_favorite', 'is_active'],
+    },
+    {
+      fields: ['user_id', 'name'],
+    },
+  ],
+});
+
+export default ClothingItem;

@@ -14,7 +14,7 @@ const testDatabase = async () => {
 
     // 同步数据库结构（不强制重建）
     console.log('🔄 Synchronizing database structure...');
-    await syncDatabase(false);
+    await syncDatabase({ force: false });
     
     console.log('✅ Database test completed successfully');
     process.exit(0);

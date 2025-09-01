@@ -1,70 +1,86 @@
-import {
-  Table,
-  Column,
-  DataType,
-  ForeignKey,
-  BelongsTo,
-  AllowNull
-} from 'sequelize-typescript';
+import { DataTypes } from 'sequelize';
 import { BaseModel } from './BaseModel';
-import { User } from './User';
-import { ClothingItem } from './ClothingItem';
-import { Outfit } from './Outfit';
 
-export enum AnalyticsType {
-  VIEW = 'view',
-  LIKE = 'like',
-  SHARE = 'share',
-  WEAR = 'wear',
-  PURCHASE = 'purchase',
-  UPLOAD = 'upload',
-  SEARCH = 'search'
+interface AnalyticsAttributes {
+  userId: string;
+  eventType: string;
+  eventData: any;
+  timestamp: Date;
+  sessionId?: string;
+  ipAddress?: string;
+  userAgent?: string;
 }
 
-@Table({
-  tableName: 'analytics'
-})
-export class Analytics extends BaseModel {
-  @ForeignKey(() => User)
-  @AllowNull(false)
-  @Column(DataType.INTEGER)
-  userId!: number;
+interface AnalyticsCreationAttributes extends Partial<AnalyticsAttributes> {}
 
-  @Column(DataType.ENUM(...Object.values(AnalyticsType)))
-  type!: AnalyticsType;
+export class Analytics extends BaseModel<AnalyticsAttributes, AnalyticsCreationAttributes> {
+  public userId!: string;
+  public eventType!: string;
+  public eventData!: any;
+  public timestamp!: Date;
+  public sessionId?: string;
+  public ipAddress?: string;
+  public userAgent?: string;
 
-  @ForeignKey(() => ClothingItem)
-  @Column(DataType.INTEGER)
-  clothingItemId?: number;
+  /**
+   * 记录用户行为
+   */
+  public static async trackEvent(
+    userId: string,
+    eventType: string,
+    eventData: any,
+    metadata?: {
+      sessionId?: string;
+      ipAddress?: string;
+      userAgent?: string;
+    }
+  ): Promise<Analytics> {
+    return this.create({
+      userId,
+      eventType,
+      eventData,
+      timestamp: new Date(),
+      ...metadata,
+    });
+  }
 
-  @ForeignKey(() => Outfit)
-  @Column(DataType.INTEGER)
-  outfitId?: number;
+  /**
+   * 获取用户行为数据
+   */
+  public static async getUserEvents(
+    userId: string,
+    eventType?: string,
+    limit: number = 100
+  ): Promise<Analytics[]> {
+    const where: any = { userId };
+    if (eventType) where.eventType = eventType;
 
-  @Column(DataType.STRING(100))
-  action?: string;
+    return this.findAll({
+      where,
+      order: [['timestamp', 'DESC']],
+      limit,
+    });
+  }
 
-  @Column(DataType.JSON)
-  metadata?: {
-    [key: string]: any;
-  };
+  /**
+   * 获取统计概览
+   */
+  public static async getAnalyticsOverview(userId: string): Promise<{
+    totalEvents: number;
+    eventsByType: Record<string, number>;
+    recentActivity: Analytics[];
+  }> {
+    const events = await this.getUserEvents(userId, undefined, 1000);
+    
+    const eventsByType: Record<string, number> = {};
+    events.forEach(event => {
+      eventsByType[event.eventType] = (eventsByType[event.eventType] || 0) + 1;
+    });
 
-  @Column(DataType.STRING(50))
-  ipAddress?: string;
-
-  @Column(DataType.STRING(500))
-  userAgent?: string;
-
-  @Column(DataType.STRING(50))
-  referrer?: string;
-
-  // 关联定义
-  @BelongsTo(() => User)
-  user!: User;
-
-  @BelongsTo(() => ClothingItem)
-  clothingItem?: ClothingItem;
-
-  @BelongsTo(() => Outfit)
-  outfit?: Outfit;
+    return {
+      totalEvents: events.length,
+      eventsByType,
+      recentActivity: events.slice(0, 10),
+    };
+  }
 }

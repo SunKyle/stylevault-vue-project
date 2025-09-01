@@ -11,18 +11,29 @@ import { Upload } from './Upload';
 import { defineAssociations } from './associations';
 
 // 导出所有模型
-export {
-  User,
-  ClothingItem,
-  Outfit,
-  OutfitItem,
-  Category,
-  Tag,
-  ClothingTag,
-  UserPreference,
-  Analytics,
-  Upload
-};
+export { User } from './User';
+export { ClothingItem } from './ClothingItem';
+export { Outfit } from './Outfit';
+export { OutfitItem } from './OutfitItem';
+export { Category } from './Category';
+export { Tag } from './Tag';
+export { ClothingTag } from './ClothingTag';
+export { UserPreference } from './UserPreference';
+export { Analytics } from './Analytics';
+export { Upload } from './Upload';
+
+// 导出模型类型
+export type ModelType = 
+  | 'User'
+  | 'ClothingItem'
+  | 'Outfit'
+  | 'OutfitItem'
+  | 'Category'
+  | 'Tag'
+  | 'ClothingTag'
+  | 'UserPreference'
+  | 'Analytics'
+  | 'Upload';
 
 // 模型数组
 export const models = [
@@ -43,15 +54,8 @@ export const initAssociations = () => {
   defineAssociations();
 };
 
-// 导出模型类型
-export type ModelType = 
-  | typeof User
-  | typeof ClothingItem
-  | typeof Outfit
-  | typeof OutfitItem
-  | typeof Category
-  | typeof Tag
-  | typeof ClothingTag
-  | typeof UserPreference
-  | typeof Analytics
-  | typeof Upload;
+// 初始化所有模型
+export const initModels = () => {
+  // 初始化关联关系
+  initAssociations();
+};

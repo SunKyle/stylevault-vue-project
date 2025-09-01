@@ -91,7 +91,8 @@ export class ModelValidator {
   static validateAttributes<T>(attributes: ModelAttributes<T>): void {
     // 验证必填字段
     Object.entries(attributes).forEach(([key, config]) => {
-      if (!config.type) {
+      const fieldConfig = config as any;
+      if (!fieldConfig.type) {
         throw new Error(`字段 ${key} 缺少类型定义`);
       }
     });

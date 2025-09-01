@@ -7,7 +7,7 @@ const syncDB = async () => {
   console.log(`🔄 Synchronizing database${force ? ' (force rebuild)' : ''}...`);
   
   try {
-    await syncDatabase(force);
+    await syncDatabase({ force });
     console.log('✅ Database synchronization completed');
     process.exit(0);
   } catch (error) {

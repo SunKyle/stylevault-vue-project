@@ -1,37 +1,63 @@
-import {
-  Table,
-  Column,
-  DataType,
-  ForeignKey,
-  BelongsTo,
-  AllowNull,
-  Unique
-} from 'sequelize-typescript';
+import { DataTypes } from 'sequelize';
 import { BaseModel } from './BaseModel';
-import { ClothingItem } from './ClothingItem';
-import { Tag } from './Tag';
 
-@Table({
-  tableName: 'clothing_tags',
-  indexes: [
-    { unique: true, fields: ['clothingItemId', 'tagId'] }
-  ]
-})
-export class ClothingTag extends BaseModel {
-  @ForeignKey(() => ClothingItem)
-  @AllowNull(false)
-  @Column(DataType.INTEGER)
-  clothingItemId!: number;
+interface ClothingTagAttributes {
+  clothingItemId: string;
+  tagId: string;
+}
 
-  @ForeignKey(() => Tag)
-  @AllowNull(false)
-  @Column(DataType.INTEGER)
-  tagId!: number;
+interface ClothingTagCreationAttributes extends Partial<ClothingTagAttributes> {}
 
-  // 关联定义
-  @BelongsTo(() => ClothingItem)
-  clothingItem!: ClothingItem;
+export class ClothingTag extends BaseModel<ClothingTagAttributes> {
+  public clothingItemId!: string;
+  public tagId!: string;
 
-  @BelongsTo(() => Tag)
-  tag!: Tag;
+  /**
+   * 获取衣物的标签
+   */
+  public static async getClothingItemTags(clothingItemId: string): Promise<ClothingTagAttributes[]> {
+    const tags = await this.findAll({
+      where: { clothingItemId },
+    });
+    return tags.map(tag => tag.toJSON() as ClothingTagAttributes);
+  }
+
+  /**
+   * 获取标签的衣物
+   */
+  public static async getTagClothingItems(tagId: string): Promise<ClothingTagAttributes[]> {
+    const tags = await this.findAll({
+      where: { tagId },
+    });
+    return tags.map(tag => tag.toJSON() as ClothingTagAttributes);
+  }
+
+  /**
+   * 为衣物添加标签
+   */
+  public static async addTagToClothingItem(
+    clothingItemId: string,
+    tagId: string
+  ): Promise<ClothingTagAttributes> {
+    const tag = await this.create({
+      clothingItemId,
+      tagId,
+    });
+    return tag.toJSON() as ClothingTagAttributes;
+  }
+
+  /**
+   * 从衣物移除标签
+   */
+  public static async removeTagFromClothingItem(
+    clothingItemId: string,
+    tagId: string
+  ): Promise<number> {
+    return this.destroy({
+      where: {
+        clothingItemId,
+        tagId,
+      },
+    });
+  }
 }

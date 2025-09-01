@@ -136,7 +136,7 @@ describe('Database Models', () => {
       });
 
       expect(outfit.id).toBeDefined();
-      expect(outfit.title).toBe('Summer Casual');
+      expect((outfit as any).title).toBe('Summer Casual');
       expect(outfit.userId).toBe(user.id);
     });
   });
