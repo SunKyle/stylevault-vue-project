@@ -1,8 +1,5 @@
 module.exports = {
-  content: [
-    "./index.html",
-    "./src/**/*.{vue,js,ts,jsx,tsx}"
-  ],
+  content: ['./index.html', './src/**/*.{vue,js,ts,jsx,tsx}'],
   theme: {
     extend: {
       colors: {
@@ -18,18 +15,18 @@ module.exports = {
           600: '#525252',
           700: '#404040',
           800: '#262626',
-          900: '#171717'
-        }
+          900: '#171717',
+        },
       },
       fontFamily: {
         sans: ['Inter', 'system-ui', 'sans-serif'],
       },
       boxShadow: {
-        'soft': '0 2px 15px rgba(0, 0, 0, 0.05)',
-        'medium': '0 4px 20px rgba(0, 0, 0, 0.08)',
-        'strong': '0 8px 30px rgba(0, 0, 0, 0.12)',
-      }
-    }
+        soft: '0 2px 15px rgba(0, 0, 0, 0.05)',
+        medium: '0 4px 20px rgba(0, 0, 0, 0.08)',
+        strong: '0 8px 30px rgba(0, 0, 0, 0.12)',
+      },
+    },
   },
   plugins: [],
-}
+};
