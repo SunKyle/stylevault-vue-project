@@ -3,7 +3,9 @@
     <!-- 登录页面不显示导航栏 -->
     <Header v-if="route.name !== 'login'" :currentSection="currentSection" @changeSection="changeSection" />
     <main :class="[route.name === 'login' ? 'min-h-screen' : 'flex-grow pt-20 pb-20 overflow-hidden']">
-      <router-view />
+      <transition name="page" mode="out-in">
+        <router-view />
+      </transition>
     </main>
     <!-- 登录页面不显示页脚 -->
     <Footer
@@ -90,3 +92,21 @@
     router.push('/wardrobe');
   }
 </script>
+
+<style>
+/* 页面切换动画 */
+.page-enter-active,
+.page-leave-active {
+  transition: opacity 0.3s ease, transform 0.3s ease;
+}
+
+.page-enter-from {
+  opacity: 0;
+  transform: translateX(-20px);
+}
+
+.page-leave-to {
+  opacity: 0;
+  transform: translateX(20px);
+}
+</style>
