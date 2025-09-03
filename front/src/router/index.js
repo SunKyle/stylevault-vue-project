@@ -9,17 +9,17 @@ import LoginPage from '../views/LoginPage.vue';
 const routes = [
   {
     path: '/',
-    name: 'wardrobe',
-    component: WardrobeView,
-  },
-  {
-    path: '/login',
     name: 'login',
     component: LoginPage,
     meta: {
       title: '登录',
       breadcrumb: '登录',
     },
+  },
+  {
+    path: '/wardrobe',
+    name: 'wardrobe',
+    component: WardrobeView,
   },
   {
     path: '/weather',
