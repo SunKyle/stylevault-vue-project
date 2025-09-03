@@ -16,17 +16,44 @@
         <!-- 左侧：品牌介绍组件 -->
         <BrandSection />
 
-        <!-- 右侧：登录表单组件 -->
-        <LoginForm
-          :isLoading="isLoading"
-          :form="form"
-          :errors="errors"
-          @toggle-password="togglePassword"
-          @validate-email="validateEmail"
-          @validate-password="validatePassword"
-          @update:form="form = $event"
-          @submit="handleLogin"
-        />
+        <!-- 右侧：登录/注册表单组件 -->
+        <div class="w-full relative overflow-hidden">
+          <!-- 登录/注册表单 -->
+          <transition
+            name="slide-fade"
+            mode="out-in"
+          >
+            <LoginForm
+              v-if="!showRegister"
+              :isLoading="isLoading"
+              :form="loginForm"
+              :errors="loginErrors"
+              @toggle-password="togglePassword"
+              @validate-email="validateEmail"
+              @validate-password="validatePassword"
+              @update:form="loginForm = $event"
+              @submit="handleLogin"
+              @show-register="showRegister = true"
+              key="login"
+            />
+            <RegisterForm
+              v-else
+              :isLoading="isLoading"
+              :form="registerForm"
+              :errors="registerErrors"
+              @toggle-password="togglePassword"
+              @toggle-confirm-password="toggleConfirmPassword"
+              @validate-username="validateUsername"
+              @validate-email="validateEmail"
+              @validate-password="validatePassword"
+              @validate-confirm-password="validateConfirmPassword"
+              @update:form="registerForm = $event"
+              @submit="handleRegister"
+              @show-login="showRegister = false"
+              key="register"
+            />
+          </transition>
+        </div>
       </div>
 
       <!-- 页脚 -->
@@ -99,24 +126,45 @@
   import BaseButton from '@/components/ui/BaseButton.vue';
   import BrandSection from '@/components/login/BrandSection.vue';
   import LoginForm from '@/components/login/LoginForm.vue';
+  import RegisterForm from '@/components/login/RegisterForm.vue';
 
   const router = useRouter();
   const isLoading = ref(false);
   const showPassword = ref(false);
+  const showConfirmPassword = ref(false);
+  const showRegister = ref(false);
   const showSuccess = ref(false);
   const showError = ref(false);
 
-  // 表单数据
-  const form = reactive({
+  // 登录表单数据
+  const loginForm = reactive({
     email: '',
     password: '',
     remember: false,
   });
 
-  // 表单错误
-  const errors = reactive({
+  // 登录表单错误
+  const loginErrors = reactive({
     email: '',
     password: '',
+    general: '',
+  });
+
+  // 注册表单数据
+  const registerForm = reactive({
+    username: '',
+    email: '',
+    password: '',
+    confirmPassword: '',
+    agreement: false,
+  });
+
+  // 注册表单错误
+  const registerErrors = reactive({
+    username: '',
+    email: '',
+    password: '',
+    confirmPassword: '',
     general: '',
   });
 
@@ -125,13 +173,37 @@
     showPassword.value = !showPassword.value;
   };
 
+  // 切换确认密码可见性
+  const toggleConfirmPassword = () => {
+    showConfirmPassword.value = !showConfirmPassword.value;
+  };
+
+  // 验证用户名
+  const validateUsername = (errorMessage = '') => {
+    if (errorMessage) {
+      registerErrors.username = errorMessage;
+      return false;
+    } else {
+      registerErrors.username = '';
+      return true;
+    }
+  };
+
   // 验证电子邮件
   const validateEmail = (errorMessage = '') => {
     if (errorMessage) {
-      errors.email = errorMessage;
+      if (showRegister.value) {
+        registerErrors.email = errorMessage;
+      } else {
+        loginErrors.email = errorMessage;
+      }
       return false;
     } else {
-      errors.email = '';
+      if (showRegister.value) {
+        registerErrors.email = '';
+      } else {
+        loginErrors.email = '';
+      }
       return true;
     }
   };
@@ -139,10 +211,29 @@
   // 验证密码
   const validatePassword = (errorMessage = '') => {
     if (errorMessage) {
-      errors.password = errorMessage;
+      if (showRegister.value) {
+        registerErrors.password = errorMessage;
+      } else {
+        loginErrors.password = errorMessage;
+      }
       return false;
     } else {
-      errors.password = '';
+      if (showRegister.value) {
+        registerErrors.password = '';
+      } else {
+        loginErrors.password = '';
+      }
+      return true;
+    }
+  };
+
+  // 验证确认密码
+  const validateConfirmPassword = (errorMessage = '') => {
+    if (errorMessage) {
+      registerErrors.confirmPassword = errorMessage;
+      return false;
+    } else {
+      registerErrors.confirmPassword = '';
       return true;
     }
   };
@@ -150,7 +241,7 @@
   // 处理登录
   const handleLogin = async () => {
     // 清除全局错误
-    errors.general = '';
+    loginErrors.general = '';
 
     // 验证表单
     const isEmailValid = validateEmail();
@@ -180,9 +271,9 @@
         }, 2000);
       } else {
         // 登录失败，显示错误信息
-        errors.general = '用户名或密码错误，请重试';
+        loginErrors.general = '用户名或密码错误，请重试';
         // 重置密码字段
-        form.password = '';
+        loginForm.password = '';
 
         // 显示错误提示
         showError.value = true;
@@ -195,9 +286,9 @@
     } catch (error) {
       console.error('登录失败:', error);
       // 显示网络错误或其他错误
-      errors.general = '登录失败，请检查网络连接后重试';
+      loginErrors.general = '登录失败，请检查网络连接后重试';
       // 重置密码字段
-      form.password = '';
+      loginForm.password = '';
 
       // 显示错误提示
       showError.value = true;
@@ -211,14 +302,104 @@
     }
   };
 
-  // 重置表单
-  const resetForm = () => {
-    form.email = '';
-    form.password = '';
-    form.remember = false;
-    errors.email = '';
-    errors.password = '';
-    errors.general = '';
+  // 处理注册
+  const handleRegister = async () => {
+    // 清除全局错误
+    registerErrors.general = '';
+
+    // 验证表单
+    const isUsernameValid = validateUsername();
+    const isEmailValid = validateEmail();
+    const isPasswordValid = validatePassword();
+    const isConfirmPasswordValid = validateConfirmPassword();
+
+    if (!isUsernameValid || !isEmailValid || !isPasswordValid || !isConfirmPasswordValid) {
+      return;
+    }
+
+    // 显示加载状态
+    isLoading.value = true;
+
+    try {
+      // 模拟API请求延迟
+      await new Promise(resolve => setTimeout(resolve, 2000));
+
+      // 模拟注册失败的情况（30%概率）
+      const isSuccess = Math.random() > 0.3;
+
+      if (isSuccess) {
+        // 注册成功，显示成功提示
+        showSuccess.value = true;
+
+        // 3秒后自动跳转到登录页面
+        setTimeout(() => {
+          showSuccess.value = false;
+          showRegister.value = false;
+          
+          // 清空登录表单并设置邮箱
+          resetLoginForm();
+          loginForm.email = registerForm.email;
+          
+          // 清空注册表单
+          resetRegisterForm();
+        }, 2000);
+      } else {
+        // 注册失败，显示错误信息
+        registerErrors.general = '注册失败，该邮箱可能已被注册，请使用其他邮箱';
+        // 重置密码字段
+        registerForm.password = '';
+        registerForm.confirmPassword = '';
+
+        // 显示错误提示
+        showError.value = true;
+
+        // 5秒后自动隐藏错误提示
+        setTimeout(() => {
+          showError.value = false;
+        }, 5000);
+      }
+    } catch (error) {
+      console.error('注册失败:', error);
+      // 显示网络错误或其他错误
+      registerErrors.general = '注册失败，请检查网络连接后重试';
+      // 重置密码字段
+      registerForm.password = '';
+      registerForm.confirmPassword = '';
+
+      // 显示错误提示
+      showError.value = true;
+
+      // 5秒后自动隐藏错误提示
+      setTimeout(() => {
+        showError.value = false;
+      }, 5000);
+    } finally {
+      isLoading.value = false;
+    }
+  };
+
+  // 重置登录表单
+  const resetLoginForm = () => {
+    loginForm.email = '';
+    loginForm.password = '';
+    loginForm.remember = false;
+    loginErrors.email = '';
+    loginErrors.password = '';
+    loginErrors.general = '';
+  };
+
+  // 重置注册表单
+  const resetRegisterForm = () => {
+    registerForm.username = '';
+    registerForm.email = '';
+    registerForm.password = '';
+    registerForm.confirmPassword = '';
+    registerForm.agreement = false;
+    registerErrors.username = '';
+    registerErrors.email = '';
+    registerErrors.password = '';
+    registerErrors.confirmPassword = '';
+    registerErrors.general = '';
   };
 
   // 初始化浮动标签位置
@@ -290,5 +471,21 @@
   }
   .floating-delay-2 {
     animation-delay: 2s;
+  }
+
+  /* 登录/注册表单切换动画 */
+  .slide-fade-enter-active {
+    transition: all 0.4s ease-out;
+  }
+  .slide-fade-leave-active {
+    transition: all 0.3s cubic-bezier(1.0, 0.5, 0.8, 1.0);
+  }
+  .slide-fade-enter-from {
+    transform: translateX(20px);
+    opacity: 0;
+  }
+  .slide-fade-leave-to {
+    transform: translateX(-20px);
+    opacity: 0;
   }
 </style>

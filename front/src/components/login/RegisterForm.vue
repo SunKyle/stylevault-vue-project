@@ -12,9 +12,9 @@
         <p class="text-neutral-600 mt-2">让穿搭变得更简单</p>
       </div>
 
-      <!-- 登录标题 -->
-      <h2 class="text-2xl md:text-3xl font-bold text-neutral-900 mb-2">欢迎回来</h2>
-      <p class="text-neutral-600 mb-8">请输入您的账号信息登录系统</p>
+      <!-- 注册标题 -->
+      <h2 class="text-2xl md:text-3xl font-bold text-neutral-900 mb-2">创建新账号</h2>
+      <p class="text-neutral-600 mb-8">请填写以下信息完成注册</p>
 
       <!-- 全局错误提示 -->
       <div
@@ -25,8 +25,50 @@
         <span class="text-red-700">{{ errors.general }}</span>
       </div>
 
-      <!-- 登录表单 -->
-      <form @submit.prevent="handleLogin" class="space-y-6">
+      <!-- 注册表单 -->
+      <form @submit.prevent="handleRegister" class="space-y-6">
+        <!-- 用户名 -->
+        <div class="form-group relative mb-6">
+          <div class="relative">
+            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none z-10">
+              <font-awesome-icon :icon="['fas', 'user']" class="text-neutral-400" />
+            </div>
+            <input
+              type="text"
+              id="username"
+              :value="form.username"
+              @input="e => {
+                emit('update:form', { ...form, username: e.target.value });
+                validateUsername();
+              }"
+              @blur="validateUsername"
+              class="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:border-primary focus:ring-2 focus:ring-primary/20 focus:outline-none transition-all peer"
+              :class="{
+                'border-red-500': errors.username,
+                'border-green-500': form.username && !errors.username,
+              }"
+              placeholder=" "
+              required
+            />
+            <label
+              for="username"
+              class="form-float-label absolute left-10 top-3 text-gray-500 transition-all duration-200 peer-focus:-translate-y-6 peer-focus:scale-75 peer-focus:text-primary peer-valid:text-green-600 peer-[:not(:placeholder-shown)]:-translate-y-6 peer-[:not(:placeholder-shown)]:scale-75 bg-white px-1"
+            >
+              用户名
+            </label>
+            <div
+              v-if="form.username && !errors.username"
+              class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none"
+            >
+              <font-awesome-icon :icon="['fas', 'check-circle']" class="text-green-500" />
+            </div>
+          </div>
+          <p v-if="errors.username" class="text-red-500 text-sm mt-1 flex items-center">
+            <font-awesome-icon :icon="['fas', 'exclamation-circle']" class="mr-1" />
+            {{ errors.username }}
+          </p>
+        </div>
+
         <!-- 电子邮件 -->
         <div class="form-group relative mb-6">
           <div class="relative">
@@ -136,48 +178,91 @@
           </p>
         </div>
 
-        <!-- 记住我和登录按钮 -->
-        <div class="space-y-6 pt-4">
-          <!-- 记住我和忘记密码 -->
-          <div class="flex items-center justify-between">
-            <!-- 记住我开关 -->
-            <label for="remember" class="relative inline-flex items-center cursor-pointer">
-              <input
-                id="remember"
-                type="checkbox"
-                :checked="form.remember"
-                @change="e => emit('update:form', { ...form, remember: e.target.checked })"
-                class="sr-only peer"
-              />
-              <div
-                class="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary flex-shrink-0"
-              ></div>
-              <span class="ml-3 text-sm font-medium text-neutral-700 self-center">记住我</span>
+        <!-- 确认密码 -->
+        <div class="form-group relative mb-6">
+          <div class="relative">
+            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none z-10">
+              <font-awesome-icon :icon="['fas', 'lock']" class="text-neutral-400" />
+            </div>
+            <input
+              :type="showConfirmPassword ? 'text' : 'password'"
+              id="confirmPassword"
+              :value="form.confirmPassword"
+              @input="e => {
+                emit('update:form', { ...form, confirmPassword: e.target.value });
+                validateConfirmPassword();
+              }"
+              @blur="validateConfirmPassword"
+              class="w-full pl-10 pr-10 py-3 border border-gray-300 rounded-lg focus:border-primary focus:ring-2 focus:ring-primary/20 focus:outline-none transition-all peer"
+              :class="{
+                'border-red-500': errors.confirmPassword,
+                'border-green-500': form.confirmPassword && !errors.confirmPassword,
+              }"
+              placeholder=" "
+              required
+            />
+            <label
+              for="confirmPassword"
+              class="form-float-label absolute left-10 top-3 text-gray-500 transition-all duration-200 peer-focus:-translate-y-6 peer-focus:scale-75 peer-focus:text-primary peer-valid:text-green-600 peer-[:not(:placeholder-shown)]:-translate-y-6 peer-[:not(:placeholder-shown)]:scale-75 bg-white px-1"
+            >
+              确认密码
             </label>
-
-            <!-- 忘记密码链接 -->
-            <a
-              href="#"
-              class="text-sm text-primary hover:text-primary/80 transition-colors self-center"
+            <button
+              type="button"
+              @click="toggleConfirmPassword"
+              class="absolute inset-y-0 right-0 pr-3 flex items-center text-neutral-400 hover:text-primary transition-colors z-10"
             >
-              忘记密码?
-            </a>
+              <font-awesome-icon :icon="showConfirmPassword ? ['fas', 'eye'] : ['fas', 'eye-slash']" />
+            </button>
+            <div
+              v-if="form.confirmPassword && !errors.confirmPassword"
+              class="absolute inset-y-0 right-8 pr-3 flex items-center pointer-events-none"
+            >
+              <font-awesome-icon :icon="['fas', 'check-circle']" class="text-green-500" />
+            </div>
           </div>
 
-          <!-- 登录按钮 -->
-          <div class="pt-2">
-            <BaseButton
-              type="submit"
-              variant="primary"
-              size="md"
-              :loading="isLoading"
-              :disabled="isLoading"
-              class="w-full bg-gradient-to-r from-primary to-secondary text-white font-medium py-3 px-6 rounded-lg hover:shadow-lg hover:-translate-y-0.5 active:translate-y-0 transition-all duration-300 flex items-center justify-center"
-            >
-              <span class="text-lg font-medium">登录</span>
-              <font-awesome-icon :icon="['fas', 'arrow-right']" class="ml-2" />
-            </BaseButton>
+          <p v-if="errors.confirmPassword" class="text-red-500 text-sm mt-1 flex items-center">
+            <font-awesome-icon :icon="['fas', 'exclamation-circle']" class="mr-1" />
+            {{ errors.confirmPassword }}
+          </p>
+        </div>
+
+        <!-- 用户协议 -->
+        <div class="flex items-start">
+          <div class="flex items-center h-5">
+            <input
+              id="agreement"
+              type="checkbox"
+              :checked="form.agreement"
+              @change="e => emit('update:form', { ...form, agreement: e.target.checked })"
+              class="w-4 h-4 border-gray-300 rounded focus:ring-primary focus:border-primary"
+              required
+            />
           </div>
+          <div class="ml-3 text-sm">
+            <label for="agreement" class="font-medium text-neutral-700">
+              我已阅读并同意
+              <a href="#" class="text-primary hover:text-primary/80 transition-colors">用户协议</a>
+              和
+              <a href="#" class="text-primary hover:text-primary/80 transition-colors">隐私政策</a>
+            </label>
+          </div>
+        </div>
+
+        <!-- 注册按钮 -->
+        <div class="pt-4">
+          <BaseButton
+            type="submit"
+            variant="primary"
+            size="md"
+            :loading="isLoading"
+            :disabled="isLoading"
+            class="w-full bg-gradient-to-r from-primary to-secondary text-white font-medium py-3 px-6 rounded-lg hover:shadow-lg hover:-translate-y-0.5 active:translate-y-0 transition-all duration-300 flex items-center justify-center"
+          >
+            <span class="text-lg font-medium">创建账号</span>
+            <font-awesome-icon :icon="['fas', 'user-plus']" class="ml-2" />
+          </BaseButton>
         </div>
       </form>
 
@@ -187,11 +272,11 @@
           <div class="w-full border-t border-gray-200"></div>
         </div>
         <div class="relative flex justify-center text-sm">
-          <span class="px-3 bg-white text-neutral-600">或使用以下方式快速登录</span>
+          <span class="px-3 bg-white text-neutral-600">或使用以下方式快速注册</span>
         </div>
       </div>
 
-      <!-- 社交登录 -->
+      <!-- 社交注册 -->
       <div class="mb-6">
         <div class="grid grid-cols-3 gap-4">
           <button
@@ -205,7 +290,7 @@
               class="text-green-500 text-xl group-hover:scale-110 transition-transform mb-1"
             />
             <span class="text-xs text-gray-600 mt-1 group-hover:text-green-600 transition-colors">
-              微信登录
+              微信注册
             </span>
           </button>
           <button
@@ -219,7 +304,7 @@
               class="text-blue-500 text-xl group-hover:scale-110 transition-transform mb-1"
             />
             <span class="text-xs text-gray-600 mt-1 group-hover:text-blue-600 transition-colors">
-              QQ登录
+              QQ注册
             </span>
           </button>
           <button
@@ -233,21 +318,21 @@
               class="text-gray-800 text-xl group-hover:scale-110 transition-transform mb-1"
             />
             <span class="text-xs text-gray-600 mt-1 group-hover:text-gray-800 transition-colors">
-              Apple登录
+              Apple注册
             </span>
           </button>
         </div>
       </div>
 
-      <!-- 注册链接 -->
+      <!-- 登录链接 -->
       <p class="text-center text-neutral-600 mt-8">
-        还没有账号?
+        已有账号?
         <a
           href="#"
-          @click.prevent="$emit('show-register')"
+          @click.prevent="$emit('show-login')"
           class="font-medium text-primary hover:text-primary/80 transition-colors relative after:absolute after:bottom-0 after:left-0 after:h-0.5 after:w-0 hover:after:w-full after:bg-primary after:transition-all after:duration-300"
         >
-          立即注册
+          立即登录
         </a>
       </p>
 
@@ -273,26 +358,31 @@
     form: {
       type: Object,
       default: () => ({
+        username: '',
         email: '',
         password: '',
-        remember: false,
+        confirmPassword: '',
+        agreement: false,
       }),
     },
     errors: {
       type: Object,
       default: () => ({
+        username: '',
         email: '',
         password: '',
+        confirmPassword: '',
         general: '',
       }),
     },
   });
 
   // 定义事件，以便子组件通知父组件
-  const emit = defineEmits(['toggle-password', 'validate-email', 'validate-password', 'submit', 'show-register']);
+  const emit = defineEmits(['toggle-password', 'toggle-confirm-password', 'validate-username', 'validate-email', 'validate-password', 'validate-confirm-password', 'submit', 'show-login']);
 
   // 密码强度相关
   const showPassword = ref(false);
+  const showConfirmPassword = ref(false);
   const passwordStrength = ref(0);
   const passwordStrengthText = computed(() => {
     if (passwordStrength.value === 0) return '弱';
@@ -322,6 +412,28 @@
   const togglePassword = () => {
     showPassword.value = !showPassword.value;
     emit('toggle-password');
+  };
+
+  // 切换确认密码可见性
+  const toggleConfirmPassword = () => {
+    showConfirmPassword.value = !showConfirmPassword.value;
+    emit('toggle-confirm-password');
+  };
+
+  // 验证用户名
+  const validateUsername = () => {
+    const username = props.form.username.trim();
+
+    if (username && username.length < 3) {
+      emit('validate-username', '用户名长度至少为3位');
+      return false;
+    } else if (username && username.length > 20) {
+      emit('validate-username', '用户名长度不能超过20位');
+      return false;
+    } else {
+      emit('validate-username', '');
+      return true;
+    }
   };
 
   // 验证电子邮件
@@ -377,8 +489,32 @@
     }
   };
 
-  // 处理登录
-  const handleLogin = () => {
+  // 验证确认密码
+  const validateConfirmPassword = () => {
+    const password = props.form.password;
+    const confirmPassword = props.form.confirmPassword;
+
+    if (confirmPassword && password !== confirmPassword) {
+      emit('validate-confirm-password', '两次输入的密码不一致');
+      return false;
+    } else {
+      emit('validate-confirm-password', '');
+      return true;
+    }
+  };
+
+  // 处理注册
+  const handleRegister = () => {
+    // 验证所有字段
+    const isUsernameValid = validateUsername();
+    const isEmailValid = validateEmail();
+    const isPasswordValid = validatePassword();
+    const isConfirmPasswordValid = validateConfirmPassword();
+
+    if (!isUsernameValid || !isEmailValid || !isPasswordValid || !isConfirmPasswordValid) {
+      return;
+    }
+
     emit('submit');
   };
 </script>
