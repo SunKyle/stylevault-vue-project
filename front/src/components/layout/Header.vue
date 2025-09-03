@@ -201,6 +201,7 @@
             <a
               href="#"
               class="flex items-center px-5 py-3 text-sm text-red-500 hover:bg-red-50 transition-colors"
+              @click.prevent="handleLogout"
             >
               <font-awesome-icon :icon="['fas', 'right-from-bracket']" class="mr-3 w-4" />
               退出登录
@@ -265,7 +266,12 @@
 
 <script setup>
   import { ref, onMounted, onUnmounted } from 'vue';
+  import { useRouter } from 'vue-router';
+  import { useUserStore } from '@/stores/modules/userStore';
 
+  const router = useRouter();
+  const userStore = useUserStore();
+  
   const props = defineProps({
     currentSection: String,
   });
@@ -302,6 +308,18 @@
 
   const navigateToSection = key => {
     emit('changeSection', key);
+    mobileMenuOpen.value = false;
+  };
+
+  // 处理退出登录
+  const handleLogout = () => {
+    // 调用用户存储中的logout方法
+    userStore.logout();
+    
+    // 跳转到登录页面
+    router.push('/');
+    
+    // 关闭移动端菜单（如果打开）
     mobileMenuOpen.value = false;
   };
 

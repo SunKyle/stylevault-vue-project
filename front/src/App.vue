@@ -1,17 +1,21 @@
 <template>
   <div class="font-sans bg-neutral-50 text-neutral-800 min-h-screen flex flex-col">
-    <Header :currentSection="currentSection" @changeSection="changeSection" />
-    <main class="flex-grow pt-20 pb-20 overflow-hidden">
+    <!-- 登录页面不显示导航栏 -->
+    <Header v-if="route.name !== 'login'" :currentSection="currentSection" @changeSection="changeSection" />
+    <main :class="[route.name === 'login' ? 'min-h-screen' : 'flex-grow pt-20 pb-20 overflow-hidden']">
       <router-view />
     </main>
+    <!-- 登录页面不显示页脚 -->
     <Footer
+      v-if="route.name !== 'login'"
       :currentSection="currentSection"
       @changeSection="changeSection"
       @showUpload="showUploadModal = true"
     />
 
-    <!-- 全局快捷操作按钮 -->
+    <!-- 登录页面不显示全局快捷操作按钮 -->
     <FloatingActionButton
+      v-if="route.name !== 'login'"
       @addClothing="handleAddClothing"
       @addOutfit="handleAddOutfit"
       @upload="handleUpload"
