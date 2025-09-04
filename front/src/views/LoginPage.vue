@@ -294,11 +294,17 @@
     // 清除全局错误
     registerErrors.general = '';
 
-    // 验证表单
+    // 验证表单 - 强制重新验证所有字段
     const isUsernameValid = validateUsername();
     const isEmailValid = validateEmail();
     const isPasswordValid = validatePassword();
     const isConfirmPasswordValid = validateConfirmPassword();
+
+    // 检查用户协议
+    if (!registerForm.agreement) {
+      registerErrors.general = '请阅读并同意用户协议和隐私政策';
+      return;
+    }
 
     if (!isUsernameValid || !isEmailValid || !isPasswordValid || !isConfirmPasswordValid) {
       return;

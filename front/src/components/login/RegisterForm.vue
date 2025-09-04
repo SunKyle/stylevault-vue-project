@@ -39,7 +39,6 @@
               :value="form.username"
               @input="e => {
                 emit('update:form', { ...form, username: e.target.value });
-                validateUsername();
               }"
               @blur="validateUsername"
               class="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:border-primary focus:ring-2 focus:ring-primary/20 focus:outline-none transition-all peer"
@@ -81,7 +80,6 @@
               :value="form.email"
               @input="e => {
                 emit('update:form', { ...form, email: e.target.value });
-                validateEmail();
               }"
               @blur="validateEmail"
               class="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:border-primary focus:ring-2 focus:ring-primary/20 focus:outline-none transition-all peer"
@@ -123,7 +121,7 @@
               :value="form.password"
               @input="e => {
                 emit('update:form', { ...form, password: e.target.value });
-                validatePassword();
+                updatePasswordStrength();
               }"
               @blur="validatePassword"
               class="w-full pl-10 pr-10 py-3 border border-gray-300 rounded-lg focus:border-primary focus:ring-2 focus:ring-primary/20 focus:outline-none transition-all peer"
@@ -190,7 +188,6 @@
               :value="form.confirmPassword"
               @input="e => {
                 emit('update:form', { ...form, confirmPassword: e.target.value });
-                validateConfirmPassword();
               }"
               @blur="validateConfirmPassword"
               class="w-full pl-10 pr-10 py-3 border border-gray-300 rounded-lg focus:border-primary focus:ring-2 focus:ring-primary/20 focus:outline-none transition-all peer"
@@ -424,16 +421,17 @@
   const validateUsername = () => {
     const username = props.form.username.trim();
 
-    if (username && username.length < 2) {
+    if (username.length < 2) {
       emit('validate-username', '用户名长度至少为2位');
       return false;
-    } else if (username && username.length > 20) {
+    } else if (username.length > 20) {
       emit('validate-username', '用户名长度不能超过20位');
-    } else if (username && !/^[\u4e00-\u9fa5a-zA-Z0-9_]+$/.test(username)) {
+      return false;
+    } else if (!/^[一-龥a-zA-Z0-9_]+$/.test(username)) {
       emit('validate-username', '用户名只能包含中文、英文、数字和下划线');
       return false;
     } else {
-      emit('validate-username', '');
+      emit('validate-username', null);
       return true;
     }
   };
@@ -443,11 +441,11 @@
     const email = props.form.email.trim();
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
-    if (email && !emailRegex.test(email)) {
+    if (!emailRegex.test(email)) {
       emit('validate-email', '请输入有效的电子邮件地址');
       return false;
     } else {
-      emit('validate-email', '');
+      emit('validate-email', null);
       return true;
     }
   };
@@ -459,7 +457,11 @@
     let strength = 0;
 
     // 长度检查
-    if (password.length >= 8) strength += 1;
+    if (password.length >= 12) {
+      strength += 2; // 长密码加分
+    } else if (password.length >= 8) {
+      strength += 1;
+    }
 
     // 复杂性检查
     const hasLowerCase = /[a-z]/.test(password);
@@ -470,40 +472,52 @@
     const varietyCount = [hasLowerCase, hasUpperCase, hasNumbers, hasSpecialChar].filter(
       Boolean
     ).length;
-    if (varietyCount >= 3) strength += 1;
-
+    
+    // 根据字符种类增加强度
+    strength += Math.min(varietyCount - 1, 2);
+    
     // 确保强度值在0-2范围内
-    return Math.min(strength, 2);
+    return Math.min(Math.max(strength, 0), 2);
   };
 
   // 验证密码
   const validatePassword = () => {
     const password = props.form.password;
 
-    if (password && password.length < 6) {
+    if (password.length < 6) {
       emit('validate-password', '密码长度至少为6位');
       return false;
-    } else if (password && !/(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/.test(password)) {
+    } else if (!/(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/.test(password)) {
       emit('validate-password', '密码必须包含大小写字母和数字');
       return false;
     } else {
-      emit('validate-password', '');
+      emit('validate-password', null);
       // 计算密码强度
       passwordStrength.value = calculatePasswordStrength(password);
       return true;
     }
   };
 
-  // 验证确认密码
+  // 实时更新密码强度
+  const updatePasswordStrength = () => {
+    const password = props.form.password;
+    if (password) {
+      passwordStrength.value = calculatePasswordStrength(password);
+    } else {
+      passwordStrength.value = 0;
+    }
+  };
+
+  // 验证验证确认密码
   const validateConfirmPassword = () => {
     const password = props.form.password;
     const confirmPassword = props.form.confirmPassword;
 
-    if (confirmPassword && password !== confirmPassword) {
+    if (password !== confirmPassword) {
       emit('validate-confirm-password', '两次输入的密码不一致');
       return false;
     } else {
-      emit('validate-confirm-password', '');
+      emit('validate-confirm-password', null);
       return true;
     }
   };
