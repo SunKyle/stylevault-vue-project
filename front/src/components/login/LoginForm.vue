@@ -113,13 +113,6 @@
                 {{ passwordStrengthText }}
               </span>
             </div>
-            <div class="w-full bg-gray-200 rounded-full h-1.5">
-              <div
-                class="h-1.5 rounded-full transition-all duration-300"
-                :class="passwordStrengthBarClass"
-                :style="{ width: passwordStrengthPercentage + '%' }"
-              ></div>
-            </div>
           </div>
 
           <p v-if="errors.password" class="text-red-500 text-sm mt-1 flex items-center">
@@ -252,7 +245,7 @@
 </template>
 
 <script setup>
-  import { ref, computed, watch } from 'vue';
+  import { ref } from 'vue';
   import BaseButton from '@/components/ui/BaseButton.vue';
 
   // 定义props，以便父组件传递数据和方法
@@ -261,51 +254,14 @@
       type: Boolean,
       default: false,
     },
-    errors: {
-      type: Object,
-      default: () => ({
-        email: '',
-        password: '',
-        general: '',
-      }),
-    },
   });
 
   // 定义事件
   const emit = defineEmits(['toggle-password', 'validate-email', 'validate-password', 'submit', 'show-register']);
 
-  
-
-
-
-  // 密码强度相关
-  const showPassword = ref(false);
-  const passwordStrength = ref(0);
-  const passwordStrengthText = computed(() => {
-    if (passwordStrength.value === 0) return '弱';
-    if (passwordStrength.value === 1) return '中等';
-    return '强';
-  });
-
-  const passwordStrengthClass = computed(() => {
-    if (passwordStrength.value === 0) return 'text-red-500';
-    if (passwordStrength.value === 1) return 'text-yellow-500';
-    return 'text-green-500';
-  });
-
-  const passwordStrengthBarClass = computed(() => {
-    if (passwordStrength.value === 0) return 'bg-red-500';
-    if (passwordStrength.value === 1) return 'bg-yellow-500';
-    return 'bg-green-500';
-  });
-
-  const passwordStrengthPercentage = computed(() => {
-    if (passwordStrength.value === 0) return 33;
-    if (passwordStrength.value === 1) return 66;
-    return 100;
-  });
-
   // 切换密码可见性
+  const showPassword = ref(false);
+  
   const togglePassword = () => {
     showPassword.value = !showPassword.value;
     emit('toggle-password');
@@ -318,16 +274,23 @@
     remember: false
   });
 
+  // 表单错误
+  const errors = ref({
+    email: '',
+    password: '',
+    general: ''
+  });
+
   // 验证电子邮件
   const validateEmail = () => {
     const email = form.value.email.trim();
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
     if (!emailRegex.test(email)) {
-      emit('validate-email', '请输入有效的电子邮件地址');
+      errors.value.email = '请输入有效的电子邮件地址';
       return false;
     } else {
-      emit('validate-email', null);
+      errors.value.email = '';
       return true;
     }
   };
@@ -337,47 +300,15 @@
     const password = form.value.password;
 
     if (password.length < 6) {
-      emit('validate-password', '密码长度至少为6位');
+      errors.value.password = '密码长度至少为6位';
       return false;
     } else if (!/(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/.test(password)) {
-      emit('validate-password', '密码必须包含大小写字母和数字');
+      errors.value.password = '密码必须包含大小写字母和数字';
       return false;
     } else {
-      emit('validate-password', null);
-      // 计算密码强度
-      passwordStrength.value = calculatePasswordStrength(password);
+      errors.value.password = '';
       return true;
     }
-  };
-
-  // 计算密码强度
-  const calculatePasswordStrength = password => {
-    if (!password) return 0;
-
-    let strength = 0;
-
-    // 长度检查
-    if (password.length >= 12) {
-      strength += 2; // 长密码加分
-    } else if (password.length >= 8) {
-      strength += 1;
-    }
-
-    // 复杂性检查
-    const hasLowerCase = /[a-z]/.test(password);
-    const hasUpperCase = /[A-Z]/.test(password);
-    const hasNumbers = /[0-9]/.test(password);
-    const hasSpecialChar = /[^A-Za-z0-9]/.test(password);
-
-    const varietyCount = [hasLowerCase, hasUpperCase, hasNumbers, hasSpecialChar].filter(
-      Boolean
-    ).length;
-    
-    // 根据字符种类增加强度
-    strength += Math.min(varietyCount - 1, 2);
-    
-    // 确保强度值在0-2范围内
-    return Math.min(Math.max(strength, 0), 2);
   };
 
   // 处理登录

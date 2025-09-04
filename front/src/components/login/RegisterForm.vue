@@ -339,16 +339,6 @@
       type: Boolean,
       default: false,
     },
-    errors: {
-      type: Object,
-      default: () => ({
-        username: '',
-        email: '',
-        password: '',
-        confirmPassword: '',
-        general: '',
-      }),
-    },
   });
 
   // 定义事件
@@ -393,21 +383,30 @@
     agreement: false
   });
 
+  // 表单错误
+  const errors = ref({
+    username: '',
+    email: '',
+    password: '',
+    confirmPassword: '',
+    general: ''
+  });
+
   // 验证用户名
   const validateUsername = () => {
     const username = form.value.username.trim();
 
     if (username.length < 2) {
-      emit('validate-username', '用户名长度至少为2位');
+      errors.value.username = '用户名长度至少为2位';
       return false;
     } else if (username.length > 20) {
-      emit('validate-username', '用户名长度不能超过20位');
+      errors.value.username = '用户名长度不能超过20位';
       return false;
     } else if (!/^[a-zA-Z0-9_\u4e00-\u9fa5]+$/.test(username)) {
-      emit('validate-username', '用户名只能包含中文、英文、数字和下划线');
+      errors.value.username = '用户名只能包含中文、英文、数字和下划线';
       return false;
     } else {
-      emit('validate-username', null);
+      errors.value.username = '';
       return true;
     }
   };
@@ -418,10 +417,10 @@
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
     if (!emailRegex.test(email)) {
-      emit('validate-email', '请输入有效的电子邮件地址');
+      errors.value.email = '请输入有效的电子邮件地址';
       return false;
     } else {
-      emit('validate-email', null);
+      errors.value.email = '';
       return true;
     }
   };
@@ -461,13 +460,13 @@
     const password = form.value.password;
 
     if (password.length < 6) {
-      emit('validate-password', '密码长度至少为6位');
+      errors.value.password = '密码长度至少为6位';
       return false;
     } else if (!/(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/.test(password)) {
-      emit('validate-password', '密码必须包含大小写字母和数字');
+      errors.value.password = '密码必须包含大小写字母和数字';
       return false;
     } else {
-      emit('validate-password', null);
+      errors.value.password = '';
       // 计算密码强度
       passwordStrength.value = calculatePasswordStrength(password);
       return true;
@@ -490,10 +489,10 @@
     const confirmPassword = form.value.confirmPassword;
 
     if (password !== confirmPassword) {
-      emit('validate-confirm-password', '两次输入的密码不一致');
+      errors.value.confirmPassword = '两次输入的密码不一致';
       return false;
     } else {
-      emit('validate-confirm-password', null);
+      errors.value.confirmPassword = '';
       return true;
     }
   };
