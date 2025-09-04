@@ -53,16 +53,17 @@ const router = createRouter({
 router.beforeEach((to, from, next) => {
   const authStore = useAuthStore();
   
-  // 检查是否需要认证
-  const requiresAuth = to.path !== '/' && to.path !== '/login';
+  // 定义公开路由（不需要认证）
+  const publicRoutes = ['/', 'login'];
+  const isPublicRoute = publicRoutes.includes(to.name) || to.path === '/';
   
-  if (requiresAuth && !authStore.isAuthenticated) {
+  if (!isPublicRoute && !authStore.isAuthenticated) {
     // 需要认证但未登录，重定向到登录页
     next({
       path: '/',
       query: { redirect: to.fullPath },
     });
-  } else if ((to.path === '/' || to.path === '/login') && authStore.isAuthenticated) {
+  } else if (isPublicRoute && authStore.isAuthenticated) {
     // 已登录用户访问登录页，重定向到衣橱页面
     next('/wardrobe');
   } else {

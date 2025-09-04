@@ -166,7 +166,7 @@ class DatabaseSetupChecker {
         'SHOW GRANTS FOR CURRENT_USER()'
       );
       
-      const grantStatements = (grants as any[]).map(row => Object.values(row)[0]);
+      const grantStatements = (grants as any[]).map(row => Object.values(row)[0] as string);
       const hasAllPrivileges = grantStatements.some(grant => 
         grant.includes('ALL PRIVILEGES') || 
         (grant.includes(this.config.database) && grant.includes('ALL'))

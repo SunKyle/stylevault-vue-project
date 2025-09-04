@@ -165,9 +165,6 @@
       // 显示后端返回的错误信息
       loginErrors.general = error instanceof Error ? error.message : '登录失败，请检查用户名和密码';
       
-      // 重置密码字段
-      loginForm.password = '';
-
       // 显示错误提示
       showError.value = true;
 
@@ -208,10 +205,6 @@
       setTimeout(() => {
         showSuccess.value = false;
         showRegister.value = false;
-        
-        // 清空登录表单并设置邮箱
-        resetLoginForm();
-        loginForm.email = formData.email;
         
         // 清空注册表单
         resetRegisterForm();
@@ -293,8 +286,6 @@
     registerErrors.confirmPassword = '';
     registerErrors.general = '';
   };
-
-
 </script>
 
 <style scoped>

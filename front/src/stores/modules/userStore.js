@@ -115,7 +115,9 @@ export const useUserStore = defineStore('user', {
     // 登出
     logout() {
       this.user = null;
-      // 这里可以添加其他登出逻辑，如清除token等
+      // 清除本地存储的token和用户信息
+      localStorage.removeItem('token');
+      localStorage.removeItem('user');
     },
 
     // 更新用户信息
