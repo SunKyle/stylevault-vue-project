@@ -271,13 +271,6 @@
     }
   };
 
-  // 重置登录表单错误
-  const resetLoginForm = () => {
-    loginErrors.email = '';
-    loginErrors.password = '';
-    loginErrors.general = '';
-  };
-
   // 重置注册表单错误
   const resetRegisterForm = () => {
     registerErrors.username = '';
