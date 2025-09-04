@@ -36,10 +36,7 @@
             <input
               type="email"
               id="email"
-              :value="form.email"
-              @input="e => {
-                emit('update:form', { ...form, email: e.target.value });
-              }"
+              v-model="form.email"
               @blur="validateEmail"
               class="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:border-primary focus:ring-2 focus:ring-primary/20 focus:outline-none transition-all peer"
               :class="{
@@ -77,10 +74,7 @@
             <input
               :type="showPassword ? 'text' : 'password'"
               id="password"
-              :value="form.password"
-              @input="e => {
-                emit('update:form', { ...form, password: e.target.value });
-              }"
+              v-model="form.password"
               @blur="validatePassword"
               class="w-full pl-10 pr-10 py-3 border border-gray-300 rounded-lg focus:border-primary focus:ring-2 focus:ring-primary/20 focus:outline-none transition-all peer"
               :class="{
@@ -143,8 +137,7 @@
               <input
                 id="remember"
                 type="checkbox"
-                :checked="form.remember"
-                @change="e => emit('update:form', { ...form, remember: e.target.checked })"
+                v-model="form.remember"
                 class="sr-only peer"
               />
               <div
@@ -259,7 +252,7 @@
 </template>
 
 <script setup>
-  import { ref, computed } from 'vue';
+  import { ref, computed, watch } from 'vue';
   import BaseButton from '@/components/ui/BaseButton.vue';
 
   // 定义props，以便父组件传递数据和方法
@@ -267,14 +260,6 @@
     isLoading: {
       type: Boolean,
       default: false,
-    },
-    form: {
-      type: Object,
-      default: () => ({
-        email: '',
-        password: '',
-        remember: false,
-      }),
     },
     errors: {
       type: Object,
@@ -286,8 +271,12 @@
     },
   });
 
-  // 定义事件，以便子组件通知父组件
+  // 定义事件
   const emit = defineEmits(['toggle-password', 'validate-email', 'validate-password', 'submit', 'show-register']);
+
+  
+
+
 
   // 密码强度相关
   const showPassword = ref(false);
@@ -322,9 +311,16 @@
     emit('toggle-password');
   };
 
+  // 表单数据
+  const form = ref({
+    email: '',
+    password: '',
+    remember: false
+  });
+
   // 验证电子邮件
   const validateEmail = () => {
-    const email = props.form.email.trim();
+    const email = form.value.email.trim();
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
     if (!emailRegex.test(email)) {
@@ -338,7 +334,7 @@
 
   // 验证密码
   const validatePassword = () => {
-    const password = props.form.password;
+    const password = form.value.password;
 
     if (password.length < 6) {
       emit('validate-password', '密码长度至少为6位');
@@ -386,7 +382,8 @@
 
   // 处理登录
   const handleLogin = () => {
-    emit('submit');
+    // 在提交时，将表单数据传递给父组件
+    emit('submit', form.value);
   };
 </script>
 

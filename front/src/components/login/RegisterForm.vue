@@ -36,10 +36,7 @@
             <input
               type="text"
               id="username"
-              :value="form.username"
-              @input="e => {
-                emit('update:form', { ...form, username: e.target.value });
-              }"
+              v-model="form.username"
               @blur="validateUsername"
               class="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:border-primary focus:ring-2 focus:ring-primary/20 focus:outline-none transition-all peer"
               :class="{
@@ -77,10 +74,7 @@
             <input
               type="email"
               id="email"
-              :value="form.email"
-              @input="e => {
-                emit('update:form', { ...form, email: e.target.value });
-              }"
+              v-model="form.email"
               @blur="validateEmail"
               class="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:border-primary focus:ring-2 focus:ring-primary/20 focus:outline-none transition-all peer"
               :class="{
@@ -118,12 +112,9 @@
             <input
               :type="showPassword ? 'text' : 'password'"
               id="password"
-              :value="form.password"
-              @input="e => {
-                emit('update:form', { ...form, password: e.target.value });
-                updatePasswordStrength();
-              }"
+              v-model="form.password"
               @blur="validatePassword"
+              @input="updatePasswordStrength"
               class="w-full pl-10 pr-10 py-3 border border-gray-300 rounded-lg focus:border-primary focus:ring-2 focus:ring-primary/20 focus:outline-none transition-all peer"
               :class="{
                 'border-red-500': errors.password,
@@ -185,10 +176,7 @@
             <input
               :type="showConfirmPassword ? 'text' : 'password'"
               id="confirmPassword"
-              :value="form.confirmPassword"
-              @input="e => {
-                emit('update:form', { ...form, confirmPassword: e.target.value });
-              }"
+              v-model="form.confirmPassword"
               @blur="validateConfirmPassword"
               class="w-full pl-10 pr-10 py-3 border border-gray-300 rounded-lg focus:border-primary focus:ring-2 focus:ring-primary/20 focus:outline-none transition-all peer"
               :class="{
@@ -231,8 +219,7 @@
             <input
               id="agreement"
               type="checkbox"
-              :checked="form.agreement"
-              @change="e => emit('update:form', { ...form, agreement: e.target.checked })"
+              v-model="form.agreement"
               class="w-4 h-4 border-gray-300 rounded focus:ring-primary focus:border-primary"
               required
             />
@@ -343,7 +330,7 @@
 </template>
 
 <script setup>
-  import { ref, computed } from 'vue';
+  import { ref, computed, watch } from 'vue';
   import BaseButton from '@/components/ui/BaseButton.vue';
 
   // 定义props，以便父组件传递数据和方法
@@ -351,16 +338,6 @@
     isLoading: {
       type: Boolean,
       default: false,
-    },
-    form: {
-      type: Object,
-      default: () => ({
-        username: '',
-        email: '',
-        password: '',
-        confirmPassword: '',
-        agreement: false,
-      }),
     },
     errors: {
       type: Object,
@@ -374,8 +351,8 @@
     },
   });
 
-  // 定义事件，以便子组件通知父组件
-  const emit = defineEmits(['toggle-password', 'toggle-confirm-password', 'validate-username', 'validate-email', 'validate-password', 'validate-confirm-password', 'submit', 'show-login']);
+  // 定义事件
+  const emit = defineEmits(['validate-username', 'validate-email', 'validate-password', 'validate-confirm-password', 'submit', 'show-login']);
 
   // 密码强度相关
   const showPassword = ref(false);
@@ -405,21 +382,20 @@
     return 100;
   });
 
-  // 切换密码可见性
-  const togglePassword = () => {
-    showPassword.value = !showPassword.value;
-    emit('toggle-password');
-  };
 
-  // 切换确认密码可见性
-  const toggleConfirmPassword = () => {
-    showConfirmPassword.value = !showConfirmPassword.value;
-    emit('toggle-confirm-password');
-  };
+
+  // 表单数据
+  const form = ref({
+    username: '',
+    email: '',
+    password: '',
+    confirmPassword: '',
+    agreement: false
+  });
 
   // 验证用户名
   const validateUsername = () => {
-    const username = props.form.username.trim();
+    const username = form.value.username.trim();
 
     if (username.length < 2) {
       emit('validate-username', '用户名长度至少为2位');
@@ -427,7 +403,7 @@
     } else if (username.length > 20) {
       emit('validate-username', '用户名长度不能超过20位');
       return false;
-    } else if (!/^[一-龥a-zA-Z0-9_]+$/.test(username)) {
+    } else if (!/^[a-zA-Z0-9_\u4e00-\u9fa5]+$/.test(username)) {
       emit('validate-username', '用户名只能包含中文、英文、数字和下划线');
       return false;
     } else {
@@ -438,7 +414,7 @@
 
   // 验证电子邮件
   const validateEmail = () => {
-    const email = props.form.email.trim();
+    const email = form.value.email.trim();
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
     if (!emailRegex.test(email)) {
@@ -482,7 +458,7 @@
 
   // 验证密码
   const validatePassword = () => {
-    const password = props.form.password;
+    const password = form.value.password;
 
     if (password.length < 6) {
       emit('validate-password', '密码长度至少为6位');
@@ -500,7 +476,7 @@
 
   // 实时更新密码强度
   const updatePasswordStrength = () => {
-    const password = props.form.password;
+    const password = form.value.password;
     if (password) {
       passwordStrength.value = calculatePasswordStrength(password);
     } else {
@@ -508,10 +484,10 @@
     }
   };
 
-  // 验证验证确认密码
+  // 验证确认密码
   const validateConfirmPassword = () => {
-    const password = props.form.password;
-    const confirmPassword = props.form.confirmPassword;
+    const password = form.value.password;
+    const confirmPassword = form.value.confirmPassword;
 
     if (password !== confirmPassword) {
       emit('validate-confirm-password', '两次输入的密码不一致');
@@ -534,7 +510,8 @@
       return;
     }
 
-    emit('submit');
+    // 在提交时，将表单数据传递给父组件
+    emit('submit', form.value);
   };
 </script>
 

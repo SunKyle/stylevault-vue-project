@@ -26,12 +26,7 @@
             <LoginForm
               v-if="!showRegister"
               :isLoading="isLoading"
-              :form="loginForm"
               :errors="loginErrors"
-              @toggle-password="togglePassword"
-              @validate-email="validateEmail"
-              @validate-password="validatePassword"
-              @update:form="loginForm = $event"
               @submit="handleLogin"
               @show-register="showRegister = true"
               key="login"
@@ -39,15 +34,7 @@
             <RegisterForm
               v-else
               :isLoading="isLoading"
-              :form="registerForm"
               :errors="registerErrors"
-              @toggle-password="togglePassword"
-              @toggle-confirm-password="toggleConfirmPassword"
-              @validate-username="validateUsername"
-              @validate-email="validateEmail"
-              @validate-password="validatePassword"
-              @validate-confirm-password="validateConfirmPassword"
-              @update:form="registerForm = $event"
               @submit="handleRegister"
               @show-login="showRegister = false"
               key="register"
@@ -121,7 +108,7 @@
 </template>
 
 <script setup>
-  import { ref, reactive, onMounted } from 'vue';
+  import { ref, reactive } from 'vue';
   import { useRouter } from 'vue-router';
   import { useAuthStore } from '../stores/auth.store.js';
   import BrandSection from '@/components/login/BrandSection.vue';
@@ -131,33 +118,15 @@
   const router = useRouter();
   const authStore = useAuthStore();
   const isLoading = ref(false);
-  const showPassword = ref(false);
-  const showConfirmPassword = ref(false);
   const showRegister = ref(false);
   const showSuccess = ref(false);
   const showError = ref(false);
-
-  // 登录表单数据
-  const loginForm = reactive({
-    email: '',
-    password: '',
-    remember: false,
-  });
 
   // 登录表单错误
   const loginErrors = reactive({
     email: '',
     password: '',
     general: '',
-  });
-
-  // 注册表单数据
-  const registerForm = reactive({
-    username: '',
-    email: '',
-    password: '',
-    confirmPassword: '',
-    agreement: false,
   });
 
   // 注册表单错误
@@ -169,96 +138,18 @@
     general: '',
   });
 
-  // 切换密码可见性
-  const togglePassword = () => {
-    showPassword.value = !showPassword.value;
-  };
-
-  // 切换确认密码可见性
-  const toggleConfirmPassword = () => {
-    showConfirmPassword.value = !showConfirmPassword.value;
-  };
-
-  // 验证用户名
-  const validateUsername = (errorMessage = '') => {
-    if (errorMessage) {
-      registerErrors.username = errorMessage;
-      return false;
-    } else {
-      registerErrors.username = '';
-      return true;
-    }
-  };
-
-  // 验证电子邮件
-  const validateEmail = (errorMessage = '') => {
-    if (errorMessage) {
-      if (showRegister.value) {
-        registerErrors.email = errorMessage;
-      } else {
-        loginErrors.email = errorMessage;
-      }
-      return false;
-    } else {
-      if (showRegister.value) {
-        registerErrors.email = '';
-      } else {
-        loginErrors.email = '';
-      }
-      return true;
-    }
-  };
-
-  // 验证密码
-  const validatePassword = (errorMessage = '') => {
-    if (errorMessage) {
-      if (showRegister.value) {
-        registerErrors.password = errorMessage;
-      } else {
-        loginErrors.password = errorMessage;
-      }
-      return false;
-    } else {
-      if (showRegister.value) {
-        registerErrors.password = '';
-      } else {
-        loginErrors.password = '';
-      }
-      return true;
-    }
-  };
-
-  // 验证确认密码
-  const validateConfirmPassword = (errorMessage = '') => {
-    if (errorMessage) {
-      registerErrors.confirmPassword = errorMessage;
-      return false;
-    } else {
-      registerErrors.confirmPassword = '';
-      return true;
-    }
-  };
-
   // 处理登录
-  const handleLogin = async () => {
+  const handleLogin = async (formData) => {
     // 清除全局错误
     loginErrors.general = '';
-
-    // 验证表单
-    const isEmailValid = validateEmail();
-    const isPasswordValid = validatePassword();
-
-    if (!isEmailValid || !isPasswordValid) {
-      return;
-    }
 
     // 显示加载状态
     isLoading.value = true;
 
     try {
       await authStore.login({
-        email: loginForm.email,
-        password: loginForm.password,
+        email: formData.email,
+        password: formData.password,
       });
 
       // 显示成功提示
@@ -290,23 +181,13 @@
   };
 
   // 处理注册
-  const handleRegister = async () => {
+  const handleRegister = async (formData) => {
     // 清除全局错误
     registerErrors.general = '';
 
-    // 验证表单 - 强制重新验证所有字段
-    const isUsernameValid = validateUsername();
-    const isEmailValid = validateEmail();
-    const isPasswordValid = validatePassword();
-    const isConfirmPasswordValid = validateConfirmPassword();
-
     // 检查用户协议
-    if (!registerForm.agreement) {
+    if (!formData.agreement) {
       registerErrors.general = '请阅读并同意用户协议和隐私政策';
-      return;
-    }
-
-    if (!isUsernameValid || !isEmailValid || !isPasswordValid || !isConfirmPasswordValid) {
       return;
     }
 
@@ -315,9 +196,9 @@
 
     try {
       await authStore.register({
-        username: registerForm.username,
-        email: registerForm.email,
-        password: registerForm.password,
+        username: formData.username,
+        email: formData.email,
+        password: formData.password,
       });
 
       // 注册成功，显示成功提示
@@ -330,7 +211,7 @@
         
         // 清空登录表单并设置邮箱
         resetLoginForm();
-        loginForm.email = registerForm.email;
+        loginForm.email = formData.email;
         
         // 清空注册表单
         resetRegisterForm();
@@ -379,10 +260,10 @@
         registerErrors.general = error instanceof Error ? error.message : '注册失败，请重试';
       }
       
-      // 重置密码字段（仅在非字段错误时）
+      // 重置密码字段错误（仅在非字段错误时）
       if (!registerErrors.password) {
-        registerForm.password = '';
-        registerForm.confirmPassword = '';
+        registerErrors.password = '';
+        registerErrors.confirmPassword = '';
       }
 
       // 显示错误提示（仅在通用错误时）
@@ -397,23 +278,15 @@
     }
   };
 
-  // 重置登录表单
+  // 重置登录表单错误
   const resetLoginForm = () => {
-    loginForm.email = '';
-    loginForm.password = '';
-    loginForm.remember = false;
     loginErrors.email = '';
     loginErrors.password = '';
     loginErrors.general = '';
   };
 
-  // 重置注册表单
+  // 重置注册表单错误
   const resetRegisterForm = () => {
-    registerForm.username = '';
-    registerForm.email = '';
-    registerForm.password = '';
-    registerForm.confirmPassword = '';
-    registerForm.agreement = false;
     registerErrors.username = '';
     registerErrors.email = '';
     registerErrors.password = '';
@@ -421,36 +294,7 @@
     registerErrors.general = '';
   };
 
-  // 初始化浮动标签位置
-  const initFloatLabels = () => {
-    const formGroups = document.querySelectorAll('.form-group');
 
-    formGroups.forEach(group => {
-      const input = group.querySelector('input');
-      const label = group.querySelector('.form-float-label');
-
-      if (input && label) {
-        if (input.value) {
-          label.style.transform = 'translateY(-1.5rem) scale(0.85)';
-          label.style.color = '#7C3AED';
-        }
-
-        input.addEventListener('input', function () {
-          if (this.value) {
-            label.style.transform = 'translateY(-1.5rem) scale(0.85)';
-            label.style.color = '#7C3AED';
-          } else {
-            label.style.transform = 'translateY(0) scale(1)';
-            label.style.color = '';
-          }
-        });
-      }
-    });
-  };
-
-  onMounted(() => {
-    initFloatLabels();
-  });
 </script>
 
 <style scoped>
