@@ -30,9 +30,11 @@ class HttpClient {
     this.instance.interceptors.response.use(
       (response) => response.data,
       (error) => {
+        // 不再自动重定向，让调用方处理错误
         if (error.response?.status === 401) {
+          // 只在token过期时清除token，不重定向
           localStorage.removeItem('token');
-          window.location.href = '/login';
+          // 不再强制重定向，让路由守卫处理
         }
         return Promise.reject(error);
       }
