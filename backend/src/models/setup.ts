@@ -1,5 +1,14 @@
 import { Sequelize } from 'sequelize-typescript';
 import { models, setupModelAssociations } from './index';
+import { databaseConfig } from '../config';
+
+/**
+ * Sequelize实例
+ */
+export const sequelize = new Sequelize({
+  ...databaseConfig,
+  models,
+});
 
 /**
  * 设置Sequelize模型

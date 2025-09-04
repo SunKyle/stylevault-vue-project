@@ -113,22 +113,23 @@
         <font-awesome-icon :icon="['fas', 'exclamation-circle']" class="text-red-500 text-xl" />
       </div>
       <div class="ml-3">
-        <h3 class="text-sm font-medium text-red-800">登录失败</h3>
-        <div class="mt-1 text-sm text-red-700">{{ errors.general }}</div>
+        <h3 class="text-sm font-medium text-red-800">{{ showRegister ? '注册失败' : '登录失败' }}</h3>
+        <div class="mt-1 text-sm text-red-700">{{ showRegister ? registerErrors.general : loginErrors.general }}</div>
       </div>
     </div>
   </div>
 </template>
 
 <script setup>
-  import { ref, reactive, onMounted, computed } from 'vue';
+  import { ref, reactive, onMounted } from 'vue';
   import { useRouter } from 'vue-router';
-  import BaseButton from '@/components/ui/BaseButton.vue';
+  import { useAuthStore } from '../stores/auth.store.js';
   import BrandSection from '@/components/login/BrandSection.vue';
   import LoginForm from '@/components/login/LoginForm.vue';
   import RegisterForm from '@/components/login/RegisterForm.vue';
 
   const router = useRouter();
+  const authStore = useAuthStore();
   const isLoading = ref(false);
   const showPassword = ref(false);
   const showConfirmPassword = ref(false);
@@ -255,38 +256,24 @@
     isLoading.value = true;
 
     try {
-      // 模拟API请求延迟
-      await new Promise(resolve => setTimeout(resolve, 1500));
+      await authStore.login({
+        email: loginForm.email,
+        password: loginForm.password,
+      });
 
-      // 模拟登录失败的情况（50%概率）
-      const isSuccess = Math.random() > 0.5;
+      // 显示成功提示
+      showSuccess.value = true;
 
-      if (isSuccess) {
-        // 显示成功提示
-        showSuccess.value = true;
-
-        // 3秒后跳转到衣橱页面
-        setTimeout(() => {
-          router.push('/wardrobe');
-        }, 2000);
-      } else {
-        // 登录失败，显示错误信息
-        loginErrors.general = '用户名或密码错误，请重试';
-        // 重置密码字段
-        loginForm.password = '';
-
-        // 显示错误提示
-        showError.value = true;
-
-        // 5秒后自动隐藏错误提示
-        setTimeout(() => {
-          showError.value = false;
-        }, 5000);
-      }
+      // 2秒后跳转到衣橱页面
+      setTimeout(() => {
+        router.push('/wardrobe');
+      }, 2000);
     } catch (error) {
       console.error('登录失败:', error);
-      // 显示网络错误或其他错误
-      loginErrors.general = '登录失败，请检查网络连接后重试';
+      
+      // 显示后端返回的错误信息
+      loginErrors.general = error instanceof Error ? error.message : '登录失败，请检查用户名和密码';
+      
       // 重置密码字段
       loginForm.password = '';
 
@@ -321,58 +308,84 @@
     isLoading.value = true;
 
     try {
-      // 模拟API请求延迟
-      await new Promise(resolve => setTimeout(resolve, 2000));
+      await authStore.register({
+        username: registerForm.username,
+        email: registerForm.email,
+        password: registerForm.password,
+      });
 
-      // 模拟注册失败的情况（30%概率）
-      const isSuccess = Math.random() > 0.3;
+      // 注册成功，显示成功提示
+      showSuccess.value = true;
 
-      if (isSuccess) {
-        // 注册成功，显示成功提示
-        showSuccess.value = true;
+      // 2秒后自动跳转到登录页面
+      setTimeout(() => {
+        showSuccess.value = false;
+        showRegister.value = false;
+        
+        // 清空登录表单并设置邮箱
+        resetLoginForm();
+        loginForm.email = registerForm.email;
+        
+        // 清空注册表单
+        resetRegisterForm();
+      }, 2000);
+    } catch (error) {
+      console.error('注册失败:', error);
+      
+      // 清除之前的字段错误
+      registerErrors.username = '';
+      registerErrors.email = '';
+      registerErrors.password = '';
+      registerErrors.confirmPassword = '';
+      registerErrors.general = '';
 
-        // 3秒后自动跳转到登录页面
-        setTimeout(() => {
-          showSuccess.value = false;
-          showRegister.value = false;
+      // 检查是否有后端返回的详细错误信息
+      const errorData = error.response?.data;
+      if (errorData?.error?.details) {
+        const details = errorData.error.details;
+        
+        // 处理字段级错误（数组格式）
+        if (Array.isArray(details)) {
+          let hasFieldErrors = false;
           
-          // 清空登录表单并设置邮箱
-          resetLoginForm();
-          loginForm.email = registerForm.email;
+          details.forEach(detail => {
+            if (detail.field && Object.prototype.hasOwnProperty.call(registerErrors, detail.field)) {
+              registerErrors[detail.field] = detail.message;
+              hasFieldErrors = true;
+            }
+          });
           
-          // 清空注册表单
-          resetRegisterForm();
-        }, 2000);
+          // 如果没有字段级错误，显示通用错误
+          if (!hasFieldErrors && details.length > 0) {
+            registerErrors.general = details[0].message || errorData.message || '注册失败';
+          }
+        } else if (typeof details === 'string') {
+          registerErrors.general = details;
+        } else if (errorData.message) {
+          registerErrors.general = errorData.message;
+        } else {
+          registerErrors.general = '注册失败，请重试';
+        }
+      } else if (errorData?.message) {
+        // 显示后端返回的通用错误信息
+        registerErrors.general = errorData.message;
       } else {
-        // 注册失败，显示错误信息
-        registerErrors.general = '注册失败，该邮箱可能已被注册，请使用其他邮箱';
-        // 重置密码字段
+        registerErrors.general = error instanceof Error ? error.message : '注册失败，请重试';
+      }
+      
+      // 重置密码字段（仅在非字段错误时）
+      if (!registerErrors.password) {
         registerForm.password = '';
         registerForm.confirmPassword = '';
+      }
 
-        // 显示错误提示
+      // 显示错误提示（仅在通用错误时）
+      if (registerErrors.general) {
         showError.value = true;
-
-        // 5秒后自动隐藏错误提示
         setTimeout(() => {
           showError.value = false;
         }, 5000);
       }
-    } catch (error) {
-      console.error('注册失败:', error);
-      // 显示网络错误或其他错误
-      registerErrors.general = '注册失败，请检查网络连接后重试';
-      // 重置密码字段
-      registerForm.password = '';
-      registerForm.confirmPassword = '';
-
-      // 显示错误提示
-      showError.value = true;
-
-      // 5秒后自动隐藏错误提示
-      setTimeout(() => {
-        showError.value = false;
-      }, 5000);
     } finally {
       isLoading.value = false;
     }

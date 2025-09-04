@@ -1,4 +1,5 @@
 import { createRouter, createWebHistory } from 'vue-router';
+import { useAuthStore } from '../stores/auth.store.js';
 import WardrobeView from '../views/WardrobeView.vue';
 import WeatherView from '../views/WeatherView.vue';
 import InspirationView from '../views/InspirationView.vue';
@@ -46,6 +47,28 @@ const routes = [
 const router = createRouter({
   history: createWebHistory(),
   routes,
+});
+
+// 路由守卫
+router.beforeEach((to, from, next) => {
+  const authStore = useAuthStore();
+  
+  // 检查是否需要认证
+  const requiresAuth = to.path !== '/' && to.path !== '/login';
+  
+  if (requiresAuth && !authStore.isAuthenticated) {
+    // 需要认证但未登录，重定向到登录页
+    next({
+      path: '/',
+      query: { redirect: to.fullPath },
+    });
+  } else if ((to.path === '/' || to.path === '/login') && authStore.isAuthenticated) {
+    // 已登录用户访问登录页，重定向到衣橱页面
+    next('/wardrobe');
+  } else {
+    // 其他情况正常放行
+    next();
+  }
 });
 
 export default router;
