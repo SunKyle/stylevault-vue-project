@@ -94,6 +94,9 @@ export class ClothingRepository {
       ];
     }
 
+    console.log('findClothingItems options:', options);
+    console.log('whereClause:', whereClause);
+
     const { count, rows } = await ClothingItem.findAndCountAll({
       where: whereClause,
       limit,

@@ -62,9 +62,12 @@ export class ClothingService {
   }
 
   /**
-   * 获取衣物列表
+   * 获取衣物列表（确保用户权限隔离）
    */
-  async getClothingItems(options: ClothingQueryOptions = {}) {
+  async getClothingItems(options: ClothingQueryOptions) {
+    if (!options.userId) {
+      throw new Error('userId is required for security isolation');
+    }
     return await clothingRepository.findClothingItems(options);
   }
 

@@ -65,7 +65,6 @@ export class ClothingController {
     try {
       const { userId } = req.params;
       const { page = 1, limit = 50, sortBy = 'createdAt', sortOrder = 'DESC' } = req.query;
-
       const result = await clothingService.getUserClothingItems(parseInt(userId), {
         page: parseInt(page as string),
         limit: parseInt(limit as string),
@@ -94,7 +93,7 @@ export class ClothingController {
   async getClothingItems(req: Request, res: Response) {
     try {
       const { page = 1, limit = 20, categoryId, search, sortBy = 'createdAt', sortOrder = 'DESC' } = req.query;
-      const userId = (req as any).user.id;
+      const userId = (req as any).user.userId;
       
       const result = await clothingService.getClothingItems({
         userId,
@@ -128,7 +127,7 @@ export class ClothingController {
     try {
       const { categoryId } = req.params;
       const { page = 1, limit = 20, search, sortBy = 'createdAt', sortOrder = 'DESC' } = req.query;
-      const userId = (req as any).user.id;
+      const userId = (req as any).user.userId;
       
       const result = await clothingService.getClothingItemsByCategory(parseInt(categoryId), userId, {
         page: Number(page),
@@ -159,7 +158,7 @@ export class ClothingController {
   async getClothingItemDetail(req: Request, res: Response) {
     try {
       const { id } = req.params;
-      const userId = (req as any).user.id;
+      const userId = (req as any).user.userId;
 
       const clothingItem = await clothingService.getClothingItemById(parseInt(id), userId);
 
@@ -201,7 +200,7 @@ export class ClothingController {
         });
       }
       
-      const userId = (req as any).user.id;
+      const userId = (req as any).user.userId;
       const result = await clothingService.searchClothingItems(q as string, userId, {
         page: Number(page),
         limit: Number(limit),
@@ -230,7 +229,7 @@ export class ClothingController {
    */
   async addClothingItem(req: Request, res: Response) {
     try {
-      const userId = (req as any).user.id;
+      const userId = (req as any).user.userId;
       const clothingItem = await clothingService.createClothingItem({
         ...req.body,
         userId
