@@ -114,6 +114,17 @@ export default class ClothingService extends BaseService {
       throw error;
     }
   }
+
+  // 获取收藏衣物
+  async getFavoriteItems() {
+    try {
+      const response = await clothingApi.getFavoriteItems();
+      return response.data;
+    } catch (error) {
+      this.handleError(error, '获取收藏衣物失败');
+      throw error;
+    }
+  }
 }
 
 // 创建单例实例

@@ -81,4 +81,14 @@ export default {
       throw error;
     }
   },
+
+  // 获取收藏衣物
+  getFavoriteItems: async userId => {
+    try {
+      return await clothingAdaptorApi.getFavoriteItems(userId);
+    } catch (error) {
+      console.error('获取收藏衣物失败:', error);
+      throw error;
+    }
+  },
 };

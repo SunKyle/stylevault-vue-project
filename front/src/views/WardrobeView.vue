@@ -226,26 +226,20 @@
       // 返回搜索结果
       items = [...searchResults.value];
     } else if (categoryId === 'all') {
-      // 返回所有衣物 - 确保新添加的衣物也能显示
-      // 直接从store获取最新的衣物列表，避免响应式更新问题
+      // 返回所有衣物
       items = [...clothingStore.clothingItems];
     } else {
-      // 不使用计算属性，直接从store中过滤，确保能获取到最新添加的衣物
-      items = clothingStore.clothingItems.filter(
-        item =>
-          String(item.categoryId) === String(categoryId) ||
-          (item.category && String(item.category) === String(categoryId))
-      );
+      // 使用后端API获取特定分类的衣物
+      items = clothingStore.itemsByCategory[categoryId] || [];
     }
 
     // 应用筛选
     if (currentFilter.value === 'favorites') {
       items = items.filter(item => item.favorite);
     } else if (currentFilter.value === 'recent') {
-      // 按购买日期排序，与wardrobeStore中的recentlyAddedItems保持一致
       items = [...items].sort((a, b) => {
-        const dateA = new Date(a.purchaseDate || 0);
-        const dateB = new Date(b.purchaseDate || 0);
+        const dateA = new Date(a.purchaseDate || a.createdAt || 0);
+        const dateB = new Date(b.purchaseDate || b.createdAt || 0);
         return dateB - dateA;
       });
     }
@@ -339,50 +333,33 @@
 
   async function handleSearch(keyword) {
     console.log('开始搜索，关键词:', keyword);
-    console.log('当前衣物数据:', clothingStore.clothingItems);
 
     if (!keyword.trim()) {
       // 搜索关键词为空，退出搜索模式
       isSearchMode.value = false;
       searchResults.value = [];
-      clothingStore.clearSelectedCategory(); // 清除分类选择
+      clothingStore.clearSelectedCategory();
       return;
     }
 
-    // 进入搜索模式
-    isSearchMode.value = true;
-
-    // 从当前衣物数据中搜索
-    const allItems = clothingStore.clothingItems;
-    console.log('搜索范围衣物:', allItems);
-
-    // 简单的关键词匹配
-    const results = allItems.filter(item => {
-      const name = (item.name || '').toLowerCase();
-      const description = (item.description || '').toLowerCase();
-      const categoryName = (item.categoryName || '').toLowerCase();
-      const searchQuery = keyword.toLowerCase();
-
-      return (
-        name.includes(searchQuery) ||
-        description.includes(searchQuery) ||
-        categoryName.includes(searchQuery)
-      );
-    });
-
-    console.log('搜索结果:', results);
-    searchResults.value = results;
-
-    // 搜索时清除分类选择
-    clothingStore.clearSelectedCategory();
-
     try {
+      // 进入搜索模式
+      isSearchMode.value = true;
+      
+      // 使用后端API进行搜索
+      const results = await clothingStore.searchClothingItems(keyword);
+      searchResults.value = results;
+      
+      // 搜索时清除分类选择
+      clothingStore.clearSelectedCategory();
+      
       // 保存搜索关键词
       currentSearchKeyword.value = keyword;
       showToast(`找到 ${results.length} 件相关衣物`, 'success');
       // 打开抽屉展示
       isDrawerOpen.value = true;
     } catch (error) {
+      console.error('搜索失败:', error);
       showToast('搜索失败，请重试', 'error');
     }
   }

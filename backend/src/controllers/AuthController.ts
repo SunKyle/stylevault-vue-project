@@ -42,7 +42,7 @@ export class AuthController {
       logger.error('用户注册失败:', error);
 
       if (error instanceof Error) {
-        if (error.message.includes('邮箱已存在')) {
+        if (error instanceof Error ? error.message : String(error).includes('邮箱已存在')) {
           res.status(409).json({
             success: false,
             message: '该邮箱已被注册',
@@ -51,7 +51,7 @@ export class AuthController {
               details: '请使用其他邮箱地址',
             },
           });
-        } else if (error.message.includes('用户名已存在')) {
+        } else if (error instanceof Error ? error.message : String(error).includes('用户名已存在')) {
           res.status(409).json({
             success: false,
             message: '该用户名已被使用',
@@ -66,7 +66,7 @@ export class AuthController {
             message: '注册失败',
             error: {
               code: 'REGISTRATION_FAILED',
-              details: error.message,
+              details: error instanceof Error ? error.message : String(error),
             },
           });
         }
@@ -115,7 +115,7 @@ export class AuthController {
       logger.error('用户登录失败:', error);
 
       if (error instanceof Error) {
-        if (error.message.includes('用户不存在')) {
+        if (error instanceof Error ? error.message : String(error).includes('用户不存在')) {
           res.status(401).json({
             success: false,
             message: '邮箱或密码错误',
@@ -124,7 +124,7 @@ export class AuthController {
               details: '请检查邮箱和密码',
             },
           });
-        } else if (error.message.includes('密码错误')) {
+        } else if (error instanceof Error ? error.message : String(error).includes('密码错误')) {
           res.status(401).json({
             success: false,
             message: '邮箱或密码错误',
@@ -139,7 +139,7 @@ export class AuthController {
             message: '登录失败',
             error: {
               code: 'LOGIN_FAILED',
-              details: error.message,
+              details: error instanceof Error ? error.message : String(error),
             },
           });
         }

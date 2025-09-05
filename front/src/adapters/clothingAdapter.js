@@ -108,6 +108,17 @@ export class ClothingAdapter {
       throw error;
     }
   }
+
+  // 获取收藏衣物
+  async fetchFavoriteItems() {
+    try {
+      const items = await this.service.getFavoriteItems();
+      return items;
+    } catch (error) {
+      showToast('获取收藏衣物失败', 'error');
+      throw error;
+    }
+  }
 }
 
 // 创建单例实例

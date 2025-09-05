@@ -364,6 +364,54 @@ export const useClothingStore = defineStore('clothing', {
       }
     },
 
+    // 获取特定分类的衣物
+    async fetchClothingItemsByCategory(categoryId) {
+      const cacheKey = `items_category_${categoryId}`;
+
+      if (getCachedData(cacheKey)) {
+        this.itemsByCategory[categoryId] = getCachedData(cacheKey);
+        return getCachedData(cacheKey);
+      }
+
+      this.setLoading(true);
+      this.clearError();
+
+      try {
+        const items = await clothingAdapter.fetchClothingItemsByCategory(categoryId);
+        this.itemsByCategory[categoryId] = items;
+        setCachedData(cacheKey, items);
+        return items;
+      } catch (error) {
+        this.setError('获取分类衣物失败');
+        throw error;
+      } finally {
+        this.setLoading(false);
+      }
+    },
+
+    // 获取收藏衣物
+    async fetchFavoriteItems() {
+      const cacheKey = 'favorite_items';
+
+      if (getCachedData(cacheKey)) {
+        return getCachedData(cacheKey);
+      }
+
+      this.setLoading(true);
+      this.clearError();
+
+      try {
+        const items = await clothingAdapter.fetchFavoriteItems();
+        setCachedData(cacheKey, items);
+        return items;
+      } catch (error) {
+        this.setError('获取收藏衣物失败');
+        throw error;
+      } finally {
+        this.setLoading(false);
+      }
+    },
+
     // 清理缓存
     clearCache() {
       cache.clear();

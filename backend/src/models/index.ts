@@ -6,6 +6,7 @@ export { BaseModel } from './base/BaseModel';
 
 // 实体模型 - 按依赖顺序导出
 import { User } from './entities/User';
+import { Category } from './entities/Category';
 import { ClothingItem } from './entities/ClothingItem';
 import { Outfit } from './entities/Outfit';
 import { OutfitClothing } from './entities/OutfitClothing';
@@ -18,6 +19,7 @@ import { Recommendations } from './entities/Recommendations';
 
 // 重新导出所有模型
 export { User };
+export { Category };
 export { ClothingItem };
 export { Outfit };
 export { OutfitClothing };
@@ -34,6 +36,7 @@ export * from '../types/model.types';
 // 模型数组（用于Sequelize注册）
 export const models = [
   User,
+  Category,
   ClothingItem,
   Outfit,
   OutfitClothing,

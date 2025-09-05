@@ -1,6 +1,7 @@
 import { Table, Column, DataType, ForeignKey, BelongsTo, HasMany, BelongsToMany, AllowNull, Default, Index } from 'sequelize-typescript';
 import { BaseModel } from '../base/BaseModel';
 import { User } from './User';
+import { Category } from './Category';
 import { Outfit } from './Outfit';
 import { OutfitClothing } from './OutfitClothing';
 import { EntityAttribute } from './EntityAttribute';
@@ -148,6 +149,7 @@ export class ClothingItem extends BaseModel<ClothingItem> {
   /**
    * 主要分类ID（冗余字段，提高查询性能）
    */
+  @ForeignKey(() => Category)
   @Index
   @Column({
     type: DataType.INTEGER,
@@ -155,6 +157,12 @@ export class ClothingItem extends BaseModel<ClothingItem> {
     comment: '主要分类ID'
   })
   categoryId?: number;
+
+  /**
+   * 关联的分类
+   */
+  @BelongsTo(() => Category)
+  category?: Category;
 
   /**
    * 主要颜色ID（冗余字段，提高查询性能）
@@ -177,6 +185,18 @@ export class ClothingItem extends BaseModel<ClothingItem> {
     comment: '主要风格ID'
   })
   styleId?: number;
+
+  /**
+   * 是否收藏
+   */
+  @Default(false)
+  @Index
+  @Column({
+    type: DataType.BOOLEAN,
+    field: 'is_favorite',
+    comment: '是否收藏'
+  })
+  isFavorite!: boolean;
 
   /**
    * 元数据（统计数据、使用频率等）

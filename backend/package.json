@@ -21,7 +21,11 @@
     "init-db": "ts-node src/scripts/init-models.ts",
     "validate-models": "ts-node src/scripts/validate-models.ts",
     "quick-setup": "./scripts/quick-setup.sh",
-    "check-env": "node -e \"console.log('Node:', process.version, 'Arch:', process.arch)\""
+    "check-env": "node -e \"console.log('Node:', process.version, 'Arch:', process.arch)\"",
+    "db:init-full": "ts-node src/scripts/init-database.ts",
+    "db:seed-categories": "ts-node src/scripts/seed-categories.ts",
+    "db:init-categories": "node src/scripts/init-categories-simple.js",
+    "db:init-categories-ts": "npx ts-node src/scripts/init-categories-final.ts"
   },
   "keywords": [
     "stylevault",

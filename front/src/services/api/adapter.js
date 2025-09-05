@@ -59,8 +59,8 @@ apiClient.interceptors.response.use(
   }
 );
 
-// API适配器 - 根据环境选择使用真实API或Mock API
-const isDevelopment = process.env.NODE_ENV === 'development';
+// API适配器 - 始终使用真实API
+const isDevelopment = false;
 
 // 衣物API适配器
 export const clothingAdaptorApi = {
@@ -126,6 +126,14 @@ export const clothingAdaptorApi = {
       return mockAPI.wardrobe.searchClothingItems(keyword);
     }
     return apiClient.get('/clothing/search', { params: { keyword } });
+  },
+
+  // 获取收藏衣物
+  getFavoriteItems: async (userId) => {
+    if (isDevelopment) {
+      return mockAPI.wardrobe.getFavoriteItems(userId);
+    }
+    return apiClient.get('/clothing/favorites', { params: { userId } });
   },
 };
 

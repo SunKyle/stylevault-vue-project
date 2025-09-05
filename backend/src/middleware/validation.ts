@@ -32,3 +32,44 @@ export const validateRequest = (
 
   next();
 };
+
+/**
+ * 验证ID参数中间件
+ * 确保ID参数是有效的数字
+ */
+export const validateIdParam = (req: Request, res: Response, next: NextFunction): void => {
+  const id = req.params.id || req.params.categoryId || req.params.userId;
+  
+  if (id && !/^\d+$/.test(id)) {
+    res.status(400).json({
+      success: false,
+      message: '无效的ID参数，必须是数字',
+      error: { code: 'INVALID_ID' }
+    });
+    return;
+  }
+  
+  next();
+};
+
+/**
+ * 验证分页参数中间件
+ * 确保分页参数在合理范围内
+ */
+export const validatePagination = (req: Request, res: Response, next: NextFunction): void => {
+  const page = parseInt(req.query.page as string) || 1;
+  const limit = parseInt(req.query.limit as string) || 20;
+  
+  if (page < 1 || limit < 1 || limit > 100) {
+    res.status(400).json({
+      success: false,
+      message: '分页参数无效',
+      error: { code: 'INVALID_PAGINATION' }
+    });
+    return;
+  }
+  
+  req.query.page = page.toString();
+  req.query.limit = limit.toString();
+  next();
+};
