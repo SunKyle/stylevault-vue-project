@@ -10,6 +10,9 @@ import { ClothingItem } from './ClothingItem';
   tableName: 'categories',
   paranoid: true,
   timestamps: true,
+  createdAt: 'created_at',
+  updatedAt: 'updated_at',
+  deletedAt: 'deleted_at',
   indexes: [
     { name: 'idx_category_name', fields: ['name'] },
     { name: 'idx_category_slug', fields: ['slug'], unique: true },
@@ -113,6 +116,7 @@ export class Category extends BaseModel<Category> {
   @Index
   @Column({
     type: DataType.INTEGER,
+    field: 'item_count',
     comment: '分类下物品数量统计'
   })
   itemCount!: number;

@@ -69,7 +69,7 @@ export const clothingAdaptorApi = {
     if (isDevelopment) {
       return mockAPI.wardrobe.getCategories();
     }
-    return apiClient.get('/categories');
+    return apiClient.get('/clothing/categories');
   },
 
   // 获取所有衣物
