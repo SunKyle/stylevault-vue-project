@@ -4,7 +4,7 @@
       <!-- 搜索和上传区 -->
       <WardrobeHeader
         :handleSearch="handleSearch"
-        @showUpload="$emit('showUpload')"
+        @showUpload="handleAddClothing"
         @viewAll="viewAllCategories"
       />
 
@@ -106,17 +106,17 @@
             @like="toggleFavorite(item)"
           />
           <!-- 添加更多 -->
-          <div class="group relative">
+          <div class="group relative cursor-pointer" @click="handleAddClothing">
             <div
-              class="aspect-square bg-white rounded-xl overflow-hidden shadow-soft hover:shadow-medium transition-all duration-300 mb-3 border-2 border-dashed border-neutral-200 flex items-center justify-center"
+              class="aspect-square bg-white rounded-xl overflow-hidden shadow-soft hover:shadow-medium transition-all duration-300 mb-3 border-2 border-dashed border-neutral-200 flex items-center justify-center hover:border-primary hover:bg-primary/5"
             >
               <div class="text-center p-6 group-hover:scale-110 transition-transform">
                 <div
-                  class="w-14 h-14 mx-auto bg-neutral-100 rounded-full flex items-center justify-center mb-3"
+                  class="w-14 h-14 mx-auto bg-neutral-100 rounded-full flex items-center justify-center mb-3 group-hover:bg-primary/10"
                 >
-                  <font-awesome-icon :icon="['fas', 'plus']" class="text-neutral-400 text-xl" />
+                  <font-awesome-icon :icon="['fas', 'plus']" class="text-neutral-400 text-xl group-hover:text-primary" />
                 </div>
-                <p class="text-neutral-500 font-medium">添加更多衣物</p>
+                <p class="text-neutral-500 font-medium group-hover:text-primary">添加更多衣物</p>
               </div>
             </div>
           </div>
@@ -274,6 +274,10 @@
     nextTick(() => {
       console.log('组件已强制更新');
     });
+  }
+
+  function handleAddClothing() {
+    router.push('/upload');
   }
 
   onMounted(() => {
