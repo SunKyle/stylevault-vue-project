@@ -61,57 +61,70 @@ export const useClothingStore = defineStore('clothing', {
   getters: {
     // 获取选中的衣物
     selectedItems: state => {
+      const items = Array.isArray(state.clothingItems) ? state.clothingItems : [];
       if (state.selectedCategory) {
-        return state.clothingItems.filter(item => item.categoryId === state.selectedCategory);
+        return items.filter(item => item && item.categoryId === state.selectedCategory);
       }
-      return state.clothingItems;
+      return items;
     },
 
     // 获取收藏的衣物
     favoriteItems: state => {
-      return state.clothingItems.filter(item => item.favorite);
+      const items = Array.isArray(state.clothingItems) ? state.clothingItems : [];
+      return items.filter(item => item && item.favorite);
     },
 
     // 按类别分组衣物
     itemsByCategory: state => {
       const result = {};
-      state.categories.forEach(category => {
-        result[category.id] = state.clothingItems.filter(item => item.categoryId === category.id);
+      const items = Array.isArray(state.clothingItems) ? state.clothingItems : [];
+      const categories = Array.isArray(state.categories) ? state.categories : [];
+      
+      categories.forEach(category => {
+        result[category.id] = items.filter(item => item && item.categoryId === category.id);
       });
       return result;
     },
 
     // 获取最常穿的衣物
     mostWornItems: state => {
-      return [...state.clothingItems].sort((a, b) => b.wearCount - a.wearCount).slice(0, 5);
+      const items = Array.isArray(state.clothingItems) ? state.clothingItems : [];
+      return [...items].sort((a, b) => (b?.wearCount || 0) - (a?.wearCount || 0)).slice(0, 5);
     },
 
     // 获取最近添加的衣物
     recentlyAddedItems: state => {
-      return [...state.clothingItems]
-        .sort((a, b) => new Date(b.purchaseDate) - new Date(a.purchaseDate))
+      const items = Array.isArray(state.clothingItems) ? state.clothingItems : [];
+      return [...items]
+        .sort((a, b) => new Date(b?.purchaseDate || 0) - new Date(a?.purchaseDate || 0))
         .slice(0, 5);
     },
 
     // 新增性能相关 getters
     paginatedItems: state => {
+      const items = Array.isArray(state.clothingItems) ? state.clothingItems : [];
       const startIndex = (state.pagination.currentPage - 1) * state.pagination.itemsPerPage;
       const endIndex = startIndex + state.pagination.itemsPerPage;
-      return state.clothingItems.slice(startIndex, endIndex);
+      return items.slice(startIndex, endIndex);
     },
 
-    totalPages: state => Math.ceil(state.clothingItems.length / state.pagination.itemsPerPage),
+    totalPages: state => {
+      const items = Array.isArray(state.clothingItems) ? state.clothingItems : [];
+      return Math.ceil(items.length / state.pagination.itemsPerPage);
+    },
 
     // 获取统计数据
-    stats: state => ({
-      total: state.clothingItems.length,
-      categories: [...new Set(state.clothingItems.map(item => item.categoryId))].length,
-      totalValue: state.clothingItems.reduce((sum, item) => sum + (item.price || 0), 0),
-      averagePrice: state.clothingItems.length
-        ? state.clothingItems.reduce((sum, item) => sum + (item.price || 0), 0) /
-          state.clothingItems.length
-        : 0,
-    }),
+    stats: state => {
+      const items = Array.isArray(state.clothingItems) ? state.clothingItems : [];
+      return {
+        total: items.length,
+        categories: [...new Set(items.map(item => item?.categoryId).filter(Boolean))].length,
+        totalValue: items.reduce((sum, item) => sum + (item?.price || 0), 0),
+        averagePrice: items.length
+          ? items.reduce((sum, item) => sum + (item?.price || 0), 0) / items.length
+          : 0,
+      };
+    },
   },
 
   actions: {
@@ -156,12 +169,14 @@ export const useClothingStore = defineStore('clothing', {
       this.clearError();
 
       try {
-        const categories = await clothingAdapter.fetchCategories();
-        this.categories = categories;
-        setCachedData(cacheKey, categories);
-        return categories;
+        const response = await clothingAdapter.fetchCategories();
+        const categories = response.data || response || [];
+        this.categories = Array.isArray(categories) ? categories : [];
+        setCachedData(cacheKey, this.categories);
+        return this.categories;
       } catch (error) {
         this.setError('获取衣物类别失败');
+        this.categories = [];
         throw error;
       } finally {
         this.setLoading(false);
@@ -181,14 +196,16 @@ export const useClothingStore = defineStore('clothing', {
       this.clearError();
 
       try {
-        const items = await clothingAdapter.fetchClothingItems();
-        this.clothingItems = items;
-        this.pagination.totalItems = items.length;
+        const response = await clothingAdapter.fetchClothingItems();
+        const items = response.items || response.data?.items || response.data || [];
+        this.clothingItems = Array.isArray(items) ? items : [];
+        this.pagination.totalItems = response.pagination?.totalItems || this.clothingItems.length;
         this.lastFetchTime = new Date();
-        setCachedData(cacheKey, items);
-        return items;
+        setCachedData(cacheKey, this.clothingItems);
+        return this.clothingItems;
       } catch (error) {
         this.setError('获取衣物列表失败');
+        this.clothingItems = [];
         throw error;
       } finally {
         this.setLoading(false);

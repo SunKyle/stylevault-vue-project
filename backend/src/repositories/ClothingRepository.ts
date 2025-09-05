@@ -108,7 +108,7 @@ export class ClothingRepository {
         {
           model: User,
           as: 'user',
-          attributes: ['id', 'username', 'avatar']
+          attributes: ['id', 'username', 'avatarUrl']
         }
       ],
       attributes: { exclude: ['userId'] }
@@ -148,7 +148,7 @@ export class ClothingRepository {
         {
           model: User,
           as: 'user',
-          attributes: ['id', 'username', 'avatar']
+          attributes: ['id', 'username', 'avatarUrl']
         }
       ],
       attributes: { exclude: ['userId'] }

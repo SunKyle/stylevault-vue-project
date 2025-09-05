@@ -3,7 +3,7 @@ import mockAPI from '../../mock';
 
 // 创建axios实例
 const apiClient = axios.create({
-  baseURL: process.env.VUE_APP_API_BASE_URL || '/api',
+  baseURL: process.env.VUE_APP_API_BASE_URL || '/api/v1',
   timeout: 10000,
   headers: {
     'Content-Type': 'application/json',
@@ -69,7 +69,7 @@ export const clothingAdaptorApi = {
     if (isDevelopment) {
       return mockAPI.wardrobe.getCategories();
     }
-    return apiClient.get('/clothing/categories');
+    return apiClient.get('/categories');
   },
 
   // 获取所有衣物
