@@ -5,12 +5,19 @@ import { validateIdParam, validatePagination } from '../middleware/validation';
 
 const router = express.Router();
 
-// 所有路由都需要认证
-router.use(authMiddleware);
-
-// ===== 分类相关路由 =====
+// ===== 公共路由（无需认证） =====
 router.get('/categories', clothingController.getCategories);
 router.get('/categories/:id', validateIdParam, clothingController.getCategoryDetail);
+
+// ===== 枚举值获取路由（无需认证） =====
+router.get('/enums/types', clothingController.getClothingTypes);
+router.get('/enums/seasons', clothingController.getSeasons);
+router.get('/enums/occasions', clothingController.getOccasions);
+router.get('/enums/styles', clothingController.getStyles);
+router.get('/enums/all', clothingController.getAllEnums);
+
+// 需要认证的路由
+router.use(authMiddleware);
 
 // ===== 衣物管理路由 =====
 // 查询路由

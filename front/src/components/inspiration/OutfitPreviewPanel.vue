@@ -333,9 +333,10 @@
 </template>
 
 <script setup>
-  import { ref, defineModel, watch, computed } from 'vue';
-  import { showToast } from '../../utils/toast';
-  import { scenesMockData, seasonsMockData, stylesMockData } from '../../mock/data';
+  import { ref, defineModel, watch, computed, onMounted } from 'vue';
+import { showToast } from '../../utils/toast';
+import { useEnumsStore } from '@/stores/enums';
+import { scenesMockData } from '../../mock/data';
 
   // 定义模型
   const outfitName = defineModel('outfitName', { type: String, default: '' });
@@ -350,14 +351,21 @@
   const outfitSeason = defineModel('outfitSeason', { type: Array, default: () => [] });
   const outfitStyle = defineModel('outfitStyle', { type: Array, default: () => [] });
 
-  // 使用场景选项
+  const enumsStore = useEnumsStore();
+
+  // 组件加载时获取枚举值
+  onMounted(() => {
+    enumsStore.fetchAllEnums();
+  });
+
+  // 场景选项
   const sceneOptions = scenesMockData;
-
+  
   // 季节选项
-  const seasonOptions = seasonsMockData;
-
+  const seasonOptions = computed(() => enumsStore.seasonOptions);
+  
   // 风格选项
-  const styleOptions = stylesMockData;
+  const styleOptions = computed(() => enumsStore.styleOptions);
 
   // 场景、季节和风格的多选处理函数
   function toggleScene(value) {

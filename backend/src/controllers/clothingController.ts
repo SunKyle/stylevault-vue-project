@@ -1,7 +1,9 @@
 import { Request, Response } from 'express';
 import { ClothingService } from '../services/ClothingService';
+import { AttributeService } from '../services/AttributeService';
 
 const clothingService = new ClothingService();
+const attributeService = new AttributeService();
 
 export class ClothingController {
   /**
@@ -423,6 +425,116 @@ export class ClothingController {
         success: false,
         message: '获取统计信息失败',
         error: { code: 'FETCH_CLOTHING_STATS_ERROR', details: error instanceof Error ? error.message : String(error) }
+      });
+    }
+  }
+
+  /**
+   * 获取衣物类型枚举值
+   */
+  async getClothingTypes(req: Request, res: Response) {
+    try {
+      const clothingTypes = await attributeService.getClothingTypes();
+
+      res.json({
+        success: true,
+        data: clothingTypes,
+        message: '获取衣物类型成功'
+      });
+    } catch (error) {
+      console.error('获取衣物类型失败:', error);
+      res.status(500).json({
+        success: false,
+        message: '获取衣物类型失败',
+        error: { code: 'FETCH_CLOTHING_TYPES_ERROR', details: error instanceof Error ? error.message : String(error) }
+      });
+    }
+  }
+
+  /**
+   * 获取季节枚举值
+   */
+  async getSeasons(req: Request, res: Response) {
+    try {
+      const seasons = await attributeService.getSeasons();
+
+      res.json({
+        success: true,
+        data: seasons,
+        message: '获取季节类型成功'
+      });
+    } catch (error) {
+      console.error('获取季节类型失败:', error);
+      res.status(500).json({
+        success: false,
+        message: '获取季节类型失败',
+        error: { code: 'FETCH_SEASONS_ERROR', details: error instanceof Error ? error.message : String(error) }
+      });
+    }
+  }
+
+  /**
+   * 获取场合枚举值
+   */
+  async getOccasions(req: Request, res: Response) {
+    try {
+      const occasions = await attributeService.getOccasions();
+
+      res.json({
+        success: true,
+        data: occasions,
+        message: '获取场合类型成功'
+      });
+    } catch (error) {
+      console.error('获取场合类型失败:', error);
+      res.status(500).json({
+        success: false,
+        message: '获取场合类型失败',
+        error: { code: 'FETCH_OCCASIONS_ERROR', details: error instanceof Error ? error.message : String(error) }
+      });
+    }
+  }
+
+  /**
+   * 获取风格枚举值
+   */
+  async getStyles(req: Request, res: Response) {
+    try {
+      const styles = await attributeService.getStyles();
+
+      res.json({
+        success: true,
+        data: styles,
+        message: '获取风格类型成功'
+      });
+    } catch (error) {
+      console.error('获取风格类型失败:', error);
+      res.status(500).json({
+        success: false,
+        message: '获取风格类型失败',
+        error: { code: 'FETCH_STYLES_ERROR', details: error instanceof Error ? error.message : String(error) }
+      });
+    }
+  }
+
+  /**
+   * 获取所有枚举值
+   */
+  async getAllEnums(req: Request, res: Response) {
+    try {
+      const allEnums = await attributeService.getAllEnums();
+
+      res.json({
+        success: true,
+        data: allEnums,
+        message: '获取所有枚举值成功'
+      });
+    } catch (error) {
+      console.error('获取所有枚举值失败:', error);
+      res.status(500).json({
+        success: false,
+        message: '获取所有枚举值失败',
+        error: { code: 'FETCH_ALL_ENUMS_ERROR', details: error instanceof Error ? error.message : String(error) }
       });
     }
   }

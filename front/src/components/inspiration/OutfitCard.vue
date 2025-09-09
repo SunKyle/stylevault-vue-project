@@ -328,8 +328,9 @@
 </template>
 
 <script setup>
-  import { ref, reactive, computed } from 'vue';
-  import { scenesMockData, seasonsMockData, stylesMockData } from '../../mock/data';
+  import { ref, reactive, computed, onMounted } from 'vue';
+import { useEnumsStore } from '@/stores/enums';
+import { scenesMockData } from '../../mock/data';
   import InfoChip from './InfoChip.vue';
 
   // Props定义
@@ -346,14 +347,21 @@
   // 状态管理
   const expanded = ref(false);
 
+  const enumsStore = useEnumsStore();
+
+  // 组件加载时获取枚举值
+  onMounted(() => {
+    enumsStore.fetchAllEnums();
+  });
+
   // 场景选项映射
   const sceneOptions = scenesMockData;
 
   // 季节选项映射
-  const seasonOptions = seasonsMockData;
+  const seasonOptions = computed(() => enumsStore.seasonOptions);
 
   // 风格选项映射
-  const styleOptions = stylesMockData;
+  const styleOptions = computed(() => enumsStore.styleOptions);
 
   // 通用工具函数 - 获取标签
   const getLabel = (options, value) => options.find(opt => opt.value === value)?.label || value;

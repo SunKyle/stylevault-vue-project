@@ -361,8 +361,9 @@
 </template>
 
 <script setup>
-  import { ref, reactive, computed } from 'vue';
-  import { scenesMockData, seasonsMockData, stylesMockData } from '../../mock/data';
+  import { ref, reactive, computed, onMounted } from 'vue';
+  import { useEnumsStore } from '@/stores/enums';
+  import { scenesMockData } from '../../mock/data';
 
   // Props定义
   const props = defineProps({
@@ -377,15 +378,21 @@
 
   // 状态管理
   const expanded = ref(false);
+  const enumsStore = useEnumsStore();
+
+  // 组件加载时获取枚举值
+  onMounted(() => {
+    enumsStore.fetchAllEnums();
+  });
 
   // 场景选项映射
   const sceneOptions = scenesMockData;
 
   // 季节选项映射
-  const seasonOptions = seasonsMockData;
+  const seasonOptions = computed(() => enumsStore.seasonOptions);
 
   // 风格选项映射
-  const styleOptions = stylesMockData;
+  const styleOptions = computed(() => enumsStore.styleOptions);
 
   // 获取场景标签
   function getSceneLabel(value) {
@@ -395,13 +402,13 @@
 
   // 获取季节标签
   function getSeasonLabel(value) {
-    const season = seasonOptions.find(option => option.value === value);
+    const season = seasonOptions.value.find(option => option.value === value);
     return season ? season.label : value;
   }
 
   // 获取风格标签
   function getStyleLabel(value) {
-    const style = styleOptions.find(option => option.value === value);
+    const style = styleOptions.value.find(option => option.value === value);
     return style ? style.label : value;
   }
 

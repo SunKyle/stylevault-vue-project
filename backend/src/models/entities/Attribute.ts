@@ -165,6 +165,7 @@ export class Attribute extends BaseModel<Attribute> {
   @Index
   @Column({
     type: DataType.BOOLEAN,
+    field: 'is_active',
     comment: '是否启用'
   })
   enabled!: boolean;

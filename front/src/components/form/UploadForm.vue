@@ -103,12 +103,13 @@
           class="w-full px-4 py-3 rounded-xl border border-neutral-200 focus:border-primary focus:ring-2 focus:ring-primary/20 focus:outline-none transition-all appearance-none bg-white"
         >
           <option value="">请选择类别</option>
-          <option value="1">上装</option>
-          <option value="2">下装</option>
-          <option value="3">外套</option>
-          <option value="4">鞋履</option>
-          <option value="5">配饰</option>
-          <option value="6">包包</option>
+          <option 
+            v-for="category in categoryOptions" 
+            :key="category.value" 
+            :value="category.value"
+          >
+            {{ category.label }}
+          </option>
         </select>
       </div>
 
@@ -119,11 +120,13 @@
           class="w-full px-4 py-3 rounded-xl border border-neutral-200 focus:border-primary focus:ring-2 focus:ring-primary/20 focus:outline-none transition-all appearance-none bg-white"
         >
           <option value="">请选择风格</option>
-          <option value="休闲">休闲</option>
-          <option value="正式">正式</option>
-          <option value="运动">运动</option>
-          <option value="复古">复古</option>
-          <option value="潮流">潮流</option>
+          <option 
+            v-for="style in styleOptions" 
+            :key="style.value" 
+            :value="style.value"
+          >
+            {{ style.label }}
+          </option>
         </select>
       </div>
 
@@ -208,21 +211,25 @@
 </template>
 
 <script setup>
-  import { reactive, ref, computed, nextTick } from 'vue';
+  import { reactive, ref, computed, nextTick, onMounted } from 'vue';
   import { useRouter } from 'vue-router';
   import { useClothingStore } from '@/stores';
+  import { useEnumsStore } from '@/stores/enums';
   import { showToast } from '../../utils/toast';
 
   const router = useRouter();
   const clothingStore = useClothingStore();
+  const enumsStore = useEnumsStore();
 
-  // 季节选项
-  const seasonOptions = [
-    { value: '春季', label: '春季' },
-    { value: '夏季', label: '夏季' },
-    { value: '秋季', label: '秋季' },
-    { value: '冬季', label: '冬季' },
-  ];
+  // 加载枚举值
+  onMounted(async () => {
+    await enumsStore.fetchAllEnums();
+  });
+
+  // 计算属性 - 从store获取枚举值
+  const categoryOptions = computed(() => enumsStore.categoryOptions);
+  const styleOptions = computed(() => enumsStore.styleOptions);
+  const seasonOptions = computed(() => enumsStore.seasonOptions);
 
   // 表单数据
   const clothingItem = reactive({
@@ -309,18 +316,13 @@
 
   // 获取季节图标
   const getSeasonIcon = season => {
-    switch (season) {
-      case '春季':
-        return ['fas', 'seedling'];
-      case '夏季':
-        return ['fas', 'sun'];
-      case '秋季':
-        return ['fas', 'leaf'];
-      case '冬季':
-        return ['fas', 'snowflake'];
-      default:
-        return ['fas', 'calendar'];
-    }
+    const iconMap = {
+      spring: ['fas', 'seedling'],
+      summer: ['fas', 'sun'],
+      autumn: ['fas', 'leaf'],
+      winter: ['fas', 'snowflake']
+    };
+    return iconMap[season] || ['fas', 'calendar'];
   };
 
   // 取消按钮处理函数
@@ -353,21 +355,11 @@
     }
 
     try {
-      // 根据categoryId设置category名称
-      const categoryMap = {
-        1: '上装',
-        2: '下装',
-        3: '外套',
-        4: '鞋履',
-        5: '配饰',
-        6: '包包',
-      };
-
       // 创建要提交的数据对象，包含所有必要字段
       const today = new Date().toISOString().split('T')[0];
       const itemToSubmit = {
         ...clothingItem,
-        category: categoryMap[clothingItem.categoryId] || '其他',
+        category: clothingItem.categoryId, // 直接使用枚举值
         purchaseDate: today, // 设置购买日期为今天
         createdAt: today, // 同时设置createdAt属性，确保能正确显示在最近添加列表中
         favorite: false, // 默认不收藏

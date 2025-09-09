@@ -287,11 +287,19 @@
 
 <script setup>
   import { ref, computed, watch, onMounted, onUnmounted } from 'vue';
-  import { useInspirationStore } from '@/stores';
-  import OutfitCard from './OutfitCard.vue';
-  import { scenesMockData, seasonsMockData, stylesMockData } from '../../mock/data';
+import { useInspirationStore } from '@/stores';
+import { useEnumsStore } from '@/stores/enums';
+import OutfitCard from './OutfitCard.vue';
+import { scenesMockData } from '../../mock/data';
 
   const inspirationStore = useInspirationStore();
+  const enumsStore = useEnumsStore();
+
+  // 组件加载时获取枚举值
+  onMounted(() => {
+    enumsStore.fetchAllEnums();
+    inspirationStore.fetchSavedOutfits();
+  });
 
   // 从store获取数据
   const { savedOutfits, visibleOutfits, hasMore, isLoading } = inspirationStore;
@@ -326,9 +334,9 @@
     { value: 'sports', label: '运动' },
   ];
 
-  const seasonOptions = seasonsMockData;
+  const seasonOptions = computed(() => enumsStore.seasonOptions);
 
-  const styleOptions = stylesMockData;
+  const styleOptions = computed(() => enumsStore.styleOptions);
 
   // 计算过滤后的搭配
   const filteredOutfits = computed(() => {
