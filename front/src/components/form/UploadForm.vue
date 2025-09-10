@@ -79,116 +79,192 @@
     </div>
 
     <!-- 表单字段 -->
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-10">
-      <div>
-        <label class="block text-sm font-medium text-neutral-700 mb-2">
-          衣物名称
-          <span class="text-red-500">*</span>
-        </label>
-        <input
-          type="text"
-          v-model="clothingItem.name"
-          placeholder="例如：黑色修身牛仔裤"
-          class="w-full px-4 py-3 rounded-xl border border-neutral-200 focus:border-primary focus:ring-2 focus:ring-primary/20 focus:outline-none transition-all"
-        />
-      </div>
-
-      <div>
-        <label class="block text-sm font-medium text-neutral-700 mb-2">
-          衣物类别
-          <span class="text-red-500">*</span>
-        </label>
-        <select
-          v-model="clothingItem.categoryId"
-          class="w-full px-4 py-3 rounded-xl border border-neutral-200 focus:border-primary focus:ring-2 focus:ring-primary/20 focus:outline-none transition-all appearance-none bg-white"
-        >
-          <option value="">请选择类别</option>
-          <option 
-            v-for="category in categoryOptions" 
-            :key="category.value" 
-            :value="category.value"
-          >
-            {{ category.label }}
-          </option>
-        </select>
-      </div>
-
-      <div>
-        <label class="block text-sm font-medium text-neutral-700 mb-2">风格</label>
-        <select
-          v-model="clothingItem.style"
-          class="w-full px-4 py-3 rounded-xl border border-neutral-200 focus:border-primary focus:ring-2 focus:ring-primary/20 focus:outline-none transition-all appearance-none bg-white"
-        >
-          <option value="">请选择风格</option>
-          <option 
-            v-for="style in styleOptions" 
-            :key="style.value" 
-            :value="style.value"
-          >
-            {{ style.label }}
-          </option>
-        </select>
-      </div>
-
-      <div class="md:col-span-2">
-        <label class="block text-sm font-medium text-neutral-700 mb-2">
-          适用季节
-          <span class="text-red-500">*</span>
-        </label>
-        <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
-          <label
-            v-for="seasonOption in seasonOptions"
-            :key="seasonOption.value"
-            class="flex flex-col items-center justify-center p-3 border border-neutral-200 rounded-lg hover:border-primary transition-colors cursor-pointer group"
-            :class="{
-              'border-primary bg-primary/5': clothingItem.seasons.includes(seasonOption.value),
-            }"
-          >
+    <div class="space-y-8">
+      <!-- 基本信息区域 -->
+      <div class="bg-neutral-50 rounded-xl p-6">
+        <h4 class="text-lg font-semibold text-neutral-800 mb-4 flex items-center">
+          <font-awesome-icon :icon="['fas', 'info-circle']" class="mr-2 text-primary" />
+          基本信息
+        </h4>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div>
+            <label class="block text-sm font-medium text-neutral-700 mb-2">
+              衣物名称
+              <span class="text-red-500">*</span>
+            </label>
             <input
-              type="checkbox"
-              :value="seasonOption.value"
-              v-model="clothingItem.seasons"
-              class="sr-only rounded text-primary focus:ring-primary"
+              type="text"
+              v-model="clothingItem.name"
+              placeholder="例如：黑色修身牛仔裤"
+              class="w-full px-4 py-3 rounded-xl border border-neutral-200 focus:border-primary focus:ring-2 focus:ring-primary/20 focus:outline-none transition-all"
             />
-            <div
-              class="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center mb-2 group-hover:bg-primary/20 transition-colors"
+          </div>
+
+          <div>
+            <label class="block text-sm font-medium text-neutral-700 mb-2">
+              衣物类别
+              <span class="text-red-500">*</span>
+            </label>
+            <select
+              v-model="clothingItem.categoryId"
+              class="w-full px-4 py-3 rounded-xl border border-neutral-200 focus:border-primary focus:ring-2 focus:ring-primary/20 focus:outline-none transition-all appearance-none bg-white"
             >
-              <font-awesome-icon :icon="getSeasonIcon(seasonOption.value)" class="text-primary" />
-            </div>
-            <span class="text-sm font-medium">{{ seasonOption.label }}</span>
-          </label>
+              <option value="">请选择类别</option>
+              <option 
+                v-for="category in categoryOptions" 
+                :key="category.value" 
+                :value="category.value"
+              >
+                {{ category.label }}
+              </option>
+            </select>
+          </div>
+
+          <div>
+            <label class="block text-sm font-medium text-neutral-700 mb-2">风格</label>
+            <select
+              v-model="clothingItem.style"
+              class="w-full px-4 py-3 rounded-xl border border-neutral-200 focus:border-primary focus:ring-2 focus:ring-primary/20 focus:outline-none transition-all appearance-none bg-white"
+            >
+              <option value="">请选择风格</option>
+              <option 
+                v-for="style in styleOptions" 
+                :key="style.value" 
+                :value="style.value"
+              >
+                {{ style.label }}
+              </option>
+            </select>
+          </div>
+
+          <div>
+            <label class="block text-sm font-medium text-neutral-700 mb-2">品牌（可选）</label>
+            <input
+              type="text"
+              v-model="clothingItem.brand"
+              placeholder="例如：优衣库"
+              class="w-full px-4 py-3 rounded-xl border border-neutral-200 focus:border-primary focus:ring-2 focus:ring-primary/20 focus:outline-none transition-all"
+            />
+          </div>
         </div>
       </div>
 
-      <div>
-        <label class="block text-sm font-medium text-neutral-700 mb-2">颜色</label>
-        <input
-          type="text"
-          v-model="clothingItem.color"
-          placeholder="例如：深蓝色"
-          class="w-full px-4 py-3 rounded-xl border border-neutral-200 focus:border-primary focus:ring-2 focus:ring-primary/20 focus:outline-none transition-all"
-        />
+      <!-- 属性信息区域 -->
+      <div class="bg-neutral-50 rounded-xl p-6">
+        <h4 class="text-lg font-semibold text-neutral-800 mb-4 flex items-center">
+          <font-awesome-icon :icon="['fas', 'palette']" class="mr-2 text-primary" />
+          属性信息
+        </h4>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div>
+            <label class="block text-sm font-medium text-neutral-700 mb-2">颜色</label>
+            <select
+              v-model="clothingItem.color"
+              class="w-full px-4 py-3 rounded-xl border border-neutral-200 focus:border-primary focus:ring-2 focus:ring-primary/20 focus:outline-none transition-all appearance-none bg-white"
+            >
+              <option value="">请选择颜色</option>
+              <option 
+                v-for="color in colorOptions" 
+                :key="color.value" 
+                :value="color.value"
+              >
+                {{ color.label }}
+              </option>
+            </select>
+          </div>
+
+          <div>
+            <label class="block text-sm font-medium text-neutral-700 mb-2">材质</label>
+            <select
+              v-model="clothingItem.material"
+              class="w-full px-4 py-3 rounded-xl border border-neutral-200 focus:border-primary focus:ring-2 focus:ring-primary/20 focus:outline-none transition-all appearance-none bg-white"
+            >
+              <option value="">请选择材质</option>
+              <option 
+                v-for="material in materialOptions" 
+                :key="material.value" 
+                :value="material.value"
+              >
+                {{ material.label }}
+              </option>
+            </select>
+          </div>
+
+          <div>
+            <label class="block text-sm font-medium text-neutral-700 mb-2">尺寸</label>
+            <select
+              v-model="clothingItem.size"
+              class="w-full px-4 py-3 rounded-xl border border-neutral-200 focus:border-primary focus:ring-2 focus:ring-primary/20 focus:outline-none transition-all appearance-none bg-white"
+            >
+              <option value="">请选择尺寸</option>
+              <option value="XS">XS - 特小号</option>
+              <option value="S">S - 小号</option>
+              <option value="M">M - 中号</option>
+              <option value="L">L - 大号</option>
+              <option value="XL">XL - 特大号</option>
+              <option value="XXL">XXL - 超大号</option>
+              <option value="均码">均码</option>
+            </select>
+          </div>
+
+          <div>
+            <label class="block text-sm font-medium text-neutral-700 mb-2">
+              适用季节
+              <span class="text-red-500">*</span>
+            </label>
+            <SeasonMultiSelect 
+              v-model="clothingItem.seasons" 
+              :options="seasonOptions" 
+            />
+          </div>
+        </div>
       </div>
 
-      <div>
-        <label class="block text-sm font-medium text-neutral-700 mb-2">品牌（可选）</label>
-        <input
-          type="text"
-          v-model="clothingItem.brand"
-          placeholder="例如：优衣库"
-          class="w-full px-4 py-3 rounded-xl border border-neutral-200 focus:border-primary focus:ring-2 focus:ring-primary/20 focus:outline-none transition-all"
-        />
-      </div>
-    </div>
+      <!-- 购买信息区域 -->
+      <div class="bg-neutral-50 rounded-xl p-6">
+        <h4 class="text-lg font-semibold text-neutral-800 mb-4 flex items-center">
+          <font-awesome-icon :icon="['fas', 'shopping-bag']" class="mr-2 text-primary" />
+          购买信息
+        </h4>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div>
+            <label class="block text-sm font-medium text-neutral-700 mb-2">价格（元）</label>
+            <input
+              type="number"
+              v-model="clothingItem.price"
+              placeholder="例如：299"
+              min="0"
+              step="0.01"
+              class="w-full px-4 py-3 rounded-xl border border-neutral-200 focus:border-primary focus:ring-2 focus:ring-primary/20 focus:outline-none transition-all"
+            />
+          </div>
 
-    <div class="mb-10 md:col-span-2">
-      <label class="block text-sm font-medium text-neutral-700 mb-2">备注（可选）</label>
-      <textarea
-        v-model="clothingItem.notes"
-        rows="3"
-        placeholder="添加关于这件衣物的更多信息..."
-        class="w-full px-4 py-3 rounded-xl border border-neutral-200 focus:border-primary focus:ring-2 focus:ring-primary/20 focus:outline-none transition-all resize-none"
-      ></textarea>
+          <div>
+            <label class="block text-sm font-medium text-neutral-700 mb-2">购买日期</label>
+            <input
+              type="date"
+              v-model="clothingItem.purchaseDate"
+              :max="new Date().toISOString().split('T')[0]"
+              class="w-full px-4 py-3 rounded-xl border border-neutral-200 focus:border-primary focus:ring-2 focus:ring-primary/20 focus:outline-none transition-all"
+            />
+          </div>
+        </div>
+      </div>
+
+      <!-- 备注信息区域 -->
+      <div class="bg-neutral-50 rounded-xl p-6">
+        <h4 class="text-lg font-semibold text-neutral-800 mb-4 flex items-center">
+          <font-awesome-icon :icon="['fas', 'sticky-note']" class="mr-2 text-primary" />
+          备注信息
+        </h4>
+        <textarea
+          v-model="clothingItem.notes"
+          rows="4"
+          placeholder="记录这件衣物的特殊信息，如：购买渠道、搭配建议、注意事项等..."
+          class="w-full px-4 py-3 rounded-xl border border-neutral-200 focus:border-primary focus:ring-2 focus:ring-primary/20 focus:outline-none transition-all resize-none bg-white"
+        ></textarea>
+        <!-- <p class="text-sm text-neutral-500 mt-2">支持添加关于衣物的额外描述、搭配心得或特殊说明</p> -->
+      </div>
     </div>
 
     <div class="flex justify-end space-x-4 pt-4 border-t border-neutral-100">
@@ -216,6 +292,7 @@
   import { useClothingStore } from '@/stores';
   import { useEnumsStore } from '@/stores/enums';
   import { showToast } from '../../utils/toast';
+  import SeasonMultiSelect from '@/components/SeasonMultiSelect.vue';
 
   const router = useRouter();
   const clothingStore = useClothingStore();
@@ -230,15 +307,21 @@
   const categoryOptions = computed(() => enumsStore.categoryOptions);
   const styleOptions = computed(() => enumsStore.styleOptions);
   const seasonOptions = computed(() => enumsStore.seasonOptions);
+  const materialOptions = computed(() => enumsStore.materialOptions);
+  const colorOptions = computed(() => enumsStore.colorOptions);
 
   // 表单数据
   const clothingItem = reactive({
     name: '',
     categoryId: '',
     style: '',
-    seasons: [], // 使用数组而不是字符串
+    seasons: [], // 使用数组存储多选的季节
     color: '',
+    material: '',
+    size: '',
     brand: '',
+    price: null,
+    purchaseDate: '',
     notes: '',
     image: '', // 图片URL
   });
@@ -358,11 +441,22 @@
       // 创建要提交的数据对象，包含所有必要字段
       const today = new Date().toISOString().split('T')[0];
       const itemToSubmit = {
-        ...clothingItem,
-        category: clothingItem.categoryId, // 直接使用枚举值
-        purchaseDate: today, // 设置购买日期为今天
-        createdAt: today, // 同时设置createdAt属性，确保能正确显示在最近添加列表中
-        favorite: false, // 默认不收藏
+        name: clothingItem.name,
+        categoryId: clothingItem.categoryId,
+        colorId: clothingItem.color || null,
+        styleId: clothingItem.style || null,
+        brand: clothingItem.brand,
+        notes: clothingItem.notes,
+        imageUrls: clothingItem.image ? [clothingItem.image] : [],
+        mainImageUrl: clothingItem.image || null,
+        purchaseDate: clothingItem.purchaseDate || today,
+        favorite: false,
+        metadata: {
+          seasons: clothingItem.seasons || [],
+          material: clothingItem.material || null,
+          size: clothingItem.size || null,
+          price: clothingItem.price ? parseFloat(clothingItem.price) : null,
+        }
       };
 
       // 调用 store 方法保存衣物
@@ -381,7 +475,11 @@
       clothingItem.style = '';
       clothingItem.seasons = []; // 重置为空数组
       clothingItem.color = '';
+      clothingItem.material = '';
+      clothingItem.size = '';
       clothingItem.brand = '';
+      clothingItem.price = null;
+      clothingItem.purchaseDate = '';
       clothingItem.notes = '';
       // 重置图片
       clothingItem.image = '';

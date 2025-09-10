@@ -8,6 +8,8 @@ export const useEnumsStore = defineStore('enums', () => {
   const styles = ref([]);
   const seasons = ref([]);
   const occasions = ref([]);
+  const materials = ref([]);
+  const colors = ref([]);
   
   const loading = ref(false);
   const error = ref(null);
@@ -44,6 +46,21 @@ export const useEnumsStore = defineStore('enums', () => {
     }))
   );
 
+  const materialOptions = computed(() => 
+    materials.value.map(item => ({
+      value: item.value,
+      label: item.label
+    }))
+  );
+
+  const colorOptions = computed(() => 
+    colors.value.map(item => ({
+      value: item.value,
+      label: item.label,
+      color: item.color
+    }))
+  );
+
   // 获取所有枚举值
   const fetchAllEnums = async () => {
     if (isLoaded.value) return;
@@ -52,13 +69,15 @@ export const useEnumsStore = defineStore('enums', () => {
     error.value = null;
     
     try {
-      const response = await api.get('/api/v1/enums/all');
-      const data = response.data.data || {};
+      const response = await api.get('/enums/all');
+      const data = response.data || {};
       
       categories.value = data.clothingTypes || [];
       styles.value = data.styles || [];
       seasons.value = data.seasons || [];
       occasions.value = data.occasions || [];
+      materials.value = data.materials || [];
+      colors.value = data.colors || [];
       
       isLoaded.value = true;
     } catch (err) {
@@ -112,7 +131,9 @@ export const useEnumsStore = defineStore('enums', () => {
       categories: categories.value,
       styles: styles.value,
       seasons: seasons.value,
-      occasions: occasions.value
+      occasions: occasions.value,
+      materials: materials.value,
+      colors: colors.value
     };
 
     const item = enumMap[type]?.find(item => item.value === value);
@@ -125,6 +146,8 @@ export const useEnumsStore = defineStore('enums', () => {
     styles.value = [];
     seasons.value = [];
     occasions.value = [];
+    materials.value = [];
+    colors.value = [];
     loading.value = false;
     error.value = null;
     isLoaded.value = false;
@@ -136,6 +159,8 @@ export const useEnumsStore = defineStore('enums', () => {
     styles,
     seasons,
     occasions,
+    materials,
+    colors,
     loading,
     error,
     isLoaded,
@@ -145,6 +170,8 @@ export const useEnumsStore = defineStore('enums', () => {
     styleOptions,
     seasonOptions,
     occasionOptions,
+    materialOptions,
+    colorOptions,
     
     // 方法
     fetchAllEnums,
