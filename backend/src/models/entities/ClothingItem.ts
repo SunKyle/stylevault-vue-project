@@ -187,6 +187,17 @@ export class ClothingItem extends BaseModel<ClothingItem> {
   styleId?: number;
 
   /**
+   * 父级衣物ID（用于组合搭配）
+   */
+  @Index
+  @Column({
+    type: DataType.INTEGER,
+    field: 'parent_id',
+    comment: '父级衣物ID，用于组合搭配'
+  })
+  parentId?: number;
+
+  /**
    * 是否收藏
    */
   @Default(false)
@@ -260,6 +271,12 @@ export class ClothingItem extends BaseModel<ClothingItem> {
     as: 'attributes'
   })
   attributes?: EntityAttribute[];
+
+  @BelongsTo(() => ClothingItem, 'parentId')
+  parent?: ClothingItem;
+
+  @HasMany(() => ClothingItem, 'parentId')
+  children?: ClothingItem[];
 
   // ==================== 实例方法 ====================
 

@@ -27,41 +27,43 @@ export const useEnumsStore = defineStore('enums', () => {
 
   const styleOptions = computed(() => 
     styles.value.map(item => ({
-      value: item.value,
+      value: item.id,
       label: item.label
     }))
   );
 
+  // 计算属性 - 修复季节选项格式
   const seasonOptions = computed(() => 
     seasons.value.map(item => ({
-      value: item.value,
+      value: String(item.id || item.value), // 统一转换为字符串
       label: item.label
     }))
   );
 
   const occasionOptions = computed(() => 
     occasions.value.map(item => ({
-      value: item.value,
+      value: item.id,
       label: item.label
     }))
   );
 
   const materialOptions = computed(() => 
     materials.value.map(item => ({
-      value: item.value,
+      value: item.id,
       label: item.label
     }))
   );
 
   const colorOptions = computed(() => 
     colors.value.map(item => ({
-      value: item.value,
+      value: item.id,
       label: item.label,
       color: item.color
     }))
   );
 
   // 获取所有枚举值
+  // 在fetchAllEnums方法中添加调试
   const fetchAllEnums = async () => {
     if (isLoaded.value) return;
     
@@ -72,12 +74,19 @@ export const useEnumsStore = defineStore('enums', () => {
       const response = await api.get('/enums/all');
       const data = response.data || {};
       
+      console.log('=== 枚举数据调试 ===');
+      console.log('原始季节数据:', data.seasons);
+      
+      // 确保数据结构正确
       categories.value = data.clothingTypes || [];
-      styles.value = data.styles || [];
-      seasons.value = data.seasons || [];
-      occasions.value = data.occasions || [];
-      materials.value = data.materials || [];
-      colors.value = data.colors || [];
+      styles.value = Array.isArray(data.styles) ? data.styles : [];
+      seasons.value = Array.isArray(data.seasons) ? data.seasons : [];
+      occasions.value = Array.isArray(data.occasions) ? data.occasions : [];
+      materials.value = Array.isArray(data.materials) ? data.materials : [];
+      colors.value = Array.isArray(data.colors) ? data.colors : [];
+      
+      console.log('处理后季节数据:', seasons.value);
+      console.log('季节选项:', seasonOptions.value);
       
       isLoaded.value = true;
     } catch (err) {

@@ -1,5 +1,4 @@
 import BaseService from './baseService';
-import { mockAnalyticsData } from '../mock/analytics';
 
 class AnalyticsService extends BaseService {
   constructor() {

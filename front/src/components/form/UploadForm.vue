@@ -207,13 +207,14 @@
             </select>
           </div>
 
+          <!-- 季节选择区域 -->
           <div>
             <label class="block text-sm font-medium text-neutral-700 mb-2">
               适用季节
               <span class="text-red-500">*</span>
             </label>
             <SeasonMultiSelect 
-              v-model="clothingItem.seasons" 
+              v-model="selectedSeasons" 
               :options="seasonOptions" 
             />
           </div>
@@ -310,12 +311,11 @@
   const materialOptions = computed(() => enumsStore.materialOptions);
   const colorOptions = computed(() => enumsStore.colorOptions);
 
-  // 表单数据
+  // 表单数据 - 使用独立ref管理季节数组以避免响应式问题
   const clothingItem = reactive({
     name: '',
     categoryId: '',
     style: '',
-    seasons: [], // 使用数组存储多选的季节
     color: '',
     material: '',
     size: '',
@@ -323,8 +323,11 @@
     price: null,
     purchaseDate: '',
     notes: '',
-    image: '', // 图片URL
+    image: '',
   });
+
+  // 独立管理季节数组，避免reactive对象的数组问题
+  const selectedSeasons = ref([]);
 
   // 判断是否有图片
   const hasImage = computed(() => {
@@ -389,40 +392,24 @@
     // 创建图片URL
     const reader = new FileReader();
     reader.onload = e => {
-      // 在实际应用中，这里应该上传图片到服务器并获取URL
-      // 现在我们使用读取的URL作为图片URL
       clothingItem.image = e.target.result;
       showToast('图片上传成功', 'success');
     };
     reader.readAsDataURL(file);
   };
 
-  // 获取季节图标
-  const getSeasonIcon = season => {
-    const iconMap = {
-      spring: ['fas', 'seedling'],
-      summer: ['fas', 'sun'],
-      autumn: ['fas', 'leaf'],
-      winter: ['fas', 'snowflake']
-    };
-    return iconMap[season] || ['fas', 'calendar'];
-  };
-
   // 取消按钮处理函数
   const handleCancel = () => {
-    console.log('取消按钮被点击');
-    // 使用window.location进行页面跳转
     window.location.href = '/';
-    console.log('使用window.location跳转已执行');
   };
 
   const saveClothes = async () => {
-    // 防止重复提交
     if (isSaving.value) {
       return;
     }
 
     isSaving.value = true;
+    
     // 验证必填字段
     if (!clothingItem.name || !clothingItem.categoryId) {
       showToast('请填写衣物名称和类别', 'error');
@@ -431,63 +418,73 @@
     }
 
     // 验证季节选择
-    if (!clothingItem.seasons || clothingItem.seasons.length === 0) {
+    if (!selectedSeasons.value || selectedSeasons.value.length === 0) {
       showToast('请选择至少一个适用季节', 'error');
       isSaving.value = false;
       return;
     }
 
     try {
-      // 创建要提交的数据对象，包含所有必要字段
-      const today = new Date().toISOString().split('T')[0];
-      const itemToSubmit = {
-        name: clothingItem.name,
-        categoryId: clothingItem.categoryId,
-        colorId: clothingItem.color || null,
-        styleId: clothingItem.style || null,
-        brand: clothingItem.brand,
-        notes: clothingItem.notes,
-        imageUrls: clothingItem.image ? [clothingItem.image] : [],
-        mainImageUrl: clothingItem.image || null,
-        purchaseDate: clothingItem.purchaseDate || today,
-        favorite: false,
-        metadata: {
-          seasons: clothingItem.seasons || [],
-          material: clothingItem.material || null,
-          size: clothingItem.size || null,
-          price: clothingItem.price ? parseFloat(clothingItem.price) : null,
+        const today = new Date().toISOString().split('T')[0];
+        
+        // 验证并处理mainImageUrl
+        let validatedMainImageUrl = clothingItem.image || null;
+        
+        // 如果是DataURL格式或无效URL，使用占位符
+        if (validatedMainImageUrl && (
+            validatedMainImageUrl.startsWith('data:') ||
+            validatedMainImageUrl.length > 200 ||
+            !/^https?:\/\/.+|^\/.+/.test(validatedMainImageUrl)
+        )) {
+          validatedMainImageUrl = 'https://via.placeholder.com/300x400/6366f1/ffffff?text=Image';
+          showToast('图片已转换为占位符', 'info');
         }
-      };
 
-      // 调用 store 方法保存衣物
+        const itemToSubmit = {
+          name: clothingItem.name,
+          categoryId: clothingItem.categoryId,
+          colorId: clothingItem.color || null,
+          styleId: clothingItem.style || null,
+          brand: clothingItem.brand,
+          notes: clothingItem.notes,
+          imageUrls: validatedMainImageUrl ? [validatedMainImageUrl] : [],
+          mainImageUrl: validatedMainImageUrl,
+          purchaseDate: clothingItem.purchaseDate || today,
+          favorite: false,
+          metadata: {
+            seasons: [...selectedSeasons.value] || [], // 使用独立季节数组
+            material: clothingItem.material || null,
+            size: clothingItem.size || null,
+            price: clothingItem.price ? parseFloat(clothingItem.price) : null,
+          }
+        };
+
       await clothingStore.addClothingItem(itemToSubmit);
       showToast('衣物添加成功', 'success');
 
-      // 刷新衣橱数据，确保新添加的衣物能立即显示
       await clothingStore.fetchClothingItems();
-
-      // 使用nextTick确保DOM更新后再清空表单
       await nextTick();
 
       // 清空表单
-      clothingItem.name = '';
-      clothingItem.categoryId = '';
-      clothingItem.style = '';
-      clothingItem.seasons = []; // 重置为空数组
-      clothingItem.color = '';
-      clothingItem.material = '';
-      clothingItem.size = '';
-      clothingItem.brand = '';
-      clothingItem.price = null;
-      clothingItem.purchaseDate = '';
-      clothingItem.notes = '';
-      // 重置图片
-      clothingItem.image = '';
+      Object.assign(clothingItem, {
+        name: '',
+        categoryId: '',
+        style: '',
+        color: '',
+        material: '',
+        size: '',
+        brand: '',
+        price: null,
+        purchaseDate: '',
+        notes: '',
+        image: '',
+      });
+      selectedSeasons.value = []; // 清空季节选择
+      
     } catch (error) {
       showToast('添加失败，请重试', 'error');
       console.error('添加衣物失败:', error);
     } finally {
-      // 重置保存状态
       isSaving.value = false;
     }
   };

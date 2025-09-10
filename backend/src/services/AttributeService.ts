@@ -1,4 +1,5 @@
 import { Attribute } from '../models/entities/Attribute';
+import { Category } from '../models/entities/Category';
 
 export interface EnumValue {
   value: string;
@@ -36,21 +37,29 @@ export class AttributeService {
   }
 
   /**
-   * 获取衣物类型枚举值
+   * 获取衣物类型枚举值 - 从categories表获取
    */
   async getClothingTypes(): Promise<EnumValue[]> {
-    // 由于attributes表中没有clothing_type分类，我们使用scene分类作为替代
-    // 或者返回一个预定义的衣物类型列表
-    return [
-      { value: 'top', label: '上装', color: '#4169E1', icon: 'tshirt' },
-      { value: 'bottom', label: '下装', color: '#8B4513', icon: 'pants' },
-      { value: 'dress', label: '连衣裙', color: '#DA70D6', icon: 'dress' },
-      { value: 'outerwear', label: '外套', color: '#2F4F4F', icon: 'jacket' },
-      { value: 'shoes', label: '鞋履', color: '#8B4513', icon: 'shoe' },
-      { value: 'accessories', label: '配饰', color: '#FFD700', icon: 'accessory' },
-      { value: 'bag', label: '包包', color: '#8B4513', icon: 'bag' },
-      { value: 'hat', label: '帽子', color: '#8B4513', icon: 'hat' }
-    ];
+    try {
+      const categories = await Category.findAll({
+        where: { enabled: true },
+        order: [['sortOrder', 'ASC']]
+      });
+
+      return categories.map(category => ({
+        value: category.id.toString(),
+        label: category.name,
+        icon: category.icon || undefined,
+        metadata: {
+          id: category.id,
+          description: category.description,
+          slug: category.slug
+        }
+      }));
+    } catch (error) {
+      console.error('获取衣物类型失败:', error);
+      throw new Error('获取衣物类型失败');
+    }
   }
 
   /**

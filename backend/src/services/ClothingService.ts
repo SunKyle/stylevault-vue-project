@@ -27,6 +27,7 @@ export interface ClothingCreateData {
   categoryId?: number;
   colorId?: number;
   styleId?: number;
+  parentId?: number;
   metadata?: any;
 }
 
@@ -119,6 +120,7 @@ export class ClothingService {
     if (data.colorId) clothingItemData.colorId = data.colorId;
     if (data.styleId) clothingItemData.styleId = data.styleId;
     if (data.size) clothingItemData.size = data.size.trim();
+    if (data.parentId) clothingItemData.parentId = data.parentId;
 
     return await clothingRepository.createClothingItem(clothingItemData);
   }
