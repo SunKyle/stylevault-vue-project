@@ -683,6 +683,39 @@
         emit('close');
       }
 
+      // 全选季节
+      const allSeasons = computed({
+        get() {
+          if (!form.value.seasons || !Array.isArray(form.value.seasons)) return false;
+          return (
+            form.value.seasons.length === 4 &&
+            form.value.seasons.includes('春季') &&
+            form.value.seasons.includes('夏季') &&
+            form.value.seasons.includes('秋季') &&
+            form.value.seasons.includes('冬季')
+          );
+        },
+        set(value) {
+          if (value) {
+            form.value.seasons = ['春季', '夏季', '秋季', '冬季'];
+          } else {
+            form.value.seasons = [];
+          }
+        },
+      });
+
+      // 更新分类名称
+      function updateCategoryName() {
+        if (form.value.categoryId) {
+          const selectedCategory = categories.value.find(c => c.id === form.value.categoryId);
+          if (selectedCategory) {
+            form.value.categoryName = selectedCategory.name;
+          }
+        } else {
+          form.value.categoryName = '';
+        }
+      }
+
       return {
         form,
         categories,
