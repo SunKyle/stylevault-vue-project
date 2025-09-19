@@ -108,6 +108,17 @@ export class EntityAttribute extends BaseModel<EntityAttribute> {
   notes?: string;
 
   /**
+   * 用户ID（冗余字段，优化查询性能）
+   */
+  @Index
+  @Column({
+    type: DataType.INTEGER,
+    field: 'user_id',
+    comment: '用户ID（冗余字段，优化查询）'
+  })
+  userId?: number;
+
+  /**
    * 元数据（扩展信息）
    */
   @Column({

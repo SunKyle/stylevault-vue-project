@@ -87,6 +87,29 @@ export class Attribute extends BaseModel<Attribute> {
   value?: any;
 
   /**
+   * 层级路径（用于快速层级查询）
+   */
+  @Index
+  @Column({
+    type: DataType.STRING(500),
+    field: 'path',
+    comment: '层级路径（如：1/2/3）'
+  })
+  path?: string;
+
+  /**
+   * 层级深度
+   */
+  @Default(0)
+  @Index
+  @Column({
+    type: DataType.INTEGER,
+    field: 'level',
+    comment: '层级深度（0为根节点）'
+  })
+  level!: number;
+
+  /**
    * 属性描述
    */
   @Column({
