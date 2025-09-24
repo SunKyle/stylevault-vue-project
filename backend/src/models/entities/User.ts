@@ -1,12 +1,21 @@
 import { Table, Column, DataType, HasMany, Unique, AllowNull, Default, Index } from 'sequelize-typescript';
 import { BaseModel } from '../base/BaseModel';
-import { ClothingItem } from './ClothingItem';
+import { Clothing } from './Clothing';
 import { Outfit } from './Outfit';
 import { UserPreferences } from './UserPreferences';
 import { UserBehavior } from './UserBehavior';
 import { WeatherData } from './WeatherData';
 import { Recommendations } from './Recommendations';
 import { StyleProfile } from '../../types/model.types';
+
+/**
+ * 用户状态枚举
+ */
+export enum UserStatus {
+  ACTIVE = 'active',
+  INACTIVE = 'inactive',
+  BANNED = 'banned'
+}
 
 /**
  * 用户模型
@@ -98,23 +107,33 @@ export class User extends BaseModel<User> {
     defaultValue: {},
     comment: '用户偏好设置（主题、语言等）'
   })
-  preferences?: UserPreferences;
+  preferences?: object;
+
+  /**
+   * 用户风格画像
+   * JSON格式存储用户的风格偏好
+   */
+  @Column({
+    type: DataType.JSON,
+    field: 'style_profile',
+    defaultValue: {},
+    comment: '用户风格画像'
+  })
+  styleProfile?: StyleProfile;
 
   /**
    * 用户状态
-   * 用户账户的当前状态
    */
-  @Default('active')
+  @Default(UserStatus.ACTIVE)
   @Index
   @Column({
-    type: DataType.ENUM('active', 'inactive', 'suspended', 'deleted'),
-    comment: '用户状态：active-活跃, inactive-非活跃, suspended-暂停, deleted-已删除'
+    type: DataType.ENUM(...Object.values(UserStatus)),
+    comment: '用户状态'
   })
-  status!: string;
+  status!: UserStatus;
 
   /**
    * 最后登录时间
-   * 用户最后一次登录的时间
    */
   @Column({
     type: DataType.DATE,
@@ -123,28 +142,16 @@ export class User extends BaseModel<User> {
   })
   lastLoginAt?: Date;
 
-  /**
-   * 用户风格画像
-   * JSON格式存储基于用户行为分析的风格偏好
-   */
-  @Column({
-    type: DataType.JSON,
-    field: 'style_profile',
-    defaultValue: {},
-    comment: '用户风格画像（基于用户行为生成的风格偏好）'
-  })
-  styleProfile?: StyleProfile;
-
   // ==================== 关联关系 ====================
 
   /**
    * 用户拥有的衣物列表
    */
-  @HasMany(() => ClothingItem, {
+  @HasMany(() => Clothing, {
     foreignKey: 'userId',
-    as: 'clothingItems'
+    as: 'clothes'
   })
-  clothingItems?: ClothingItem[];
+  clothes?: Clothing[];
 
   /**
    * 用户创建的搭配列表
@@ -196,8 +203,8 @@ export class User extends BaseModel<User> {
   /**
    * 获取用户的公开衣物数量
    */
-  get publicClothingItemsCount(): Promise<number> {
-    return this.$count('clothingItems', {
+  get publicClothesCount(): Promise<number> {
+    return this.$count('clothes', {
       where: { isPublic: true }
     });
   }
@@ -216,7 +223,7 @@ export class User extends BaseModel<User> {
    */
   async getProfileWithStats() {
     const [clothingCount, outfitCount] = await Promise.all([
-      this.$count('clothingItems'),
+      this.$count('clothes'),
       this.$count('outfits')
     ]);
 

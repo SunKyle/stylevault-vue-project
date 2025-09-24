@@ -6,8 +6,7 @@ export { BaseModel } from './base/BaseModel';
 
 // 实体模型 - 按依赖顺序导出
 import { User } from './entities/User';
-import { Category } from './entities/Category';
-import { ClothingItem } from './entities/ClothingItem';
+import { Clothing } from './entities/Clothing';
 import { Outfit } from './entities/Outfit';
 import { OutfitClothing } from './entities/OutfitClothing';
 import { Attribute } from './entities/Attribute';
@@ -19,8 +18,7 @@ import { Recommendations } from './entities/Recommendations';
 
 // 重新导出所有模型
 export { User };
-export { Category };
-export { ClothingItem };
+export { Clothing };
 export { Outfit };
 export { OutfitClothing };
 export { Attribute };
@@ -36,8 +34,7 @@ export * from '../types/model.types';
 // 模型数组（用于Sequelize注册）
 export const models = [
   User,
-  Category,
-  ClothingItem,
+  Clothing,
   Outfit,
   OutfitClothing,
   Attribute,
@@ -52,9 +49,9 @@ export const models = [
 export const setupModelAssociations = () => {
 
   // User 关联
-  User.hasMany(ClothingItem, {
+  User.hasMany(Clothing, {
     foreignKey: 'userId',
-    as: 'clothingItems'
+    as: 'clothes'
   });
   
   User.hasMany(Outfit, {
@@ -77,24 +74,24 @@ export const setupModelAssociations = () => {
     as: 'recommendations'
   });
 
-  // ClothingItem 关联
-  ClothingItem.belongsTo(User, {
+  // Clothing 关联
+  Clothing.belongsTo(User, {
     foreignKey: 'userId',
     as: 'user'
   });
   
-  ClothingItem.belongsToMany(Outfit, {
+  Clothing.belongsToMany(Outfit, {
     through: OutfitClothing,
     foreignKey: 'clothing_id',
     otherKey: 'outfit_id',
     as: 'outfits'
   });
-  
-  ClothingItem.hasMany(EntityAttribute, {
+
+  Clothing.hasMany(EntityAttribute, {
     foreignKey: 'entityId',
     constraints: false,
     scope: {
-      entityType: 'clothing_item'
+      entityType: 'clothing'
     },
     as: 'attributes'
   });
@@ -105,11 +102,11 @@ export const setupModelAssociations = () => {
     as: 'user'
   });
   
-  Outfit.belongsToMany(ClothingItem, {
+  Outfit.belongsToMany(Clothing, {
     through: OutfitClothing,
     foreignKey: 'outfit_id',
     otherKey: 'clothing_id',
-    as: 'clothingItems'
+    as: 'clothes'
   });
   
   Outfit.hasMany(EntityAttribute, {

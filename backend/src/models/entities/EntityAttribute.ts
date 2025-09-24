@@ -19,7 +19,7 @@ import { Attribute } from './Attribute';
 })
 export class EntityAttribute extends BaseModel<EntityAttribute> {
   /**
-   * 实体类型（clothing_item, outfit, user_preferences等）
+   * 实体类型（clothing, outfit, user_preferences等）
    */
   @AllowNull(false)
   @Index

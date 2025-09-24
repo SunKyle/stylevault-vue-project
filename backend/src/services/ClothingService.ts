@@ -1,6 +1,5 @@
 import { clothingRepository } from '../repositories/ClothingRepository';
-import { Category } from '../models/entities/Category';
-import { ClothingItem } from '../models/entities/ClothingItem';
+import { Clothing } from '../models/entities/Clothing';
 
 export interface ClothingQueryOptions {
   userId?: number;
@@ -48,19 +47,7 @@ export interface ClothingUpdateData {
 }
 
 export class ClothingService {
-  /**
-   * 获取所有分类
-   */
-  async getCategories() {
-    return await clothingRepository.findAllCategories();
-  }
 
-  /**
-   * 获取分类详情
-   */
-  async getCategoryById(id: number) {
-    return await clothingRepository.findCategoryById(id);
-  }
 
   /**
    * 获取衣物列表（确保用户权限隔离）
@@ -82,7 +69,7 @@ export class ClothingService {
   /**
    * 获取衣物详情
    */
-  async getClothingItemById(id: number, userId?: number): Promise<ClothingItem | null> {
+  async getClothingItemById(id: number, userId?: number): Promise<any | null> {
     return await clothingRepository.findClothingItemById(id, userId);
   }
 
@@ -90,13 +77,6 @@ export class ClothingService {
    * 创建衣物
    */
   async createClothingItem(data: ClothingCreateData) {
-    // 验证分类是否存在
-    if (data.categoryId) {
-      const category = await Category.findByPk(data.categoryId);
-      if (!category) {
-        throw new Error('分类不存在');
-      }
-    }
 
     const clothingItemData: any = {
       userId: data.userId,
@@ -128,15 +108,7 @@ export class ClothingService {
   /**
    * 更新衣物
    */
-  async updateClothingItem(id: number, userId: number, data: any): Promise<ClothingItem> {
-    // 验证分类是否存在
-    if (data.categoryId) {
-      const category = await Category.findByPk(data.categoryId);
-      if (!category) {
-        throw new Error('分类不存在');
-      }
-    }
-
+  async updateClothingItem(id: number, userId: number, data: any): Promise<any> {
     const [affectedRows, [updatedItem]] = await clothingRepository.updateClothingItem(id, userId, data);
 
     if (affectedRows === 0) {
@@ -160,7 +132,7 @@ export class ClothingService {
   /**
    * 切换收藏状态
    */
-  async toggleFavorite(id: number, userId: number): Promise<{ clothingItem: ClothingItem; message: string }> {
+  async toggleFavorite(id: number, userId: number): Promise<{ clothingItem: any; message: string }> {
     const clothingItem = await this.getClothingItemById(id, userId);
     if (!clothingItem) {
       throw new Error('衣物不存在或无权限修改');
@@ -194,20 +166,12 @@ export class ClothingService {
   async getClothingStats(userId: number): Promise<{
     totalItems: number;
     favoriteItems: number;
-    categories: any[];
     totalValue: number;
   }> {
     const stats = await clothingRepository.getClothingStats(userId);
     return {
       totalItems: stats.totalItems,
       favoriteItems: stats.favoriteItems,
-      categories: stats.categoryStats.map(cat => ({
-        id: cat.categoryId,
-        name: cat.category?.name || '未知分类',
-        slug: cat.category?.name?.toLowerCase().replace(/\s+/g, '-') || 'unknown',
-        color: cat.category?.color || '#6B7280',
-        count: cat.count
-      })),
       totalValue: stats.totalValue
     };
   }
@@ -215,7 +179,7 @@ export class ClothingService {
   /**
    * 获取收藏列表
    */
-  async getFavoriteItems(userId: number, options: any = {}): Promise<{ items: ClothingItem[]; total: number }> {
+  async getFavoriteItems(userId: number, options: any = {}): Promise<{ items: any[]; total: number }> {
     const result = await clothingRepository.findFavoriteItems(userId, options);
     return {
       items: result.items,

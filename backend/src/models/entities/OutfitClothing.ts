@@ -1,7 +1,7 @@
 import { Table, Column, DataType, ForeignKey, BelongsTo, AllowNull, Index, Unique } from 'sequelize-typescript';
 import { BaseModel } from '../base/BaseModel';
 import { Outfit } from './Outfit';
-import { ClothingItem } from './ClothingItem';
+import { Clothing } from './Clothing';
 
 /**
  * 搭配-衣物关联模型
@@ -35,7 +35,7 @@ export class OutfitClothing extends BaseModel<OutfitClothing> {
   /**
    * 衣物ID
    */
-  @ForeignKey(() => ClothingItem)
+  @ForeignKey(() => Clothing)
   @AllowNull(false)
   @Index
   @Column({
@@ -96,11 +96,20 @@ export class OutfitClothing extends BaseModel<OutfitClothing> {
   /**
    * 关联的衣物
    */
-  @BelongsTo(() => ClothingItem, {
+  @BelongsTo(() => Clothing, {
     foreignKey: 'clothingId',
-    as: 'clothingItem'
+    as: 'clothing'
   })
-  clothingItem!: ClothingItem;
+  clothing?: Clothing;
+
+  /**
+   * 关联的衣物（Clothing模型）
+   */
+  @BelongsTo(() => Clothing, {
+    foreignKey: 'clothingId',
+    as: 'clothing',
+    constraints: false
+  })
 
   // ==================== 实例方法 ====================
 
@@ -108,9 +117,9 @@ export class OutfitClothing extends BaseModel<OutfitClothing> {
    * 获取关联信息的完整详情
    */
   async getFullInfo() {
-    const [outfit, clothingItem] = await Promise.all([
+    const [outfit, clothing] = await Promise.all([
       this.$get('outfit'),
-      this.$get('clothingItem')
+      this.$get('clothing')
     ]);
 
     return {
@@ -125,12 +134,12 @@ export class OutfitClothing extends BaseModel<OutfitClothing> {
         name: outfit.name,
         coverImageUrl: outfit.coverImageUrl
       } : null,
-      clothingItem: clothingItem ? {
-        id: clothingItem.id,
-        name: clothingItem.name,
-        brand: clothingItem.brand,
-        mainImageUrl: clothingItem.mainImageUrl,
-        price: clothingItem.price
+      clothing: clothing ? {
+        id: clothing.id,
+        name: clothing.name,
+        brand: clothing.brand,
+        mainImageUrl: clothing.mainImageUrl,
+        price: clothing.price
       } : null,
       createdAt: this.createdAt,
       updatedAt: this.updatedAt
@@ -147,8 +156,8 @@ export class OutfitClothing extends BaseModel<OutfitClothing> {
       where: { outfitId },
       include: [
         {
-          model: ClothingItem,
-          as: 'clothingItem'
+          model: Clothing,
+          as: 'clothing'
         }
       ],
       order: [['orderIndex', 'ASC']]

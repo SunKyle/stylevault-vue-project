@@ -7,57 +7,25 @@ const attributeService = new AttributeService();
 
 export class ClothingController {
   /**
-   * 获取所有衣物分类
+   * 获取所有衣物分类 - 已移除分类功能
    */
   async getCategories(req: Request, res: Response) {
-    try {
-      const categories = await clothingService.getCategories();
-
-      res.json({
-        success: true,
-        data: categories,
-        message: '获取衣物分类成功'
-      });
-    } catch (error) {
-      console.error('获取衣物分类失败:', error);
-      res.status(500).json({
-        success: false,
-        message: '获取衣物分类失败',
-        error: { code: 'FETCH_CATEGORIES_ERROR', details: error instanceof Error ? error.message : String(error) }
-      });
-    }
+    res.status(404).json({
+      success: false,
+      message: '分类功能已移除',
+      error: { code: 'CATEGORY_FEATURE_REMOVED' }
+    });
   }
 
   /**
-   * 获取分类详情
+   * 获取分类详情 - 已移除分类功能
    */
   async getCategoryDetail(req: Request, res: Response) {
-    try {
-      const { id } = req.params;
-      
-      const category = await clothingService.getCategoryById(parseInt(id));
-
-      if (!category) {
-        return res.status(404).json({
-          success: false,
-          message: '分类不存在',
-          error: { code: 'CATEGORY_NOT_FOUND' }
-        });
-      }
-
-      res.json({
-        success: true,
-        data: category,
-        message: '获取分类详情成功'
-      });
-    } catch (error) {
-      console.error('获取分类详情失败:', error);
-      res.status(500).json({
-        success: false,
-        message: '获取分类详情失败',
-        error: { code: 'FETCH_CATEGORY_DETAIL_ERROR', details: error instanceof Error ? error.message : String(error) }
-      });
-    }
+    res.status(404).json({
+      success: false,
+      message: '分类功能已移除',
+      error: { code: 'CATEGORY_FEATURE_REMOVED' }
+    });
   }
 
   /**

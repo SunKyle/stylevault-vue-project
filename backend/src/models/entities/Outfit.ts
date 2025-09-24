@@ -1,10 +1,10 @@
 import { Table, Column, DataType, ForeignKey, BelongsTo, BelongsToMany, HasMany, AllowNull, Default, Index } from 'sequelize-typescript';
 import { BaseModel } from '../base/BaseModel';
 import { User } from './User';
-import { ClothingItem } from './ClothingItem';
+import { Clothing } from './Clothing';
 import { OutfitClothing } from './OutfitClothing';
-import { EntityAttribute } from './EntityAttribute';
-import { OutfitMetadata, OutfitStatus } from '../../types/model.types';
+import { Attribute } from './Attribute';
+import { OutfitMetadata } from '../../types/model.types';
 
 /**
  * 搭配模型
@@ -16,9 +16,9 @@ import { OutfitMetadata, OutfitStatus } from '../../types/model.types';
   timestamps: true,
   indexes: [
     { name: 'idx_outfit_user_id', fields: ['user_id'] },
-    { name: 'idx_outfit_season', fields: ['season', 'user_id'] },
-    { name: 'idx_outfit_occasion', fields: ['occasion', 'user_id'] },
-    { name: 'idx_outfit_style', fields: ['style_id', 'user_id'] },
+    { name: 'idx_outfits_user_season', fields: ['user_id', 'season'] },
+    { name: 'idx_outfits_user_occasion', fields: ['user_id', 'occasion'] },
+    { name: 'idx_outfit_style', fields: ['style', 'user_id'] },
     { name: 'idx_outfit_public', fields: ['is_public', 'user_id'] },
     { name: 'idx_outfit_status', fields: ['status', 'user_id'] },
     { name: 'idx_outfit_rating', fields: ['rating', 'user_id'] },
@@ -66,33 +66,37 @@ export class Outfit extends BaseModel<Outfit> {
   description?: string;
 
   /**
-   * 季节（spring, summer, autumn, winter, all）
+   * 季节ID（关联attributes表）
    */
-  @Column({
-    type: DataType.ENUM('spring', 'summer', 'autumn', 'winter', 'all'),
-    comment: '季节'
-  })
-  season?: string;
-
-  /**
-   * 场合（casual, formal, business, sport, party, daily）
-   */
-  @Column({
-    type: DataType.ENUM('casual', 'formal', 'business', 'sport', 'party', 'daily'),
-    comment: '场合'
-  })
-  occasion?: string;
-
-  /**
-   * 主要风格ID（冗余字段，提高查询性能）
-   */
+  @ForeignKey(() => Attribute)
   @Index
   @Column({
     type: DataType.INTEGER,
-    field: 'style_id',
-    comment: '主要风格ID'
+    comment: '季节ID（关联attributes表）'
   })
-  styleId?: number;
+  season?: number;
+
+  /**
+   * 场合ID（关联attributes表）
+   */
+  @ForeignKey(() => Attribute)
+  @Index
+  @Column({
+    type: DataType.INTEGER,
+    comment: '场合ID（关联attributes表）'
+  })
+  occasion?: number;
+
+  /**
+   * 主要风格ID（关联attributes表）
+   */
+  @ForeignKey(() => Attribute)
+  @Index
+  @Column({
+    type: DataType.INTEGER,
+    comment: '主要风格ID（关联attributes表）'
+  })
+  style?: number;
 
   /**
    * 封面图片URL
@@ -179,21 +183,10 @@ export class Outfit extends BaseModel<Outfit> {
   /**
    * 包含的衣物列表
    */
-  @BelongsToMany(() => ClothingItem, () => OutfitClothing, 'outfit_id', 'clothing_id')
-  clothingItems?: ClothingItem[];
+  @BelongsToMany(() => Clothing, () => OutfitClothing, 'outfit_id', 'clothing_id')
+  clothes?: Clothing[];
 
-  /**
-   * 属性关联列表
-   */
-  @HasMany(() => EntityAttribute, {
-    foreignKey: 'entityId',
-    constraints: false,
-    scope: {
-      entityType: 'outfit'
-    },
-    as: 'attributes'
-  })
-  attributes?: EntityAttribute[];
+
 
   // ==================== 实例方法 ====================
 
@@ -201,10 +194,9 @@ export class Outfit extends BaseModel<Outfit> {
    * 获取搭配的完整信息
    */
   async getFullInfo() {
-    const [user, clothingItems, attributes] = await Promise.all([
+    const [user, clothes] = await Promise.all([
       this.$get('user'),
-      this.$get('clothingItems'),
-      this.$get('attributes')
+      this.$get('clothes')
     ]);
 
     return {
@@ -213,7 +205,7 @@ export class Outfit extends BaseModel<Outfit> {
       description: this.description,
       season: this.season,
       occasion: this.occasion,
-      styleId: this.styleId,
+      style: this.style,
       coverImageUrl: this.coverImageUrl,
       imageUrls: this.imageUrls,
       rating: this.rating,
@@ -221,8 +213,7 @@ export class Outfit extends BaseModel<Outfit> {
       metadata: this.metadata,
       isPublic: this.isPublic,
       user: user ? { id: user.id, username: user.username } : null,
-      clothingItemsCount: clothingItems?.length || 0,
-      attributesCount: attributes?.length || 0,
+      clothesCount: clothes?.length || 0,
       createdAt: this.createdAt,
       updatedAt: this.updatedAt
     };
@@ -231,19 +222,10 @@ export class Outfit extends BaseModel<Outfit> {
   /**
    * 获取搭配的衣物详情
    */
-  async getClothingItemsWithDetails() {
-    const clothingItems = await this.$get('clothingItems', {
-      include: [
-        {
-          model: EntityAttribute,
-          as: 'attributes',
-          where: { entityType: 'clothing_item' },
-          required: false
-        }
-      ]
-    });
+  async getClothesWithDetails() {
+    const clothes = await this.$get('clothes');
 
-    return (clothingItems || []).map(item => ({
+    return (clothes || []).map((item: any) => ({
       id: item.id,
       name: item.name,
       brand: item.brand,
@@ -252,8 +234,7 @@ export class Outfit extends BaseModel<Outfit> {
       mainImageUrl: item.mainImageUrl,
       categoryId: item.categoryId,
       colorId: item.colorId,
-      styleId: item.styleId,
-      attributes: item.attributes || []
+      styleId: item.styleId
     }));
   }
 
@@ -261,8 +242,8 @@ export class Outfit extends BaseModel<Outfit> {
    * 计算搭配总价
    */
   async calculateTotalPrice(): Promise<number> {
-    const clothingItems = await this.$get('clothingItems');
-    return clothingItems?.reduce((total, item) => total + (item.price || 0), 0) || 0;
+    const clothes = await this.$get('clothes');
+    return clothes?.reduce((total: number, item: any) => total + (item.price || 0), 0) || 0;
   }
 
   /**

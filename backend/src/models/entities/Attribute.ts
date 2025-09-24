@@ -205,14 +205,7 @@ export class Attribute extends BaseModel<Attribute> {
 
   // ==================== 关联关系 ====================
 
-  /**
-   * 实体属性关联列表
-   */
-  @HasMany(() => EntityAttribute, {
-    foreignKey: 'attributeId',
-    as: 'entityAttributes'
-  })
-  entityAttributes?: EntityAttribute[];
+  
 
   // ==================== 实例方法 ====================
 
@@ -220,7 +213,7 @@ export class Attribute extends BaseModel<Attribute> {
    * 获取属性的完整信息
    */
   async getFullInfo() {
-    const entityAttributes = await this.$get('entityAttributes');
+    const usageCount = await this.$count('entityAttributes');
 
     return {
       id: this.id,
@@ -237,7 +230,7 @@ export class Attribute extends BaseModel<Attribute> {
       parentId: this.parentId,
       enabled: this.enabled,
       metadata: this.metadata,
-      usageCount: entityAttributes?.length || 0,
+      usageCount: usageCount,
       createdAt: this.createdAt,
       updatedAt: this.updatedAt
     };

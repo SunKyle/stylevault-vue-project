@@ -2,7 +2,6 @@ import { Table, Column, DataType, ForeignKey, BelongsTo, AllowNull, Default, Ind
 import { Op } from 'sequelize';
 import { BaseModel } from '../base/BaseModel';
 import { User } from './User';
-import { ClothingItem } from './ClothingItem';
 import { Outfit } from './Outfit';
 import { BehaviorType, BehaviorContext } from '../../types/model.types';
 
@@ -202,11 +201,8 @@ export class UserBehavior extends BaseModel<UserBehavior> {
   /**
    * 所属用户
    */
-  @BelongsTo(() => User, {
-    foreignKey: 'userId',
-    as: 'user'
-  })
-  user!: User;
+  @BelongsTo(() => User)
+  user?: User;
 
   // ==================== 实例方法 ====================
 

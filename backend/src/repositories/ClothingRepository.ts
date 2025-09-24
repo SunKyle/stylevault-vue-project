@@ -1,7 +1,6 @@
-import { ClothingItem } from '../models/entities/ClothingItem';
-import { Category } from '../models/entities/Category';
 import { User } from '../models/entities/User';
 import { Op, Sequelize } from 'sequelize';
+import { Clothing } from '../models/entities/Clothing';
 
 export interface ClothingQueryOptions {
   page?: number;
@@ -20,44 +19,17 @@ export interface ClothingStats {
   categoryStats: Array<{
     categoryId: number;
     count: number;
-    category?: {
-      id: number;
-      name: string;
-      color: string;
-    };
+    category: null; // Category模型已移除
   }>;
   conditionStats: Array<{
     condition: string;
     count: number;
   }>;
-  recentItems: ClothingItem[];
+  recentItems: any[];
   totalValue: number;
 }
 
 export class ClothingRepository {
-  /**
-   * 获取所有分类
-   */
-  async findAllCategories(): Promise<Category[]> {
-    return await Category.findAll({
-      where: { enabled: true },
-      order: [['sortOrder', 'ASC'], ['createdAt', 'ASC']],
-      attributes: ['id', 'name', 'slug', 'description', 'icon', 'color', 'sortOrder', 'itemCount']
-    });
-  }
-
-  /**
-   * 根据ID获取分类
-   */
-  async findCategoryById(id: number): Promise<Category | null> {
-    return await Category.findOne({
-      where: { 
-        id,
-        enabled: true
-      },
-      attributes: ['id', 'name', 'slug', 'description', 'icon', 'color', 'sortOrder', 'itemCount']
-    });
-  }
 
   /**
    * 获取衣物列表
@@ -97,17 +69,12 @@ export class ClothingRepository {
     console.log('findClothingItems options:', options);
     console.log('whereClause:', whereClause);
 
-    const { count, rows } = await ClothingItem.findAndCountAll({
+    const { count, rows } = await Clothing.findAndCountAll({
       where: whereClause,
       limit,
       offset,
       order: [[sortBy, sortOrder]],
       include: [
-        {
-          model: Category,
-          as: 'category',
-          attributes: ['id', 'name', 'slug', 'color']
-        },
         {
           model: User,
           as: 'user',
@@ -133,21 +100,16 @@ export class ClothingRepository {
   /**
    * 根据ID获取衣物
    */
-  async findClothingItemById(id: number, userId?: number): Promise<ClothingItem | null> {
+  async findClothingItemById(id: number, userId?: number): Promise<any | null> {
     const whereClause: any = { id, status: 'active' };
     
     if (userId) {
       whereClause.userId = userId;
     }
 
-    return await ClothingItem.findOne({
+    return await Clothing.findOne({
       where: whereClause,
       include: [
-        {
-          model: Category,
-          as: 'category',
-          attributes: ['id', 'name', 'slug', 'color']
-        },
         {
           model: User,
           as: 'user',
@@ -161,14 +123,14 @@ export class ClothingRepository {
   /**
    * 创建衣物
    */
-  async createClothingItem(data: any): Promise<ClothingItem> {
-    return await ClothingItem.create(data as any);
+  async createClothingItem(data: any): Promise<any> {
+    return await Clothing.create(data as any);
   }
 
   /**
    * 更新衣物
    */
-  async updateClothingItem(id: number, userId: number, data: any): Promise<[number, ClothingItem[]]> {
+  async updateClothingItem(id: number, userId: number, data: any): Promise<[number, any[]]> {
     const updateData: any = { ...data };
     
     // 处理需要转换的字段
@@ -193,7 +155,7 @@ export class ClothingRepository {
         : updateData.imageUrls;
     }
 
-    return await ClothingItem.update(updateData, {
+    return await Clothing.update(updateData, {
       where: { id, userId, status: 'active' },
       returning: true
     });
@@ -202,8 +164,8 @@ export class ClothingRepository {
   /**
    * 删除衣物（软删除）
    */
-  async deleteClothingItem(id: number, userId: number): Promise<[number, ClothingItem[]]> {
-    return await ClothingItem.update(
+  async deleteClothingItem(id: number, userId: number): Promise<[number, any[]]> {
+    return await Clothing.update(
       { status: 'deleted' },
       { 
         where: { id, userId, status: 'active' },
@@ -219,7 +181,7 @@ export class ClothingRepository {
     const { page = 1, limit = 50, sortBy = 'createdAt', sortOrder = 'DESC' } = options;
     const offset = (page - 1) * limit;
 
-    const { count, rows } = await ClothingItem.findAndCountAll({
+    const { count, rows } = await Clothing.findAndCountAll({
       where: { 
         userId,
         status: 'active',
@@ -231,13 +193,6 @@ export class ClothingRepository {
       limit,
       offset,
       order: [[sortBy, sortOrder]],
-      include: [
-        {
-          model: Category,
-          as: 'category',
-          attributes: ['id', 'name', 'color']
-        }
-      ],
       attributes: [
         'id', 'name', 'brand', 'price', 'purchaseDate', 'size', 'condition',
         'notes', 'imageUrls', 'mainImageUrl', 'categoryId', 'colorId', 'styleId',
@@ -270,10 +225,10 @@ export class ClothingRepository {
       recentItems,
       totalValue
     ] = await Promise.all([
-      ClothingItem.count({
+      Clothing.count({
         where: { userId, status: 'active' }
       }),
-      ClothingItem.count({
+      Clothing.count({
         where: { 
           userId, 
           status: 'active',
@@ -283,23 +238,16 @@ export class ClothingRepository {
           )
         }
       }),
-      ClothingItem.findAll({
+      Clothing.findAll({
         where: { userId, status: 'active' },
         attributes: [
           'categoryId',
           [Sequelize.fn('COUNT', Sequelize.col('id')), 'count']
         ],
         group: ['categoryId'],
-        include: [
-          {
-            model: Category,
-            as: 'category',
-            attributes: ['id', 'name', 'color']
-          }
-        ],
         order: [[Sequelize.literal('count'), 'DESC']]
       }),
-      ClothingItem.findAll({
+      Clothing.findAll({
         where: { userId, status: 'active' },
         attributes: [
           'condition',
@@ -308,20 +256,13 @@ export class ClothingRepository {
         group: ['condition'],
         order: [[Sequelize.literal('count'), 'DESC']]
       }),
-      ClothingItem.findAll({
+      Clothing.findAll({
         where: { userId, status: 'active' },
         limit: 5,
         order: [['createdAt', 'DESC']],
-        include: [
-          {
-            model: Category,
-            as: 'category',
-            attributes: ['id', 'name', 'color']
-          }
-        ],
         attributes: ['id', 'name', 'imageUrls', 'mainImageUrl', 'createdAt', 'updatedAt']
       }),
-      ClothingItem.sum('price', {
+      Clothing.sum('price', {
         where: { userId, status: 'active' }
       })
     ]);
@@ -332,7 +273,7 @@ export class ClothingRepository {
       categoryStats: categoryStats.map((stat: any) => ({
         categoryId: stat.categoryId,
         count: parseInt(stat.get('count') as string),
-        category: stat.category
+        category: null // Category model has been removed
       })),
       conditionStats: conditionStats.map((stat: any) => ({
         condition: stat.condition,

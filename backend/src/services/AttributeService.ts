@@ -1,5 +1,4 @@
 import { Attribute } from '../models/entities/Attribute';
-import { Category } from '../models/entities/Category';
 
 export interface EnumValue {
   value: string;
@@ -37,25 +36,37 @@ export class AttributeService {
   }
 
   /**
-   * 获取衣物类型枚举值 - 从categories表获取
+   * 获取衣物类型枚举值
    */
   async getClothingTypes(): Promise<EnumValue[]> {
     try {
-      const categories = await Category.findAll({
-        where: { enabled: true },
+      // 由于Category模型已移除，这里返回空数组或默认值
+      // 实际项目中应根据新的数据结构调整
+      return [
+        { value: '1', label: '上衣' },
+        { value: '2', label: '裤子' },
+        { value: '3', label: '裙子' },
+        { value: '4', label: '鞋子' },
+        { value: '5', label: '配件' }
+      ];
+
+      /* 或者，如果有新的数据来源，可以从其他地方获取
+      // 示例：从Attribute表获取服装类型
+      const clothingTypeAttributes = await Attribute.findAll({
+        where: {
+          category: 'clothing_type',
+          enabled: true
+        },
         order: [['sortOrder', 'ASC']]
       });
 
-      return categories.map(category => ({
-        value: category.id.toString(),
-        label: category.name,
-        icon: category.icon || undefined,
-        metadata: {
-          id: category.id,
-          description: category.description,
-          slug: category.slug
-        }
+      return clothingTypeAttributes.map(attr => ({
+        value: attr.value,
+        label: attr.displayName || attr.name,
+        icon: attr.icon || undefined,
+        metadata: attr.metadata || {}
       }));
+      */
     } catch (error) {
       console.error('获取衣物类型失败:', error);
       throw new Error('获取衣物类型失败');

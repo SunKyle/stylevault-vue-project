@@ -224,11 +224,8 @@ export class UserPreferences extends BaseModel<UserPreferences> {
   /**
    * 所属用户
    */
-  @BelongsTo(() => User, {
-    foreignKey: 'userId',
-    as: 'user'
-  })
-  user!: User;
+  @BelongsTo(() => User)
+  user?: User;
 
   // ==================== 实例方法 ====================
 
