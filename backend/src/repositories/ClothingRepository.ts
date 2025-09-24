@@ -166,9 +166,9 @@ export class ClothingRepository {
    */
   async deleteClothingItem(id: number, userId: number): Promise<[number, any[]]> {
     return await Clothing.update(
-      { status: 'deleted' },
+      { deletedAt: new Date() },
       { 
-        where: { id, userId, status: 'active' },
+        where: { id, userId },
         returning: true
       }
     );
