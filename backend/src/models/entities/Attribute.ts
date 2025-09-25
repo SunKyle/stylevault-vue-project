@@ -1,7 +1,6 @@
 import { Table, Column, DataType, HasMany, AllowNull, Default, Index } from 'sequelize-typescript';
 import { Op } from 'sequelize';
 import { BaseModel } from '../base/BaseModel';
-import { EntityAttribute } from './EntityAttribute';
 import { AttributeType, AttributeCategory } from '../../types/model.types';
 
 /**

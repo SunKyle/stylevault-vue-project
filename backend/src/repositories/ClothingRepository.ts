@@ -1,6 +1,6 @@
-import { User } from '../models/entities/User';
 import { Op, Sequelize } from 'sequelize';
 import { Clothing } from '../models/entities/Clothing';
+import { User } from '../models/entities/User';
 
 export interface ClothingQueryOptions {
   page?: number;
@@ -100,7 +100,7 @@ export class ClothingRepository {
   /**
    * 根据ID获取衣物
    */
-  async findClothingItemById(id: number, userId?: number): Promise<any | null> {
+  async findClothingItemById(id: number, userId?: number): Promise<Clothing | null> {
     const whereClause: any = { id, status: 'active' };
     
     if (userId) {
@@ -123,14 +123,14 @@ export class ClothingRepository {
   /**
    * 创建衣物
    */
-  async createClothingItem(data: any): Promise<any> {
-    return await Clothing.create(data as any);
+  async createClothingItem(data: any): Promise<Clothing> {
+    return await Clothing.create(data);
   }
 
   /**
    * 更新衣物
    */
-  async updateClothingItem(id: number, userId: number, data: any): Promise<[number, any[]]> {
+  async updateClothingItem(id: number, userId: number, data: Partial<Clothing>): Promise<[number, Clothing[]]> {
     const updateData: any = { ...data };
     
     // 处理需要转换的字段
@@ -164,7 +164,7 @@ export class ClothingRepository {
   /**
    * 删除衣物（软删除）
    */
-  async deleteClothingItem(id: number, userId: number): Promise<[number, any[]]> {
+  async deleteClothingItem(id: number, userId: number): Promise<[number, Clothing[]]> {
     return await Clothing.update(
       { deletedAt: new Date() },
       { 

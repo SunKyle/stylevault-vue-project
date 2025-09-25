@@ -10,7 +10,6 @@ import { Clothing } from './entities/Clothing';
 import { Outfit } from './entities/Outfit';
 import { OutfitClothing } from './entities/OutfitClothing';
 import { Attribute } from './entities/Attribute';
-import { EntityAttribute } from './entities/EntityAttribute';
 import { UserPreferences } from './entities/UserPreferences';
 import { UserBehavior } from './entities/UserBehavior';
 import { WeatherData } from './entities/WeatherData';
@@ -22,7 +21,6 @@ export { Clothing };
 export { Outfit };
 export { OutfitClothing };
 export { Attribute };
-export { EntityAttribute };
 export { UserPreferences };
 export { UserBehavior };
 export { WeatherData };
@@ -38,7 +36,6 @@ export const models = [
   Outfit,
   OutfitClothing,
   Attribute,
-  EntityAttribute,
   UserPreferences,
   UserBehavior,
   WeatherData,
@@ -87,15 +84,6 @@ export const setupModelAssociations = () => {
     as: 'outfits'
   });
 
-  Clothing.hasMany(EntityAttribute, {
-    foreignKey: 'entityId',
-    constraints: false,
-    scope: {
-      entityType: 'clothing'
-    },
-    as: 'attributes'
-  });
-
   // Outfit 关联
   Outfit.belongsTo(User, {
     foreignKey: 'userId',
@@ -108,27 +96,9 @@ export const setupModelAssociations = () => {
     otherKey: 'clothing_id',
     as: 'clothes'
   });
-  
-  Outfit.hasMany(EntityAttribute, {
-    foreignKey: 'entityId',
-    constraints: false,
-    scope: {
-      entityType: 'outfit'
-    },
-    as: 'attributes'
-  });
 
-  // Attribute 关联
-  Attribute.hasMany(EntityAttribute, {
-    foreignKey: 'attributeId',
-    as: 'entityAttributes'
-  });
-
-  // EntityAttribute 关联
-  EntityAttribute.belongsTo(Attribute, {
-    foreignKey: 'attributeId',
-    as: 'attribute'
-  });
+  // // Attribute 关联
+  // Attribute 目前没有hasMany关联，因为EntityAttribute已被移除
 
   // UserPreferences 关联
   UserPreferences.belongsTo(User, {
