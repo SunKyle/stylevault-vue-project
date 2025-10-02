@@ -2,6 +2,7 @@ import express from 'express';
 import healthRoutes from './health';
 import authRoutes from './auth';
 import clothingRoutes from './clothing';
+import outfitRoutes from './outfit';
 
 const router = express.Router();
 
@@ -12,6 +13,7 @@ const API_PREFIX = '/api/v1';
 router.use('/health', healthRoutes);
 router.use('/auth', authRoutes);
 router.use('/', clothingRoutes);
+router.use('/', outfitRoutes);
 
 // 导出带前缀的路由
 export default (app: express.Application) => {
