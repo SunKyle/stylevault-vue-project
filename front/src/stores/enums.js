@@ -10,55 +10,55 @@ export const useEnumsStore = defineStore('enums', () => {
   const occasions = ref([]);
   const materials = ref([]);
   const colors = ref([]);
-  
+
   const loading = ref(false);
   const error = ref(null);
-  
+
   // 是否已加载
   const isLoaded = ref(false);
 
   // 计算属性
-  const categoryOptions = computed(() => 
+  const categoryOptions = computed(() =>
     categories.value.map(item => ({
       value: item.value,
-      label: item.label
+      label: item.label,
     }))
   );
 
-  const styleOptions = computed(() => 
+  const styleOptions = computed(() =>
     styles.value.map(item => ({
       value: item.id,
-      label: item.label
+      label: item.label,
     }))
   );
 
   // 计算属性 - 修复季节选项格式
-  const seasonOptions = computed(() => 
+  const seasonOptions = computed(() =>
     seasons.value.map(item => ({
       value: String(item.id || item.value), // 统一转换为字符串
-      label: item.label
+      label: item.label,
     }))
   );
 
-  const occasionOptions = computed(() => 
+  const occasionOptions = computed(() =>
     occasions.value.map(item => ({
       value: item.id,
-      label: item.label
+      label: item.label,
     }))
   );
 
-  const materialOptions = computed(() => 
+  const materialOptions = computed(() =>
     materials.value.map(item => ({
       value: item.id,
-      label: item.label
+      label: item.label,
     }))
   );
 
-  const colorOptions = computed(() => 
+  const colorOptions = computed(() =>
     colors.value.map(item => ({
       value: item.id,
       label: item.label,
-      color: item.color
+      color: item.color,
     }))
   );
 
@@ -66,17 +66,17 @@ export const useEnumsStore = defineStore('enums', () => {
   // 在fetchAllEnums方法中添加调试
   const fetchAllEnums = async () => {
     if (isLoaded.value) return;
-    
+
     loading.value = true;
     error.value = null;
-    
+
     try {
       const response = await api.get('/enums/all');
       const data = response.data || {};
-      
+
       console.log('=== 枚举数据调试 ===');
       console.log('原始季节数据:', data.seasons);
-      
+
       // 确保数据结构正确
       categories.value = data.clothingTypes || [];
       styles.value = Array.isArray(data.styles) ? data.styles : [];
@@ -84,10 +84,10 @@ export const useEnumsStore = defineStore('enums', () => {
       occasions.value = Array.isArray(data.occasions) ? data.occasions : [];
       materials.value = Array.isArray(data.materials) ? data.materials : [];
       colors.value = Array.isArray(data.colors) ? data.colors : [];
-      
+
       console.log('处理后季节数据:', seasons.value);
       console.log('季节选项:', seasonOptions.value);
-      
+
       isLoaded.value = true;
     } catch (err) {
       console.error('获取枚举值失败:', err);
@@ -98,12 +98,12 @@ export const useEnumsStore = defineStore('enums', () => {
   };
 
   // 获取单个枚举值
-  const fetchEnum = async (type) => {
+  const fetchEnum = async type => {
     const endpoints = {
       categories: '/enums/types',
       styles: '/enums/styles',
       seasons: '/enums/seasons',
-      occasions: '/enums/occasions'
+      occasions: '/enums/occasions',
     };
 
     if (!endpoints[type]) {
@@ -114,7 +114,7 @@ export const useEnumsStore = defineStore('enums', () => {
     try {
       const response = await api.get(endpoints[type]);
       const data = response.data.data || [];
-      
+
       switch (type) {
         case 'categories':
           categories.value = data;
@@ -142,7 +142,7 @@ export const useEnumsStore = defineStore('enums', () => {
       seasons: seasons.value,
       occasions: occasions.value,
       materials: materials.value,
-      colors: colors.value
+      colors: colors.value,
     };
 
     const item = enumMap[type]?.find(item => item.value === value);
@@ -173,7 +173,7 @@ export const useEnumsStore = defineStore('enums', () => {
     loading,
     error,
     isLoaded,
-    
+
     // 计算属性
     categoryOptions,
     styleOptions,
@@ -181,11 +181,11 @@ export const useEnumsStore = defineStore('enums', () => {
     occasionOptions,
     materialOptions,
     colorOptions,
-    
+
     // 方法
     fetchAllEnums,
     fetchEnum,
     getLabelByValue,
-    reset
+    reset,
   };
 });

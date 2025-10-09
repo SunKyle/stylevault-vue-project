@@ -114,7 +114,10 @@
                 <div
                   class="w-14 h-14 mx-auto bg-neutral-100 rounded-full flex items-center justify-center mb-3 group-hover:bg-primary/10"
                 >
-                  <font-awesome-icon :icon="['fas', 'plus']" class="text-neutral-400 text-xl group-hover:text-primary" />
+                  <font-awesome-icon
+                    :icon="['fas', 'plus']"
+                    class="text-neutral-400 text-xl group-hover:text-primary"
+                  />
                 </div>
                 <p class="text-neutral-500 font-medium group-hover:text-primary">添加更多衣物</p>
               </div>
@@ -164,13 +167,13 @@
   import ClothingItemEditor from '../components/wardrobe/ClothingItemEditor.vue';
   import ContentLayout from '../components/layout/ContentLayout.vue';
   import { useClothingStore } from '../stores/index';
-  import { outfitService } from '../services/outfitService';
   import { useRouter } from 'vue-router';
   import { showToast } from '../utils/toast';
+  // import { outfitService } from '../services/outfitService'; // 暂时未使用
 
   const router = useRouter();
   const clothingStore = useClothingStore();
-  const emit = defineEmits(['showUpload']);
+  // const emit = defineEmits(['showUpload']); // 暂时未使用
 
   // 状态
   const isDrawerOpen = ref(false);
@@ -189,21 +192,21 @@
   const loading = computed(() => clothingStore.loading);
   const error = computed(() => clothingStore.error);
   const recentlyAddedItems = computed(() => clothingStore.recentlyAddedItems);
-  const favoriteItems = computed(() => clothingStore.favoriteItems);
+  // const favoriteItems = computed(() => clothingStore.favoriteItems); // 暂时未使用
 
   // 精选搭配数据
-  const outfits = ref([]);
+  // const outfits = ref([]); // 暂时未使用
 
   // 获取搭配数据
-  const fetchOutfits = async () => {
-    try {
-      const response = await outfitService.getOutfits();
-      outfits.value = response.data || [];
-    } catch (error) {
-      console.error('获取搭配数据失败:', error);
-      outfits.value = [];
-    }
-  };
+  // const fetchOutfits = async () => { // 暂时未使用
+  //   try {
+  //     const response = await outfitService.getOutfits();
+  //     outfits.value = response.data || [];
+  //   } catch (error) {
+  //     console.error('获取搭配数据失败:', error);
+  //     outfits.value = [];
+  //   }
+  // };
 
   function getCategoryItemCount(categoryId) {
     if (isSearchMode.value) return searchResults.value.length;
@@ -349,14 +352,14 @@
     try {
       // 进入搜索模式
       isSearchMode.value = true;
-      
+
       // 使用后端API进行搜索
       const results = await clothingStore.searchClothingItems(keyword);
       searchResults.value = results;
-      
+
       // 搜索时清除分类选择
       clothingStore.clearSelectedCategory();
-      
+
       // 保存搜索关键词
       currentSearchKeyword.value = keyword;
       showToast(`找到 ${results.length} 件相关衣物`, 'success');

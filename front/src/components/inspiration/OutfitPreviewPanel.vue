@@ -333,10 +333,10 @@
 </template>
 
 <script setup>
-  import { ref, defineModel, watch, computed, onMounted } from 'vue';
-import { showToast } from '../../utils/toast';
-import { useEnumsStore } from '@/stores/enums';
-import { scenesMockData } from '../../mock/data';
+  import { ref, defineModel, computed, onMounted } from 'vue';
+  import { showToast } from '../../utils/toast';
+  import { useEnumsStore } from '@/stores/enums';
+  import { scenesMockData } from '../../mock/data';
 
   // 定义模型
   const outfitName = defineModel('outfitName', { type: String, default: '' });
@@ -360,10 +360,10 @@ import { scenesMockData } from '../../mock/data';
 
   // 场景选项
   const sceneOptions = scenesMockData;
-  
+
   // 季节选项
   const seasonOptions = computed(() => enumsStore.seasonOptions);
-  
+
   // 风格选项
   const styleOptions = computed(() => enumsStore.styleOptions);
 

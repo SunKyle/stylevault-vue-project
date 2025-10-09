@@ -129,7 +129,7 @@ export const clothingAdaptorApi = {
   },
 
   // 获取收藏衣物
-  getFavoriteItems: async (userId) => {
+  getFavoriteItems: async userId => {
     if (isDevelopment) {
       return mockAPI.wardrobe.getFavoriteItems(userId);
     }

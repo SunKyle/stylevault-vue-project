@@ -1,5 +1,5 @@
 // 从data.js中导入数据
-import { categories, scenesMockData, seasonsMockData, stylesMockData, clothingItems } from './data';
+import { categories, clothingItems } from './data'; // 只导入使用的数据，移除未使用的数据定义
 
 // 模拟API延迟
 const delay = ms => new Promise(resolve => setTimeout(resolve, ms));

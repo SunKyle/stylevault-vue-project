@@ -17,19 +17,19 @@ class HttpClient {
 
   setupInterceptors() {
     this.instance.interceptors.request.use(
-      (config) => {
+      config => {
         const token = localStorage.getItem('token');
         if (token) {
           config.headers.Authorization = `Bearer ${token}`;
         }
         return config;
       },
-      (error) => Promise.reject(error)
+      error => Promise.reject(error)
     );
 
     this.instance.interceptors.response.use(
-      (response) => response.data,
-      (error) => {
+      response => response.data,
+      error => {
         // 不再自动重定向，让调用方处理错误
         if (error.response?.status === 401) {
           // 只在token过期时清除token，不重定向

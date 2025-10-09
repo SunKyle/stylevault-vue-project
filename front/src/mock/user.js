@@ -57,7 +57,7 @@ export const userAPI = {
   // 用户注册
   register: async userData => {
     await delay(800); // 模拟网络延迟
-    const { username, email, password } = userData;
+    const { username, email } = userData; // 简化解构，不包含未使用的密码参数
 
     // 检查用户名是否已存在
     if (users.some(user => user.username === username)) {

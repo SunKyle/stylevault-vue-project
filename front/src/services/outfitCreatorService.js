@@ -2,7 +2,7 @@
  * OutfitCreator 服务层
  * 提供创建搭配的独立服务，解耦组件间通信
  */
-import { ref, computed } from 'vue';
+import { ref } from 'vue';
 import { useInspirationStore } from '@/stores';
 import { showToast } from '@/utils/toast';
 

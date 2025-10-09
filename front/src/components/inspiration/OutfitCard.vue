@@ -329,8 +329,8 @@
 
 <script setup>
   import { ref, reactive, computed, onMounted } from 'vue';
-import { useEnumsStore } from '@/stores/enums';
-import { scenesMockData } from '../../mock/data';
+  import { useEnumsStore } from '@/stores/enums';
+  import { scenesMockData } from '../../mock/data';
   import InfoChip from './InfoChip.vue';
 
   // Props定义
@@ -345,7 +345,7 @@ import { scenesMockData } from '../../mock/data';
   const emit = defineEmits(['load-outfit', 'delete-outfit', 'edit-outfit']);
 
   // 状态管理
-  const expanded = ref(false);
+  // const expanded = ref(false); // 暂时未使用，因为toggleExpand函数已注释
 
   const enumsStore = useEnumsStore();
 
@@ -382,10 +382,10 @@ import { scenesMockData } from '../../mock/data';
   const selectStyle = value => toggleArrayItem(editOutfit.styles, value);
   const hoveredIndex = ref(-1);
 
-  // 切换展开状态
-  function toggleExpand() {
-    expanded.value = !expanded.value;
-  }
+  // 切换展开状态 - 暂时未使用
+  // function toggleExpand() {
+  //   expanded.value = !expanded.value;
+  // }
 
   // 获取堆叠样式
   function getItemStyle(index) {
@@ -426,10 +426,10 @@ import { scenesMockData } from '../../mock/data';
     };
   }
 
-  // 关闭图片预览
-  function closeImagePreview() {
-    previewImage.value.show = false;
-  }
+  // 关闭图片预览 - 暂时未使用
+  // function closeImagePreview() {
+  //   previewImage.value.show = false;
+  // }
 
   // 编辑状态
   const isEditing = ref(false);

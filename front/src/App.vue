@@ -1,8 +1,14 @@
 <template>
   <div class="font-sans bg-neutral-50 text-neutral-800 min-h-screen flex flex-col">
     <!-- 登录页面不显示导航栏 -->
-    <Header v-if="route.name !== 'login'" :currentSection="currentSection" @changeSection="changeSection" />
-    <main :class="[route.name === 'login' ? 'min-h-screen' : 'flex-grow pt-20 pb-20 overflow-hidden']">
+    <Header
+      v-if="route.name !== 'login'"
+      :currentSection="currentSection"
+      @changeSection="changeSection"
+    />
+    <main
+      :class="[route.name === 'login' ? 'min-h-screen' : 'flex-grow pt-20 pb-20 overflow-hidden']"
+    >
       <transition name="page" mode="out-in">
         <router-view />
       </transition>
@@ -27,7 +33,7 @@
 </template>
 
 <script setup>
-  import { ref, computed, watch, nextTick } from 'vue';
+  import { ref } from 'vue';
   import { useRoute, useRouter } from 'vue-router';
   import Header from './components/layout/Header.vue';
   import Footer from './components/layout/Footer.vue';
@@ -94,19 +100,21 @@
 </script>
 
 <style>
-/* 页面切换动画 */
-.page-enter-active,
-.page-leave-active {
-  transition: opacity 0.3s ease, transform 0.3s ease;
-}
+  /* 页面切换动画 */
+  .page-enter-active,
+  .page-leave-active {
+    transition:
+      opacity 0.3s ease,
+      transform 0.3s ease;
+  }
 
-.page-enter-from {
-  opacity: 0;
-  transform: translateX(-20px);
-}
+  .page-enter-from {
+    opacity: 0;
+    transform: translateX(-20px);
+  }
 
-.page-leave-to {
-  opacity: 0;
-  transform: translateX(20px);
-}
+  .page-leave-to {
+    opacity: 0;
+    transform: translateX(20px);
+  }
 </style>

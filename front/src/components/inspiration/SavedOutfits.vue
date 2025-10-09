@@ -286,11 +286,11 @@
 </template>
 
 <script setup>
-  import { ref, computed, watch, onMounted, onUnmounted } from 'vue';
-import { useInspirationStore } from '@/stores';
-import { useEnumsStore } from '@/stores/enums';
-import OutfitCard from './OutfitCard.vue';
-import { scenesMockData } from '../../mock/data';
+  import { ref, computed, onMounted } from 'vue';
+  import { useInspirationStore } from '@/stores';
+  import { useEnumsStore } from '@/stores/enums';
+  import OutfitCard from './OutfitCard.vue';
+  // import { scenesMockData } from '../../mock/data'; // 暂时未使用
 
   const inspirationStore = useInspirationStore();
   const enumsStore = useEnumsStore();
@@ -388,40 +388,40 @@ import { scenesMockData } from '../../mock/data';
     // 筛选变化时的逻辑可以在这里添加
   });
 
-  // 格式化日期
-  function formatDate(date) {
-    const d = new Date(date);
-    return `${d.getFullYear()}/${(d.getMonth() + 1).toString().padStart(2, '0')}/${d
-      .getDate()
-      .toString()
-      .padStart(2, '0')}`;
-  }
+  // 格式化日期 - 暂时未使用
+  // function formatDate(date) {
+  //   const d = new Date(date);
+  //   return `${d.getFullYear()}/${(d.getMonth() + 1).toString().padStart(2, '0')}/${d
+  //     .getDate()
+  //     .toString()
+  //     .padStart(2, '0')}`;
+  // }
 
-  // 获取搭配衣物类型统计
-  function getOutfitStats(items) {
-    const stats = {};
-    items.forEach(item => {
-      // 提取类型（如"上衣"、"裤子"等）
-      const type = item.type.split(' · ')[0];
-      if (stats[type]) {
-        stats[type]++;
-      } else {
-        stats[type] = 1;
-      }
-    });
-    return stats;
-  }
+  // 获取搭配衣物类型统计 - 暂时未使用
+  // function getOutfitStats(items) {
+  //   const stats = {};
+  //   items.forEach(item => {
+  //     // 提取类型（如"上衣"、"裤子"等）
+  //     const type = item.type.split(' · ')[0];
+  //     if (stats[type]) {
+  //       stats[type]++;
+  //     } else {
+  //       stats[type] = 1;
+  //     }
+  //   });
+  //   return stats;
+  // }
 
-  // 获取搭配标签
-  function getOutfitTags(items) {
-    const tags = new Set();
-    items.forEach(item => {
-      if (item.tags && Array.isArray(item.tags)) {
-        item.tags.forEach(tag => tags.add(tag));
-      }
-    });
-    return Array.from(tags);
-  }
+  // 获取搭配标签 - 暂时未使用
+  // function getOutfitTags(items) {
+  //   const tags = new Set();
+  //   items.forEach(item => {
+  //     if (item.tags && Array.isArray(item.tags)) {
+  //       item.tags.forEach(tag => tags.add(tag));
+  //     }
+  //   });
+  //   return Array.from(tags);
+  // }
 
   // 处理删除搭配事件
   function handleDeleteOutfit(outfitId) {
@@ -452,15 +452,15 @@ import { scenesMockData } from '../../mock/data';
     }
   }
 
-  // 获取随机点赞数（模拟）
-  function getRandomLikes() {
-    return Math.floor(Math.random() * 100) + 1;
-  }
+  // 获取随机点赞数（模拟） - 暂时未使用
+  // function getRandomLikes() {
+  //   return Math.floor(Math.random() * 100) + 1;
+  // }
 
-  // 获取随机评论数（模拟）
-  function getRandomComments() {
-    return Math.floor(Math.random() * 20) + 1;
-  }
+  // 获取随机评论数（模拟） - 暂时未使用
+  // function getRandomComments() {
+  //   return Math.floor(Math.random() * 20) + 1;
+  // }
 
   // 筛选和搜索功能方法
   // 切换筛选面板显示
@@ -582,10 +582,14 @@ import { scenesMockData } from '../../mock/data';
 
   /* 卡片悬停效果增强 */
   .shadow-md {
-    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
+    box-shadow:
+      0 4px 6px -1px rgba(0, 0, 0, 0.05),
+      0 2px 4px -1px rgba(0, 0, 0, 0.03);
   }
 
   .shadow-lg {
-    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.08), 0 4px 6px -2px rgba(0, 0, 0, 0.04);
+    box-shadow:
+      0 10px 15px -3px rgba(0, 0, 0, 0.08),
+      0 4px 6px -2px rgba(0, 0, 0, 0.04);
   }
 </style>

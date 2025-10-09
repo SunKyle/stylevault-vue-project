@@ -127,12 +127,7 @@
           <div class="flex items-center justify-between">
             <!-- 记住我开关 -->
             <label for="remember" class="relative inline-flex items-center cursor-pointer">
-              <input
-                id="remember"
-                type="checkbox"
-                v-model="form.remember"
-                class="sr-only peer"
-              />
+              <input id="remember" type="checkbox" v-model="form.remember" class="sr-only peer" />
               <div
                 class="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary flex-shrink-0"
               ></div>
@@ -249,7 +244,7 @@
   import BaseButton from '@/components/ui/BaseButton.vue';
 
   // 定义props，以便父组件传递数据和方法
-  const props = defineProps({
+  defineProps({
     isLoading: {
       type: Boolean,
       default: false,
@@ -257,11 +252,17 @@
   });
 
   // 定义事件
-  const emit = defineEmits(['toggle-password', 'validate-email', 'validate-password', 'submit', 'show-register']);
+  const emit = defineEmits([
+    'toggle-password',
+    'validate-email',
+    'validate-password',
+    'submit',
+    'show-register',
+  ]);
 
   // 切换密码可见性
   const showPassword = ref(false);
-  
+
   const togglePassword = () => {
     showPassword.value = !showPassword.value;
     emit('toggle-password');
@@ -271,14 +272,14 @@
   const form = ref({
     email: '',
     password: '',
-    remember: false
+    remember: false,
   });
 
   // 表单错误
   const errors = ref({
     email: '',
     password: '',
-    general: ''
+    general: '',
   });
 
   // 验证电子邮件

@@ -79,7 +79,7 @@ export const useClothingStore = defineStore('clothing', {
       const result = {};
       const items = Array.isArray(state.clothingItems) ? state.clothingItems : [];
       const categories = Array.isArray(state.categories) ? state.categories : [];
-      
+
       categories.forEach(category => {
         result[category.id] = items.filter(item => item && item.categoryId === category.id);
       });

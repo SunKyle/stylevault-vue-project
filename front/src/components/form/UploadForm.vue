@@ -110,9 +110,9 @@
               class="w-full px-4 py-3 rounded-xl border border-neutral-200 focus:border-primary focus:ring-2 focus:ring-primary/20 focus:outline-none transition-all appearance-none bg-white"
             >
               <option value="">请选择类别</option>
-              <option 
-                v-for="category in categoryOptions" 
-                :key="category.value" 
+              <option
+                v-for="category in categoryOptions"
+                :key="category.value"
                 :value="category.value"
               >
                 {{ category.label }}
@@ -127,11 +127,7 @@
               class="w-full px-4 py-3 rounded-xl border border-neutral-200 focus:border-primary focus:ring-2 focus:ring-primary/20 focus:outline-none transition-all appearance-none bg-white"
             >
               <option value="">请选择风格</option>
-              <option 
-                v-for="style in styleOptions" 
-                :key="style.value" 
-                :value="style.value"
-              >
+              <option v-for="style in styleOptions" :key="style.value" :value="style.value">
                 {{ style.label }}
               </option>
             </select>
@@ -163,11 +159,7 @@
               class="w-full px-4 py-3 rounded-xl border border-neutral-200 focus:border-primary focus:ring-2 focus:ring-primary/20 focus:outline-none transition-all appearance-none bg-white"
             >
               <option value="">请选择颜色</option>
-              <option 
-                v-for="color in colorOptions" 
-                :key="color.value" 
-                :value="color.value"
-              >
+              <option v-for="color in colorOptions" :key="color.value" :value="color.value">
                 {{ color.label }}
               </option>
             </select>
@@ -180,9 +172,9 @@
               class="w-full px-4 py-3 rounded-xl border border-neutral-200 focus:border-primary focus:ring-2 focus:ring-primary/20 focus:outline-none transition-all appearance-none bg-white"
             >
               <option value="">请选择材质</option>
-              <option 
-                v-for="material in materialOptions" 
-                :key="material.value" 
+              <option
+                v-for="material in materialOptions"
+                :key="material.value"
                 :value="material.value"
               >
                 {{ material.label }}
@@ -213,10 +205,7 @@
               适用季节
               <span class="text-red-500">*</span>
             </label>
-            <SeasonMultiSelect 
-              v-model="selectedSeasons" 
-              :options="seasonOptions" 
-            />
+            <SeasonMultiSelect v-model="selectedSeasons" :options="seasonOptions" />
           </div>
         </div>
       </div>
@@ -289,13 +278,13 @@
 
 <script setup>
   import { reactive, ref, computed, nextTick, onMounted } from 'vue';
-  import { useRouter } from 'vue-router';
+  // import { useRouter } from 'vue-router'; // 暂时未使用
   import { useClothingStore } from '@/stores';
   import { useEnumsStore } from '@/stores/enums';
   import { showToast } from '../../utils/toast';
   import SeasonMultiSelect from '@/components/SeasonMultiSelect.vue';
 
-  const router = useRouter();
+  // const router = useRouter(); // 暂时未使用
   const clothingStore = useClothingStore();
   const enumsStore = useEnumsStore();
 
@@ -409,7 +398,7 @@
     }
 
     isSaving.value = true;
-    
+
     // 验证必填字段
     if (!clothingItem.name || !clothingItem.categoryId) {
       showToast('请填写衣物名称和类别', 'error');
@@ -425,39 +414,40 @@
     }
 
     try {
-        const today = new Date().toISOString().split('T')[0];
-        
-        // 验证并处理mainImageUrl
-        let validatedMainImageUrl = clothingItem.image || null;
-        
-        // 如果是DataURL格式或无效URL，使用占位符
-        if (validatedMainImageUrl && (
-            validatedMainImageUrl.startsWith('data:') ||
-            validatedMainImageUrl.length > 200 ||
-            !/^https?:\/\/.+|^\/.+/.test(validatedMainImageUrl)
-        )) {
-          validatedMainImageUrl = 'https://via.placeholder.com/300x400/6366f1/ffffff?text=Image';
-          showToast('图片已转换为占位符', 'info');
-        }
+      const today = new Date().toISOString().split('T')[0];
 
-        const itemToSubmit = {
-          name: clothingItem.name,
-          categoryId: clothingItem.categoryId,
-          colorId: clothingItem.color || null,
-          styleId: clothingItem.style || null,
-          brand: clothingItem.brand,
-          notes: clothingItem.notes,
-          imageUrls: validatedMainImageUrl ? [validatedMainImageUrl] : [],
-          mainImageUrl: validatedMainImageUrl,
-          purchaseDate: clothingItem.purchaseDate || today,
-          favorite: false,
-          metadata: {
-            seasons: [...selectedSeasons.value] || [], // 使用独立季节数组
-            material: clothingItem.material || null,
-            size: clothingItem.size || null,
-            price: clothingItem.price ? parseFloat(clothingItem.price) : null,
-          }
-        };
+      // 验证并处理mainImageUrl
+      let validatedMainImageUrl = clothingItem.image || null;
+
+      // 如果是DataURL格式或无效URL，使用占位符
+      if (
+        validatedMainImageUrl &&
+        (validatedMainImageUrl.startsWith('data:') ||
+          validatedMainImageUrl.length > 200 ||
+          !/^https?:\/\/.+|^\/.+/.test(validatedMainImageUrl))
+      ) {
+        validatedMainImageUrl = 'https://via.placeholder.com/300x400/6366f1/ffffff?text=Image';
+        showToast('图片已转换为占位符', 'info');
+      }
+
+      const itemToSubmit = {
+        name: clothingItem.name,
+        categoryId: clothingItem.categoryId,
+        colorId: clothingItem.color || null,
+        styleId: clothingItem.style || null,
+        brand: clothingItem.brand,
+        notes: clothingItem.notes,
+        imageUrls: validatedMainImageUrl ? [validatedMainImageUrl] : [],
+        mainImageUrl: validatedMainImageUrl,
+        purchaseDate: clothingItem.purchaseDate || today,
+        favorite: false,
+        metadata: {
+          seasons: [...selectedSeasons.value] || [], // 使用独立季节数组
+          material: clothingItem.material || null,
+          size: clothingItem.size || null,
+          price: clothingItem.price ? parseFloat(clothingItem.price) : null,
+        },
+      };
 
       await clothingStore.addClothingItem(itemToSubmit);
       showToast('衣物添加成功', 'success');
@@ -480,7 +470,6 @@
         image: '',
       });
       selectedSeasons.value = []; // 清空季节选择
-      
     } catch (error) {
       showToast('添加失败，请重试', 'error');
       console.error('添加衣物失败:', error);

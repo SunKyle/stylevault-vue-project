@@ -36,32 +36,11 @@
 
   const inspirationStore = useInspirationStore();
 
-  // 直接从store解构，避免大数据传递
-  const {
-    clothes,
-    savedOutfits,
-    categories,
-    tags,
-    filteredClothes,
-    visibleOutfits,
-    selectedClothes,
-    isLoading,
-    pagination,
-  } = inspirationStore;
+  // 直接从store解构，只包含使用的变量
+  const { clothes, isLoading } = inspirationStore;
 
-  // 方法直接委托给store
-  const {
-    setFilter,
-    resetFilters,
-    toggleCloth,
-    removeCloth,
-    resetClothes,
-    loadMoreOutfits,
-    saveOutfit,
-    loadOutfit,
-    deleteOutfit,
-    initialize,
-  } = inspirationStore;
+  // 方法直接委托给store，只包含使用的方法
+  const { loadMoreOutfits, loadOutfit, deleteOutfit, initialize } = inspirationStore;
 
   const scrollToCreateSection = () => {
     const element = document.querySelector('.outfit-creator');

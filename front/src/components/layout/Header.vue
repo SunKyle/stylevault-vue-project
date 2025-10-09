@@ -273,8 +273,8 @@
   const router = useRouter();
   const userStore = useUserStore();
   const authStore = useAuthStore();
-  
-  const props = defineProps({
+
+  defineProps({
     currentSection: String,
   });
   const emit = defineEmits(['changeSection']);
@@ -318,10 +318,10 @@
     // 清除用户数据和认证状态
     userStore.logout();
     authStore.logout();
-    
+
     // 跳转到登录页面
     router.push('/');
-    
+
     // 关闭移动端菜单（如果打开）
     mobileMenuOpen.value = false;
   };

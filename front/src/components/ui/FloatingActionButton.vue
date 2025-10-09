@@ -128,10 +128,10 @@
     showMenu.value = false;
   }
 
-  function handleUpload() {
-    emit('upload');
-    showMenu.value = false;
-  }
+  // function handleUpload() {
+  //   emit('upload');
+  //   showMenu.value = false;
+  // }
 
   function handleViewAllClothing() {
     emit('viewAllClothing');
@@ -175,7 +175,9 @@
 
   /* 增强主按钮的阴影效果 */
   .shadow-xl {
-    box-shadow: 0 10px 30px rgba(79, 70, 229, 0.4), 0 4px 10px rgba(79, 70, 229, 0.2);
+    box-shadow:
+      0 10px 30px rgba(79, 70, 229, 0.4),
+      0 4px 10px rgba(79, 70, 229, 0.2);
   }
 
   /* 优化功能按钮的阴影层次 */

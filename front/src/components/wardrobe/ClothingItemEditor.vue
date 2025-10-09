@@ -599,7 +599,7 @@
           const reader = new FileReader();
           reader.onload = e => {
             const dataUrl = e.target.result;
-            
+
             // 任何DataURL都使用占位符，避免验证失败
             if (dataUrl.startsWith('data:')) {
               form.value.image = 'https://via.placeholder.com/300x400/6366f1/ffffff?text=Image';
@@ -625,33 +625,34 @@
 
         // 严格验证图片URL，确保100%通过后端验证
         let validImageUrl = form.value.image || '';
-        
+
         // 1. 拒绝DataURL格式
-            if (validImageUrl.startsWith('data:')) {
-              validImageUrl = 'https://via.placeholder.com/300x400/6366f1/ffffff?text=Image';
-            }
-            
-            // 2. 拒绝空值
-            if (!validImageUrl || validImageUrl.trim() === '') {
-              validImageUrl = 'https://via.placeholder.com/300x400/6366f1/ffffff?text=Image';
-            }
-            
-            // 3. 拒绝超长URL（后端限制255字符）
-            if (validImageUrl.length > 200) { // 留有余量
-              validImageUrl = 'https://via.placeholder.com/300x400/6366f1/ffffff?text=Image';
-            }
-            
-            // 4. 拒绝无效URL格式（简化验证）
-            const isValidUrl = /^https?:\/\/.+|^\/.+/.test(validImageUrl);
-            if (!isValidUrl) {
-              validImageUrl = 'https://via.placeholder.com/300x400/6366f1/ffffff?text=Image';
-            }
+        if (validImageUrl.startsWith('data:')) {
+          validImageUrl = 'https://via.placeholder.com/300x400/6366f1/ffffff?text=Image';
+        }
+
+        // 2. 拒绝空值
+        if (!validImageUrl || validImageUrl.trim() === '') {
+          validImageUrl = 'https://via.placeholder.com/300x400/6366f1/ffffff?text=Image';
+        }
+
+        // 3. 拒绝超长URL（后端限制255字符）
+        if (validImageUrl.length > 200) {
+          // 留有余量
+          validImageUrl = 'https://via.placeholder.com/300x400/6366f1/ffffff?text=Image';
+        }
+
+        // 4. 拒绝无效URL格式（简化验证）
+        const isValidUrl = /^https?:\/\/.+|^\/.+/.test(validImageUrl);
+        if (!isValidUrl) {
+          validImageUrl = 'https://via.placeholder.com/300x400/6366f1/ffffff?text=Image';
+        }
 
         try {
           // 准备提交数据
           const submitData = {
             ...form.value,
-            mainImageUrl: validImageUrl
+            mainImageUrl: validImageUrl,
           };
 
           if (form.value.id) {
@@ -836,36 +837,12 @@
   }
 </style>
 
-
-      // 更新分类名称
-      function updateCategoryName() {
-        if (form.value.categoryId) {
-          const selectedCategory = categories.value.find(c => c.id === form.value.categoryId);
-          if (selectedCategory) {
-            form.value.categoryName = selectedCategory.name;
-          }
-        } else {
-          form.value.categoryName = '';
-        }
-      }
-
-      // 全选季节
-      const allSeasons = computed({
-        get() {
-          if (!form.value.seasons || !Array.isArray(form.value.seasons)) return false;
-          return (
-            form.value.seasons.length === 4 &&
-            form.value.seasons.includes('春季') &&
-            form.value.seasons.includes('夏季') &&
-            form.value.seasons.includes('秋季') &&
-            form.value.seasons.includes('冬季')
-          );
-        },
-        set(value) {
-          if (value) {
-            form.value.seasons = ['春季', '夏季', '秋季', '冬季'];
-          } else {
-            form.value.seasons = [];
-          }
-        },
-      });
+// 更新分类名称 function updateCategoryName() { if (form.value.categoryId) { const selectedCategory
+= categories.value.find(c => c.id === form.value.categoryId); if (selectedCategory) {
+form.value.categoryName = selectedCategory.name; } } else { form.value.categoryName = ''; } } //
+全选季节 const allSeasons = computed({ get() { if (!form.value.seasons ||
+!Array.isArray(form.value.seasons)) return false; return ( form.value.seasons.length === 4 &&
+form.value.seasons.includes('春季') && form.value.seasons.includes('夏季') &&
+form.value.seasons.includes('秋季') && form.value.seasons.includes('冬季') ); }, set(value) { if
+(value) { form.value.seasons = ['春季', '夏季', '秋季', '冬季']; } else { form.value.seasons = []; }
+}, });

@@ -20,7 +20,7 @@
 <script setup>
   import { ref } from 'vue';
 
-  const props = defineProps({
+  defineProps({
     placeholder: {
       type: String,
       default: '搜索衣物、风格或场合...',

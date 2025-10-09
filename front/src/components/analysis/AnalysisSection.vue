@@ -208,10 +208,10 @@
                   idx === 0
                     ? 'bg-gradient-to-br from-amber-400 to-amber-500 text-white'
                     : idx === 1
-                    ? 'bg-gradient-to-br from-gray-300 to-gray-400 text-white'
-                    : idx === 2
-                    ? 'bg-gradient-to-br from-amber-700 to-amber-800 text-white'
-                    : 'bg-gray-100 text-gray-700'
+                      ? 'bg-gradient-to-br from-gray-300 to-gray-400 text-white'
+                      : idx === 2
+                        ? 'bg-gradient-to-br from-amber-700 to-amber-800 text-white'
+                        : 'bg-gray-100 text-gray-700'
                 "
                 class="w-8 h-8 rounded-full flex items-center justify-center font-bold mr-4 flex-shrink-0 transition-all duration-300 group-hover:scale-110"
               >
@@ -231,10 +231,10 @@
                         idx === 0
                           ? 'bg-gradient-to-r from-amber-400 to-amber-500'
                           : idx === 1
-                          ? 'bg-gradient-to-r from-gray-400 to-gray-500'
-                          : idx === 2
-                          ? 'bg-gradient-to-r from-amber-700 to-amber-800'
-                          : 'bg-gradient-to-r from-primary to-secondary'
+                            ? 'bg-gradient-to-r from-gray-400 to-gray-500'
+                            : idx === 2
+                              ? 'bg-gradient-to-r from-amber-700 to-amber-800'
+                              : 'bg-gradient-to-r from-primary to-secondary'
                       "
                       class="h-2.5 rounded-full"
                       :style="{ width: item.percent + '%' }"
@@ -374,7 +374,7 @@
 
   // 获取描边偏移量
   const getStrokeDashoffset = index => {
-    const circumference = 2 * Math.PI * 45; // 圆周长
+    // const circumference = 2 * Math.PI * 45; // 圆周长（暂时未使用）
     let offset = 0;
     for (let i = 0; i < index; i++) {
       offset += getStrokeDasharray(legends[i].percent);

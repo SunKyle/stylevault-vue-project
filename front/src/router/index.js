@@ -52,11 +52,11 @@ const router = createRouter({
 // 路由守卫
 router.beforeEach((to, from, next) => {
   const authStore = useAuthStore();
-  
+
   // 定义公开路由（不需要认证）
   const publicRoutes = ['/', 'login'];
   const isPublicRoute = publicRoutes.includes(to.name) || to.path === '/';
-  
+
   if (!isPublicRoute && !authStore.isAuthenticated) {
     // 需要认证但未登录，重定向到登录页
     next({

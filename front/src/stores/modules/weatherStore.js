@@ -1,7 +1,6 @@
 import { defineStore } from 'pinia';
 import { weatherService } from '../../services/weatherService';
 import { useClothingStore } from './clothingStore';
-import { useOutfitStore } from './outfitStore';
 
 export const useWeatherStore = defineStore('weather', {
   state: () => ({
@@ -63,7 +62,7 @@ export const useWeatherStore = defineStore('weather', {
       if (!this.currentWeather) return;
 
       const clothingStore = useClothingStore();
-      const outfitStore = useOutfitStore();
+      // const outfitStore = useOutfitStore(); // 暂时未使用
 
       try {
         // 根据天气条件筛选合适的衣物

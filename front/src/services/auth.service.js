@@ -7,9 +7,8 @@ class AuthService {
       return response;
     } catch (error) {
       // 优先使用后端返回的具体错误信息
-      const message = error.response?.data?.message || 
-                     error.response?.data?.error?.details || 
-                     '注册失败！！！';
+      const message =
+        error.response?.data?.message || error.response?.data?.error?.details || '注册失败！！！';
       const errorObj = new Error(message);
       errorObj.response = error.response;
       throw errorObj;
@@ -22,9 +21,8 @@ class AuthService {
       return response;
     } catch (error) {
       // 优先使用后端返回的具体错误信息
-      const message = error.response?.data?.message || 
-                     error.response?.data?.error?.details || 
-                     '登录失败';
+      const message =
+        error.response?.data?.message || error.response?.data?.error?.details || '登录失败';
       const errorObj = new Error(message);
       errorObj.response = error.response;
       throw errorObj;

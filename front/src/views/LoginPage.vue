@@ -19,10 +19,7 @@
         <!-- 右侧：登录/注册表单组件 -->
         <div class="w-full relative overflow-hidden">
           <!-- 登录/注册表单 -->
-          <transition
-            name="slide-fade"
-            mode="out-in"
-          >
+          <transition name="slide-fade" mode="out-in">
             <LoginForm
               v-if="!showRegister"
               :isLoading="isLoading"
@@ -100,8 +97,12 @@
         <font-awesome-icon :icon="['fas', 'exclamation-circle']" class="text-red-500 text-xl" />
       </div>
       <div class="ml-3">
-        <h3 class="text-sm font-medium text-red-800">{{ showRegister ? '注册失败' : '登录失败' }}</h3>
-        <div class="mt-1 text-sm text-red-700">{{ showRegister ? registerErrors.general : loginErrors.general }}</div>
+        <h3 class="text-sm font-medium text-red-800">
+          {{ showRegister ? '注册失败' : '登录失败' }}
+        </h3>
+        <div class="mt-1 text-sm text-red-700">
+          {{ showRegister ? registerErrors.general : loginErrors.general }}
+        </div>
       </div>
     </div>
   </div>
@@ -139,7 +140,7 @@
   });
 
   // 处理登录
-  const handleLogin = async (formData) => {
+  const handleLogin = async formData => {
     // 清除全局错误
     loginErrors.general = '';
 
@@ -161,10 +162,10 @@
       }, 2000);
     } catch (error) {
       console.error('登录失败:', error);
-      
+
       // 显示后端返回的错误信息
       loginErrors.general = error instanceof Error ? error.message : '登录失败，请检查用户名和密码';
-      
+
       // 显示错误提示
       showError.value = true;
 
@@ -178,7 +179,7 @@
   };
 
   // 处理注册
-  const handleRegister = async (formData) => {
+  const handleRegister = async formData => {
     // 清除全局错误
     registerErrors.general = '';
 
@@ -205,13 +206,13 @@
       setTimeout(() => {
         showSuccess.value = false;
         showRegister.value = false;
-        
+
         // 清空注册表单
         resetRegisterForm();
       }, 2000);
     } catch (error) {
       console.error('注册失败:', error);
-      
+
       // 清除之前的字段错误
       registerErrors.username = '';
       registerErrors.email = '';
@@ -223,18 +224,21 @@
       const errorData = error.response?.data;
       if (errorData?.error?.details) {
         const details = errorData.error.details;
-        
+
         // 处理字段级错误（数组格式）
         if (Array.isArray(details)) {
           let hasFieldErrors = false;
-          
+
           details.forEach(detail => {
-            if (detail.field && Object.prototype.hasOwnProperty.call(registerErrors, detail.field)) {
+            if (
+              detail.field &&
+              Object.prototype.hasOwnProperty.call(registerErrors, detail.field)
+            ) {
               registerErrors[detail.field] = detail.message;
               hasFieldErrors = true;
             }
           });
-          
+
           // 如果没有字段级错误，显示通用错误
           if (!hasFieldErrors && details.length > 0) {
             registerErrors.general = details[0].message || errorData.message || '注册失败';
@@ -252,7 +256,7 @@
       } else {
         registerErrors.general = error instanceof Error ? error.message : '注册失败，请重试';
       }
-      
+
       // 重置密码字段错误（仅在非字段错误时）
       if (!registerErrors.password) {
         registerErrors.password = '';
@@ -325,7 +329,7 @@
     transition: all 0.4s ease-out;
   }
   .slide-fade-leave-active {
-    transition: all 0.3s cubic-bezier(1.0, 0.5, 0.8, 1.0);
+    transition: all 0.3s cubic-bezier(1, 0.5, 0.8, 1);
   }
   .slide-fade-enter-from {
     transform: translateX(20px);

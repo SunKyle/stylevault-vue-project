@@ -197,7 +197,9 @@
               @click="toggleConfirmPassword"
               class="absolute inset-y-0 right-0 pr-3 flex items-center text-neutral-400 hover:text-primary transition-colors z-10"
             >
-              <font-awesome-icon :icon="showConfirmPassword ? ['fas', 'eye'] : ['fas', 'eye-slash']" />
+              <font-awesome-icon
+                :icon="showConfirmPassword ? ['fas', 'eye'] : ['fas', 'eye-slash']"
+              />
             </button>
             <div
               v-if="form.confirmPassword && !errors.confirmPassword"
@@ -330,11 +332,11 @@
 </template>
 
 <script setup>
-  import { ref, computed, watch } from 'vue';
+  import { ref, computed } from 'vue';
   import BaseButton from '@/components/ui/BaseButton.vue';
 
   // 定义props，以便父组件传递数据和方法
-  const props = defineProps({
+  defineProps({
     isLoading: {
       type: Boolean,
       default: false,
@@ -342,7 +344,14 @@
   });
 
   // 定义事件
-  const emit = defineEmits(['validate-username', 'validate-email', 'validate-password', 'validate-confirm-password', 'submit', 'show-login']);
+  const emit = defineEmits([
+    'validate-username',
+    'validate-email',
+    'validate-password',
+    'validate-confirm-password',
+    'submit',
+    'show-login',
+  ]);
 
   // 密码强度相关
   const showPassword = ref(false);
@@ -372,15 +381,13 @@
     return 100;
   });
 
-
-
   // 表单数据
   const form = ref({
     username: '',
     email: '',
     password: '',
     confirmPassword: '',
-    agreement: false
+    agreement: false,
   });
 
   // 表单错误
@@ -389,7 +396,7 @@
     email: '',
     password: '',
     confirmPassword: '',
-    general: ''
+    general: '',
   });
 
   // 验证用户名
@@ -447,10 +454,10 @@
     const varietyCount = [hasLowerCase, hasUpperCase, hasNumbers, hasSpecialChar].filter(
       Boolean
     ).length;
-    
+
     // 根据字符种类增加强度
     strength += Math.min(varietyCount - 1, 2);
-    
+
     // 确保强度值在0-2范围内
     return Math.min(Math.max(strength, 0), 2);
   };

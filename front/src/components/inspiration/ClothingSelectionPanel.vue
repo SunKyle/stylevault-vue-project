@@ -158,9 +158,9 @@
 
 <script setup>
   import { ref } from 'vue';
-  import { useOutfitCreator } from '@/services/outfitCreatorService';
+  // import { useOutfitCreator } from '@/services/outfitCreatorService'; // 暂时未使用
 
-  const service = useOutfitCreator();
+  // const service = useOutfitCreator(); // 暂时未使用
 
   // 拖拽状态
   const draggedItem = ref(null);
@@ -232,7 +232,9 @@
 <style scoped>
   .fade-enter-active,
   .fade-leave-active {
-    transition: opacity 0.3s ease, transform 0.3s ease;
+    transition:
+      opacity 0.3s ease,
+      transform 0.3s ease;
   }
 
   .fade-enter-from,
