@@ -39,7 +39,7 @@
     </div>
     <div class="px-1">
       <h4 class="font-medium truncate text-sm">{{ item.name }}</h4>
-      <p class="text-xs text-neutral-500 mt-1">{{ item.category }} · {{ item.style }}</p>
+      <p class="text-xs text-neutral-500 mt-1">{{ getEnumLabel('category', item.categoryId) }} · {{ getEnumLabel('style', item.style) }}</p>
       <!-- 季节信息 -->
       <div class="flex flex-wrap gap-1 mt-1" v-if="item.seasons && item.seasons.length > 0">
         <span
@@ -81,6 +81,8 @@
 </template>
 
 <script setup>
+  import { useEnumsStore } from '@/stores';
+  
   defineProps({
     item: {
       type: Object,
@@ -94,7 +96,30 @@
 
   defineEmits(['like', 'viewDetail']);
 
-  // 季节信息现在统一使用seasons数组，无需格式化
+  const enumsStore = useEnumsStore();
+
+  // 获取枚举属性的显示文本
+  function getEnumLabel(type, id) {
+    if (!id) return '';
+    const getterMap = {
+      category: 'getCategoryLabel',
+      style: 'getStyleLabel',
+      color: 'getColorLabel',
+      season: 'getSeasonLabel',
+      material: 'getMaterialLabel',
+      pattern: 'getPatternLabel',
+      size: 'getSizeLabel',
+      condition: 'getConditionLabel',
+      status: 'getStatusLabel',
+      occasion: 'getOccasionLabel'
+    };
+    
+    const getter = getterMap[type];
+    if (getter && enumsStore[getter]) {
+      return enumsStore[getter](id) || '';
+    }
+    return id;
+  }
 </script>
 
 <style scoped>

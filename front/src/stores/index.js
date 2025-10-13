@@ -1,6 +1,7 @@
 // Stores 入口文件 - 统一导出所有 store
 export { useAnalyticsStore } from './modules/analyticsStore';
 export { useClothingStore } from './modules/clothingStore';
+export { useEnumsStore } from './modules/enumsStore';
 export { useInspirationStore } from './modules/inspirationStore';
 export { useOutfitStore } from './modules/outfitStore';
 export { useUserStore } from './modules/userStore';

@@ -460,8 +460,9 @@
 </template>
 
 <script>
-  import { ref, computed, watch } from 'vue';
+  import { ref, computed, watch, onMounted } from 'vue';
   import { useClothingStore } from '@/stores';
+  import { useEnumsStore } from '@/stores';
   import { showToast } from '../../utils/toast';
 
   export default {
@@ -483,7 +484,17 @@
     emits: ['close', 'saved'],
     setup(props, { emit }) {
       const clothingStore = useClothingStore();
+      const enumsStore = useEnumsStore();
       const fileInput = ref(null);
+
+      // 在组件挂载时获取枚举数据
+      onMounted(async () => {
+        try {
+          await enumsStore.fetchAllEnums();
+        } catch (error) {
+          console.error('获取枚举数据失败:', error);
+        }
+      });
 
       // 表单数据
       const form = ref({
@@ -541,6 +552,14 @@
               if (matchedCategory) {
                 itemCopy.categoryId = matchedCategory.id;
                 itemCopy.categoryName = matchedCategory.name;
+              }
+            }
+
+            // 处理季节数据 - 从ID转换为名称
+            if (itemCopy.season && typeof itemCopy.season === 'number') {
+              const seasonName = enumsStore.getSeasonLabel(itemCopy.season);
+              if (seasonName && !itemCopy.seasons) {
+                itemCopy.seasons = [seasonName];
               }
             }
 
@@ -655,6 +674,17 @@
             mainImageUrl: validImageUrl,
           };
 
+          // 将季节名称转换为ID（如果需要）
+          if (form.value.seasons && form.value.seasons.length > 0) {
+            // 如果是多季节选择，取第一个季节作为主要季节
+            const primarySeason = form.value.seasons[0];
+            // 查找对应的季节ID
+            const seasonId = enumsStore.seasons.find(s => s.name === primarySeason)?.id;
+            if (seasonId) {
+              submitData.season = seasonId;
+            }
+          }
+
           if (form.value.id) {
             // 更新现有衣物
             await clothingStore.updateClothingItem(form.value.id, submitData);
@@ -728,6 +758,7 @@
         closeOnBackdrop,
         allSeasons,
         updateCategoryName,
+        enumsStore,
       };
     },
   };

@@ -102,15 +102,6 @@ export class OutfitClothing extends BaseModel<OutfitClothing> {
   })
   clothing?: Clothing;
 
-  /**
-   * 关联的衣物（Clothing模型）
-   */
-  @BelongsTo(() => Clothing, {
-    foreignKey: 'clothingId',
-    as: 'clothing',
-    constraints: false
-  })
-
   // ==================== 实例方法 ====================
 
   /**

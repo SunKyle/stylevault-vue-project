@@ -167,12 +167,14 @@
   import ClothingItemEditor from '../components/wardrobe/ClothingItemEditor.vue';
   import ContentLayout from '../components/layout/ContentLayout.vue';
   import { useClothingStore } from '../stores/index';
+  import { useEnumsStore } from '../stores/index';
   import { useRouter } from 'vue-router';
   import { showToast } from '../utils/toast';
   // import { outfitService } from '../services/outfitService'; // 暂时未使用
 
   const router = useRouter();
   const clothingStore = useClothingStore();
+  const enumsStore = useEnumsStore();
   // const emit = defineEmits(['showUpload']); // 暂时未使用
 
   // 状态
@@ -212,6 +214,29 @@
     if (isSearchMode.value) return searchResults.value.length;
     if (categoryId === 'all') return clothingStore.clothingItems.length;
     return clothingStore.itemsByCategory[categoryId]?.length || 0;
+  }
+
+  // 获取枚举属性的显示文本
+  function getEnumLabel(type, id) {
+    if (!id) return '';
+    const getterMap = {
+      category: 'getCategoryLabel',
+      style: 'getStyleLabel',
+      color: 'getColorLabel',
+      season: 'getSeasonLabel',
+      material: 'getMaterialLabel',
+      pattern: 'getPatternLabel',
+      size: 'getSizeLabel',
+      condition: 'getConditionLabel',
+      status: 'getStatusLabel',
+      occasion: 'getOccasionLabel'
+    };
+    
+    const getter = getterMap[type];
+    if (getter && enumsStore[getter]) {
+      return enumsStore[getter](id) || '';
+    }
+    return id;
   }
 
   function getSelectedCategoryName() {
@@ -372,10 +397,20 @@
   }
 
   async function initializeData() {
-    await clothingStore.fetchCategories();
-    await clothingStore.fetchClothingItems();
-    console.log('衣物数据加载完成:', clothingStore.clothingItems);
-    console.log('分类数据加载完成:', clothingStore.categories);
+    try {
+      // 先获取枚举数据，确保其他数据获取前枚举映射已就绪
+      await enumsStore.fetchAllEnums();
+      // 再获取分类和衣物数据
+      await Promise.all([
+        clothingStore.fetchCategories(),
+        clothingStore.fetchClothingItems()
+      ]);
+      console.log('衣物数据加载完成:', clothingStore.clothingItems);
+      console.log('分类数据加载完成:', clothingStore.categories);
+    } catch (error) {
+      console.error('初始化数据失败:', error);
+      showToast('数据加载失败，请稍后重试', 'error');
+    }
   }
 
   function closeDrawer() {

@@ -33,7 +33,7 @@
 </template>
 
 <script setup>
-  import { ref } from 'vue';
+  import { ref, watch } from 'vue';
   import { useRoute, useRouter } from 'vue-router';
   import Header from './components/layout/Header.vue';
   import Footer from './components/layout/Footer.vue';

@@ -183,7 +183,7 @@
                   <span
                     class="text-xs text-gray-600 bg-blue-50 px-2 py-1 rounded-md border border-blue-100"
                   >
-                    {{ item.season || '四季' }}
+                    {{ getEnumLabel('season', item.season) || '四季' }}
                   </span>
                   <span
                     v-if="item.color"
@@ -192,10 +192,10 @@
                     {{ item.color }}
                   </span>
                   <span
-                    v-if="item.category"
+                    v-if="item.category || item.category_id"
                     class="text-xs text-gray-600 bg-green-50 px-2 py-1 rounded-md border border-green-100"
                   >
-                    {{ item.category }}
+                    {{ item.category?.name || getEnumLabel('category', item.category_id) || item.category }}
                   </span>
                 </div>
               </div>
@@ -275,6 +275,7 @@
 
 <script>
   import { useClothingStore } from '@/stores';
+  import { useEnumsStore } from '@/stores';
 
   export default {
     name: 'CategoryDrawer',
@@ -319,6 +320,7 @@
         currentFilter: 'all',
         currentSort: null,
         clothingStore: useClothingStore(),
+        enumsStore: useEnumsStore(),
       };
     },
     methods: {
@@ -348,6 +350,28 @@
         if (!this.selectedCategory || this.selectedCategory === 'all') return 'tag';
         const category = this.clothingStore.categories.find(c => c.id === this.selectedCategory);
         return category ? category.icon : 'tag';
+      },
+      // 获取枚举属性的显示文本
+      getEnumLabel(type, id) {
+        if (!id) return '';
+        const getterMap = {
+          category: 'getCategoryLabel',
+          style: 'getStyleLabel',
+          color: 'getColorLabel',
+          season: 'getSeasonLabel',
+          material: 'getMaterialLabel',
+          pattern: 'getPatternLabel',
+          size: 'getSizeLabel',
+          condition: 'getConditionLabel',
+          status: 'getStatusLabel',
+          occasion: 'getOccasionLabel'
+        };
+        
+        const getter = getterMap[type];
+        if (getter && this.enumsStore[getter]) {
+          return this.enumsStore[getter](id) || '';
+        }
+        return id;
       },
     },
   };
