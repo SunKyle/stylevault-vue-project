@@ -1,31 +1,98 @@
 import { Request, Response } from 'express';
 import { ClothingService } from '../services/ClothingService';
 import { AttributeService } from '../services/AttributeService';
+import { attributeRepository } from '../repositories';
 
 const clothingService = new ClothingService();
 const attributeService = new AttributeService();
 
 export class ClothingController {
   /**
-   * 获取所有衣物分类 - 已移除分类功能
+   * 获取所有衣物分类 - 从Attribute模型获取分类数据
    */
   async getCategories(req: Request, res: Response) {
-    res.status(404).json({
-      success: false,
-      message: '分类功能已移除',
-      error: { code: 'CATEGORY_FEATURE_REMOVED' }
-    });
+    try {
+      // 获取分类为category的属性
+      const categories = await attributeRepository.findByCategory('category');
+      
+      // 格式化返回数据
+      const formattedCategories = categories.map(category => ({
+        id: category.id,
+        name: category.name,
+        displayName: category.displayName,
+        description: category.description || '',
+        color: category.color || undefined,
+        createdAt: category.createdAt,
+        updatedAt: category.updatedAt
+      }));
+      
+      res.json({
+        success: true,
+        data: formattedCategories,
+        message: '获取分类列表成功',
+        total: formattedCategories.length
+      });
+    } catch (error) {
+      console.error('获取分类列表失败:', error);
+      res.status(500).json({
+        success: false,
+        message: '获取分类列表失败',
+        error: { code: 'FETCH_CATEGORIES_ERROR', details: error instanceof Error ? error.message : String(error) }
+      });
+    }
   }
 
   /**
-   * 获取分类详情 - 已移除分类功能
+   * 获取分类详情 - 从Attribute模型获取分类详情
    */
   async getCategoryDetail(req: Request, res: Response) {
-    res.status(404).json({
-      success: false,
-      message: '分类功能已移除',
-      error: { code: 'CATEGORY_FEATURE_REMOVED' }
-    });
+    try {
+      const { id } = req.params;
+      
+      // 验证ID
+      if (!id || isNaN(Number(id))) {
+        return res.status(400).json({
+          success: false,
+          message: '无效的分类ID',
+          error: { code: 'INVALID_CATEGORY_ID' }
+        });
+      }
+      
+      // 获取分类详情
+      const category = await attributeService.getById(Number(id));
+      
+      if (!category || category.category !== 'category') {
+        return res.status(404).json({
+          success: false,
+          message: '分类不存在',
+          error: { code: 'CATEGORY_NOT_FOUND' }
+        });
+      }
+      
+      // 格式化返回数据
+      const formattedCategory = {
+        id: category.id,
+        name: category.name,
+        displayName: category.displayName,
+        description: category.description || '',
+        color: category.color || undefined,
+        createdAt: category.createdAt,
+        updatedAt: category.updatedAt
+      };
+      
+      res.json({
+        success: true,
+        data: formattedCategory,
+        message: '获取分类详情成功'
+      });
+    } catch (error) {
+      console.error('获取分类详情失败:', error);
+      res.status(500).json({
+        success: false,
+        message: '获取分类详情失败',
+        error: { code: 'FETCH_CATEGORY_DETAIL_ERROR', details: error instanceof Error ? error.message : String(error) }
+      });
+    }
   }
 
   /**
@@ -62,14 +129,14 @@ export class ClothingController {
    */
   async getClothingItems(req: Request, res: Response) {
     try {
-      const { page = 1, limit = 20, categoryId, search, sortBy = 'createdAt', sortOrder = 'DESC' } = req.query;
+      const { page = 1, limit = 20, category, search, sortBy = 'createdAt', sortOrder = 'DESC' } = req.query;
       const userId = (req as any).user.userId;
       
       const result = await clothingService.getClothingItems({
         userId,
         page: Number(page),
         limit: Number(limit),
-        categoryId: categoryId && categoryId !== 'all' ? parseInt(categoryId as string) : undefined,
+        category: category && category !== 'all' ? parseInt(category as string) : undefined,
         search: search && search !== '' ? search as string : undefined,
         sortBy: sortBy as string,
         sortOrder: sortOrder as 'ASC' | 'DESC'
@@ -160,7 +227,7 @@ export class ClothingController {
    */
   async searchClothingItems(req: Request, res: Response) {
     try {
-      const { q, page = 1, limit = 20, categoryId, sortBy = 'createdAt', sortOrder = 'DESC' } = req.query;
+      const { q, page = 1, limit = 20, category, sortBy = 'createdAt', sortOrder = 'DESC' } = req.query;
       
       if (!q || (q as string).trim() === '') {
         return res.status(400).json({
@@ -174,7 +241,7 @@ export class ClothingController {
       const result = await clothingService.searchClothingItems(q as string, userId, {
         page: Number(page),
         limit: Number(limit),
-        categoryId: categoryId && categoryId !== 'all' ? parseInt(categoryId as string) : undefined,
+        category: category && category !== 'all' ? parseInt(category as string) : undefined,
         sortBy: sortBy as string,
         sortOrder: sortOrder as 'ASC' | 'DESC'
       });
@@ -189,7 +256,7 @@ export class ClothingController {
       res.status(500).json({
         success: false,
         message: '搜索衣物失败',
-        error: { code: 'SEARCH_CLOTHING_ITEMS_ERROR', details: error instanceof Error ? error.message : String(error) }
+        error: { code: 'SEARCH_CLOTHING_ERROR', details: error instanceof Error ? error.message : String(error) }
       });
     }
   }

@@ -32,7 +32,7 @@
         @click="handleAddClothing"
         aria-label="添加衣物"
       >
-        <font-awesome-icon icon="shirt" class="text-xl" />
+        <font-awesome-icon :icon="['fas', 'shirt']" class="text-xl" />
       </button>
 
       <!-- 添加搭配按钮 - 扇形位置2 (左上位置) -->
@@ -58,7 +58,7 @@
         @click="handleAddOutfit"
         aria-label="添加搭配"
       >
-        <font-awesome-icon icon="lightbulb" class="text-xl" />
+        <font-awesome-icon :icon="['fas', 'lightbulb']" class="text-xl" />
       </button>
 
       <!-- 查看全部衣物按钮 - 扇形位置3 (正上位置) -->
@@ -84,7 +84,7 @@
         @click="handleViewAllClothing"
         aria-label="查看全部衣物"
       >
-        <font-awesome-icon icon="th-large" class="text-xl" />
+        <font-awesome-icon :icon="['fas', 'th-large']" class="text-xl" />
       </button>
 
       <!-- 主按钮 - 增强静置状态的阴影效果 -->

@@ -44,7 +44,7 @@
                 <div
                   class="w-4 h-4 rounded-full bg-gradient-to-r from-indigo-500/20 to-purple-500/20 flex items-center justify-center mr-1.5"
                 >
-                  <font-awesome-icon icon="map-marker-alt" class="text-indigo-600 text-xs" />
+                  <font-awesome-icon :icon="['fas', 'map-marker-alt']" class="text-indigo-600 text-xs" />
                 </div>
                 <span class="text-xs text-indigo-700 font-medium">场景:</span>
                 <div class="flex flex-wrap gap-1 ml-1">
@@ -69,7 +69,7 @@
                 <div
                   class="w-4 h-4 rounded-full bg-gradient-to-r from-green-500/20 to-emerald-500/20 flex items-center justify-center mr-1.5"
                 >
-                  <font-awesome-icon icon="leaf" class="text-green-600 text-xs" />
+                  <font-awesome-icon :icon="['fas', 'leaf']" class="text-green-600 text-xs" />
                 </div>
                 <span class="text-xs text-green-700 font-medium">季节:</span>
                 <span
@@ -87,7 +87,7 @@
                 <div
                   class="w-4 h-4 rounded-full bg-gradient-to-r from-purple-500/20 to-pink-500/20 flex items-center justify-center mr-1.5"
                 >
-                  <font-awesome-icon icon="palette" class="text-purple-600 text-xs" />
+                  <font-awesome-icon :icon="['fas', 'palette']" class="text-purple-600 text-xs" />
                 </div>
                 <span class="text-xs text-purple-700 font-medium">风格:</span>
                 <span
@@ -110,7 +110,7 @@
             <div
               class="w-16 h-16 rounded-2xl bg-gradient-to-br from-indigo-100/80 to-purple-100/50 backdrop-blur-sm flex items-center justify-center mx-auto mb-3 shadow-lg border border-indigo-100/50"
             >
-              <font-awesome-icon icon="tshirt" class="text-indigo-500 text-2xl" />
+              <font-awesome-icon :icon="['fas', 'tshirt']" class="text-indigo-500 text-2xl" />
             </div>
             <p class="text-sm text-indigo-500">暂无衣物</p>
           </div>
@@ -166,7 +166,7 @@
           <div
             class="w-5 h-5 rounded-full bg-gradient-to-r from-indigo-500/10 to-purple-500/10 flex items-center justify-center mr-2 shadow-sm"
           >
-            <font-awesome-icon icon="layer-group" class="text-indigo-600 text-xs" />
+            <font-awesome-icon :icon="['fas', 'layer-group']" class="text-indigo-600 text-xs" />
           </div>
           {{ outfit?.items?.length || 0 }}件衣物
         </span>
@@ -177,21 +177,21 @@
             class="w-9 h-9 rounded-full bg-white/80 backdrop-blur-sm flex items-center justify-center text-indigo-500 hover:bg-indigo-500 hover:text-white transition-all duration-300 shadow-md hover:shadow-lg border border-indigo-100/50"
             title="编辑搭配"
           >
-            <font-awesome-icon icon="edit" class="text-xs" />
+            <font-awesome-icon :icon="['fas', 'edit']" class="text-xs" />
           </button>
           <button
             @click="$emit('load-outfit', outfit)"
             class="w-9 h-9 rounded-full bg-white/80 backdrop-blur-sm flex items-center justify-center text-indigo-600 hover:bg-indigo-600 hover:text-white transition-all duration-300 shadow-md hover:shadow-lg border border-indigo-100/50"
             title="复制搭配"
           >
-            <font-awesome-icon icon="copy" class="text-xs" />
+            <font-awesome-icon :icon="['fas', 'copy']" class="text-xs" />
           </button>
           <button
             @click="$emit('delete-outfit', outfit.id)"
             class="w-9 h-9 rounded-full bg-white/80 backdrop-blur-sm flex items-center justify-center text-red-500 hover:bg-red-500 hover:text-white transition-all duration-300 shadow-md hover:shadow-lg border border-indigo-100/50"
             title="删除搭配"
           >
-            <font-awesome-icon icon="trash" class="text-xs" />
+            <font-awesome-icon :icon="['fas', 'trash']" class="text-xs" />
           </button>
         </div>
       </div>
@@ -226,7 +226,7 @@
                 <div
                   class="w-6 h-6 rounded-full bg-gradient-to-r from-indigo-500/10 to-purple-500/10 flex items-center justify-center mr-2 shadow-sm"
                 >
-                  <font-awesome-icon icon="edit" class="text-indigo-600 text-xs" />
+                  <font-awesome-icon :icon="['fas', 'edit']" class="text-indigo-600 text-xs" />
                 </div>
                 编辑搭配信息
               </h3>
@@ -234,7 +234,7 @@
                 @click="cancelEdit"
                 class="w-8 h-8 rounded-full bg-white/80 backdrop-blur-sm flex items-center justify-center text-gray-500 hover:text-indigo-600 hover:bg-indigo-500/10 transition-all duration-300 shadow-sm border border-indigo-100/50"
               >
-                <font-awesome-icon icon="times" class="text-sm" />
+                <font-awesome-icon :icon="['fas', 'times']" class="text-sm" />
               </button>
             </div>
 
@@ -244,7 +244,7 @@
                   <div
                     class="w-5 h-5 rounded-full bg-gradient-to-r from-indigo-500/10 to-purple-500/10 flex items-center justify-center mr-2 shadow-sm"
                   >
-                    <font-awesome-icon icon="tag" class="text-indigo-600 text-xs" />
+                    <font-awesome-icon :icon="['fas', 'tag']" class="text-indigo-600 text-xs" />
                   </div>
                   搭配名称
                 </label>
@@ -263,7 +263,7 @@
                   <div
                     class="w-5 h-5 rounded-full bg-gradient-to-r from-indigo-500/10 to-purple-500/10 flex items-center justify-center mr-2 shadow-sm"
                   >
-                    <font-awesome-icon icon="map-marker-alt" class="text-indigo-600 text-xs" />
+                    <font-awesome-icon :icon="['fas', 'map-marker-alt']" class="text-indigo-600 text-xs" />
                   </div>
                   适用场景
                 </label>
@@ -290,7 +290,7 @@
                   <div
                     class="w-5 h-5 rounded-full bg-gradient-to-r from-green-500/10 to-emerald-500/10 flex items-center justify-center mr-2 shadow-sm"
                   >
-                    <font-awesome-icon icon="leaf" class="text-green-600 text-xs" />
+                    <font-awesome-icon :icon="['fas', 'leaf']" class="text-green-600 text-xs" />
                   </div>
                   适用季节
                 </label>
@@ -317,7 +317,7 @@
                   <div
                     class="w-5 h-5 rounded-full bg-gradient-to-r from-purple-500/10 to-pink-500/10 flex items-center justify-center mr-2 shadow-sm"
                   >
-                    <font-awesome-icon icon="palette" class="text-purple-600 text-xs" />
+                    <font-awesome-icon :icon="['fas', 'palette']" class="text-purple-600 text-xs" />
                   </div>
                   搭配风格
                 </label>
@@ -363,7 +363,6 @@
 <script setup>
   import { ref, reactive, computed, onMounted } from 'vue';
   import { useEnumsStore } from '@/stores/enums';
-  import { scenesMockData } from '../../mock/data';
 
   // Props定义
   const props = defineProps({
@@ -385,31 +384,31 @@
     enumsStore.fetchAllEnums();
   });
 
-  // 场景选项映射
-  const sceneOptions = scenesMockData;
+  // 场景选项映射 - 从enumsStore获取
+  const sceneOptions = computed(() => enumsStore.enumsData.occasions || []);
 
   // 季节选项映射
-  const seasonOptions = computed(() => enumsStore.seasonOptions);
+  const seasonOptions = computed(() => enumsStore.enumsData.seasons || []);
 
   // 风格选项映射
-  const styleOptions = computed(() => enumsStore.styleOptions);
+  const styleOptions = computed(() => enumsStore.enumsData.styles || []);
 
   // 获取场景标签
   function getSceneLabel(value) {
-    const scene = sceneOptions.find(option => option.value === value);
-    return scene ? scene.label : value;
+    const scene = sceneOptions.value.find(option => option.id === value);
+    return scene ? scene.name : value;
   }
 
   // 获取季节标签
   function getSeasonLabel(value) {
-    const season = seasonOptions.value.find(option => option.value === value);
-    return season ? season.label : value;
+    const season = seasonOptions.value.find(option => option.id === value);
+    return season ? season.name : value;
   }
 
   // 获取风格标签
   function getStyleLabel(value) {
-    const style = styleOptions.value.find(option => option.value === value);
-    return style ? style.label : value;
+    const style = styleOptions.value.find(option => option.id === value);
+    return style ? style.name : value;
   }
 
   // 选择场景

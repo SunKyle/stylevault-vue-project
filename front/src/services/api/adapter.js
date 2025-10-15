@@ -1,5 +1,4 @@
 import axios from 'axios';
-import mockAPI from '../../mock';
 
 // 创建axios实例
 const apiClient = axios.create({
@@ -59,81 +58,67 @@ apiClient.interceptors.response.use(
   }
 );
 
-// API适配器 - 始终使用真实API
-const isDevelopment = false;
-
 // 衣物API适配器
 export const clothingAdaptorApi = {
   // 获取所有衣物类别
   getCategories: async () => {
-    if (isDevelopment) {
-      return mockAPI.wardrobe.getCategories();
-    }
     return apiClient.get('/categories');
   },
 
   // 获取所有衣物
   getClothingItems: async () => {
-    if (isDevelopment) {
-      return mockAPI.wardrobe.getClothingItems();
-    }
     return apiClient.get('/clothing');
   },
 
   // 根据类别获取衣物
   getClothingItemsByCategory: async categoryId => {
-    if (isDevelopment) {
-      return mockAPI.wardrobe.getClothingItemsByCategory(categoryId);
-    }
     return apiClient.get(`/clothing/category/${categoryId}`);
   },
 
   // 获取衣物详情
   getClothingItemDetail: async id => {
-    if (isDevelopment) {
-      return mockAPI.wardrobe.getClothingItemDetail(id);
-    }
     return apiClient.get(`/clothing/${id}`);
   },
 
   // 添加衣物
   addClothingItem: async item => {
-    if (isDevelopment) {
-      return mockAPI.wardrobe.addClothingItem(item);
-    }
     return apiClient.post('/clothing', item);
   },
 
-  // 更新衣物信息
-  updateClothingItem: async (id, updates) => {
-    if (isDevelopment) {
-      return mockAPI.wardrobe.updateClothingItem(id, updates);
-    }
-    return apiClient.put(`/clothing/${id}`, updates);
+  // 更新衣物
+  updateClothingItem: async (id, item) => {
+    return apiClient.put(`/clothing/${id}`, item);
   },
 
   // 删除衣物
   deleteClothingItem: async id => {
-    if (isDevelopment) {
-      return mockAPI.wardrobe.deleteClothingItem(id);
-    }
     return apiClient.delete(`/clothing/${id}`);
   },
 
-  // 搜索衣物
-  searchClothingItems: async keyword => {
-    if (isDevelopment) {
-      return mockAPI.wardrobe.searchClothingItems(keyword);
-    }
-    return apiClient.get('/clothing/search', { params: { keyword } });
+  // 获取用户的收藏衣物
+  getFavoriteItems: async userId => {
+    return apiClient.get('/clothing/favorites', { params: { userId } });
   },
 
-  // 获取收藏衣物
-  getFavoriteItems: async userId => {
-    if (isDevelopment) {
-      return mockAPI.wardrobe.getFavoriteItems(userId);
-    }
-    return apiClient.get('/clothing/favorites', { params: { userId } });
+  // 切换衣物收藏状态
+  toggleFavorite: async clothingId => {
+    return apiClient.post(`/clothing/${clothingId}/favorite`);
+  },
+
+  // 搜索衣物
+  searchClothing: async query => {
+    return apiClient.get('/clothing/search', { params: query });
+  },
+
+  // 上传衣物图片
+  uploadClothingImage: async (id, file) => {
+    const formData = new FormData();
+    formData.append('file', file);
+    return apiClient.post(`/clothing/${id}/upload`, formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+    });
   },
 };
 
@@ -141,34 +126,32 @@ export const clothingAdaptorApi = {
 export const userAdaptorApi = {
   // 用户登录
   login: async credentials => {
-    if (isDevelopment) {
-      return mockAPI.user.login(credentials);
-    }
-    return apiClient.post('/user/login', credentials);
+    return apiClient.post('/auth/login', credentials);
   },
 
   // 用户注册
   register: async userData => {
-    if (isDevelopment) {
-      return mockAPI.user.register(userData);
-    }
-    return apiClient.post('/user/register', userData);
+    return apiClient.post('/auth/register', userData);
   },
 
   // 获取用户信息
-  getUserProfile: async userId => {
-    if (isDevelopment) {
-      return mockAPI.user.getUserProfile(userId);
-    }
-    return apiClient.get(`/user/${userId}`);
+  getUserProfile: async () => {
+    return apiClient.get('/user/profile');
   },
 
   // 更新用户信息
-  updateUserProfile: async (userId, updates) => {
-    if (isDevelopment) {
-      return mockAPI.user.updateUserProfile(userId, updates);
-    }
-    return apiClient.put(`/user/${userId}`, updates);
+  updateUserProfile: async profileData => {
+    return apiClient.put('/user/profile', profileData);
+  },
+
+  // 用户登出
+  logout: async () => {
+    return apiClient.post('/auth/logout');
+  },
+
+  // 获取用户统计信息
+  getUserStats: async () => {
+    return apiClient.get('/user/stats');
   },
 };
 
@@ -176,117 +159,130 @@ export const userAdaptorApi = {
 export const outfitAdaptorApi = {
   // 获取所有搭配
   getOutfits: async () => {
-    if (isDevelopment) {
-      return mockAPI.outfit.getOutfits();
-    }
     return apiClient.get('/outfits');
-  },
-
-  // 根据标签获取搭配
-  getOutfitsByTag: async tag => {
-    if (isDevelopment) {
-      return mockAPI.outfit.getOutfitsByTag(tag);
-    }
-    return apiClient.get('/outfits/tag', { params: { tag } });
   },
 
   // 获取搭配详情
   getOutfitDetail: async id => {
-    if (isDevelopment) {
-      return mockAPI.outfit.getOutfitDetail(id);
-    }
     return apiClient.get(`/outfits/${id}`);
   },
 
-  // 添加新搭配
-  addOutfit: async outfit => {
-    if (isDevelopment) {
-      return mockAPI.outfit.addOutfit(outfit);
-    }
-    return apiClient.post('/outfits', outfit);
+  // 创建搭配
+  createOutfit: async outfitData => {
+    return apiClient.post('/outfits', outfitData);
   },
 
   // 更新搭配
-  updateOutfit: async (id, updates) => {
-    if (isDevelopment) {
-      return mockAPI.outfit.updateOutfit(id, updates);
-    }
-    return apiClient.put(`/outfits/${id}`, updates);
+  updateOutfit: async (id, outfitData) => {
+    return apiClient.put(`/outfits/${id}`, outfitData);
   },
 
   // 删除搭配
   deleteOutfit: async id => {
-    if (isDevelopment) {
-      return mockAPI.outfit.deleteOutfit(id);
-    }
     return apiClient.delete(`/outfits/${id}`);
   },
 
-  // 切换搭配的喜欢状态
-  toggleLike: async id => {
-    if (isDevelopment) {
-      return mockAPI.outfit.toggleLike(id);
+  // 切换搭配收藏状态
+  toggleOutfitFavorite: async outfitId => {
+    return apiClient.post(`/outfits/${outfitId}/favorite`);
+  },
+
+  // 获取用户收藏的搭配
+  getFavoriteOutfits: async userId => {
+    return apiClient.get('/outfits/favorites', { params: { userId } });
+  },
+
+  // 搜索搭配
+  searchOutfits: async query => {
+    return apiClient.get('/outfits/search', { params: query });
+  },
+};
+
+// 枚举数据API适配器
+export const enumsAdaptorApi = {
+  // 获取所有枚举数据
+  getAllEnums: async () => {
+    try {
+      const response = await apiClient.get('/enums/all');
+      // 确保返回的数据是对象格式
+      if (response && typeof response.data === 'object') {
+        // 返回经过处理的数据，确保结构与前端期望的一致
+        return response.data;
+      }
+      // 如果API返回的数据格式不正确，返回空对象
+      console.warn('枚举API返回的数据格式不正确');
+      return {};
+    } catch (error) {
+      console.error('获取枚举数据失败:', error);
+      // 出错时返回空对象，防止前端因数据格式问题崩溃
+      return {};
     }
-    return apiClient.post(`/outfits/${id}/like`);
+  },
+
+  // 获取指定类型的枚举数据
+  getEnumsByType: async type => {
+    try {
+      const response = await apiClient.get(`/enums/${type}`);
+      // 确保返回的数据是数组格式
+      if (response && Array.isArray(response.data)) {
+        return response.data;
+      }
+      console.warn(`类型${type}的枚举API返回的数据格式不正确`);
+      return [];
+    } catch (error) {
+      console.error(`获取类型${type}的枚举数据失败:`, error);
+      return [];
+    }
+  },
+};
+
+// 天气API适配器
+export const weatherAdaptorApi = {
+  // 获取当前天气
+  getCurrentWeather: async location => {
+    return apiClient.get('/weather/current', {
+      params: {
+        lat: location.lat,
+        lng: location.lng,
+      },
+    });
+  },
+
+  // 获取天气预报
+  getWeatherForecast: async location => {
+    return apiClient.get('/weather/forecast', {
+      params: {
+        lat: location.lat,
+        lng: location.lng,
+        days: 7,
+      },
+    });
+  },
+
+  // 获取基于天气的搭配推荐
+  getWeatherRecommendations: async ({ weather, clothes }) => {
+    return apiClient.post('/weather/recommendations', {
+      weather,
+      clothes,
+    });
   },
 };
 
 // 分析API适配器
 export const analyticsAdaptorApi = {
-  // 获取衣物统计信息
-  getClothingStats: async () => {
-    if (isDevelopment) {
-      return mockAPI.analytics.getClothingStats();
-    }
+  // 获取衣物统计分析
+  getClothingAnalytics: async () => {
     return apiClient.get('/analytics/clothing');
   },
 
-  // 获取搭配统计信息
-  getOutfitStats: async () => {
-    if (isDevelopment) {
-      return mockAPI.analytics.getOutfitStats();
-    }
+  // 获取搭配统计分析
+  getOutfitAnalytics: async () => {
     return apiClient.get('/analytics/outfits');
   },
 
-  // 获取穿着频率分析
-  getWearFrequency: async (params = {}) => {
-    if (isDevelopment) {
-      return mockAPI.analytics.getWearFrequency();
-    }
-    return apiClient.get('/analytics/wear-frequency', { params });
-  },
-
-  // 获取衣物类别分布
-  getCategoryDistribution: async () => {
-    if (isDevelopment) {
-      return mockAPI.analytics.getCategoryDistribution();
-    }
-    return apiClient.get('/analytics/category-distribution');
-  },
-
-  // 获取季节穿着分析
-  getSeasonalAnalysis: async () => {
-    if (isDevelopment) {
-      return mockAPI.analytics.getSeasonalAnalysis();
-    }
-    return apiClient.get('/analytics/seasonal');
-  },
-
-  // 获取风格偏好分析
-  getStylePreferences: async () => {
-    if (isDevelopment) {
-      return mockAPI.analytics.getStylePreferences();
-    }
-    return apiClient.get('/analytics/style-preferences');
-  },
-
-  // 获取衣物价值分析
-  getValueAnalysis: async () => {
-    if (isDevelopment) {
-      return mockAPI.analytics.getValueAnalysis();
-    }
-    return apiClient.get('/analytics/value');
+  // 获取用户使用统计
+  getUserUsageAnalytics: async () => {
+    return apiClient.get('/analytics/user-usage');
   },
 };
 

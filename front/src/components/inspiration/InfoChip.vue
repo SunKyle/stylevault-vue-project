@@ -33,7 +33,7 @@
 <script setup>
   defineProps({
     icon: {
-      type: String,
+      type: Array,
       required: true,
     },
     label: {

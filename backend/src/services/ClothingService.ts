@@ -1,13 +1,14 @@
-import { clothingRepository } from '../repositories/ClothingRepository';
 import { Clothing } from '../models/entities/Clothing';
+import { clothingRepository } from '../repositories/ClothingRepository';
 
+// 更新接口定义以匹配数据库结构
 export interface ClothingQueryOptions {
   userId?: number;
   page?: number;
   limit?: number;
   sortBy?: string;
   sortOrder?: 'ASC' | 'DESC';
-  categoryId?: number;
+  category?: number; // 从categoryId改为category
   search?: string;
   isFavorite?: boolean;
 }
@@ -18,14 +19,14 @@ export interface ClothingCreateData {
   brand?: string;
   price?: number;
   purchaseDate?: Date;
-  size?: string;
-  condition?: string;
+  size?: number; // 从string改为number，因为现在是属性ID
+  condition?: number; // 从string改为number，因为现在是属性ID
   notes?: string;
   imageUrls?: string[];
   mainImageUrl?: string;
-  categoryId?: number;
-  colorId?: number;
-  styleId?: number;
+  category?: number; // 从categoryId改为category
+  color?: number; // 从colorId改为color
+  style?: number; // 从styleId改为style
   parentId?: number;
   metadata?: any;
 }
@@ -35,14 +36,14 @@ export interface ClothingUpdateData {
   brand?: string;
   price?: number;
   purchaseDate?: Date;
-  size?: string;
-  condition?: string;
+  size?: number; // 从string改为number，因为现在是属性ID
+  condition?: number; // 从string改为number，因为现在是属性ID
   notes?: string;
   imageUrls?: string[];
   mainImageUrl?: string;
-  categoryId?: number;
-  colorId?: number;
-  styleId?: number;
+  category?: number; // 从categoryId改为category
+  color?: number; // 从colorId改为color
+  style?: number; // 从styleId改为style
   metadata?: any;
 }
 
@@ -96,10 +97,10 @@ export class ClothingService {
 
     if (data.price !== undefined) clothingItemData.price = data.price;
     if (data.purchaseDate) clothingItemData.purchaseDate = new Date(data.purchaseDate);
-    if (data.categoryId) clothingItemData.categoryId = data.categoryId;
-    if (data.colorId) clothingItemData.colorId = data.colorId;
-    if (data.styleId) clothingItemData.styleId = data.styleId;
-    if (data.size) clothingItemData.size = data.size.trim();
+    if (data.category) clothingItemData.category = data.category;
+    if (data.color) clothingItemData.color = data.color;
+    if (data.style) clothingItemData.style = data.style;
+    if (data.size) clothingItemData.size = data.size;
     if (data.parentId) clothingItemData.parentId = data.parentId;
 
     return await clothingRepository.createClothingItem(clothingItemData);
@@ -150,7 +151,7 @@ export class ClothingService {
    * 根据分类获取衣物
    */
   async getClothingItemsByCategory(categoryId: number, userId: number, options: ClothingQueryOptions = {}) {
-    return await clothingRepository.findClothingItems({ ...options, categoryId, userId });
+    return await clothingRepository.findClothingItems({ ...options, category: categoryId, userId });
   }
 
   /**

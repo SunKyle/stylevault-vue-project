@@ -1,16 +1,18 @@
 import { Op, Sequelize } from 'sequelize';
 import { Clothing } from '../models/entities/Clothing';
 import { User } from '../models/entities/User';
+import { Attribute } from '../models/entities/Attribute';
 
+// 修复字段名称以匹配数据库结构
 export interface ClothingQueryOptions {
   page?: number;
   limit?: number;
-  categoryId?: number;
+  category?: number; // 从categoryId改为category
   userId?: number;
   search?: string;
   sortBy?: string;
   sortOrder?: 'ASC' | 'DESC';
-  status?: string;
+  status?: number; // 状态现在是数字ID而不是字符串
 }
 
 export interface ClothingStats {
@@ -22,7 +24,7 @@ export interface ClothingStats {
     category: null; // Category模型已移除
   }>;
   conditionStats: Array<{
-    condition: string;
+    condition: number; // condition现在是数字ID
     count: number;
   }>;
   recentItems: any[];
@@ -38,30 +40,30 @@ export class ClothingRepository {
     const {
       page = 1,
       limit = 20,
-      categoryId,
+      category, // 修复字段名称
       userId,
       search,
       sortBy = 'createdAt',
       sortOrder = 'DESC',
-      status = 'active'
+      status = 1 // 默认为活跃状态的ID
     } = options;
 
     const offset = (page - 1) * limit;
     
     const whereClause: any = { status };
     
-    if (categoryId) {
-      whereClause.categoryId = categoryId;
+    if (category) {
+      whereClause.category = category; // 修复字段名称
     }
     
     if (userId) {
       whereClause.userId = userId;
     }
     
+    // 修复搜索条件，description字段在数据库中不存在
     if (search) {
       whereClause[Op.or] = [
         { name: { [Op.like]: `%${search}%` } },
-        { description: { [Op.like]: `%${search}%` } },
         { brand: { [Op.like]: `%${search}%` } }
       ];
     }
@@ -79,6 +81,22 @@ export class ClothingRepository {
           model: User,
           as: 'user',
           attributes: ['id', 'username', 'avatarUrl']
+        },
+        // 添加所有属性关联，以获取属性名称
+        {
+          model: Attribute,
+          as: 'categoryAttribute',
+          attributes: ['id', 'name', 'display_name']
+        },
+        {
+          model: Attribute,
+          as: 'colorAttribute',
+          attributes: ['id', 'name', 'display_name', 'color']
+        },
+        {
+          model: Attribute,
+          as: 'styleAttribute',
+          attributes: ['id', 'name', 'display_name']
         }
       ],
       attributes: { exclude: ['userId'] }
@@ -101,7 +119,7 @@ export class ClothingRepository {
    * 根据ID获取衣物
    */
   async findClothingItemById(id: number, userId?: number): Promise<Clothing | null> {
-    const whereClause: any = { id, status: 'active' };
+    const whereClause: any = { id, status: 1 }; // status现在是数字ID
     
     if (userId) {
       whereClause.userId = userId;
@@ -114,6 +132,42 @@ export class ClothingRepository {
           model: User,
           as: 'user',
           attributes: ['id', 'username', 'avatarUrl']
+        },
+        // 添加所有属性关联，以获取属性名称
+        {
+          model: Attribute,
+          as: 'categoryAttribute',
+          attributes: ['id', 'name', 'display_name']
+        },
+        {
+          model: Attribute,
+          as: 'colorAttribute',
+          attributes: ['id', 'name', 'display_name', 'color']
+        },
+        {
+          model: Attribute,
+          as: 'styleAttribute',
+          attributes: ['id', 'name', 'display_name']
+        },
+        {
+          model: Attribute,
+          as: 'seasonAttribute',
+          attributes: ['id', 'name', 'display_name']
+        },
+        {
+          model: Attribute,
+          as: 'materialAttribute',
+          attributes: ['id', 'name', 'display_name']
+        },
+        {
+          model: Attribute,
+          as: 'patternAttribute',
+          attributes: ['id', 'name', 'display_name']
+        },
+        {
+          model: Attribute,
+          as: 'conditionAttribute',
+          attributes: ['id', 'name', 'display_name']
         }
       ],
       attributes: { exclude: ['userId'] }
@@ -124,7 +178,36 @@ export class ClothingRepository {
    * 创建衣物
    */
   async createClothingItem(data: any): Promise<Clothing> {
-    return await Clothing.create(data);
+    // 确保数据格式正确
+    const formattedData: any = { ...data };
+    
+    // 转换数字类型字段
+    if (formattedData.category !== undefined) {
+      formattedData.category = parseInt(formattedData.category);
+    }
+    if (formattedData.color !== undefined) {
+      formattedData.color = parseInt(formattedData.color);
+    }
+    if (formattedData.style !== undefined) {
+      formattedData.style = parseInt(formattedData.style);
+    }
+    if (formattedData.season !== undefined) {
+      formattedData.season = parseInt(formattedData.season);
+    }
+    if (formattedData.material !== undefined) {
+      formattedData.material = parseInt(formattedData.material);
+    }
+    if (formattedData.pattern !== undefined) {
+      formattedData.pattern = parseInt(formattedData.pattern);
+    }
+    if (formattedData.condition !== undefined) {
+      formattedData.condition = parseInt(formattedData.condition);
+    }
+    if (formattedData.status !== undefined) {
+      formattedData.status = parseInt(formattedData.status);
+    }
+
+    return await Clothing.create(formattedData);
   }
 
   /**
@@ -140,14 +223,18 @@ export class ClothingRepository {
     if (updateData.purchaseDate !== undefined) {
       updateData.purchaseDate = updateData.purchaseDate ? new Date(updateData.purchaseDate) : null;
     }
+    // 修复字段名称
     if (updateData.categoryId !== undefined) {
-      updateData.categoryId = updateData.categoryId ? parseInt(updateData.categoryId) : null;
+      updateData.category = updateData.categoryId ? parseInt(updateData.categoryId) : null;
+      delete updateData.categoryId; // 删除旧字段
     }
     if (updateData.colorId !== undefined) {
-      updateData.colorId = updateData.colorId ? parseInt(updateData.colorId) : null;
+      updateData.color = updateData.colorId ? parseInt(updateData.colorId) : null;
+      delete updateData.colorId; // 删除旧字段
     }
     if (updateData.styleId !== undefined) {
-      updateData.styleId = updateData.styleId ? parseInt(updateData.styleId) : null;
+      updateData.style = updateData.styleId ? parseInt(updateData.styleId) : null;
+      delete updateData.styleId; // 删除旧字段
     }
     if (updateData.imageUrls !== undefined) {
       updateData.imageUrls = Array.isArray(updateData.imageUrls) 
@@ -156,7 +243,7 @@ export class ClothingRepository {
     }
 
     return await Clothing.update(updateData, {
-      where: { id, userId, status: 'active' },
+      where: { id, userId, status: 1 }, // status现在是数字ID
       returning: true
     });
   }
@@ -182,21 +269,36 @@ export class ClothingRepository {
     const offset = (page - 1) * limit;
 
     const { count, rows } = await Clothing.findAndCountAll({
-      where: { 
+      where: {
         userId,
-        status: 'active',
-        [Op.and]: Sequelize.where(
-          Sequelize.fn('JSON_EXTRACT', Sequelize.col('metadata'), '$.favorite'),
-          true
-        )
+        status: 1, // status现在是数字ID
+        isFavorite: true // 直接使用isFavorite字段而不是metadata中的favorite
       },
       limit,
       offset,
       order: [[sortBy, sortOrder]],
+      include: [
+        {
+          model: User,
+          as: 'user',
+          attributes: ['id', 'username', 'avatarUrl']
+        },
+        // 添加属性关联
+        {
+          model: Attribute,
+          as: 'categoryAttribute',
+          attributes: ['id', 'name', 'display_name']
+        },
+        {
+          model: Attribute,
+          as: 'colorAttribute',
+          attributes: ['id', 'name', 'display_name', 'color']
+        }
+      ],
       attributes: [
         'id', 'name', 'brand', 'price', 'purchaseDate', 'size', 'condition',
-        'notes', 'imageUrls', 'mainImageUrl', 'categoryId', 'colorId', 'styleId',
-        'metadata', 'createdAt', 'updatedAt', 'isFavorite'
+        'notes', 'imageUrls', 'mainImageUrl', 'category', 'color', 'style',
+        'season', 'material', 'pattern', 'status', 'createdAt', 'updatedAt', 'isFavorite'
       ]
     });
 
@@ -226,44 +328,55 @@ export class ClothingRepository {
       totalValue
     ] = await Promise.all([
       Clothing.count({
-        where: { userId, status: 'active' }
+        where: { userId, status: 1 } // status现在是数字ID
       }),
       Clothing.count({
-        where: { 
-          userId, 
-          status: 'active',
-          [Op.and]: Sequelize.where(
-            Sequelize.fn('JSON_EXTRACT', Sequelize.col('metadata'), '$.favorite'),
-            true
-          )
+        where: {
+          userId,
+          status: 1, // status现在是数字ID
+          isFavorite: true // 直接使用isFavorite字段
         }
       }),
       Clothing.findAll({
-        where: { userId, status: 'active' },
+        where: { userId, status: 1 }, // status现在是数字ID
         attributes: [
-          'categoryId',
+          'category', // 修复字段名称
           [Sequelize.fn('COUNT', Sequelize.col('id')), 'count']
         ],
-        group: ['categoryId'],
-        order: [[Sequelize.literal('count'), 'DESC']]
+        group: ['category'], // 修复字段名称
+        order: [[Sequelize.literal('count'), 'DESC']],
+        include: [
+          {
+            model: Attribute,
+            as: 'categoryAttribute',
+            attributes: ['id', 'name', 'display_name']
+          }
+        ]
       }),
       Clothing.findAll({
-        where: { userId, status: 'active' },
+        where: { userId, status: 1 }, // status现在是数字ID
         attributes: [
           'condition',
           [Sequelize.fn('COUNT', Sequelize.col('id')), 'count']
         ],
         group: ['condition'],
-        order: [[Sequelize.literal('count'), 'DESC']]
+        order: [[Sequelize.literal('count'), 'DESC']],
+        include: [
+          {
+            model: Attribute,
+            as: 'conditionAttribute',
+            attributes: ['id', 'name', 'display_name']
+          }
+        ]
       }),
       Clothing.findAll({
-        where: { userId, status: 'active' },
+        where: { userId, status: 1 }, // status现在是数字ID
         limit: 5,
         order: [['createdAt', 'DESC']],
         attributes: ['id', 'name', 'imageUrls', 'mainImageUrl', 'createdAt', 'updatedAt']
       }),
       Clothing.sum('price', {
-        where: { userId, status: 'active' }
+        where: { userId, status: 1 } // status现在是数字ID
       })
     ]);
 
@@ -271,13 +384,14 @@ export class ClothingRepository {
       totalItems,
       favoriteItems,
       categoryStats: categoryStats.map((stat: any) => ({
-        categoryId: stat.categoryId,
+        categoryId: stat.category, // 修复字段名称
         count: parseInt(stat.get('count') as string),
-        category: null // Category model has been removed
+        category: stat.categoryAttribute || null
       })),
       conditionStats: conditionStats.map((stat: any) => ({
         condition: stat.condition,
-        count: parseInt(stat.get('count') as string)
+        count: parseInt(stat.get('count') as string),
+        conditionAttribute: stat.conditionAttribute || null
       })),
       recentItems,
       totalValue: totalValue || 0

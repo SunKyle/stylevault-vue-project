@@ -1,6 +1,6 @@
 <template>
   <div
-    class="bg-gradient-to-br from-indigo-50 via-white to-purple-50 rounded-2xl overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-500 group border border-indigo-100/80 flex flex-col transform hover:-translate-y-1.5"
+    class="bg-gradient-to-br from-indigo-500/15 via-white to-purple-500/10 rounded-2xl overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-500 group border border-indigo-100/80 flex flex-col transform hover:-translate-y-1.5"
   >
     <!-- 搭配预览 - 优化后的卡片顶部 -->
     <div class="relative overflow-hidden">
@@ -39,7 +39,7 @@
               <!-- 统一的信息展示组件 -->
               <InfoChip
                 v-if="outfit?.scene"
-                icon="map-marker-alt"
+                :icon="['fas', 'map-marker-alt']"
                 label="场景"
                 :values="outfit.scene.split(',')"
                 :get-label="getSceneLabel"
@@ -48,7 +48,7 @@
 
               <InfoChip
                 v-if="outfit?.season"
-                icon="leaf"
+                :icon="['fas', 'leaf']"
                 label="季节"
                 :values="[outfit.season]"
                 :get-label="getSeasonLabel"
@@ -57,7 +57,7 @@
 
               <InfoChip
                 v-if="outfit?.style"
-                icon="palette"
+                :icon="['fas', 'palette']"
                 label="风格"
                 :values="[outfit.style]"
                 :get-label="getStyleLabel"
@@ -77,7 +77,7 @@
             <div
               class="w-16 h-16 rounded-2xl bg-gradient-to-br from-indigo-100/80 to-purple-100/50 backdrop-blur-sm flex items-center justify-center mx-auto mb-3 shadow-lg border border-indigo-100/50"
             >
-              <font-awesome-icon icon="tshirt" class="text-indigo-500 text-2xl" />
+              <font-awesome-icon :icon="['fas', 'tshirt']" class="text-indigo-500 text-2xl" />
             </div>
             <p class="text-sm text-indigo-500">暂无衣物</p>
           </div>
@@ -133,7 +133,7 @@
           <div
             class="w-5 h-5 rounded-full bg-gradient-to-r from-indigo-500/10 to-purple-500/10 flex items-center justify-center mr-2 shadow-sm"
           >
-            <font-awesome-icon icon="layer-group" class="text-indigo-600 text-xs" />
+            <font-awesome-icon :icon="['fas', 'layer-group']" class="text-indigo-600 text-xs" />
           </div>
           {{ outfit?.items?.length || 0 }}件衣物
         </span>
@@ -144,21 +144,21 @@
             class="w-9 h-9 rounded-full bg-white/80 backdrop-blur-sm flex items-center justify-center text-indigo-500 hover:bg-indigo-500 hover:text-white transition-all duration-300 shadow-md hover:shadow-lg border border-indigo-100/50"
             title="编辑搭配"
           >
-            <font-awesome-icon icon="edit" class="text-xs" />
+            <font-awesome-icon :icon="['fas', 'edit']" class="text-xs" />
           </button>
           <button
             @click="$emit('load-outfit', outfit)"
             class="w-9 h-9 rounded-full bg-white/80 backdrop-blur-sm flex items-center justify-center text-indigo-600 hover:bg-indigo-600 hover:text-white transition-all duration-300 shadow-md hover:shadow-lg border border-indigo-100/50"
             title="复制搭配"
           >
-            <font-awesome-icon icon="copy" class="text-xs" />
+            <font-awesome-icon :icon="['fas', 'copy']" class="text-xs" />
           </button>
           <button
             @click="$emit('delete-outfit', outfit.id)"
             class="w-9 h-9 rounded-full bg-white/80 backdrop-blur-sm flex items-center justify-center text-red-500 hover:bg-red-500 hover:text-white transition-all duration-300 shadow-md hover:shadow-lg border border-indigo-100/50"
             title="删除搭配"
           >
-            <font-awesome-icon icon="trash" class="text-xs" />
+            <font-awesome-icon :icon="['fas', 'trash']" class="text-xs" />
           </button>
         </div>
       </div>
@@ -193,7 +193,7 @@
                 <div
                   class="w-6 h-6 rounded-full bg-gradient-to-r from-indigo-500/10 to-purple-500/10 flex items-center justify-center mr-2 shadow-sm"
                 >
-                  <font-awesome-icon icon="edit" class="text-indigo-600 text-xs" />
+                  <font-awesome-icon :icon="['fas', 'edit']" class="text-indigo-600 text-xs" />
                 </div>
                 编辑搭配信息
               </h3>
@@ -201,7 +201,7 @@
                 @click="cancelEdit"
                 class="w-8 h-8 rounded-full bg-white/80 backdrop-blur-sm flex items-center justify-center text-gray-500 hover:text-indigo-600 hover:bg-indigo-500/10 transition-all duration-300 shadow-sm border border-indigo-100/50"
               >
-                <font-awesome-icon icon="times" class="text-sm" />
+                <font-awesome-icon :icon="['fas', 'times']" class="text-sm" />
               </button>
             </div>
 
@@ -211,7 +211,7 @@
                   <div
                     class="w-5 h-5 rounded-full bg-gradient-to-r from-indigo-500/10 to-purple-500/10 flex items-center justify-center mr-2 shadow-sm"
                   >
-                    <font-awesome-icon icon="tag" class="text-indigo-600 text-xs" />
+                    <font-awesome-icon :icon="['fas', 'tag']" class="text-indigo-600 text-xs" />
                   </div>
                   搭配名称
                 </label>
@@ -230,94 +230,23 @@
                   <div
                     class="w-5 h-5 rounded-full bg-gradient-to-r from-indigo-500/10 to-purple-500/10 flex items-center justify-center mr-2 shadow-sm"
                   >
-                    <font-awesome-icon icon="map-marker-alt" class="text-indigo-600 text-xs" />
+                    <font-awesome-icon :icon="['fas', 'map-marker-alt']" class="text-indigo-600 text-xs" />
                   </div>
-                  适用场景
+                  <span class="line-clamp-1">
+                    {{ outfit.scene || '未设置场景' }}
+                  </span>
                 </label>
-                <div class="grid grid-cols-3 gap-2">
-                  <button
-                    v-for="scene in sceneOptions"
-                    :key="scene.value"
-                    @click="selectScene(scene.value)"
-                    class="py-2 px-3 rounded-lg text-sm font-medium transition-all duration-300 flex items-center justify-center shadow-sm"
-                    :class="
-                      editOutfit.scenes.includes(scene.value)
-                        ? 'bg-gradient-to-r from-indigo-500 to-purple-500 text-white shadow-md transform scale-[1.02]'
-                        : 'bg-white/70 backdrop-blur-sm text-indigo-700 hover:bg-indigo-100 border border-indigo-100/50'
-                    "
-                  >
-                    <span>{{ scene.label }}</span>
-                  </button>
-                </div>
               </div>
-
-              <!-- 季节选择 -->
-              <div>
-                <label class="block text-sm font-medium text-indigo-700 mb-2 flex items-center">
+              <!-- 衣物数量信息 -->
+              <div class="flex items-center space-x-1 mt-2">
+                <div class="flex items-center text-xs text-indigo-700 bg-indigo-50 px-2 py-1 rounded-full">
                   <div
-                    class="w-5 h-5 rounded-full bg-gradient-to-r from-green-500/10 to-emerald-500/10 flex items-center justify-center mr-2 shadow-sm"
+                    class="w-4 h-4 rounded-full bg-indigo-500/10 flex items-center justify-center mr-1.5 shadow-sm"
                   >
-                    <font-awesome-icon icon="leaf" class="text-green-600 text-xs" />
+                    <font-awesome-icon :icon="['fas', 'layer-group']" class="text-indigo-600 text-xs" />
                   </div>
-                  适用季节
-                </label>
-                <div class="grid grid-cols-2 gap-2">
-                  <button
-                    v-for="season in seasonOptions"
-                    :key="season.value"
-                    @click="selectSeason(season.value)"
-                    class="py-2 px-3 rounded-lg text-sm font-medium transition-all duration-300 flex items-center justify-center shadow-sm"
-                    :class="
-                      editOutfit.seasons.includes(season.value)
-                        ? 'bg-gradient-to-r from-green-500 to-emerald-500 text-white shadow-md transform scale-[1.02]'
-                        : 'bg-white/70 backdrop-blur-sm text-green-700 hover:bg-green-100 border border-green-100/50'
-                    "
-                  >
-                    <span>{{ season.label }}</span>
-                  </button>
+                  <span>{{ outfit.clothingItems?.length || 0 }} 件衣物</span>
                 </div>
-              </div>
-
-              <!-- 风格选择 -->
-              <div>
-                <label class="block text-sm font-medium text-indigo-700 mb-2 flex items-center">
-                  <div
-                    class="w-5 h-5 rounded-full bg-gradient-to-r from-purple-500/10 to-pink-500/10 flex items-center justify-center mr-2 shadow-sm"
-                  >
-                    <font-awesome-icon icon="palette" class="text-purple-600 text-xs" />
-                  </div>
-                  搭配风格
-                </label>
-                <div class="grid grid-cols-3 gap-1.5">
-                  <button
-                    v-for="style in styleOptions"
-                    :key="style.value"
-                    @click="selectStyle(style.value)"
-                    class="py-2 px-3 rounded-lg text-sm font-medium transition-all duration-300 flex items-center justify-center shadow-sm"
-                    :class="
-                      editOutfit.styles.includes(style.value)
-                        ? 'bg-gradient-to-r from-purple-500 to-pink-500 text-white shadow-md transform scale-[1.02]'
-                        : 'bg-white/70 backdrop-blur-sm text-purple-700 hover:bg-purple-100 border border-purple-100/50'
-                    "
-                  >
-                    <span>{{ style.label }}</span>
-                  </button>
-                </div>
-              </div>
-              <div class="flex gap-2 pt-2">
-                <button
-                  @click="saveEdit"
-                  class="flex-1 bg-primary hover:bg-primary/90 text-white font-medium py-2 rounded-lg transition-colors flex items-center justify-center"
-                >
-                  <font-awesome-icon :icon="['fas', 'save']" class="mr-1 text-xs" />
-                  保存
-                </button>
-                <button
-                  @click="cancelEdit"
-                  class="flex-1 bg-neutral-100 hover:bg-neutral-200 text-neutral-700 font-medium py-2 rounded-lg transition-colors flex items-center justify-center"
-                >
-                  取消
-                </button>
               </div>
             </div>
           </div>
@@ -330,7 +259,6 @@
 <script setup>
   import { ref, reactive, computed, onMounted } from 'vue';
   import { useEnumsStore } from '@/stores/enums';
-  import { scenesMockData } from '../../mock/data';
   import InfoChip from './InfoChip.vue';
 
   // Props定义
@@ -355,7 +283,7 @@
   });
 
   // 场景选项映射
-  const sceneOptions = scenesMockData;
+  const sceneOptions = computed(() => enumsStore.sceneOptions);
 
   // 季节选项映射
   const seasonOptions = computed(() => enumsStore.seasonOptions);
@@ -364,11 +292,15 @@
   const styleOptions = computed(() => enumsStore.styleOptions);
 
   // 通用工具函数 - 获取标签
-  const getLabel = (options, value) => options.find(opt => opt.value === value)?.label || value;
-
-  const getSceneLabel = value => getLabel(sceneOptions, value);
-  const getSeasonLabel = value => getLabel(seasonOptions, value);
-  const getStyleLabel = value => getLabel(styleOptions, value);
+  const getLabel = (options, value) => {
+    if (!options || !Array.isArray(options) || !value) return value;
+    const item = options.find(opt => opt.id === value);
+    return item ? item.name : value;
+  };
+  
+  const getSceneLabel = value => getLabel(sceneOptions.value, value);
+  const getSeasonLabel = value => getLabel(seasonOptions.value, value);
+  const getStyleLabel = value => getLabel(styleOptions.value, value);
 
   // 通用数组切换函数
   const toggleArrayItem = (array, value) => {

@@ -1,6 +1,6 @@
-import { attributeRepository } from '../repositories';
 import logger from '../utils/logger';
 import { Attribute } from '../models/entities/Attribute';
+import { attributeRepository } from '../repositories';
 import type { AttributeQueryOptions } from '../repositories/AttributeRepository';
 
 // 分类查询选项接口
