@@ -63,7 +63,8 @@ export const useClothingStore = defineStore('clothing', {
     selectedItems: state => {
       const items = Array.isArray(state.clothingItems) ? state.clothingItems : [];
       if (state.selectedCategory) {
-        return items.filter(item => item && item.categoryId === state.selectedCategory);
+        // 根据数据库设计，使用category字段而不是categoryId
+        return items.filter(item => item && item.category === state.selectedCategory);
       }
       return items;
     },
@@ -78,11 +79,17 @@ export const useClothingStore = defineStore('clothing', {
     itemsByCategory: state => {
       const result = {};
       const items = Array.isArray(state.clothingItems) ? state.clothingItems : [];
-      const categories = Array.isArray(state.categories) ? state.categories : [];
-
-      categories.forEach(category => {
-        result[category.id] = items.filter(item => item && item.categoryId === category.id);
+      
+      // 直接从items中按category字段分组（根据数据库设计，clothing表使用category字段关联attributes表）
+      items.forEach(item => {
+        if (item && item.category != null) {
+          if (!result[item.category]) {
+            result[item.category] = [];
+          }
+          result[item.category].push(item);
+        }
       });
+      
       return result;
     },
 
@@ -118,7 +125,7 @@ export const useClothingStore = defineStore('clothing', {
       const items = Array.isArray(state.clothingItems) ? state.clothingItems : [];
       return {
         total: items.length,
-        categories: [...new Set(items.map(item => item?.categoryId).filter(Boolean))].length,
+        categories: [...new Set(items.map(item => item?.category).filter(Boolean))].length,
         totalValue: items.reduce((sum, item) => sum + (item?.price || 0), 0),
         averagePrice: items.length
           ? items.reduce((sum, item) => sum + (item?.price || 0), 0) / items.length
@@ -170,8 +177,28 @@ export const useClothingStore = defineStore('clothing', {
 
       try {
         const response = await clothingAdapter.fetchCategories();
-        const categories = response.data || response || [];
-        this.categories = Array.isArray(categories) ? categories : [];
+        // 确保获取到的数据是数组格式
+        let categoriesData = [];
+        if (Array.isArray(response.data)) {
+          categoriesData = response.data;
+        } else if (Array.isArray(response)) {
+          categoriesData = response;
+        } else if (response && response.length === undefined) {
+          // 如果是单个对象，放入数组中
+          categoriesData = [response];
+        }
+        
+        // 转换为前端需要的分类格式，确保包含必要字段
+        this.categories = categoriesData.map(category => ({
+          id: category.id,
+          name: category.name || category.display_name || '未命名类别',
+          icon: category.icon || 'shirt',
+          enabled: category.enabled !== undefined ? category.enabled : 
+                  (category.is_active !== undefined ? category.is_active : true),
+          // 保留原始分类数据
+          ...category
+        }));
+        
         setCachedData(cacheKey, this.categories);
         return this.categories;
       } catch (error) {

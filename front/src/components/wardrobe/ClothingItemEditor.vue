@@ -221,7 +221,7 @@
                 </label>
                 <div class="relative">
                   <select
-                    v-model="form.categoryId"
+                    v-model="form.category"
                     :disabled="readOnly"
                     :class="[
                       readOnly
@@ -247,7 +247,7 @@
                   </div>
                 </div>
                 <p
-                  v-if="form.categoryId && !categories.find(c => c.id === form.categoryId)"
+                  v-if="form.category && !categories.find(c => c.id === form.category)"
                   class="text-xs text-yellow-600 mt-1 flex items-center"
                 >
                   <font-awesome-icon :icon="['fas', 'exclamation-triangle']" class="mr-1" />
@@ -501,7 +501,7 @@
         id: '',
         name: '',
         brand: '',
-        categoryId: '',
+        category: '', // 使用category字段（关联attributes表）
         categoryName: '',
         color: '',
         seasons: [], // 确保初始化为数组
@@ -515,7 +515,7 @@
 
       // 表单验证
       const isFormValid = computed(() => {
-        return form.value.name.trim() !== '' && form.value.categoryId !== '';
+        return form.value.name.trim() !== '' && form.value.category !== '';
       });
 
       // 监听props.item变化，更新表单
@@ -527,30 +527,31 @@
             const itemCopy = { ...newItem };
 
             // 确保分类信息正确传递
-            // 如果item中有categoryName但没有categoryId，尝试匹配
-            if (!itemCopy.categoryId && itemCopy.categoryName) {
-              const matchedCategory = categories.value.find(c => c.name === itemCopy.categoryName);
-              if (matchedCategory) {
-                itemCopy.categoryId = matchedCategory.id;
-              }
-            }
+        // 如果item中有categoryName但没有category，尝试匹配
+        if (!itemCopy.category && itemCopy.categoryName) {
+          const matchedCategory = categories.value.find(c => c.name === itemCopy.categoryName);
+          if (matchedCategory) {
+            itemCopy.category = matchedCategory.id;
+          }
+        }
 
-            // 如果item中有categoryId但没有categoryName，尝试设置categoryName
-            if (itemCopy.categoryId && !itemCopy.categoryName) {
-              const matchedCategory = categories.value.find(c => c.id === itemCopy.categoryId);
-              if (matchedCategory) {
-                itemCopy.categoryName = matchedCategory.name;
-              }
-            }
+        // 如果item中有category但没有categoryName，尝试设置categoryName
+        if (itemCopy.category && !itemCopy.categoryName) {
+          const matchedCategory = categories.value.find(c => c.id === itemCopy.category);
+          if (matchedCategory) {
+            itemCopy.categoryName = matchedCategory.name;
+          }
+        }
 
             // 兼容旧数据中的category字段
-            if (!itemCopy.categoryId && itemCopy.category) {
-              // 如果有category字段但没有categoryId，尝试匹配
+            if (!itemCopy.category && itemCopy.categoryId) {
+              // 如果有categoryId字段但没有category，使用categoryId
+              itemCopy.category = itemCopy.categoryId;
+              delete itemCopy.categoryId;
               const matchedCategory = categories.value.find(
-                c => c.id === itemCopy.category || c.name === itemCopy.category
+                c => c.id === itemCopy.category
               );
               if (matchedCategory) {
-                itemCopy.categoryId = matchedCategory.id;
                 itemCopy.categoryName = matchedCategory.name;
               }
             }
@@ -584,7 +585,7 @@
           id: '',
           name: '',
           brand: '',
-          categoryId: '',
+          category: '',
           categoryName: '',
           color: '',
           seasons: [], // 确保重置时也是数组
@@ -737,8 +738,8 @@
 
       // 更新分类名称
       function updateCategoryName() {
-        if (form.value.categoryId) {
-          const selectedCategory = categories.value.find(c => c.id === form.value.categoryId);
+        if (form.value.category) {
+          const selectedCategory = categories.value.find(c => c.id === form.value.category);
           if (selectedCategory) {
             form.value.categoryName = selectedCategory.name;
           }

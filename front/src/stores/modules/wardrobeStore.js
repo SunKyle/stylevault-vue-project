@@ -45,7 +45,7 @@ export const useWardrobeStore = defineStore('wardrobe', {
       let items = [...state.clothingItems];
 
       if (state.filters.category) {
-        items = items.filter(item => item.categoryId === state.filters.category);
+        items = items.filter(item => item.category === state.filters.category);
       }
 
       if (state.filters.season) {

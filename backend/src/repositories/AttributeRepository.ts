@@ -8,6 +8,8 @@ export interface AttributeQueryOptions {
   category?: string;
   /** 属性类型 */
   type?: string;
+  /** 是否启用 */
+  enabled?: boolean;
   /** 父属性ID */
   parentId?: number | null;
   /** 是否包含子属性 */
@@ -32,7 +34,7 @@ export class AttributeRepository {
    * @returns 属性列表
    */
   async findAll(options: AttributeQueryOptions = {}): Promise<Attribute[]> {
-    const { category, type, parentId, sortBy = 'name', sortOrder = 'ASC', page, pageSize } = options;
+    const { category, type, enabled, parentId, sortBy = 'name', sortOrder = 'ASC', page, pageSize } = options;
     
     const where: any = {};
     
@@ -42,6 +44,10 @@ export class AttributeRepository {
     
     if (type) {
       where.type = type;
+    }
+    
+    if (enabled !== undefined) {
+      where.enabled = enabled;
     }
     
     if (parentId !== undefined) {

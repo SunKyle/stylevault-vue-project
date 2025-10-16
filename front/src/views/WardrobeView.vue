@@ -189,12 +189,58 @@
   const isReadOnlyMode = ref(false);
 
   // 计算属性
-  const categories = computed(() => clothingStore.categories);
+  const categories = computed(() => {
+    // 确保从store获取的数据是数组格式
+    const storeCategories = Array.isArray(clothingStore.categories) ? clothingStore.categories : [];
+    
+    // 如果store中的categories不为空，直接返回
+    if (storeCategories.length > 0) {
+      return storeCategories;
+    }
+    
+    // 从衣物数据中提取唯一的分类ID和名称（如果有）
+    const clothingItemsList = clothingItems.value || [];
+    const uniqueCategories = new Map();
+    
+    clothingItemsList.forEach(item => {
+      if (item && item.category != null) {
+        // 这里可以根据需要扩展，比如从item中获取更多分类信息
+        if (!uniqueCategories.has(item.category)) {
+          uniqueCategories.set(item.category, {
+            id: item.category,
+            name: `分类 ${item.category}`,
+            icon: 'shirt',
+            enabled: true
+          });
+        }
+      }
+    });
+    
+    return Array.from(uniqueCategories.values());
+  });
+  
   const selectedCategory = computed(() => clothingStore.selectedCategory);
   const loading = computed(() => clothingStore.loading);
   const error = computed(() => clothingStore.error);
   const recentlyAddedItems = computed(() => clothingStore.recentlyAddedItems);
   // const favoriteItems = computed(() => clothingStore.favoriteItems); // 暂时未使用
+  const clothingItems = computed(() => clothingStore.clothingItems);
+  const itemsByCategory = computed(() => {
+    const result = {};
+    const items = clothingItems.value || [];
+    
+    // 从items中按category字段分组（根据数据库设计）
+    items.forEach(item => {
+      if (item && item.category != null) {
+        if (!result[item.category]) {
+          result[item.category] = [];
+        }
+        result[item.category].push(item);
+      }
+    });
+    
+    return result;
+  });
 
   // 精选搭配数据
   // const outfits = ref([]); // 暂时未使用
@@ -210,11 +256,34 @@
   //   }
   // };
 
-  function getCategoryItemCount(categoryId) {
-    if (isSearchMode.value) return searchResults.value.length;
-    if (categoryId === 'all') return clothingStore.clothingItems.length;
-    return clothingStore.itemsByCategory[categoryId]?.length || 0;
-  }
+    // 获取指定分类的衣物数量
+  const getCategoryItemCount = (categoryId) => {
+    // 确保传入的参数是有效的
+    if (categoryId === undefined || categoryId === null) {
+      return 0;
+    }
+    
+    // 在搜索模式下
+    if (isSearchMode.value) {
+      const results = searchResults.value || [];
+      if (categoryId === 'all') {
+        return results.length;
+      } else {
+        // 过滤搜索结果中对应category的项（使用category字段）
+        return results.filter(item => item && item.category === categoryId).length;
+      }
+    }
+    
+    // 非搜索模式下
+    if (categoryId === 'all') {
+      return clothingItems.value ? clothingItems.value.length : 0;
+    } else {
+      // 使用计算属性中的itemsByCategory来获取数量
+      return itemsByCategory.value && itemsByCategory.value[categoryId]
+        ? itemsByCategory.value[categoryId].length
+        : 0;
+    }
+  };
 
   // 获取枚举属性的显示文本
   function getEnumLabel(type, id) {

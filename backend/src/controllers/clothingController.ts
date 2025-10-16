@@ -12,8 +12,16 @@ export class ClothingController {
    */
   async getCategories(req: Request, res: Response) {
     try {
-      // 获取分类为category的属性
-      const categories = await attributeRepository.findByCategory('category');
+      // 获取分类为category且类型为select的启用属性
+      const categories = await attributeRepository.findAll({
+        category: 'category',
+        type: 'select',
+        enabled: true
+      });
+      
+      // 调试日志：查看数据库返回的数据是否包含icon字段
+      console.log('数据库返回的分类数据:', categories);
+      console.log('第一个分类的icon字段:', categories.length > 0 ? categories[0].icon : '无数据');
       
       // 格式化返回数据
       const formattedCategories = categories.map(category => ({
@@ -22,6 +30,7 @@ export class ClothingController {
         displayName: category.displayName,
         description: category.description || '',
         color: category.color || undefined,
+        icon: category.icon || undefined,
         createdAt: category.createdAt,
         updatedAt: category.updatedAt
       }));
@@ -76,6 +85,7 @@ export class ClothingController {
         displayName: category.displayName,
         description: category.description || '',
         color: category.color || undefined,
+        icon: category.icon || undefined,
         createdAt: category.createdAt,
         updatedAt: category.updatedAt
       };

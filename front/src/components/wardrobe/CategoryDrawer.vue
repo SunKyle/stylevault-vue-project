@@ -349,7 +349,9 @@
         if (this.isSearchMode) return 'search';
         if (!this.selectedCategory || this.selectedCategory === 'all') return 'tag';
         try {
-          const category = this.clothingStore.categories.find(c => c.id === this.selectedCategory);
+          // 确保categories是数组
+          const categoriesArray = Array.isArray(this.clothingStore.categories) ? this.clothingStore.categories : [];
+          const category = categoriesArray.find(c => c.id === this.selectedCategory);
           // 确保category存在且icon是有效的字符串
           if (category && category.icon && typeof category.icon === 'string' && category.icon.trim() !== '') {
             return category.icon;
