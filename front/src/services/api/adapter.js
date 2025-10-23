@@ -2,7 +2,7 @@ import axios from 'axios';
 
 // 创建axios实例
 const apiClient = axios.create({
-  baseURL: process.env.VUE_APP_API_BASE_URL || '/api/v1',
+  baseURL: process.env.VUE_APP_API_BASE_URL || 'http://localhost:3000/api/v1',
   timeout: 10000,
   headers: {
     'Content-Type': 'application/json',
@@ -204,13 +204,16 @@ export const enumsAdaptorApi = {
   getAllEnums: async () => {
     try {
       const response = await apiClient.get('/enums/all');
-      // 确保返回的数据是对象格式
-      if (response && typeof response.data === 'object') {
-        // 返回经过处理的数据，确保结构与前端期望的一致
+      // 检查响应结构，后端返回的格式是 { data: {...}, message: '...' }
+      if (response && response.data && typeof response.data === 'object') {
+        // 返回data字段中的枚举数据
         return response.data;
+      } else if (response && typeof response === 'object') {
+        // 如果没有data字段，尝试直接使用response
+        return response;
       }
       // 如果API返回的数据格式不正确，返回空对象
-      console.warn('枚举API返回的数据格式不正确');
+      console.warn('枚举API返回的数据格式不正确:', response);
       return {};
     } catch (error) {
       console.error('获取枚举数据失败:', error);
@@ -222,10 +225,10 @@ export const enumsAdaptorApi = {
   // 获取指定类型的枚举数据
   getEnumsByType: async type => {
     try {
-      const response = await apiClient.get(`/enums/${type}`);
+      const data = await apiClient.get(`/enums/${type}`);
       // 确保返回的数据是数组格式
-      if (response && Array.isArray(response.data)) {
-        return response.data;
+      if (data && Array.isArray(data)) {
+        return data;
       }
       console.warn(`类型${type}的枚举API返回的数据格式不正确`);
       return [];

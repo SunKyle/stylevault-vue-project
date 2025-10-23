@@ -102,7 +102,19 @@ export const useEnumsStore = defineStore('enums', {
     seasonOptions: (state) => state.enumsData.seasons || [],
     
     // 获取风格选项
-    styleOptions: (state) => state.enumsData.styles || []
+    styleOptions: (state) => state.enumsData.styles || [],
+    
+    // 获取分类选项
+    categoryOptions: (state) => state.enumsData.categories || [],
+    
+    // 获取材质选项
+    materialOptions: (state) => state.enumsData.materials || [],
+    
+    // 获取颜色选项
+    colorOptions: (state) => state.enumsData.colors || [],
+    
+    // 获取尺寸选项
+    sizeOptions: (state) => state.enumsData.sizes || []
   },
 
   actions: {

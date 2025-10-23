@@ -1,6 +1,6 @@
 import { defineStore } from 'pinia';
 import { ref, computed } from 'vue';
-import api from '@/services/api';
+import { enumsAdaptorApi } from '@/services/api/adapter';
 
 export const useEnumsStore = defineStore('enums', () => {
   // 状态
@@ -10,6 +10,7 @@ export const useEnumsStore = defineStore('enums', () => {
   const occasions = ref([]);
   const materials = ref([]);
   const colors = ref([]);
+  const sizes = ref([]);
 
   const loading = ref(false);
   const error = ref(null);
@@ -18,52 +19,29 @@ export const useEnumsStore = defineStore('enums', () => {
   const isLoaded = ref(false);
 
   // 计算属性
-  const categoryOptions = computed(() =>
-    categories.value.map(item => ({
-      value: item.value,
-      label: item.label,
-    }))
-  );
+  // 统一处理枚举选项，优先使用id字段，如果不存在则使用value
+  const createEnumOptions = (items, includeColor = false) => {
+    return items.map(item => {
+      const option = {
+        value: item.id !== undefined ? item.id : (item.value !== undefined ? item.value : ''),
+        label: item.label || item.name || '未命名'
+      };
+      if (includeColor && item.color) {
+        option.color = item.color;
+      }
+      return option;
+    });
+  };
 
-  const styleOptions = computed(() =>
-    styles.value.map(item => ({
-      value: item.id,
-      label: item.label,
-    }))
-  );
+  const categoryOptions = computed(() => createEnumOptions(categories.value));
+  const styleOptions = computed(() => createEnumOptions(styles.value));
+  const seasonOptions = computed(() => createEnumOptions(seasons.value));
+  const occasionOptions = computed(() => createEnumOptions(occasions.value));
+  const materialOptions = computed(() => createEnumOptions(materials.value));
+  const colorOptions = computed(() => createEnumOptions(colors.value, true));
+  const sizeOptions = computed(() => createEnumOptions(sizes.value));
 
-  // 计算属性 - 修复季节选项格式
-  const seasonOptions = computed(() =>
-    seasons.value.map(item => ({
-      value: String(item.id || item.value), // 统一转换为字符串
-      label: item.label,
-    }))
-  );
-
-  const occasionOptions = computed(() =>
-    occasions.value.map(item => ({
-      value: item.id,
-      label: item.label,
-    }))
-  );
-
-  const materialOptions = computed(() =>
-    materials.value.map(item => ({
-      value: item.id,
-      label: item.label,
-    }))
-  );
-
-  const colorOptions = computed(() =>
-    colors.value.map(item => ({
-      value: item.id,
-      label: item.label,
-      color: item.color,
-    }))
-  );
-
-  // 获取所有枚举值
-  // 在fetchAllEnums方法中添加调试
+  // 获取所有枚举值 - 从attributes表获取数据
   const fetchAllEnums = async () => {
     if (isLoaded.value) return;
 
@@ -71,22 +49,17 @@ export const useEnumsStore = defineStore('enums', () => {
     error.value = null;
 
     try {
-      const response = await api.get('/enums/all');
-      const data = response.data || {};
+      // 直接从enumsAdaptorApi获取枚举数据
+      const data = await enumsAdaptorApi.getAllEnums();
 
-      console.log('=== 枚举数据调试 ===');
-      console.log('原始季节数据:', data.seasons);
-
-      // 确保数据结构正确
-      categories.value = data.clothingTypes || [];
+      // 确保数据结构正确，并且从attributes表获取的数据正确映射
+      categories.value = Array.isArray(data.categories) ? data.categories : [];
       styles.value = Array.isArray(data.styles) ? data.styles : [];
       seasons.value = Array.isArray(data.seasons) ? data.seasons : [];
       occasions.value = Array.isArray(data.occasions) ? data.occasions : [];
       materials.value = Array.isArray(data.materials) ? data.materials : [];
       colors.value = Array.isArray(data.colors) ? data.colors : [];
-
-      console.log('处理后季节数据:', seasons.value);
-      console.log('季节选项:', seasonOptions.value);
+      sizes.value = Array.isArray(data.sizes) ? data.sizes : [];
 
       isLoaded.value = true;
     } catch (err) {
@@ -97,24 +70,11 @@ export const useEnumsStore = defineStore('enums', () => {
     }
   };
 
-  // 获取单个枚举值
+  // 获取单个枚举值 - 从attributes表获取特定类型的枚举
   const fetchEnum = async type => {
-    const endpoints = {
-      categories: '/enums/types',
-      styles: '/enums/styles',
-      seasons: '/enums/seasons',
-      occasions: '/enums/occasions',
-    };
-
-    if (!endpoints[type]) {
-      console.error(`未知的枚举类型: ${type}`);
-      return;
-    }
-
     try {
-      const response = await api.get(endpoints[type]);
-      const data = response.data.data || [];
-
+      const data = await enumsAdaptorApi.getEnumsByType(type);
+      
       switch (type) {
         case 'categories':
           categories.value = data;
@@ -128,13 +88,24 @@ export const useEnumsStore = defineStore('enums', () => {
         case 'occasions':
           occasions.value = data;
           break;
+        case 'materials':
+          materials.value = data;
+          break;
+        case 'colors':
+          colors.value = data;
+          break;
+        case 'sizes':
+          sizes.value = data;
+          break;
+        default:
+          console.error(`未知的枚举类型: ${type}`);
       }
     } catch (err) {
       console.error(`获取${type}枚举值失败:`, err);
     }
   };
 
-  // 根据值获取标签
+  // 根据值获取标签 - 同时支持id和value字段
   const getLabelByValue = (type, value) => {
     const enumMap = {
       categories: categories.value,
@@ -143,10 +114,15 @@ export const useEnumsStore = defineStore('enums', () => {
       occasions: occasions.value,
       materials: materials.value,
       colors: colors.value,
+      sizes: sizes.value,
     };
 
-    const item = enumMap[type]?.find(item => item.value === value);
-    return item?.label || value;
+    const items = enumMap[type];
+    if (!items) return value;
+    
+    // 优先查找id匹配，然后查找value匹配
+    const item = items.find(item => item.id === value || item.value === value);
+    return item?.label || item?.name || value;
   };
 
   // 重置状态
@@ -157,6 +133,7 @@ export const useEnumsStore = defineStore('enums', () => {
     occasions.value = [];
     materials.value = [];
     colors.value = [];
+    sizes.value = [];
     loading.value = false;
     error.value = null;
     isLoaded.value = false;
@@ -181,6 +158,7 @@ export const useEnumsStore = defineStore('enums', () => {
     occasionOptions,
     materialOptions,
     colorOptions,
+    sizeOptions,
 
     // 方法
     fetchAllEnums,

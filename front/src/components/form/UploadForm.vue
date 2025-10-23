@@ -106,7 +106,7 @@
               <span class="text-red-500">*</span>
             </label>
             <select
-              v-model="clothingItem.categoryId"
+              v-model="clothingItem.category"
               class="w-full px-4 py-3 rounded-xl border border-neutral-200 focus:border-primary focus:ring-2 focus:ring-primary/20 focus:outline-none transition-all appearance-none bg-white"
             >
               <option value="">请选择类别</option>
@@ -189,13 +189,9 @@
               class="w-full px-4 py-3 rounded-xl border border-neutral-200 focus:border-primary focus:ring-2 focus:ring-primary/20 focus:outline-none transition-all appearance-none bg-white"
             >
               <option value="">请选择尺寸</option>
-              <option value="XS">XS - 特小号</option>
-              <option value="S">S - 小号</option>
-              <option value="M">M - 中号</option>
-              <option value="L">L - 大号</option>
-              <option value="XL">XL - 特大号</option>
-              <option value="XXL">XXL - 超大号</option>
-              <option value="均码">均码</option>
+              <option v-for="size in sizeOptions" :key="size.value" :value="size.value">
+                {{ size.label }}
+              </option>
             </select>
           </div>
 
@@ -278,7 +274,7 @@
 
 <script setup>
   import { reactive, ref, computed, nextTick, onMounted } from 'vue';
-  // import { useRouter } from 'vue-router'; // 暂时未使用
+  import { useRouter } from 'vue-router'; // 添加router导入
   import { useClothingStore } from '@/stores';
   import { useEnumsStore } from '@/stores/enums';
   import { showToast } from '../../utils/toast';
@@ -288,10 +284,11 @@
   const clothingStore = useClothingStore();
   const enumsStore = useEnumsStore();
 
-  // 加载枚举值
-  onMounted(async () => {
-    await enumsStore.fetchAllEnums();
-  });
+  // 枚举值已经在应用初始化时加载，不需要在此处重复调用
+  // 注释掉避免重复调用API
+  // onMounted(async () => {
+  //   await enumsStore.fetchAllEnums();
+  // });
 
   // 计算属性 - 从store获取枚举值
   const categoryOptions = computed(() => enumsStore.categoryOptions);
@@ -299,11 +296,12 @@
   const seasonOptions = computed(() => enumsStore.seasonOptions);
   const materialOptions = computed(() => enumsStore.materialOptions);
   const colorOptions = computed(() => enumsStore.colorOptions);
+  const sizeOptions = computed(() => enumsStore.sizeOptions);
 
   // 表单数据 - 使用独立ref管理季节数组以避免响应式问题
   const clothingItem = reactive({
     name: '',
-    categoryId: '',
+    category: '',
     style: '',
     color: '',
     material: '',
@@ -400,7 +398,7 @@
     isSaving.value = true;
 
     // 验证必填字段
-    if (!clothingItem.name || !clothingItem.categoryId) {
+    if (!clothingItem.name || !clothingItem.category) {
       showToast('请填写衣物名称和类别', 'error');
       isSaving.value = false;
       return;
@@ -432,7 +430,7 @@
 
       const itemToSubmit = {
         name: clothingItem.name,
-        categoryId: clothingItem.categoryId,
+        category: clothingItem.category,
         colorId: clothingItem.color || null,
         styleId: clothingItem.style || null,
         brand: clothingItem.brand,
@@ -458,7 +456,7 @@
       // 清空表单
       Object.assign(clothingItem, {
         name: '',
-        categoryId: '',
+        category: '',
         style: '',
         color: '',
         material: '',

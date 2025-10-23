@@ -342,20 +342,19 @@ export class AttributeService {
    */
   async getEnumValues(category: string): Promise<EnumValue[]> {
     try {
-      const attributes = await Attribute.findAll({
-        where: {
-          category,
-          enabled: true
-        },
-        order: [['name', 'ASC']]
+      // 使用attributeRepository而不是直接使用Attribute模型
+      // 注意：数据库使用category列区分类型，is_active列标识是否启用
+      const attributes = await attributeRepository.findAll({
+        category: category,
+        enabled: true
       });
 
       return attributes.map(attr => ({
-        value: (attr as any).value || attr.name.toLowerCase().replace(/\s+/g, '_'),
-        label: (attr as any).displayName || attr.name,
-        color: (attr as any).color || undefined,
-        icon: (attr as any).icon || undefined,
-        metadata: (attr as any).metadata || {}
+        value: attr.id.toString(), // 使用ID作为value
+        label: attr.displayName || attr.name,
+        color: attr.color,
+        icon: attr.icon,
+        metadata: attr.metadata || {}
       }));
     } catch (error) {
       logger.error(`获取 ${category} 枚举值失败:`, error);
@@ -367,20 +366,14 @@ export class AttributeService {
    * 获取衣物类型枚举值
    */
   async getClothingTypes(): Promise<EnumValue[]> {
-    try {
-      // 由于Category模型已移除，这里返回空数组或默认值
-      // 实际项目中应根据新的数据结构调整
-      return [
-        { value: '1', label: '上衣' },
-        { value: '2', label: '裤子' },
-        { value: '3', label: '裙子' },
-        { value: '4', label: '鞋子' },
-        { value: '5', label: '配件' }
-      ];
-    } catch (error) {
-      logger.error('获取衣物类型失败:', error);
-      throw new Error('获取衣物类型失败');
-    }
+    return this.getEnumValues('clothing_type');
+  }
+
+  /**
+   * 获取衣物大类枚举值
+   */
+  async getCategories(): Promise<EnumValue[]> {
+    return this.getEnumValues('category');
   }
 
   /**
@@ -426,28 +419,36 @@ export class AttributeService {
   }
 
   /**
+   * 获取尺寸枚举值
+   */
+  async getSizes(): Promise<EnumValue[]> {
+    return this.getEnumValues('size');
+  }
+
+  /**
    * 获取所有枚举值
    */
   async getAllEnums(): Promise<Record<string, EnumValue[]>> {
     try {
-      const [clothingTypes, seasons, occasions, styles, scenes, colors, materials] = await Promise.all([
-        this.getClothingTypes(),
-        this.getSeasons(),
-        this.getOccasions(),
-        this.getStyles(),
-        this.getScenes(),
-        this.getColors(),
-        this.getMaterials()
-      ]);
+      // 确保变量顺序和函数调用顺序完全匹配
+      const seasons = await this.getSeasons();
+      const occasions = await this.getOccasions();
+      const styles = await this.getStyles();
+      const scenes = await this.getScenes();
+      const colors = await this.getColors();
+      const materials = await this.getMaterials();
+      const categories = await this.getCategories();
+      const sizes = await this.getSizes();
 
       return {
-        clothingTypes,
         seasons,
         occasions,
         styles,
         scenes,
         colors,
-        materials
+        materials,
+        categories,
+        sizes
       };
     } catch (error) {
       logger.error('获取所有枚举值失败:', error);

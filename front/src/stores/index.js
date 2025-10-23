@@ -15,15 +15,27 @@ export const initializeStores = async () => {
     // 按需初始化核心 store
     const { useUserStore } = await import('./modules/userStore');
     const { useUiStore } = await import('./modules/uiStore');
+    const { useEnumsStore } = await import('./modules/enumsStore');
 
     const userStore = useUserStore();
     const uiStore = useUiStore();
+    const enumsStore = useEnumsStore();
 
     // 初始化用户偏好设置
     await userStore.initializeUser();
 
     // 设置 UI 主题
     uiStore.setTheme(userStore.preferences.colorScheme);
+    
+    // 初始化枚举数据
+    try {
+      // 尝试获取所有枚举数据
+      await enumsStore.fetchAllEnums?.();
+      console.log('✅ 枚举数据加载成功');
+    } catch (enumError) {
+      console.error('❌ 枚举数据加载失败:', enumError);
+      // 失败时不中断整个初始化流程
+    }
 
     console.log('✅ 所有 store 初始化完成');
   } catch (error) {
