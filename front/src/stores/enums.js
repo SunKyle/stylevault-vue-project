@@ -41,10 +41,64 @@ export const useEnumsStore = defineStore('enums', () => {
   const colorOptions = computed(() => createEnumOptions(colors.value, true));
   const sizeOptions = computed(() => createEnumOptions(sizes.value));
 
-  // 获取所有枚举值 - 从attributes表获取数据
-  const fetchAllEnums = async () => {
-    if (isLoaded.value) return;
+  // 缓存相关函数
+  const getCachedData = (key) => {
+    try {
+      const cached = localStorage.getItem(`enums_${key}`);
+      if (cached) {
+        const { data, timestamp } = JSON.parse(cached);
+        // 缓存有效期5分钟
+        const cacheValidity = 5 * 60 * 1000;
+        if (Date.now() - timestamp < cacheValidity) {
+          return data;
+        }
+      }
+    } catch (error) {
+      console.error('读取缓存失败:', error);
+    }
+    return null;
+  };
 
+  const setCachedData = (key, data) => {
+    try {
+      localStorage.setItem(`enums_${key}`, JSON.stringify({
+        data,
+        timestamp: Date.now()
+      }));
+    } catch (error) {
+      console.error('设置缓存失败:', error);
+    }
+  };
+
+  // 请求锁，用于防止并发请求
+  let requestPromise = null;
+  
+  // 获取所有枚举值 - 从attributes表获取数据
+  const fetchAllEnums = async (forceRefresh = false) => {
+    // 使用缓存和标志防止重复调用
+    if (!forceRefresh && isLoaded.value) return;
+
+    // 检查缓存
+    if (!forceRefresh) {
+      const cachedData = getCachedData('all');
+      if (cachedData) {
+        categories.value = Array.isArray(cachedData.categories) ? cachedData.categories : [];
+        styles.value = Array.isArray(cachedData.styles) ? cachedData.styles : [];
+        seasons.value = Array.isArray(cachedData.seasons) ? cachedData.seasons : [];
+        occasions.value = Array.isArray(cachedData.occasions) ? cachedData.occasions : [];
+        materials.value = Array.isArray(cachedData.materials) ? cachedData.materials : [];
+        colors.value = Array.isArray(cachedData.colors) ? cachedData.colors : [];
+        sizes.value = Array.isArray(cachedData.sizes) ? cachedData.sizes : [];
+        isLoaded.value = true;
+        return;
+      }
+    }
+
+    // 关键优化：如果已有请求正在进行，返回同一个Promise
+    if (requestPromise) {
+      return requestPromise;
+    }
+    
     loading.value = true;
     error.value = null;
 
@@ -61,13 +115,26 @@ export const useEnumsStore = defineStore('enums', () => {
       colors.value = Array.isArray(data.colors) ? data.colors : [];
       sizes.value = Array.isArray(data.sizes) ? data.sizes : [];
 
+      // 缓存数据
+      setCachedData('all', {
+        categories: categories.value,
+        styles: styles.value,
+        seasons: seasons.value,
+        occasions: occasions.value,
+        materials: materials.value,
+        colors: colors.value,
+        sizes: sizes.value
+      });
+
       isLoaded.value = true;
     } catch (err) {
       console.error('获取枚举值失败:', err);
       error.value = err.response?.data?.message || '获取枚举值失败';
     } finally {
-      loading.value = false;
-    }
+        loading.value = false;
+        // 清除请求锁，允许后续请求
+        requestPromise = null;
+      }
   };
 
   // 获取单个枚举值 - 从attributes表获取特定类型的枚举

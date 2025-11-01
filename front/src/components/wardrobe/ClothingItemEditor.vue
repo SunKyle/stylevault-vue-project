@@ -208,6 +208,31 @@
                   </div>
                 </div>
               </div>
+              
+              <!-- 风格 -->
+              <div>
+                <label class="block text-sm font-semibold text-gray-800 mb-2 flex items-center">
+                  <font-awesome-icon :icon="['fas', 'hat-wizard']" class="text-primary mr-2" />
+                  风格
+                </label>
+                <div class="relative">
+                  <input
+                    v-model="form.style"
+                    type="text"
+                    :disabled="readOnly"
+                    :class="[
+                      readOnly ? 'bg-gray-100 cursor-not-allowed' : 'bg-white/80 backdrop-blur-sm',
+                      'w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-primary/30 focus:border-primary transition-all duration-300',
+                    ]"
+                    placeholder="例如：休闲、正式"
+                  />
+                  <div
+                    class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none"
+                  >
+                    <font-awesome-icon :icon="['fas', 'pen']" class="text-gray-400 text-sm" />
+                  </div>
+                </div>
+              </div>
             </div>
 
             <!-- 基本信息 - 第三行 -->
@@ -405,6 +430,31 @@
                 </label>
               </div>
 
+              <!-- 材质 -->
+              <div>
+                <label class="block text-sm font-semibold text-gray-800 mb-2 flex items-center">
+                  <font-awesome-icon :icon="['fas', 'tshirt']" class="text-primary mr-2" />
+                  材质
+                </label>
+                <div class="relative">
+                  <input
+                    v-model="form.material"
+                    type="text"
+                    :disabled="readOnly"
+                    :class="[
+                      readOnly ? 'bg-gray-100 cursor-not-allowed' : 'bg-white/80 backdrop-blur-sm',
+                      'w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-primary/30 focus:border-primary transition-all duration-300',
+                    ]"
+                    placeholder="例如：棉质、丝绸"
+                  />
+                  <div
+                    class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none"
+                  >
+                    <font-awesome-icon :icon="['fas', 'pen']" class="text-gray-400 text-sm" />
+                  </div>
+                </div>
+              </div>
+              
               <!-- 备注 -->
               <div>
                 <label class="block text-sm font-semibold text-gray-800 mb-2 flex items-center">
@@ -504,7 +554,9 @@
         category: '', // 使用category字段（关联attributes表）
         categoryName: '',
         color: '',
+        style: '',
         seasons: [], // 确保初始化为数组
+        material: '',
         favorite: false,
         image: '',
         notes: '',
@@ -588,7 +640,9 @@
           category: '',
           categoryName: '',
           color: '',
+          style: '',
           seasons: [], // 确保重置时也是数组
+          material: '',
           favorite: false,
           image: '',
           notes: '',
@@ -686,13 +740,21 @@
             }
           }
 
+          // 准备完整的提交数据
+          const finalSubmitData = {
+            ...submitData,
+            // 确保所有字段都以独立字段形式传递
+            // 移除可能存在的metadata对象
+            metadata: undefined
+          };
+          
           if (form.value.id) {
             // 更新现有衣物
-            await clothingStore.updateClothingItem(form.value.id, submitData);
+            await clothingStore.updateClothingItem(form.value.id, finalSubmitData);
             showToast('衣物信息已更新', 'success');
           } else {
             // 添加新衣物
-            await clothingStore.addClothingItem(submitData);
+            await clothingStore.addClothingItem(finalSubmitData);
             showToast('新衣物已添加', 'success');
           }
 

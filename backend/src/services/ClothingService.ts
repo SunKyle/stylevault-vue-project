@@ -28,7 +28,9 @@ export interface ClothingCreateData {
   color?: number; // 从colorId改为color
   style?: number; // 从styleId改为style
   parentId?: number;
-  metadata?: any;
+  favorite?: boolean;
+  seasons?: string[];
+  material?: number;
 }
 
 export interface ClothingUpdateData {
@@ -44,7 +46,9 @@ export interface ClothingUpdateData {
   category?: number; // 从categoryId改为category
   color?: number; // 从colorId改为color
   style?: number; // 从styleId改为style
-  metadata?: any;
+  favorite?: boolean;
+  seasons?: string[];
+  material?: number;
 }
 
 export class ClothingService {
@@ -78,30 +82,45 @@ export class ClothingService {
    * 创建衣物
    */
   async createClothingItem(data: ClothingCreateData) {
-
+    // 直接使用独立字段处理数据
     const clothingItemData: any = {
       userId: data.userId,
       name: data.name.trim(),
       brand: data.brand?.trim(),
       condition: data.condition || 'good',
       notes: data.notes?.trim(),
-      imageUrls: Array.isArray(data.imageUrls) ? data.imageUrls.filter(url => url && url.trim()) : [],
+      imageUrls: Array.isArray(data.imageUrls) ? data.imageUrls.filter((url: string) => url && url.trim()) : [],
       mainImageUrl: data.mainImageUrl?.trim(),
-      isFavorite: false,
-      status: 'active',
-      metadata: {
-        ...typeof data.metadata === 'object' ? data.metadata : {},
-        favorite: false
-      }
+      isFavorite: data.favorite || false,
+      status: 1, // 1-有效，0-无效
     };
 
-    if (data.price !== undefined) clothingItemData.price = data.price;
+    // 处理purchaseDate
     if (data.purchaseDate) clothingItemData.purchaseDate = new Date(data.purchaseDate);
+    
+    // 处理分类
     if (data.category) clothingItemData.category = data.category;
+    
+    // 处理颜色
     if (data.color) clothingItemData.color = data.color;
+    
+    // 处理风格
     if (data.style) clothingItemData.style = data.style;
+    
+    // 处理尺寸
     if (data.size) clothingItemData.size = data.size;
+    
+    // 处理价格
+    if (data.price !== undefined) clothingItemData.price = data.price;
+    
+    // 处理parentId
     if (data.parentId) clothingItemData.parentId = data.parentId;
+    
+    // 处理季节
+    if (data.seasons) clothingItemData.seasons = data.seasons;
+    
+    // 处理材质
+    if (data.material) clothingItemData.material = data.material;
 
     return await clothingRepository.createClothingItem(clothingItemData);
   }
@@ -109,7 +128,7 @@ export class ClothingService {
   /**
    * 更新衣物
    */
-  async updateClothingItem(id: number, userId: number, data: any): Promise<any> {
+  async updateClothingItem(id: number, userId: number, data: ClothingUpdateData): Promise<any> {
     const [affectedRows, [updatedItem]] = await clothingRepository.updateClothingItem(id, userId, data);
 
     if (affectedRows === 0) {

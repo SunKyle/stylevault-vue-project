@@ -285,28 +285,6 @@
     }
   };
 
-  // 获取枚举属性的显示文本
-  function getEnumLabel(type, id) {
-    if (!id) return '';
-    const getterMap = {
-      category: 'getCategoryLabel',
-      style: 'getStyleLabel',
-      color: 'getColorLabel',
-      season: 'getSeasonLabel',
-      material: 'getMaterialLabel',
-      pattern: 'getPatternLabel',
-      size: 'getSizeLabel',
-      condition: 'getConditionLabel',
-      status: 'getStatusLabel',
-      occasion: 'getOccasionLabel'
-    };
-    
-    const getter = getterMap[type];
-    if (getter && enumsStore[getter]) {
-      return enumsStore[getter](id) || '';
-    }
-    return id;
-  }
 
   function getSelectedCategoryName() {
     if (isSearchMode.value) return `搜索结果: "${currentSearchKeyword.value}"`;
@@ -573,10 +551,7 @@
     isReadOnlyMode.value = false;
   }
 
-  // 生命周期
-  onMounted(() => {
-    initializeData();
-  });
+  // 生命周期 - 已经在上面的onMounted中调用了initializeData()
 </script>
 
 <style scoped>

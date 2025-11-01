@@ -82,20 +82,23 @@ const handleClick = () => {
   }
 };
 
-// 根据类别ID确定颜色
+// 根据类别ID确定颜色，使用主题色适配
 const colorClass = computed(() => {
-  const colorMap = {
-    1: 'bg-blue-100 text-blue-500', // 上装
-    2: 'bg-green-100 text-green-500', // 下装
-    3: 'bg-purple-100 text-purple-500', // 外套
-    4: 'bg-yellow-100 text-yellow-500', // 鞋履
-    5: 'bg-pink-100 text-pink-500', // 配饰
-    6: 'bg-indigo-100 text-indigo-500', // 包包
+  // 使用主题色的渐变效果，提升视觉体验
+  const gradientMap = {
+    1: 'bg-gradient-to-br from-primary/10 to-primary/20 text-primary', // 上装 - 主要主题色
+    2: 'bg-gradient-to-br from-secondary/10 to-secondary/20 text-secondary', // 下装 - 次要主题色
+    3: 'bg-gradient-to-br from-primary/15 to-primary/25 text-primary', // 外套 - 主要主题色变体
+    4: 'bg-gradient-to-br from-secondary/15 to-secondary/25 text-secondary', // 鞋履 - 次要主题色变体
+    5: 'bg-gradient-to-br from-primary/20 to-primary/30 text-primary', // 配饰 - 主要主题色变体
+    6: 'bg-gradient-to-br from-secondary/20 to-secondary/30 text-secondary', // 包包 - 次要主题色变体
   };
+  
   // 确保category存在且id有效
   if (!props.category || !props.category.id) {
     return 'bg-gray-100 text-gray-500';
   }
-  return colorMap[props.category.id] || 'bg-gray-100 text-gray-500';
+  
+  return gradientMap[props.category.id] || 'bg-gradient-to-br from-primary/10 to-primary/20 text-primary';
 });
 </script>

@@ -56,6 +56,9 @@ export const useClothingStore = defineStore('clothing', {
       itemsPerPage: 50,
       totalItems: 0,
     },
+    
+    // 请求锁（用于防止并发请求）
+    _fetchClothingItemsPromise: null,
   }),
 
   getters: {
@@ -167,6 +170,10 @@ export const useClothingStore = defineStore('clothing', {
     async fetchCategories(forceRefresh = false) {
       const cacheKey = 'categories';
 
+      // 防止重复请求
+      if (this.loading && !forceRefresh) return this.categories;
+
+      // 检查缓存
       if (!forceRefresh && getCachedData(cacheKey)) {
         this.categories = getCachedData(cacheKey);
         return this.categories;
@@ -213,6 +220,12 @@ export const useClothingStore = defineStore('clothing', {
     async fetchClothingItems(forceRefresh = false) {
       const cacheKey = 'clothingItems';
 
+      // 关键优化：如果已有请求正在进行，返回同一个Promise
+      if (this._fetchClothingItemsPromise && !forceRefresh) {
+        return this._fetchClothingItemsPromise;
+      }
+
+      // 检查缓存
       if (!forceRefresh && getCachedData(cacheKey)) {
         this.clothingItems = getCachedData(cacheKey);
         this.pagination.totalItems = this.clothingItems.length;
@@ -223,7 +236,9 @@ export const useClothingStore = defineStore('clothing', {
       this.clearError();
 
       try {
-        const response = await clothingAdapter.fetchClothingItems();
+        // 保存Promise引用用于并发控制
+        this._fetchClothingItemsPromise = clothingAdapter.fetchClothingItems();
+        const response = await this._fetchClothingItemsPromise;
         const items = response.items || response.data?.items || response.data || [];
         this.clothingItems = Array.isArray(items) ? items : [];
         this.pagination.totalItems = response.pagination?.totalItems || this.clothingItems.length;
@@ -236,6 +251,8 @@ export const useClothingStore = defineStore('clothing', {
         throw error;
       } finally {
         this.setLoading(false);
+        // 清除请求锁，允许后续请求
+        this._fetchClothingItemsPromise = null;
       }
     },
 
