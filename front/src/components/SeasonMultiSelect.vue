@@ -6,10 +6,15 @@
         :key="option.value"
         @click="toggleSeason(option.value)"
         :class="[
-          'px-3 py-1 rounded-md text-sm border transition-colors',
-          isSelected(option.value)
-            ? 'bg-blue-500 text-white border-blue-500'
-            : 'bg-white text-gray-700 border-gray-300 hover:border-blue-300',
+          'px-3 py-1.5 rounded-lg text-sm border transition-all duration-300 font-medium shadow-sm',
+          {
+            // 选中状态使用主题色
+            'bg-primary text-white border-primary shadow-md': isSelected(option.value),
+            // 默认状态
+            'bg-white text-neutral-700 border-neutral-200 hover:border-primary': !isSelected(option.value)
+          },
+          // 为不同季节添加特有的微妙背景色
+          getSeasonBackgroundClass(option.value)
         ]"
       >
         {{ option.label }}
@@ -47,5 +52,18 @@
 
   const isSelected = value => {
     return props.modelValue.includes(value);
+  };
+
+  // 为不同季节添加特有的背景色，增强视觉识别性
+  const getSeasonBackgroundClass = season => {
+    const seasonColors = {
+      spring: 'hover:bg-green-50',
+      summer: 'hover:bg-yellow-50',
+      autumn: 'hover:bg-orange-50',
+      winter: 'hover:bg-blue-50',
+      // 其他季节可以根据需要添加
+    };
+    
+    return seasonColors[season.toLowerCase()] || '';
   };
 </script>

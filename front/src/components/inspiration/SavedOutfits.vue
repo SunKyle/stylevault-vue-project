@@ -132,7 +132,7 @@
               <!-- 场景筛选 -->
               <div class="mb-5">
                 <h4 class="text-sm font-medium text-gray-700 mb-2">场景</h4>
-                <div class="flex flex-wrap gap-2">
+                <div class="grid grid-cols-2 sm:grid-cols-4 gap-2">
                   <button
                     v-for="scene in sceneOptions"
                     :key="scene.value"
@@ -151,18 +151,23 @@
 
               <!-- 季节筛选 -->
               <div class="mb-5">
-                <h4 class="text-sm font-medium text-gray-700 mb-2">季节</h4>
-                <div class="flex flex-wrap gap-2">
+                <h4 class="text-sm font-medium text-neutral-700 mb-2">季节</h4>
+                <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
                   <button
                     v-for="season in seasonOptions"
                     :key="season.value"
                     @click="toggleFilter('season', season.value)"
-                    class="px-3 py-1.5 text-xs rounded-full transition-colors"
-                    :class="
-                      filters.season.includes(season.value)
-                        ? 'bg-primary text-white'
-                        : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                    "
+                    :class="[
+                      'px-3 py-1.5 rounded-lg text-sm font-medium transition-all duration-300',
+                      {
+                        // 选中状态使用主题色
+                        'bg-primary text-white shadow-md': filters.season.includes(season.value),
+                        // 默认状态
+                        'bg-white text-neutral-700 border border-neutral-200 hover:border-primary': !filters.season.includes(season.value)
+                      },
+                      // 为不同季节添加特有的微妙背景色
+                      getSeasonBackgroundClass(season.value)
+                    ]"
                   >
                     {{ season.label }}
                   </button>
@@ -535,6 +540,19 @@
     const option = options.find(opt => opt.value === value);
     return option ? option.label : value;
   }
+
+  // 为不同季节添加特有的背景色，增强视觉识别性
+  const getSeasonBackgroundClass = (season) => {
+    const seasonColors = {
+      spring: 'hover:bg-green-50',
+      summer: 'hover:bg-yellow-50',
+      autumn: 'hover:bg-orange-50',
+      winter: 'hover:bg-blue-50',
+      // 其他季节可以根据需要添加
+    };
+    
+    return seasonColors[season.toLowerCase()] || '';
+  };
 
   // 计算当前激活的筛选条件数量
   const activeFiltersCount = computed(() => {

@@ -296,6 +296,8 @@ export const useClothingStore = defineStore('clothing', {
 
     // 快速添加（乐观更新）
     async addClothingItem(item) {
+      // 现在数据库attributes表中已存在condition相关的记录，不需要再设置为null
+      
       // 乐观更新：先添加到本地
       const tempId = `temp_${Date.now()}`;
       const optimisticItem = { ...item, id: tempId, isOptimistic: true };

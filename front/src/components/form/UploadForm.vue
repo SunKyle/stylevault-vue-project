@@ -194,6 +194,19 @@
               </option>
             </select>
           </div>
+          
+          <div>
+            <label class="block text-sm font-medium text-neutral-700 mb-2">新旧程度</label>
+            <select
+              v-model="clothingItem.condition"
+              class="w-full px-4 py-3 rounded-xl border border-neutral-200 focus:border-primary focus:ring-2 focus:ring-primary/20 focus:outline-none transition-all appearance-none bg-white"
+            >
+              <option value="">请选择新旧程度</option>
+              <option v-for="condition in conditionOptions" :key="condition.value" :value="condition.value">
+                {{ condition.label }}
+              </option>
+            </select>
+          </div>
 
           <!-- 季节选择区域 -->
           <div>
@@ -297,6 +310,7 @@
   const materialOptions = computed(() => enumsStore.materialOptions);
   const colorOptions = computed(() => enumsStore.colorOptions);
   const sizeOptions = computed(() => enumsStore.sizeOptions);
+  const conditionOptions = computed(() => enumsStore.conditionOptions);
 
   // 表单数据 - 使用独立ref管理季节数组以避免响应式问题
   const clothingItem = reactive({
@@ -306,6 +320,7 @@
     color: '',
     material: '',
     size: '',
+    condition: '',
     brand: '',
     price: null,
     purchaseDate: '',
@@ -428,11 +443,13 @@
         showToast('图片已转换为占位符', 'info');
       }
 
+      // 现在数据库attributes表中已存在condition相关的记录，可以使用用户选择的值
       const itemToSubmit = {
         name: clothingItem.name,
         category: clothingItem.category,
         colorId: clothingItem.color || null,
         styleId: clothingItem.style || null,
+        condition: clothingItem.condition || null,
         brand: clothingItem.brand,
         notes: clothingItem.notes,
         imageUrls: validatedMainImageUrl ? [validatedMainImageUrl] : [],
@@ -461,6 +478,7 @@
         color: '',
         material: '',
         size: '',
+        condition: '',
         brand: '',
         price: null,
         purchaseDate: '',

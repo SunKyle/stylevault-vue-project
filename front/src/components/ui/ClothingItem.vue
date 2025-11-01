@@ -41,11 +41,14 @@
       <h4 class="font-medium truncate text-sm">{{ item.name }}</h4>
       <p class="text-xs text-neutral-500 mt-1">{{ getEnumLabel('category', item.categoryId) }} · {{ getEnumLabel('style', item.style) }}</p>
       <!-- 季节信息 -->
-      <div class="flex flex-wrap gap-1 mt-1" v-if="item.seasons && item.seasons.length > 0">
+      <div class="flex flex-wrap gap-1.5 mt-1" v-if="item.seasons && item.seasons.length > 0">
         <span
           v-for="season in item.seasons"
           :key="season"
-          class="text-xs px-1.5 py-0.5 rounded-full bg-primary/10 text-primary"
+          :class="[
+            'text-sm px-3 py-1.5 rounded-full font-medium transition-all duration-200',
+            getSeasonBadgeClass(season)
+          ]"
         >
           {{ season }}
         </span>
@@ -119,6 +122,19 @@
       return enumsStore[getter](id) || '';
     }
     return id;
+  }
+  
+  // 为不同季节添加特有的标签样式
+  function getSeasonBadgeClass(season) {
+    const seasonStyles = {
+      spring: 'bg-green-100 text-green-700 hover:bg-green-200',
+      summer: 'bg-yellow-100 text-yellow-700 hover:bg-yellow-200',
+      autumn: 'bg-orange-100 text-orange-700 hover:bg-orange-200',
+      winter: 'bg-blue-100 text-blue-700 hover:bg-blue-200',
+    };
+    
+    // 默认使用主题色样式
+    return seasonStyles[season.toLowerCase()] || 'bg-primary/10 text-primary hover:bg-primary/20';
   }
 </script>
 
