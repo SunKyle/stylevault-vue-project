@@ -1,5 +1,5 @@
 import { defineStore } from 'pinia';
-import { enumsApi } from '../../services/apiClient.js';
+import { enumsApi } from '../../services/apiClient';
 
 // 定义枚举类型的Store
 export const useEnumsStore = defineStore('enums', {

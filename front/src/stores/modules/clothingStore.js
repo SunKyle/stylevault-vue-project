@@ -1,5 +1,5 @@
 import { defineStore } from 'pinia';
-import apiClient from '../../services/apiClient';
+import { clothingApi } from '../../services/apiClient';
 import { showToast } from '../../utils/toast';
 
 // 缓存工具
@@ -185,7 +185,7 @@ export const useClothingStore = defineStore('clothing', {
 
       try {
         // 直接调用API客户端
-        const response = await apiClient.clothingApi.getCategories();
+        const response = await clothingApi.getCategories();
         
         // 确保获取到的数据是数组格式
         let categoriesData = [];
@@ -238,7 +238,7 @@ export const useClothingStore = defineStore('clothing', {
 
       try {
         // 直接调用API
-        this._fetchClothingItemsPromise = apiClient.clothingApi.getItems();
+        this._fetchClothingItemsPromise = clothingApi.getAll();
         const response = await this._fetchClothingItemsPromise;
         
         const items = response.items || response.data?.items || response.data || [];
@@ -269,7 +269,7 @@ export const useClothingStore = defineStore('clothing', {
 
       this.isSearching = true;
       try {
-        const results = await apiClient.clothingApi.searchItems(keyword);
+        const results = await clothingApi.search(keyword);
         this.searchResults = results;
         return results;
       } catch (error) {
@@ -299,7 +299,7 @@ export const useClothingStore = defineStore('clothing', {
         this.pendingUpdates.set(id, data);
 
         try {
-          const updatedItem = await apiClient.clothingApi.updateItem(id, data);
+          const updatedItem = await clothingApi.update(id, data);
           const index = this.clothingItems.findIndex(item => item.id === id);
           if (index !== -1) {
             this.clothingItems[index] = updatedItem;
@@ -327,7 +327,7 @@ export const useClothingStore = defineStore('clothing', {
       this.pagination.totalItems += 1;
 
       try {
-        const newItem = await apiClient.clothingApi.addItem(item);
+        const newItem = await clothingApi.create(item);
 
         // 替换临时项
         const index = this.clothingItems.findIndex(item => item.id === tempId);
@@ -360,7 +360,7 @@ export const useClothingStore = defineStore('clothing', {
         this.clothingItems[index] = { ...originalItem, ...updates };
 
         try {
-          const updatedItem = await apiClient.clothingApi.updateItem(id, updates);
+          const updatedItem = await clothingApi.update(id, updates);
           this.clothingItems[index] = updatedItem;
 
           // 更新缓存
@@ -389,7 +389,7 @@ export const useClothingStore = defineStore('clothing', {
       this.pagination.totalItems -= 1;
 
       try {
-        await apiClient.clothingApi.deleteItem(id);
+        await clothingApi.delete(id);
 
         // 更新缓存
         setCachedData('clothingItems', this.clothingItems);
@@ -419,7 +419,7 @@ export const useClothingStore = defineStore('clothing', {
       this.clearError();
 
       try {
-        const item = await apiClient.clothingApi.getItemById(id);
+        const item = await clothingApi.getById(id);
         setCachedData(cacheKey, item);
         return item;
       } catch (error) {
@@ -451,7 +451,7 @@ export const useClothingStore = defineStore('clothing', {
       this.clearError();
 
       try {
-        const items = await apiClient.clothingApi.getItemsByCategory(categoryId);
+        const items = await clothingApi.getByCategory(categoryId);
         this.itemsByCategory[categoryId] = items;
         setCachedData(cacheKey, items);
         return items;
@@ -476,7 +476,7 @@ export const useClothingStore = defineStore('clothing', {
       this.clearError();
 
       try {
-        const items = await apiClient.clothingApi.getFavoriteItems();
+        const items = await clothingApi.getFavorites();
         setCachedData(cacheKey, items);
         return items;
       } catch (error) {
@@ -509,7 +509,7 @@ export const useClothingStore = defineStore('clothing', {
       };
 
       try {
-        const updatedItem = await apiClient.clothingApi.toggleFavorite(id);
+        const updatedItem = await clothingApi.toggleFavorite(id);
         
         this.clothingItems[index] = updatedItem;
         setCachedData('clothingItems', this.clothingItems);

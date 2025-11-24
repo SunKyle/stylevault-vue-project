@@ -1,5 +1,5 @@
 import { defineStore } from 'pinia';
-import apiClient from '../services/apiClient';
+import { clothingApi, outfitApi } from '../services/apiClient';
 import { showToast } from '../utils/toast';
 
 export const useWardrobeStore = defineStore('wardrobe', {
@@ -153,8 +153,9 @@ export const useWardrobeStore = defineStore('wardrobe', {
       this.clearError();
 
       try {
-        const items = await apiClient.clothingApi.getItems();
-        this.clothingItems = items;
+        const response = await clothingApi.getAll();
+        const items = response.data || response || [];
+        this.clothingItems = Array.isArray(items) ? items : [];
         this.pagination.totalItems = items.length;
         this.lastUpdated = new Date();
         return items;
@@ -170,7 +171,7 @@ export const useWardrobeStore = defineStore('wardrobe', {
     // 获取衣物类别
     async fetchCategories() {
       try {
-        const categories = await apiClient.clothingApi.getCategories();
+        const categories = await clothingApi.getCategories();
         this.categories = categories;
         return categories;
       } catch (error) {
@@ -186,7 +187,7 @@ export const useWardrobeStore = defineStore('wardrobe', {
       this.clearError();
 
       try {
-        const outfits = await apiClient.outfitApi.getOutfits();
+        const outfits = await outfitApi.getOutfits();
         this.outfits = outfits;
         this.favoriteOutfits = outfits.filter(outfit => outfit.liked);
         return outfits;
@@ -198,11 +199,24 @@ export const useWardrobeStore = defineStore('wardrobe', {
         this.setLoading(false);
       }
     },
+    
+    // 将衣物添加到搭配
+    async addToOutfit(clothingId, outfitId) {
+      try {
+        const result = await outfitApi.addClothingToOutfit(outfitId, clothingId);
+        showToast('添加到搭配成功', 'success');
+        return result;
+      } catch (error) {
+        this.setError('添加到搭配失败');
+        showToast('添加到搭配失败', 'error');
+        throw error;
+      }
+    },
 
     // 添加新衣物
     async addClothingItem(item) {
       try {
-        const newItem = await apiClient.clothingApi.addItem(item);
+        const newItem = await clothingApi.addItem(item);
         this.clothingItems.unshift(newItem);
         this.pagination.totalItems += 1;
         showToast('衣物添加成功', 'success');
@@ -217,12 +231,12 @@ export const useWardrobeStore = defineStore('wardrobe', {
     // 更新衣物信息
     async updateClothingItem(id, updates) {
       try {
-        const updatedItem = await apiClient.clothingApi.updateItem(id, updates);
+        const updatedItem = await clothingApi.updateItem(id, updates);
         const index = this.clothingItems.findIndex(item => item.id === id);
         if (index !== -1) {
-          this.clothingItems[index] = updatedItem;
+          this.clothingItems[index] = { ...this.clothingItems[index], ...updatedItem };
         }
-        showToast('衣物信息更新成功', 'success');
+        showToast('衣物更新成功', 'success');
         return updatedItem;
       } catch (error) {
         this.setError('更新衣物失败');
@@ -234,10 +248,13 @@ export const useWardrobeStore = defineStore('wardrobe', {
     // 删除衣物
     async deleteClothingItem(id) {
       try {
-        await apiClient.clothingApi.deleteItem(id);
-        this.clothingItems = this.clothingItems.filter(item => item.id !== id);
-        this.pagination.totalItems -= 1;
-
+        await clothingApi.deleteItem(id);
+        const index = this.clothingItems.findIndex(item => item.id === id);
+        if (index !== -1) {
+          this.clothingItems.splice(index, 1);
+          this.pagination.totalItems -= 1;
+        }
+        
         // 同时删除相关的搭配
         this.outfits = this.outfits.filter(
           outfit => !outfit.clothingItems.some(item => item.id === id)
@@ -255,7 +272,7 @@ export const useWardrobeStore = defineStore('wardrobe', {
       try {
         const item = this.clothingItems.find(item => item.id === id);
         if (item) {
-          const updatedItem = await apiClient.clothingApi.toggleFavorite(id);
+          const updatedItem = await clothingApi.toggleFavorite(id);
           const index = this.clothingItems.findIndex(item => item.id === id);
           if (index !== -1) {
             this.clothingItems[index] = updatedItem;
@@ -273,7 +290,7 @@ export const useWardrobeStore = defineStore('wardrobe', {
     // 批量操作
     async batchUpdate(items) {
       try {
-        const updatedItems = await apiClient.clothingApi.batchUpdate(items);
+        const updatedItems = await clothingApi.batchUpdate(items);
 
         updatedItems.forEach(updatedItem => {
           const index = this.clothingItems.findIndex(item => item.id === updatedItem.id);
@@ -316,7 +333,7 @@ export const useWardrobeStore = defineStore('wardrobe', {
       this.setFilters({ searchQuery: query });
       if (query.trim()) {
         try {
-          const results = await apiClient.clothingApi.searchItems(query);
+          const results = await clothingApi.searchItems(query);
           this.clothingItems = results;
           this.pagination.totalItems = results.length;
         } catch (error) {

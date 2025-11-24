@@ -74,15 +74,24 @@
   <!-- 登录成功提示 -->
   <div
     v-if="showSuccess"
-    class="fixed top-4 right-4 bg-green-50 border border-green-200 rounded-lg p-4 shadow-lg z-50 transition-all duration-500 transform translate-x-0"
+    class="toast-success fixed top-4 right-4 md:top-6 md:right-6 bg-gradient-to-r from-green-50 to-green-100 border-2 border-green-300 rounded-xl p-4 md:p-5 shadow-lg z-50 max-w-xs w-[90%] sm:w-auto transform transition-all duration-600 ease-out opacity-0 scale-95 animate-fade-in-up"
+    :class="{ 'opacity-100 scale-100': showSuccess }"
   >
     <div class="flex items-center">
-      <div class="flex-shrink-0">
-        <font-awesome-icon :icon="['fas', 'check-circle']" class="text-green-500 text-xl" />
+      <div class="flex-shrink-0 bg-green-500 rounded-full p-2 md:p-2.5 shadow-md">
+        <font-awesome-icon :icon="['fas', 'check-circle']" class="text-white text-xl" />
       </div>
-      <div class="ml-3">
-        <h3 class="text-sm font-medium text-green-800">登录成功</h3>
-        <div class="mt-1 text-sm text-green-700">正在跳转到衣橱管理页面...</div>
+      <div class="ml-3 flex-1">
+        <h3 class="text-base font-semibold text-green-800 leading-6">{{ showRegister ? '注册成功' : '登录成功' }}</h3>
+        <div class="mt-1.5 text-sm text-green-700 leading-5 whitespace-pre-line">
+          {{ showRegister ? '即将返回登录页面...' : '正在跳转到衣橱管理页面...' }}
+        </div>
+        <button 
+          class="mt-2 text-xs font-medium text-green-600 hover:text-green-800 transition-colors focus:outline-none focus:ring-1 focus:ring-green-400 focus:ring-opacity-50"
+          @click="showSuccess = false"
+        >
+          关闭
+        </button>
       </div>
     </div>
   </div>
@@ -90,19 +99,24 @@
   <!-- 登录失败提示 -->
   <div
     v-if="showError"
-    class="fixed top-4 right-4 bg-red-50 border border-red-200 rounded-lg p-4 shadow-lg z-50 transition-all duration-500 transform translate-x-0"
+    class="toast-error fixed top-4 right-4 md:top-6 md:right-6 bg-gradient-to-r from-red-50 to-red-100 border-2 border-red-300 rounded-xl p-4 md:p-5 shadow-lg z-50 max-w-xs w-[90%] sm:w-auto transform transition-all duration-600 ease-out opacity-0 scale-95 animate-fade-in-up"
+    :class="{ 'opacity-100 scale-100 animate-shake': showError }"
   >
     <div class="flex items-center">
-      <div class="flex-shrink-0">
-        <font-awesome-icon :icon="['fas', 'exclamation-circle']" class="text-red-500 text-xl" />
+      <div class="flex-shrink-0 bg-red-500 rounded-full p-2 md:p-2.5 shadow-md">
+        <font-awesome-icon :icon="['fas', 'exclamation-circle']" class="text-white text-xl" />
       </div>
-      <div class="ml-3">
-        <h3 class="text-sm font-medium text-red-800">
-          {{ showRegister ? '注册失败' : '登录失败' }}
-        </h3>
-        <div class="mt-1 text-sm text-red-700">
+      <div class="ml-3 flex-1">
+        <h3 class="text-base font-semibold text-red-800 leading-6">{{ showRegister ? '注册失败' : '登录失败' }}</h3>
+        <div class="mt-1.5 text-sm text-red-700 leading-5 whitespace-pre-line">
           {{ showRegister ? registerErrors.general : loginErrors.general }}
         </div>
+        <button 
+          class="mt-2 text-xs font-medium text-red-600 hover:text-red-800 transition-colors focus:outline-none focus:ring-1 focus:ring-red-400 focus:ring-opacity-50"
+          @click="showError = false"
+        >
+          关闭
+        </button>
       </div>
     </div>
   </div>
@@ -155,6 +169,11 @@
 
       // 显示成功提示
       showSuccess.value = true;
+
+      // 3秒后自动隐藏成功提示
+      setTimeout(() => {
+        showSuccess.value = false;
+      }, 3000);
 
       // 立即跳转到衣橱页面
       router.push('/wardrobe');
@@ -298,6 +317,86 @@
       opacity: 1;
       transform: translateY(0);
     }
+  }
+
+  /* 提示框动画 */
+  @keyframes fadeInUp {
+    from {
+      opacity: 0;
+      transform: translateY(10px) scale(0.95);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0) scale(1);
+    }
+  }
+
+  .animate-fade-in-up {
+    animation: fadeInUp 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+  }
+
+  /* 应用震动动画 */
+  .animate-shake {
+    animation: shake 0.5s ease-in-out 0.2s;
+  }
+
+  /* 错误提示震动动画 */
+  @keyframes shake {
+    0%, 100% { transform: translateX(0); }
+    10%, 30%, 50%, 70%, 90% { transform: translateX(-2px); }
+    20%, 40%, 60%, 80% { transform: translateX(2px); }
+  }
+
+  /* 提示框悬浮效果 */
+  .toast-success:hover,
+  .toast-error:hover {
+    transform: translateY(-2px) scale(1.02);
+    box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+    transition: all 0.3s ease;
+  }
+
+  /* 提示框脉动动画 */
+  .toast-error::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    border-radius: inherit;
+    background: linear-gradient(90deg, transparent, rgba(239, 68, 68, 0.1), transparent);
+    animation: pulseError 2s ease-in-out infinite;
+    pointer-events: none;
+  }
+
+  .toast-success::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    border-radius: inherit;
+    background: linear-gradient(90deg, transparent, rgba(34, 197, 94, 0.1), transparent);
+    animation: pulseSuccess 2s ease-in-out infinite;
+    pointer-events: none;
+  }
+
+  @keyframes pulseError {
+    0%, 100% { opacity: 0; }
+    50% { opacity: 1; }
+  }
+
+  @keyframes pulseSuccess {
+    0%, 100% { opacity: 0; }
+    50% { opacity: 1; }
+  }
+
+  /* 关闭按钮动画 */
+  .toast-error button:hover,
+  .toast-success button:hover {
+    text-decoration: underline;
+    transform: translateX(1px);
   }
 
   /* 背景装饰元素 */
