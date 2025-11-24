@@ -27,7 +27,6 @@ export class Clothing extends BaseModel<Clothing> {
    */
   @ForeignKey(() => User)
   @AllowNull(false)
-  @Index
   @Column({
     type: DataType.INTEGER,
     field: 'user_id',

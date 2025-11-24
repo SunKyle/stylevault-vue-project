@@ -28,7 +28,6 @@ export class UserBehavior extends BaseModel<UserBehavior> {
    */
   @ForeignKey(() => User)
   @AllowNull(false)
-  @Index
   @Column({
     type: DataType.INTEGER,
     field: 'user_id',
@@ -40,7 +39,6 @@ export class UserBehavior extends BaseModel<UserBehavior> {
    * 行为类型
    */
   @AllowNull(false)
-  @Index
   @Column({
     type: DataType.ENUM(...Object.values(BehaviorType)),
     field: 'behavior_type',
@@ -52,7 +50,6 @@ export class UserBehavior extends BaseModel<UserBehavior> {
    * 实体类型（clothing_item, outfit, user, etc.）
    */
   @AllowNull(false)
-  @Index
   @Column({
     type: DataType.STRING(50),
     field: 'entity_type',
@@ -67,7 +64,6 @@ export class UserBehavior extends BaseModel<UserBehavior> {
   /**
    * 实体ID
    */
-  @Index
   @Column({
     type: DataType.INTEGER,
     field: 'entity_id',

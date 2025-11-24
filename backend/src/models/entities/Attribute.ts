@@ -23,7 +23,6 @@ export class Attribute extends BaseModel<Attribute> {
    * 属性名称
    */
   @AllowNull(false)
-  @Index
   @Column({
     type: DataType.STRING(100),
     validate: {
@@ -53,7 +52,6 @@ export class Attribute extends BaseModel<Attribute> {
    * 属性分类
    */
   @AllowNull(false)
-  @Index
   @Column({
     type: DataType.STRING(50),
     validate: {
@@ -68,7 +66,6 @@ export class Attribute extends BaseModel<Attribute> {
    * 属性类型
    */
   @AllowNull(false)
-  @Index
   @Column({
     type: DataType.ENUM(...Object.values(AttributeType)),
     comment: '属性类型'
@@ -88,7 +85,6 @@ export class Attribute extends BaseModel<Attribute> {
   /**
    * 层级路径（用于快速层级查询）
    */
-  @Index
   @Column({
     type: DataType.STRING(500),
     field: 'path',
@@ -100,7 +96,6 @@ export class Attribute extends BaseModel<Attribute> {
    * 层级深度
    */
   @Default(0)
-  @Index
   @Column({
     type: DataType.INTEGER,
     field: 'level',
@@ -124,7 +119,6 @@ export class Attribute extends BaseModel<Attribute> {
    * 是否系统属性（用户不可删除）
    */
   @Default(false)
-  @Index
   @Column({
     type: DataType.BOOLEAN,
     field: 'is_system',
@@ -136,7 +130,6 @@ export class Attribute extends BaseModel<Attribute> {
    * 排序权重（用于前端展示排序）
    */
   @Default(0)
-  @Index
   @Column({
     type: DataType.INTEGER,
     field: 'sort_order',
@@ -172,7 +165,6 @@ export class Attribute extends BaseModel<Attribute> {
   /**
    * 父级属性ID（用于层级结构）
    */
-  @Index
   @Column({
     type: DataType.INTEGER,
     field: 'parent_id',
@@ -184,7 +176,6 @@ export class Attribute extends BaseModel<Attribute> {
    * 是否启用
    */
   @Default(true)
-  @Index
   @Column({
     type: DataType.BOOLEAN,
     field: 'is_active',

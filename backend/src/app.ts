@@ -110,16 +110,9 @@ class App {
       await sequelize.authenticate();
       logger.info('数据库连接成功');
       
-      // 同步模型（仅开发环境）
-      if (process.env.NODE_ENV === 'development') {
-        try {
-          await sequelize.sync({ alter: false });
-          logger.info('数据库同步成功');
-        } catch (error) {
-          logger.error('数据库同步失败:', error);
-          // 继续启动应用，不中断服务
-        }
-      }
+      // 暂时禁用自动同步以避免索引和列冲突
+      // 在实际开发中，建议使用数据库迁移工具管理模式变更
+      logger.info('数据库连接成功，已禁用自动模型同步');
     } catch (error) {
       logger.error('数据库连接失败:', error);
       process.exit(1);

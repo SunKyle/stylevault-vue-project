@@ -24,7 +24,6 @@ export class OutfitClothing extends BaseModel<OutfitClothing> {
    */
   @ForeignKey(() => Outfit)
   @AllowNull(false)
-  @Index
   @Column({
     type: DataType.INTEGER,
     field: 'outfit_id',
@@ -37,7 +36,6 @@ export class OutfitClothing extends BaseModel<OutfitClothing> {
    */
   @ForeignKey(() => Clothing)
   @AllowNull(false)
-  @Index
   @Column({
     type: DataType.INTEGER,
     field: 'clothing_id',
@@ -49,7 +47,6 @@ export class OutfitClothing extends BaseModel<OutfitClothing> {
    * 排序权重（用于衣物在搭配中的展示顺序）
    */
   @AllowNull(false)
-  @Index
   @Column({
     type: DataType.INTEGER,
     field: 'order_index',
