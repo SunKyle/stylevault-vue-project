@@ -1,6 +1,6 @@
 import { defineStore } from 'pinia';
 import { ref, computed } from 'vue';
-import { enumsAdaptorApi } from '@/services/api/adapter';
+import { enumsApi } from '../services/apiClient.js';
 
 export const useEnumsStore = defineStore('enums', () => {
   // 状态
@@ -103,8 +103,8 @@ export const useEnumsStore = defineStore('enums', () => {
     error.value = null;
 
     try {
-      // 直接从enumsAdaptorApi获取枚举数据
-      const data = await enumsAdaptorApi.getAllEnums();
+      // 直接从enumsApi获取枚举数据
+      const data = await enumsApi.getAllEnums();
 
       // 确保数据结构正确，并且从attributes表获取的数据正确映射
       categories.value = Array.isArray(data.categories) ? data.categories : [];
@@ -140,7 +140,7 @@ export const useEnumsStore = defineStore('enums', () => {
   // 获取单个枚举值 - 从attributes表获取特定类型的枚举
   const fetchEnum = async type => {
     try {
-      const data = await enumsAdaptorApi.getEnumsByType(type);
+      const data = await enumsApi.getEnumsByType(type);
       
       switch (type) {
         case 'categories':

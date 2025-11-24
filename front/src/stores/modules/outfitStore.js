@@ -1,5 +1,6 @@
 import { defineStore } from 'pinia';
-import { outfitService } from '../../services/outfitService';
+import apiClient from '../../services/apiClient';
+import { showToast } from '../../utils/toast';
 
 export const useOutfitStore = defineStore('outfit', {
   state: () => ({
@@ -54,11 +55,12 @@ export const useOutfitStore = defineStore('outfit', {
       this.clearError();
 
       try {
-        const outfits = await outfitService.getOutfits();
+        const outfits = await apiClient.outfitApi.getOutfits();
         this.outfits = outfits;
         return outfits;
       } catch (error) {
         this.setError('获取搭配列表失败');
+        showToast('获取搭配列表失败', 'error');
         throw error;
       } finally {
         this.setLoading(false);
@@ -71,10 +73,11 @@ export const useOutfitStore = defineStore('outfit', {
       this.clearError();
 
       try {
-        const outfits = await outfitService.getOutfitsByTag(tag);
+        const outfits = await apiClient.outfitApi.getOutfitsByTag(tag);
         return outfits;
       } catch (error) {
         this.setError(`获取标签为"${tag}"的搭配失败`);
+        showToast(`获取标签为"${tag}"的搭配失败`, 'error');
         throw error;
       } finally {
         this.setLoading(false);
@@ -87,11 +90,13 @@ export const useOutfitStore = defineStore('outfit', {
       this.clearError();
 
       try {
-        const newOutfit = await outfitService.addOutfit(outfit);
+        const newOutfit = await apiClient.outfitApi.addOutfit(outfit);
         this.outfits.push(newOutfit);
+        showToast('搭配添加成功', 'success');
         return newOutfit;
       } catch (error) {
         this.setError('添加搭配失败');
+        showToast('添加搭配失败', 'error');
         throw error;
       } finally {
         this.setLoading(false);
@@ -104,13 +109,15 @@ export const useOutfitStore = defineStore('outfit', {
       this.clearError();
 
       try {
-        const removedOutfit = await outfitService.deleteOutfit(outfitTitle);
+        const removedOutfit = await apiClient.outfitApi.deleteOutfit(outfitTitle);
         if (removedOutfit) {
           this.outfits = this.outfits.filter(outfit => outfit.title !== outfitTitle);
+          showToast('搭配删除成功', 'success');
         }
         return removedOutfit;
       } catch (error) {
         this.setError('删除搭配失败');
+        showToast('删除搭配失败', 'error');
         throw error;
       } finally {
         this.setLoading(false);
@@ -123,17 +130,19 @@ export const useOutfitStore = defineStore('outfit', {
       this.clearError();
 
       try {
-        const updatedOutfit = await outfitService.toggleLike(outfitTitle);
+        const updatedOutfit = await apiClient.outfitApi.toggleLike(outfitTitle);
         if (updatedOutfit) {
           const index = this.outfits.findIndex(outfit => outfit.title === outfitTitle);
           if (index !== -1) {
             // 使用splice替换数组中的元素，确保Vue能够检测到变化
             this.outfits.splice(index, 1, updatedOutfit);
           }
+          showToast(`搭配${updatedOutfit.liked ? '已收藏' : '已取消收藏'}`, 'success');
         }
         return updatedOutfit;
       } catch (error) {
         this.setError('切换喜欢状态失败');
+        showToast('切换喜欢状态失败', 'error');
         throw error;
       } finally {
         this.setLoading(false);
@@ -160,6 +169,7 @@ export const useOutfitStore = defineStore('outfit', {
       } catch (error) {
         console.error('初始化搭配数据失败:', error);
         this.setError('初始化搭配数据失败，请重试');
+        showToast('初始化搭配数据失败，请重试', 'error');
         throw error;
       } finally {
         this.setLoading(false);

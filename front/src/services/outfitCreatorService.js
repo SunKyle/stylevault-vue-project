@@ -1,141 +1,179 @@
-/**
- * OutfitCreator 服务层
- * 提供创建搭配的独立服务，解耦组件间通信
- */
-import { ref } from 'vue';
-import { useInspirationStore } from '@/stores';
+import { reactive, ref, computed } from 'vue';
+import { outfitCreatorApi } from './apiClient.js';
+import { useInspirationStore } from '@/stores/modules/inspirationStore';
+import { useEnumsStore } from '@/stores/modules/enumsStore';
 import { showToast } from '@/utils/toast';
 
-export class OutfitCreatorService {
-  constructor() {
-    this.inspirationStore = useInspirationStore();
-    this.setupReactivity();
-    this.bindMethods();
-
-    // 确保inspirationStore已初始化
-    if (!this.inspirationStore) {
-      throw new Error('InspirationStore 初始化失败');
-    }
-  }
-
-  // 响应式数据
-  setupReactivity() {
-    this.outfitName = ref('');
-    this.outfitScene = ref([]);
-    this.outfitSeason = ref([]);
-    this.outfitStyle = ref([]);
-    this.outfitOccasion = ref([]);
-    this.outfitColor = ref([]);
-  }
-
-  // 绑定方法上下文
-  bindMethods() {
-    this.toggleCloth = this.toggleCloth.bind(this);
-    this.removeCloth = this.removeCloth.bind(this);
-    this.resetClothes = this.resetClothes.bind(this);
-    this.saveOutfit = this.saveOutfit.bind(this);
-    this.setCategory = this.setCategory.bind(this);
-    this.setTag = this.setTag.bind(this);
-    this.resetFilters = this.resetFilters.bind(this);
-    this.handleDrop = this.handleDrop.bind(this);
-  }
-
-  // 获取store数据
-  get selectedClothes() {
-    return this.inspirationStore.selectedClothes;
-  }
-
-  get filteredClothes() {
-    return this.inspirationStore.filteredClothes;
-  }
-
-  get categories() {
-    return this.inspirationStore.categories;
-  }
-
-  get tags() {
-    return this.inspirationStore.tags;
-  }
-
-  // 核心操作方法
-  toggleCloth(item) {
-    this.inspirationStore.toggleCloth(item);
-  }
-
-  removeCloth(index) {
-    this.inspirationStore.removeCloth(index);
-    showToast('已从搭配中移除', 'info');
-  }
-
-  resetClothes() {
-    this.inspirationStore.resetClothes();
-    showToast('已清空搭配', 'info');
-  }
-
-  async saveOutfit() {
-    if (!this.outfitName.value.trim()) {
-      showToast('请输入搭配名称', 'error');
-      return false;
-    }
-
-    if (this.selectedClothes.length === 0) {
-      showToast('请至少选择一件衣物', 'error');
-      return false;
-    }
-
-    try {
-      await this.inspirationStore.saveOutfit({
-        name: this.outfitName.value,
-        scenes: this.outfitScene.value,
-        seasons: this.outfitSeason.value,
-        styles: this.outfitStyle.value,
-      });
-
-      // 重置表单
-      this.resetForm();
-      showToast('搭配保存成功！', 'success');
-      return true;
-    } catch (error) {
-      showToast(error.message || '保存失败，请重试', 'error');
-      return false;
-    }
-  }
-
-  resetForm() {
-    this.outfitName.value = '';
-    this.outfitScene.value = [];
-    this.outfitSeason.value = [];
-    this.outfitStyle.value = [];
-  }
-
-  // 过滤器方法
-  setCategory(category) {
-    this.inspirationStore.setFilter('category', category);
-  }
-
-  setTag(tag) {
-    this.inspirationStore.setFilter('tag', tag);
-  }
-
-  resetFilters() {
-    this.inspirationStore.resetFilters();
-  }
-
-  // 拖拽支持
-  handleDrop(item) {
-    this.toggleCloth(item);
-    showToast('已添加到搭配', 'success');
-  }
-}
-
-// 组合式API封装
+// 搭配创建器服务
 export function useOutfitCreator() {
-  const service = new OutfitCreatorService();
-
-  // 确保服务正确初始化
-  if (!service.inspirationStore) {
-    console.error('OutfitCreatorService: inspirationStore 未正确初始化');
-  }
-
-  return service;
+  const inspirationStore = useInspirationStore();
+  const enumsStore = useEnumsStore();
+  
+  // 状态管理
+  const outfitName = ref('');
+  const outfitScene = ref('');
+  const outfitSeason = ref('');
+  const outfitStyle = ref('');
+  const selectedClothes = ref([]);
+  const loading = ref(false);
+  
+  // 从枚举store获取分类和标签
+  const categories = computed(() => {
+    return enumsStore.categoryOptions || [];
+  });
+  
+  const tags = computed(() => {
+    // 这里可以从enumsStore获取更多标签类型
+    const allTags = [];
+    
+    // 添加风格标签
+    if (enumsStore.styleOptions) {
+      enumsStore.styleOptions.forEach(style => {
+        allTags.push({ ...style, type: 'style' });
+      });
+    }
+    
+    // 添加季节标签
+    if (enumsStore.seasonOptions) {
+      enumsStore.seasonOptions.forEach(season => {
+        allTags.push({ ...season, type: 'season' });
+      });
+    }
+    
+    return allTags;
+  });
+  
+  // 过滤后的衣物
+  const filteredClothes = computed(() => {
+    return inspirationStore.clothes || [];
+  });
+  
+  // 切换衣物选中状态
+  const toggleCloth = (cloth) => {
+    const index = selectedClothes.value.findIndex(item => item.id === cloth.id);
+    if (index > -1) {
+      selectedClothes.value.splice(index, 1);
+    } else {
+      selectedClothes.value.push(cloth);
+    }
+  };
+  
+  // 移除衣物
+  const removeCloth = (clothId) => {
+    const index = selectedClothes.value.findIndex(item => item.id === clothId);
+    if (index > -1) {
+      selectedClothes.value.splice(index, 1);
+    }
+  };
+  
+  // 重置选中的衣物
+  const resetClothes = () => {
+    selectedClothes.value = [];
+    outfitName.value = '';
+    outfitScene.value = '';
+    outfitSeason.value = '';
+    outfitStyle.value = '';
+  };
+  
+  // 设置分类
+  const setCategory = (category) => {
+    inspirationStore.setCategoryFilter(category);
+  };
+  
+  // 设置标签
+  const setTag = (tag) => {
+    if (tag.type === 'style') {
+      inspirationStore.setStyleFilter(tag.value);
+    } else if (tag.type === 'season') {
+      inspirationStore.setSeasonFilter(tag.value);
+    }
+  };
+  
+  // 重置过滤器
+  const resetFilters = () => {
+    inspirationStore.resetFilters();
+  };
+  
+  // 保存搭配
+  const saveOutfit = async () => {
+    if (!outfitName.value.trim()) {
+      showToast('请输入搭配名称', 'warning');
+      return;
+    }
+    
+    if (selectedClothes.value.length === 0) {
+      showToast('请至少选择一件衣物', 'warning');
+      return;
+    }
+    
+    loading.value = true;
+    
+    try {
+      const outfitData = {
+        name: outfitName.value,
+        scene: outfitScene.value,
+        season: outfitSeason.value,
+        style: outfitStyle.value,
+        clothingIds: selectedClothes.value.map(cloth => cloth.id),
+        clothingItems: selectedClothes.value
+      };
+      
+      const response = await outfitCreatorApi.saveOutfit(outfitData);
+      
+      showToast('搭配保存成功', 'success');
+      resetClothes();
+      
+      // 刷新搭配列表
+      inspirationStore.fetchSavedOutfits();
+      
+      return response;
+    } catch (error) {
+      showToast('保存失败，请重试', 'error');
+      console.error('保存搭配失败:', error);
+      throw error;
+    } finally {
+      loading.value = false;
+    }
+  };
+  
+  // 初始化 - 加载必要数据
+  const initialize = async () => {
+    try {
+      // 确保枚举数据已加载
+      if (!enumsStore.isLoaded) {
+        await enumsStore.fetchAllEnums();
+      }
+      
+      // 加载衣物数据
+      await inspirationStore.fetchClothingItems();
+    } catch (error) {
+      console.error('初始化搭配创建器失败:', error);
+    }
+  };
+  
+  // 初始化服务
+  initialize();
+  
+  return {
+    // 状态
+    outfitName,
+    outfitScene,
+    outfitSeason,
+    outfitStyle,
+    selectedClothes,
+    loading,
+    categories,
+    tags,
+    filteredClothes,
+    inspirationStore,
+    
+    // 方法
+    toggleCloth,
+    removeCloth,
+    resetClothes,
+    setCategory,
+    setTag,
+    resetFilters,
+    saveOutfit
+  };
 }

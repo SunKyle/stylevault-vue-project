@@ -1,5 +1,6 @@
 import { defineStore } from 'pinia';
-import { clothingAdapter } from '../../adapters/clothingAdapter';
+import apiClient from '../../services/apiClient';
+import { showToast } from '../../utils/toast';
 
 // 缓存工具
 const cache = new Map();
@@ -183,7 +184,9 @@ export const useClothingStore = defineStore('clothing', {
       this.clearError();
 
       try {
-        const response = await clothingAdapter.fetchCategories();
+        // 直接调用API客户端
+        const response = await apiClient.clothingApi.getCategories();
+        
         // 确保获取到的数据是数组格式
         let categoriesData = [];
         if (Array.isArray(response.data)) {
@@ -191,18 +194,15 @@ export const useClothingStore = defineStore('clothing', {
         } else if (Array.isArray(response)) {
           categoriesData = response;
         } else if (response && response.length === undefined) {
-          // 如果是单个对象，放入数组中
           categoriesData = [response];
         }
         
-        // 转换为前端需要的分类格式，确保包含必要字段
         this.categories = categoriesData.map(category => ({
           id: category.id,
           name: category.name || category.display_name || '未命名类别',
           icon: category.icon || 'shirt',
           enabled: category.enabled !== undefined ? category.enabled : 
                   (category.is_active !== undefined ? category.is_active : true),
-          // 保留原始分类数据
           ...category
         }));
         
@@ -211,6 +211,7 @@ export const useClothingStore = defineStore('clothing', {
       } catch (error) {
         this.setError('获取衣物类别失败');
         this.categories = [];
+        showToast('获取衣物类别失败', 'error');
         throw error;
       } finally {
         this.setLoading(false);
@@ -236,9 +237,10 @@ export const useClothingStore = defineStore('clothing', {
       this.clearError();
 
       try {
-        // 保存Promise引用用于并发控制
-        this._fetchClothingItemsPromise = clothingAdapter.fetchClothingItems();
+        // 直接调用API
+        this._fetchClothingItemsPromise = apiClient.clothingApi.getItems();
         const response = await this._fetchClothingItemsPromise;
+        
         const items = response.items || response.data?.items || response.data || [];
         this.clothingItems = Array.isArray(items) ? items : [];
         this.pagination.totalItems = response.pagination?.totalItems || this.clothingItems.length;
@@ -248,6 +250,7 @@ export const useClothingStore = defineStore('clothing', {
       } catch (error) {
         this.setError('获取衣物列表失败');
         this.clothingItems = [];
+        showToast('获取衣物列表失败', 'error');
         throw error;
       } finally {
         this.setLoading(false);
@@ -266,11 +269,12 @@ export const useClothingStore = defineStore('clothing', {
 
       this.isSearching = true;
       try {
-        const results = await clothingAdapter.searchClothingItems(keyword);
+        const results = await apiClient.clothingApi.searchItems(keyword);
         this.searchResults = results;
         return results;
       } catch (error) {
         this.setError('搜索衣物失败');
+        showToast('搜索衣物失败', 'error');
         throw error;
       } finally {
         this.isSearching = false;
@@ -295,15 +299,17 @@ export const useClothingStore = defineStore('clothing', {
         this.pendingUpdates.set(id, data);
 
         try {
-          const updatedItem = await clothingAdapter.updateClothingItem(id, data);
+          const updatedItem = await apiClient.clothingApi.updateItem(id, data);
           const index = this.clothingItems.findIndex(item => item.id === id);
           if (index !== -1) {
             this.clothingItems[index] = updatedItem;
           }
           this.pendingUpdates.delete(id);
+          showToast('衣物更新成功', 'success');
           return updatedItem;
         } catch (error) {
           this.pendingUpdates.delete(id);
+          showToast('更新衣物失败', 'error');
           throw error;
         }
       });
@@ -313,8 +319,6 @@ export const useClothingStore = defineStore('clothing', {
 
     // 快速添加（乐观更新）
     async addClothingItem(item) {
-      // 现在数据库attributes表中已存在condition相关的记录，不需要再设置为null
-      
       // 乐观更新：先添加到本地
       const tempId = `temp_${Date.now()}`;
       const optimisticItem = { ...item, id: tempId, isOptimistic: true };
@@ -323,7 +327,7 @@ export const useClothingStore = defineStore('clothing', {
       this.pagination.totalItems += 1;
 
       try {
-        const newItem = await clothingAdapter.addClothingItem(item);
+        const newItem = await apiClient.clothingApi.addItem(item);
 
         // 替换临时项
         const index = this.clothingItems.findIndex(item => item.id === tempId);
@@ -333,6 +337,7 @@ export const useClothingStore = defineStore('clothing', {
 
         // 更新缓存
         setCachedData('clothingItems', this.clothingItems);
+        showToast('衣物添加成功', 'success');
 
         return newItem;
       } catch (error) {
@@ -341,6 +346,7 @@ export const useClothingStore = defineStore('clothing', {
         this.pagination.totalItems -= 1;
 
         this.setError('添加衣物失败');
+        showToast('添加衣物失败', 'error');
         throw error;
       }
     },
@@ -354,17 +360,19 @@ export const useClothingStore = defineStore('clothing', {
         this.clothingItems[index] = { ...originalItem, ...updates };
 
         try {
-          const updatedItem = await clothingAdapter.updateClothingItem(id, updates);
+          const updatedItem = await apiClient.clothingApi.updateItem(id, updates);
           this.clothingItems[index] = updatedItem;
 
           // 更新缓存
           setCachedData('clothingItems', this.clothingItems);
+          showToast('衣物更新成功', 'success');
 
           return updatedItem;
         } catch (error) {
           // 回滚
           this.clothingItems[index] = originalItem;
           this.setError('更新衣物失败');
+          showToast('更新衣物失败', 'error');
           throw error;
         }
       }
@@ -381,10 +389,11 @@ export const useClothingStore = defineStore('clothing', {
       this.pagination.totalItems -= 1;
 
       try {
-        await clothingAdapter.deleteClothingItem(id);
+        await apiClient.clothingApi.deleteItem(id);
 
         // 更新缓存
         setCachedData('clothingItems', this.clothingItems);
+        showToast('衣物删除成功', 'success');
 
         return true;
       } catch (error) {
@@ -393,6 +402,7 @@ export const useClothingStore = defineStore('clothing', {
         this.pagination.totalItems += 1;
 
         this.setError('删除衣物失败');
+        showToast('删除衣物失败', 'error');
         throw error;
       }
     },
@@ -409,11 +419,12 @@ export const useClothingStore = defineStore('clothing', {
       this.clearError();
 
       try {
-        const item = await clothingAdapter.fetchClothingItemDetail(id);
+        const item = await apiClient.clothingApi.getItemById(id);
         setCachedData(cacheKey, item);
         return item;
       } catch (error) {
         this.setError('获取衣物详情失败');
+        showToast('获取衣物详情失败', 'error');
         throw error;
       } finally {
         this.setLoading(false);
@@ -440,12 +451,13 @@ export const useClothingStore = defineStore('clothing', {
       this.clearError();
 
       try {
-        const items = await clothingAdapter.fetchClothingItemsByCategory(categoryId);
+        const items = await apiClient.clothingApi.getItemsByCategory(categoryId);
         this.itemsByCategory[categoryId] = items;
         setCachedData(cacheKey, items);
         return items;
       } catch (error) {
         this.setError('获取分类衣物失败');
+        showToast('获取分类衣物失败', 'error');
         throw error;
       } finally {
         this.setLoading(false);
@@ -464,11 +476,12 @@ export const useClothingStore = defineStore('clothing', {
       this.clearError();
 
       try {
-        const items = await clothingAdapter.fetchFavoriteItems();
+        const items = await apiClient.clothingApi.getFavoriteItems();
         setCachedData(cacheKey, items);
         return items;
       } catch (error) {
         this.setError('获取收藏衣物失败');
+        showToast('获取收藏衣物失败', 'error');
         throw error;
       } finally {
         this.setLoading(false);
@@ -496,12 +509,11 @@ export const useClothingStore = defineStore('clothing', {
       };
 
       try {
-        const updatedItem = await clothingAdapter.updateClothingItem(id, {
-          favorite: !currentItem.favorite,
-        });
-
+        const updatedItem = await apiClient.clothingApi.toggleFavorite(id);
+        
         this.clothingItems[index] = updatedItem;
         setCachedData('clothingItems', this.clothingItems);
+        showToast(currentItem.favorite ? '已取消收藏' : '收藏成功', 'success');
         return updatedItem;
       } catch (error) {
         // 回滚
@@ -510,6 +522,7 @@ export const useClothingStore = defineStore('clothing', {
           favorite: originalFavorite,
         };
         this.setError('更新收藏状态失败');
+        showToast('更新收藏状态失败', 'error');
         throw error;
       }
     },

@@ -1,10 +1,10 @@
 import { defineStore } from 'pinia';
-import { authService } from '../services/auth.service.js';
+import { authApi } from '../services/apiClient.js';
 
 export const useAuthStore = defineStore('auth', {
   state: () => ({
-    user: authService.getUser(),
-    token: authService.getToken(),
+    user: authApi.getUser(),
+    token: authApi.getToken(),
   }),
 
   getters: {
@@ -14,15 +14,15 @@ export const useAuthStore = defineStore('auth', {
 
   actions: {
     async login(credentials) {
-      const response = await authService.login(credentials);
+      const response = await authApi.login(credentials);
 
-      // 修复：正确访问后端返回的数据结构
-      if (response.success) {
-        this.token = response.data.token;
-        this.user = response.data.user;
+      // 后端返回的数据已经被响应拦截器处理过
+      if (response && response.token && response.user) {
+        this.token = response.token;
+        this.user = response.user;
 
-        authService.setToken(response.data.token);
-        authService.setUser(response.data.user);
+        authApi.setToken(response.token);
+        authApi.setUser(response.user);
       } else {
         // 如果后端返回错误，抛出异常
         throw new Error(response.message || '登录失败');
@@ -32,15 +32,15 @@ export const useAuthStore = defineStore('auth', {
     },
 
     async register(data) {
-      const response = await authService.register(data);
+      const response = await authApi.register(data);
 
-      // 修复：正确访问后端返回的数据结构
-      if (response.success) {
-        this.token = response.data.token;
-        this.user = response.data.user;
+      // 后端返回的数据已经被响应拦截器处理过
+      if (response && response.token && response.user) {
+        this.token = response.token;
+        this.user = response.user;
 
-        authService.setToken(response.data.token);
-        authService.setUser(response.data.user);
+        authApi.setToken(response.token);
+        authApi.setUser(response.user);
       } else {
         // 如果后端返回错误，抛出异常
         throw new Error(response.message || '注册失败');
@@ -49,15 +49,22 @@ export const useAuthStore = defineStore('auth', {
       return response;
     },
 
-    logout() {
-      authService.logout();
+    async logout() {
+      try {
+        await authApi.logout();
+      } catch (error) {
+        console.error('Logout failed:', error);
+        // 即使API调用失败，也清除本地存储
+      }
+      authApi.removeToken();
+      authApi.removeUser();
       this.token = null;
       this.user = null;
     },
 
     checkAuth() {
-      const token = authService.getToken();
-      const user = authService.getUser();
+      const token = authApi.getToken();
+      const user = authApi.getUser();
 
       if (token && user) {
         this.token = token;

@@ -1,5 +1,6 @@
 import { defineStore } from 'pinia';
-import { analyticsService } from '../../services/analyticsService';
+import apiClient from '../../services/apiClient';
+import { showToast } from '../../utils/toast';
 import { useClothingStore } from './clothingStore';
 import { useOutfitStore } from './outfitStore';
 
@@ -34,12 +35,13 @@ export const useAnalyticsStore = defineStore('analytics', {
       this.error = null;
       try {
         const clothingStore = useClothingStore();
-        const stats = await analyticsService.getClothingStats(clothingStore.clothingItems);
+        const stats = await apiClient.analyticsApi.getClothingStats(clothingStore.clothingItems);
         this.clothingStats = stats;
         this.lastUpdated = new Date();
         return stats;
       } catch (error) {
         this.error = error.message;
+        showToast('获取衣物统计信息失败', 'error');
         throw error;
       } finally {
         this.loading = false;
@@ -49,57 +51,62 @@ export const useAnalyticsStore = defineStore('analytics', {
     async fetchCategoryDistribution() {
       try {
         const clothingStore = useClothingStore();
-        const distribution = await analyticsService.getCategoryDistribution(
+        const distribution = await apiClient.analyticsApi.getCategoryDistribution(
           clothingStore.clothingItems
         );
         this.categoryDistribution = distribution;
         return distribution;
       } catch (error) {
         console.error('获取分类分布失败:', error);
+        showToast('获取分类分布失败', 'error');
       }
     },
 
     async fetchUsageFrequency() {
       try {
         const clothingStore = useClothingStore();
-        const frequency = await analyticsService.getUsageFrequency(clothingStore.clothingItems);
+        const frequency = await apiClient.analyticsApi.getUsageFrequency(clothingStore.clothingItems);
         this.usageFrequency = frequency;
         return frequency;
       } catch (error) {
         console.error('获取使用频率失败:', error);
+        showToast('获取使用频率失败', 'error');
       }
     },
 
     async fetchSeasonalAnalysis() {
       try {
         const clothingStore = useClothingStore();
-        const seasonal = await analyticsService.getSeasonalAnalysis(clothingStore.clothingItems);
+        const seasonal = await apiClient.analyticsApi.getSeasonalAnalysis(clothingStore.clothingItems);
         this.seasonalAnalysis = seasonal;
         return seasonal;
       } catch (error) {
         console.error('获取季节分析失败:', error);
+        showToast('获取季节分析失败', 'error');
       }
     },
 
     async fetchOutfitStats() {
       try {
         const outfitStore = useOutfitStore();
-        const stats = await analyticsService.getOutfitStats(outfitStore.outfits);
+        const stats = await apiClient.analyticsApi.getOutfitStats(outfitStore.outfits);
         this.outfitStats = stats;
         return stats;
       } catch (error) {
         console.error('获取搭配统计失败:', error);
+        showToast('获取搭配统计失败', 'error');
       }
     },
 
     async fetchCostAnalysis() {
       try {
         const clothingStore = useClothingStore();
-        const cost = await analyticsService.getCostAnalysis(clothingStore.clothingItems);
+        const cost = await apiClient.analyticsApi.getCostAnalysis(clothingStore.clothingItems);
         this.costAnalysis = cost;
         return cost;
       } catch (error) {
         console.error('获取成本分析失败:', error);
+        showToast('获取成本分析失败', 'error');
       }
     },
 

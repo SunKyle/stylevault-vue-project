@@ -1,5 +1,6 @@
 import { defineStore } from 'pinia';
-import { weatherService } from '../../services/weatherService';
+import apiClient from '../../services/apiClient';
+import { showToast } from '../../utils/toast';
 import { useClothingStore } from './clothingStore';
 
 export const useWeatherStore = defineStore('weather', {
@@ -26,7 +27,7 @@ export const useWeatherStore = defineStore('weather', {
       this.loading = true;
       this.error = null;
       try {
-        const weatherData = await weatherService.getCurrentWeather(location);
+        const weatherData = await apiClient.weatherApi.getCurrentWeather(location);
         this.currentWeather = weatherData;
         this.location = location;
         this.lastUpdated = new Date();
@@ -34,9 +35,11 @@ export const useWeatherStore = defineStore('weather', {
         // 获取天气推荐搭配
         await this.fetchWeatherRecommendedOutfits();
 
+        showToast(`已获取${location.name}天气信息`, 'success');
         return weatherData;
       } catch (error) {
         this.error = error.message;
+        showToast('获取天气信息失败', 'error');
         throw error;
       } finally {
         this.loading = false;
@@ -47,11 +50,13 @@ export const useWeatherStore = defineStore('weather', {
       this.loading = true;
       this.error = null;
       try {
-        const forecast = await weatherService.getWeatherForecast(location);
+        const forecast = await apiClient.weatherApi.getWeatherForecast(location);
         this.weatherForecast = forecast;
+        showToast('获取天气预报成功', 'success');
         return forecast;
       } catch (error) {
         this.error = error.message;
+        showToast('获取天气预报失败', 'error');
         throw error;
       } finally {
         this.loading = false;
@@ -72,14 +77,16 @@ export const useWeatherStore = defineStore('weather', {
         });
 
         // 生成推荐搭配
-        const recommended = await weatherService.getOutfitRecommendations({
+        const recommended = await apiClient.weatherApi.getOutfitRecommendations({
           weather: this.currentWeather,
           clothes: suitableClothes,
         });
 
         this.recommendedOutfits = recommended;
+        showToast('获取天气推荐搭配成功', 'success');
       } catch (error) {
         console.error('获取天气推荐搭配失败:', error);
+        showToast('获取天气推荐搭配失败', 'error');
       }
     },
 

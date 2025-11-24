@@ -1,5 +1,5 @@
 import { defineStore } from 'pinia';
-import { enumsAdaptorApi } from '../../services/api/adapter';
+import { enumsApi } from '../../services/apiClient.js';
 
 // 定义枚举类型的Store
 export const useEnumsStore = defineStore('enums', {
@@ -124,14 +124,14 @@ export const useEnumsStore = defineStore('enums', {
       this.error = null;
 
       try {
-        // 从API获取枚举数据
-        const data = await enumsAdaptorApi.getAllEnums();
-        // 确保data有正确的结构，如果API返回的数据结构有问题，可以在这里处理
-        if (data) {
-          // 合并数据，保留默认结构
-          Object.keys(this.enumsData).forEach(key => {
-            if (data[key]) {
-              this.enumsData[key] = data[key];
+        // 从enumsApi获取枚举数据
+        const data = await enumsApi.getAllEnums();
+
+        // 合并数据到enumsData对象中
+        if (data && typeof data === 'object') {
+          Object.keys(data).forEach(key => {
+            if (Object.prototype.hasOwnProperty.call(this.enumsData, key)) {
+              this.enumsData[key] = Array.isArray(data[key]) ? data[key] : [];
             }
           });
         }

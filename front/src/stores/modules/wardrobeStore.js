@@ -1,6 +1,6 @@
 import { defineStore } from 'pinia';
-import { clothingService } from '../services/clothingService';
-import { outfitService } from '../services/outfitService';
+import apiClient from '../services/apiClient';
+import { showToast } from '../utils/toast';
 
 export const useWardrobeStore = defineStore('wardrobe', {
   state: () => ({
@@ -153,13 +153,14 @@ export const useWardrobeStore = defineStore('wardrobe', {
       this.clearError();
 
       try {
-        const items = await clothingService.getAllClothingItems();
+        const items = await apiClient.clothingApi.getItems();
         this.clothingItems = items;
         this.pagination.totalItems = items.length;
         this.lastUpdated = new Date();
         return items;
       } catch (error) {
         this.setError('获取衣物数据失败');
+        showToast('获取衣物数据失败', 'error');
         throw error;
       } finally {
         this.setLoading(false);
@@ -169,11 +170,12 @@ export const useWardrobeStore = defineStore('wardrobe', {
     // 获取衣物类别
     async fetchCategories() {
       try {
-        const categories = await clothingService.getCategories();
+        const categories = await apiClient.clothingApi.getCategories();
         this.categories = categories;
         return categories;
       } catch (error) {
         this.setError('获取类别数据失败');
+        showToast('获取类别数据失败', 'error');
         throw error;
       }
     },
@@ -184,12 +186,13 @@ export const useWardrobeStore = defineStore('wardrobe', {
       this.clearError();
 
       try {
-        const outfits = await outfitService.getOutfits();
+        const outfits = await apiClient.outfitApi.getOutfits();
         this.outfits = outfits;
         this.favoriteOutfits = outfits.filter(outfit => outfit.liked);
         return outfits;
       } catch (error) {
         this.setError('获取搭配数据失败');
+        showToast('获取搭配数据失败', 'error');
         throw error;
       } finally {
         this.setLoading(false);
@@ -199,12 +202,14 @@ export const useWardrobeStore = defineStore('wardrobe', {
     // 添加新衣物
     async addClothingItem(item) {
       try {
-        const newItem = await clothingService.createClothingItem(item);
+        const newItem = await apiClient.clothingApi.addItem(item);
         this.clothingItems.unshift(newItem);
         this.pagination.totalItems += 1;
+        showToast('衣物添加成功', 'success');
         return newItem;
       } catch (error) {
         this.setError('添加衣物失败');
+        showToast('添加衣物失败', 'error');
         throw error;
       }
     },
@@ -212,14 +217,16 @@ export const useWardrobeStore = defineStore('wardrobe', {
     // 更新衣物信息
     async updateClothingItem(id, updates) {
       try {
-        const updatedItem = await clothingService.updateClothingItem(id, updates);
+        const updatedItem = await apiClient.clothingApi.updateItem(id, updates);
         const index = this.clothingItems.findIndex(item => item.id === id);
         if (index !== -1) {
           this.clothingItems[index] = updatedItem;
         }
+        showToast('衣物信息更新成功', 'success');
         return updatedItem;
       } catch (error) {
         this.setError('更新衣物失败');
+        showToast('更新衣物失败', 'error');
         throw error;
       }
     },
@@ -227,7 +234,7 @@ export const useWardrobeStore = defineStore('wardrobe', {
     // 删除衣物
     async deleteClothingItem(id) {
       try {
-        await clothingService.deleteClothingItem(id);
+        await apiClient.clothingApi.deleteItem(id);
         this.clothingItems = this.clothingItems.filter(item => item.id !== id);
         this.pagination.totalItems -= 1;
 
@@ -235,8 +242,10 @@ export const useWardrobeStore = defineStore('wardrobe', {
         this.outfits = this.outfits.filter(
           outfit => !outfit.clothingItems.some(item => item.id === id)
         );
+        showToast('衣物删除成功', 'success');
       } catch (error) {
         this.setError('删除衣物失败');
+        showToast('删除衣物失败', 'error');
         throw error;
       }
     },
@@ -246,15 +255,17 @@ export const useWardrobeStore = defineStore('wardrobe', {
       try {
         const item = this.clothingItems.find(item => item.id === id);
         if (item) {
-          const updatedItem = await clothingService.toggleFavorite(id);
+          const updatedItem = await apiClient.clothingApi.toggleFavorite(id);
           const index = this.clothingItems.findIndex(item => item.id === id);
           if (index !== -1) {
             this.clothingItems[index] = updatedItem;
           }
+          showToast(`衣物${updatedItem.favorite ? '已收藏' : '已取消收藏'}`, 'success');
           return updatedItem;
         }
       } catch (error) {
         this.setError('切换收藏状态失败');
+        showToast('切换收藏状态失败', 'error');
         throw error;
       }
     },
@@ -262,8 +273,7 @@ export const useWardrobeStore = defineStore('wardrobe', {
     // 批量操作
     async batchUpdate(items) {
       try {
-        const promises = items.map(item => clothingService.updateClothingItem(item.id, item));
-        const updatedItems = await Promise.all(promises);
+        const updatedItems = await apiClient.clothingApi.batchUpdate(items);
 
         updatedItems.forEach(updatedItem => {
           const index = this.clothingItems.findIndex(item => item.id === updatedItem.id);
@@ -272,9 +282,11 @@ export const useWardrobeStore = defineStore('wardrobe', {
           }
         });
 
+        showToast('批量更新成功', 'success');
         return updatedItems;
       } catch (error) {
         this.setError('批量更新失败');
+        showToast('批量更新失败', 'error');
         throw error;
       }
     },
@@ -287,6 +299,7 @@ export const useWardrobeStore = defineStore('wardrobe', {
         this.lastUpdated = new Date();
       } catch (error) {
         this.setError('初始化衣橱数据失败');
+        showToast('初始化衣橱数据失败', 'error');
         throw error;
       } finally {
         this.setLoading(false);
@@ -303,11 +316,12 @@ export const useWardrobeStore = defineStore('wardrobe', {
       this.setFilters({ searchQuery: query });
       if (query.trim()) {
         try {
-          const results = await clothingService.searchClothingItems(query);
+          const results = await apiClient.clothingApi.searchItems(query);
           this.clothingItems = results;
           this.pagination.totalItems = results.length;
         } catch (error) {
           this.setError('搜索失败');
+          showToast('搜索失败', 'error');
           throw error;
         }
       } else {

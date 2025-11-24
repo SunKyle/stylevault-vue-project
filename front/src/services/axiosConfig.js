@@ -2,7 +2,7 @@ import axios from 'axios';
 
 // 创建axios实例
 const apiClient = axios.create({
-  baseURL: process.env.VUE_APP_API_BASE_URL || '/api',
+  baseURL: process.env.VUE_APP_API_BASE_URL || 'http://localhost:3000/api/v1',
   timeout: 10000,
   headers: {
     'Content-Type': 'application/json',
@@ -24,7 +24,7 @@ apiClient.interceptors.request.use(
   }
 );
 
-// 响应拦截器
+// 响应拦截器 - 统一错误处理
 apiClient.interceptors.response.use(
   response => {
     // 统一处理响应数据
@@ -32,28 +32,32 @@ apiClient.interceptors.response.use(
   },
   error => {
     // 统一处理错误
+    let errorMessage = '请求失败';
+    
     if (error.response) {
       switch (error.response.status) {
         case 401:
-          // 处理未授权
-          console.error('未授权访问，请登录');
+          errorMessage = '未授权访问，请登录';
+          // 只在token过期时清除token
+          localStorage.removeItem('token');
           break;
         case 404:
-          // 处理未找到
-          console.error('请求的资源不存在');
+          errorMessage = '请求的资源不存在';
           break;
         case 500:
-          // 处理服务器错误
-          console.error('服务器错误，请稍后再试');
+          errorMessage = '服务器错误，请稍后再试';
           break;
         default:
-          // 处理其他错误
-          console.error(`请求错误: ${error.response.status}`);
+          errorMessage = `请求错误: ${error.response.status}`;
       }
     } else {
-      // 处理网络错误等
-      console.error('网络错误，请检查您的网络连接');
+      errorMessage = '网络错误，请检查您的网络连接';
     }
+    
+    console.error(errorMessage, error);
+    // 可以在这里添加统一的错误提示逻辑
+    // showToast(errorMessage, 'error');
+    
     return Promise.reject(error);
   }
 );
