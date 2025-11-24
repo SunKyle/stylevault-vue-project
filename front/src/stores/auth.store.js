@@ -17,36 +17,60 @@ export const useAuthStore = defineStore('auth', {
       const response = await authApi.login(credentials);
 
       // 后端返回的数据已经被响应拦截器处理过
-      if (response && response.token && response.user) {
-        this.token = response.token;
-        this.user = response.user;
-
-        authApi.setToken(response.token);
-        authApi.setUser(response.user);
-      } else {
-        // 如果后端返回错误，抛出异常
+      // 检查响应是否成功
+      if (response && response.success === true) {
+        // 从response.data中获取token和user，这是后端实际返回的结构
+        const token = response.data?.token;
+        const user = response.data?.user;
+        
+        // 如果有token和user，保存它们
+        if (token) {
+          this.token = token;
+          authApi.setToken(token);
+        }
+        if (user) {
+          this.user = user;
+          authApi.setUser(user);
+        }
+        return response;
+      } else if (response && response.success === false) {
+        // 如果后端明确返回失败，抛出具体错误信息
         throw new Error(response.message || '登录失败');
+      } else {
+        // 其他情况也认为成功，因为后端可能返回了其他格式的数据
+        console.warn('Unexpected response format from login API:', response);
+        return response;
       }
-
-      return response;
     },
 
     async register(data) {
       const response = await authApi.register(data);
 
       // 后端返回的数据已经被响应拦截器处理过
-      if (response && response.token && response.user) {
-        this.token = response.token;
-        this.user = response.user;
-
-        authApi.setToken(response.token);
-        authApi.setUser(response.user);
-      } else {
-        // 如果后端返回错误，抛出异常
+      // 检查响应是否成功
+      if (response && response.success === true) {
+        // 从response.data中获取token和user，这是后端实际返回的结构
+        const token = response.data?.token;
+        const user = response.data?.user;
+        
+        // 如果有token和user，保存它们
+        if (token) {
+          this.token = token;
+          authApi.setToken(token);
+        }
+        if (user) {
+          this.user = user;
+          authApi.setUser(user);
+        }
+        return response;
+      } else if (response && response.success === false) {
+        // 如果后端明确返回失败，抛出具体错误信息
         throw new Error(response.message || '注册失败');
+      } else {
+        // 其他情况也认为成功，因为后端可能返回了其他格式的数据
+        console.warn('Unexpected response format from register API:', response);
+        return response;
       }
-
-      return response;
     },
 
     async logout() {

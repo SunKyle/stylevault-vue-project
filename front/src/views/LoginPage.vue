@@ -156,10 +156,8 @@
       // 显示成功提示
       showSuccess.value = true;
 
-      // 2秒后跳转到衣橱页面
-      setTimeout(() => {
-        router.push('/wardrobe');
-      }, 2000);
+      // 立即跳转到衣橱页面
+      router.push('/wardrobe');
     } catch (error) {
       console.error('登录失败:', error);
 

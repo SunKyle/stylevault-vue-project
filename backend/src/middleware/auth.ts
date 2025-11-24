@@ -1,5 +1,6 @@
 import { Request, Response, NextFunction } from 'express';
 import jwt from 'jsonwebtoken';
+import { appConfig } from '../config';
 
 interface AuthRequest extends Request {
   user?: any;
@@ -17,7 +18,7 @@ export const authMiddleware = (req: AuthRequest, res: Response, next: NextFuncti
       });
     }
 
-    const decoded = jwt.verify(token, process.env.JWT_SECRET || 'your-secret-key');
+    const decoded = jwt.verify(token, appConfig.jwtSecret);
     req.user = decoded;
     next();
   } catch (error) {
@@ -34,7 +35,7 @@ export const optionalAuthMiddleware = (req: AuthRequest, res: Response, next: Ne
     const token = req.header('Authorization')?.replace('Bearer ', '');
     
     if (token) {
-      const decoded = jwt.verify(token, process.env.JWT_SECRET || 'your-secret-key');
+      const decoded = jwt.verify(token, appConfig.jwtSecret);
       req.user = decoded;
     }
     

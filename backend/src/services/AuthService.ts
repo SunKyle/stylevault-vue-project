@@ -2,6 +2,7 @@ import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import { User } from '../models/entities/User';
 import logger from '../utils/logger';
+import { appConfig } from '../config';
 
 interface RegisterData {
   username: string;
@@ -95,7 +96,7 @@ export class AuthService {
         email: user.email,
         username: user.username,
       };
-      const secret = process.env.JWT_SECRET || 'your_jwt_secret_key_here_make_it_long_and_random';
+      const secret = (appConfig.jwtSecret || 'your_jwt_secret_key_here_make_it_long_and_random') as string;
       const token = jwt.sign(payload, secret, { expiresIn: '7d' });
 
       // 更新最后登录时间
@@ -122,7 +123,7 @@ export class AuthService {
    */
   async verifyToken(token: string): Promise<any> {
     try {
-      const secret = process.env.JWT_SECRET || 'your_jwt_secret_key_here_make_it_long_and_random';
+      const secret = (appConfig.jwtSecret || 'your_jwt_secret_key_here_make_it_long_and_random') as string;
       const decoded = jwt.verify(token, secret);
       return decoded;
     } catch (error) {
