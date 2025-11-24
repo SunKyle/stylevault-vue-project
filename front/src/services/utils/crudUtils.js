@@ -1,5 +1,5 @@
-import apiClient from './axiosConfig';
-import API_ENDPOINTS from './apiEndpoints';
+import apiClient from '../core/axiosConfig';
+import { API_ENDPOINTS } from '../core/apiEndpoints';
 
 // 通用CRUD方法
 export const createApiService = (resource) => {

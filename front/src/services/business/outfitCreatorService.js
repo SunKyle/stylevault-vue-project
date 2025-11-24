@@ -1,5 +1,5 @@
 import { reactive, ref, computed } from 'vue';
-import { outfitCreatorApi } from './apiClient.js';
+import { outfitCreatorApi } from '../apiClient';
 import { useInspirationStore } from '@/stores/modules/inspirationStore';
 import { useEnumsStore } from '@/stores/modules/enumsStore';
 import { showToast } from '@/utils/toast';

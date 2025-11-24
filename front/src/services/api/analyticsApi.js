@@ -1,5 +1,5 @@
-import apiClient from './axiosConfig';
-import API_ENDPOINTS from './apiEndpoints';
+import apiClient from '../core/axiosConfig';
+import { API_ENDPOINTS } from '../core/apiEndpoints';
 import { 
   calculateClothingStats, 
   calculateCategoryDistribution, 
@@ -7,7 +7,7 @@ import {
   calculateSeasonalAnalysis,
   calculateOutfitStats,
   calculateCostAnalysis
-} from './localCalculations';
+} from '../utils/localCalculations';
 
 // Analytics API
 const analyticsApi = {

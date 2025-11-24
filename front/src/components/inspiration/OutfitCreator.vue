@@ -35,7 +35,7 @@
 </template>
 
 <script setup>
-  import { useOutfitCreator } from '@/services/outfitCreatorService';
+  import { useOutfitCreator } from '@/services/business/outfitCreatorService';
   import OutfitPreviewPanel from './OutfitPreviewPanel.vue';
   import ClothingSelectionPanel from './ClothingSelectionPanel.vue';
 

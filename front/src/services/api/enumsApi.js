@@ -1,5 +1,5 @@
-import apiClient from './axiosConfig';
-import API_ENDPOINTS from './apiEndpoints';
+import apiClient from '../core/axiosConfig';
+import { API_ENDPOINTS } from '../core/apiEndpoints';
 
 // 枚举API
 const enumsApi = {

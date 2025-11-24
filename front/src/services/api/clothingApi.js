@@ -1,6 +1,6 @@
-import apiClient from './axiosConfig';
-import API_ENDPOINTS from './apiEndpoints';
-import { createApiService } from './crudUtils';
+import apiClient from '../core/axiosConfig';
+import { API_ENDPOINTS } from '../core/apiEndpoints';
+import { createApiService } from '../utils/crudUtils';
 
 // 衣物API - 使用通用CRUD
 const clothingApi = createApiService('clothing');

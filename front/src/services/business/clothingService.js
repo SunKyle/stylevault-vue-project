@@ -1,4 +1,4 @@
-import { clothingApi } from './apiClient';
+import { clothingApi } from '../apiClient';
 
 // 衣物服务层，封装API调用和数据处理
 export const clothingService = {

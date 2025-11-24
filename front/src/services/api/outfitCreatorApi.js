@@ -1,4 +1,4 @@
-import apiClient from './axiosConfig';
+import apiClient from '../core/axiosConfig';
 
 // Outfit Creator API
 const outfitCreatorApi = {
