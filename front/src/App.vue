@@ -20,7 +20,6 @@
       @changeSection="changeSection"
       @showUpload="showUploadModal = true"
     />
-
     <!-- 登录页面不显示全局快捷操作按钮 -->
     <FloatingActionButton
       v-if="route.name !== 'login'"
