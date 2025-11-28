@@ -258,8 +258,8 @@
                     @change="updateCategoryName"
                   >
                     <option value="">请选择分类</option>
-                    <option v-for="category in categories" :key="category.id" :value="category.id">
-                      {{ category.name }}
+                    <option v-for="category in categories" :key="category.value" :value="category.value">
+                      {{ category.label }}
                     </option>
                   </select>
                   <div
@@ -540,11 +540,18 @@
       // 在组件挂载时获取枚举数据
       onMounted(async () => {
         try {
+          console.log('组件挂载，开始获取枚举数据...');
           await enumsStore.fetchAllEnums();
+          console.log('枚举数据加载完成，当前分类数据:', categories.value);
         } catch (error) {
           console.error('获取枚举数据失败:', error);
         }
       });
+      
+      // 监听分类数据变化
+      watch(categories, (newCategories) => {
+        console.log('分类数据已更新:', newCategories);
+      }, { deep: true });
 
       // 表单数据
       const form = ref({
@@ -563,7 +570,7 @@
       });
 
       // 分类数据
-      const categories = computed(() => clothingStore.categories);
+      const categories = computed(() => enumsStore.categoryLabels || []);
 
       // 表单验证
       const isFormValid = computed(() => {
@@ -734,9 +741,9 @@
             // 如果是多季节选择，取第一个季节作为主要季节
             const primarySeason = form.value.seasons[0];
             // 查找对应的季节ID
-            const seasonId = enumsStore.seasons.find(s => s.name === primarySeason)?.id;
-            if (seasonId) {
-              submitData.season = seasonId;
+            const season = enumsStore.seasons.find(s => s.label === primarySeason);
+            if (season && season.value) {
+              submitData.season = season.value;
             }
           }
 
@@ -801,9 +808,9 @@
       // 更新分类名称
       function updateCategoryName() {
         if (form.value.category) {
-          const selectedCategory = categories.value.find(c => c.id === form.value.category);
+          const selectedCategory = categories.value.find(c => c.value === form.value.category);
           if (selectedCategory) {
-            form.value.categoryName = selectedCategory.name;
+            form.value.categoryName = selectedCategory.label;
           }
         } else {
           form.value.categoryName = '';

@@ -28,71 +28,71 @@ export const useEnumsStore = defineStore('enums', {
     // 获取分类标签
     getCategoryLabel: (state) => (id) => {
       if (!id || !state.enumsData.categories) return id;
-      const item = state.enumsData.categories.find(cat => cat.id === id);
-      return item ? item.name : id;
+      const item = state.enumsData.categories.find(cat => cat.value === id);
+      return item ? item.label : id;
     },
 
     // 获取风格标签
     getStyleLabel: (state) => (id) => {
       if (!id || !state.enumsData.styles) return id;
-      const item = state.enumsData.styles.find(style => style.id === id);
-      return item ? item.name : id;
+      const item = state.enumsData.styles.find(style => style.value === id);
+      return item ? item.label : id;
     },
 
     // 获取颜色标签
     getColorLabel: (state) => (id) => {
       if (!id || !state.enumsData.colors) return id;
-      const item = state.enumsData.colors.find(color => color.id === id);
-      return item ? item.name : id;
+      const item = state.enumsData.colors.find(color => color.value === id);
+      return item ? item.label : id;
     },
 
     // 获取季节标签
     getSeasonLabel: (state) => (id) => {
       if (!id || !state.enumsData.seasons) return id;
-      const item = state.enumsData.seasons.find(season => season.id === id);
-      return item ? item.name : id;
+      const item = state.enumsData.seasons.find(season => season.value === id);
+      return item ? item.label : id;
     },
 
     // 获取材质标签
     getMaterialLabel: (state) => (id) => {
       if (!id || !state.enumsData.materials) return id;
-      const item = state.enumsData.materials.find(material => material.id === id);
-      return item ? item.name : id;
+      const item = state.enumsData.materials.find(material => material.value === id);
+      return item ? item.label : id;
     },
 
     // 获取图案标签
     getPatternLabel: (state) => (id) => {
       if (!id || !state.enumsData.patterns) return id;
-      const item = state.enumsData.patterns.find(pattern => pattern.id === id);
-      return item ? item.name : id;
+      const item = state.enumsData.patterns.find(pattern => pattern.value === id);
+      return item ? item.label : id;
     },
 
     // 获取尺码标签
     getSizeLabel: (state) => (id) => {
       if (!id || !state.enumsData.sizes) return id;
-      const item = state.enumsData.sizes.find(size => size.id === id);
-      return item ? item.name : id;
+      const item = state.enumsData.sizes.find(size => size.value === id);
+      return item ? item.label : id;
     },
 
     // 获取状态标签
     getStatusLabel: (state) => (id) => {
       if (!id || !state.enumsData.statuses) return id;
-      const item = state.enumsData.statuses.find(status => status.id === id);
-      return item ? item.name : id;
+      const item = state.enumsData.statuses.find(status => status.value === id);
+      return item ? item.label : id;
     },
 
     // 获取场合标签
     getOccasionLabel: (state) => (id) => {
       if (!id || !state.enumsData.occasions) return id;
-      const item = state.enumsData.occasions.find(occasion => occasion.id === id);
-      return item ? item.name : id;
+      const item = state.enumsData.occasions.find(occasion => occasion.value === id);
+      return item ? item.label : id;
     },
 
     // 获取穿着状态标签
     getConditionLabel: (state) => (id) => {
       if (!id || !state.enumsData.conditions) return id;
-      const item = state.enumsData.conditions.find(condition => condition.id === id);
-      return item ? item.name : id;
+      const item = state.enumsData.conditions.find(condition => condition.value === id);
+      return item ? item.label : id;
     },
     
     // 获取场景选项
@@ -114,7 +114,25 @@ export const useEnumsStore = defineStore('enums', {
     colorOptions: (state) => state.enumsData.colors || [],
     
     // 获取尺寸选项
-    sizeOptions: (state) => state.enumsData.sizes || []
+    sizeOptions: (state) => state.enumsData.sizes || [],
+    
+    // Computed properties for common access
+    categories: (state) => state.enumsData.categories || [],
+    seasons: (state) => state.enumsData.seasons || [],
+    colors: (state) => state.enumsData.colors || [],
+    materials: (state) => state.enumsData.materials || [],
+    sizes: (state) => state.enumsData.sizes || [],
+    
+    // Formatted labels for select options
+    categoryLabels: (state) => (state.enumsData.categories || []).map(cat => ({
+      value: cat.value,
+      label: cat.label
+    })),
+    
+    seasonLabels: (state) => (state.enumsData.seasons || []).map(season => ({
+      value: season.value,
+      label: season.label
+    }))
   },
 
   actions: {
@@ -165,6 +183,13 @@ export const useEnumsStore = defineStore('enums', {
         statuses: [],
         occasions: []
       };
+    },
+    
+    // 初始化时自动获取数据
+    initializeStore() {
+      // This can be called from components when needed
+      this.fetchAllEnums();
     }
   }
 });
+

@@ -11,6 +11,7 @@ export const useEnumsStore = defineStore('enums', () => {
   const materials = ref([]);
   const colors = ref([]);
   const sizes = ref([]);
+  const conditions = ref([]);
 
   const loading = ref(false);
   const error = ref(null);
@@ -40,6 +41,7 @@ export const useEnumsStore = defineStore('enums', () => {
   const materialOptions = computed(() => createEnumOptions(materials.value));
   const colorOptions = computed(() => createEnumOptions(colors.value, true));
   const sizeOptions = computed(() => createEnumOptions(sizes.value));
+  const conditionOptions = computed(() => createEnumOptions(conditions.value));
 
   // 缓存相关函数
   const getCachedData = (key) => {
@@ -89,6 +91,7 @@ export const useEnumsStore = defineStore('enums', () => {
         materials.value = Array.isArray(cachedData.materials) ? cachedData.materials : [];
         colors.value = Array.isArray(cachedData.colors) ? cachedData.colors : [];
         sizes.value = Array.isArray(cachedData.sizes) ? cachedData.sizes : [];
+        conditions.value = Array.isArray(cachedData.conditions) ? cachedData.conditions : [];
         isLoaded.value = true;
         return;
       }
@@ -104,7 +107,9 @@ export const useEnumsStore = defineStore('enums', () => {
 
     try {
       // 直接从enumsApi获取枚举数据
+      console.log('开始获取枚举数据...');
       const data = await enumsApi.getAllEnums();
+      console.log('枚举API调用成功，响应数据:', data);
 
       // 确保数据结构正确，并且从attributes表获取的数据正确映射
       categories.value = Array.isArray(data.categories) ? data.categories : [];
@@ -114,6 +119,12 @@ export const useEnumsStore = defineStore('enums', () => {
       materials.value = Array.isArray(data.materials) ? data.materials : [];
       colors.value = Array.isArray(data.colors) ? data.colors : [];
       sizes.value = Array.isArray(data.sizes) ? data.sizes : [];
+      conditions.value = Array.isArray(data.conditions) ? data.conditions : [];
+      
+      // 记录枚举数据详情
+      console.log('分类数据:', categories.value);
+      console.log('颜色数据:', colors.value);
+      console.log('风格数据:', styles.value);
 
       // 缓存数据
       setCachedData('all', {
@@ -123,8 +134,10 @@ export const useEnumsStore = defineStore('enums', () => {
         occasions: occasions.value,
         materials: materials.value,
         colors: colors.value,
-        sizes: sizes.value
+        sizes: sizes.value,
+        conditions: conditions.value
       });
+      console.log('枚举数据缓存完成');
 
       isLoaded.value = true;
     } catch (err) {
@@ -164,6 +177,9 @@ export const useEnumsStore = defineStore('enums', () => {
         case 'sizes':
           sizes.value = data;
           break;
+        case 'conditions':
+          conditions.value = data;
+          break;
         default:
           console.error(`未知的枚举类型: ${type}`);
       }
@@ -182,6 +198,7 @@ export const useEnumsStore = defineStore('enums', () => {
       materials: materials.value,
       colors: colors.value,
       sizes: sizes.value,
+      conditions: conditions.value,
     };
 
     const items = enumMap[type];
@@ -201,6 +218,7 @@ export const useEnumsStore = defineStore('enums', () => {
     materials.value = [];
     colors.value = [];
     sizes.value = [];
+    conditions.value = [];
     loading.value = false;
     error.value = null;
     isLoaded.value = false;
@@ -214,6 +232,8 @@ export const useEnumsStore = defineStore('enums', () => {
     occasions,
     materials,
     colors,
+    sizes,
+    conditions,
     loading,
     error,
     isLoaded,
@@ -226,6 +246,7 @@ export const useEnumsStore = defineStore('enums', () => {
     materialOptions,
     colorOptions,
     sizeOptions,
+    conditionOptions,
 
     // 方法
     fetchAllEnums,

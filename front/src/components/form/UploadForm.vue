@@ -297,11 +297,10 @@
   const clothingStore = useClothingStore();
   const enumsStore = useEnumsStore();
 
-  // 枚举值已经在应用初始化时加载，不需要在此处重复调用
-  // 注释掉避免重复调用API
-  // onMounted(async () => {
-  //   await enumsStore.fetchAllEnums();
-  // });
+  // 确保枚举值在组件挂载时加载
+  onMounted(async () => {
+    await enumsStore.fetchAllEnums();
+  });
 
   // 计算属性 - 从store获取枚举值
   const categoryOptions = computed(() => enumsStore.categoryOptions);
