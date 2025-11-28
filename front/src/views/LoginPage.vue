@@ -82,11 +82,13 @@
         <font-awesome-icon :icon="['fas', 'check-circle']" class="text-white text-xl" />
       </div>
       <div class="ml-3 flex-1">
-        <h3 class="text-base font-semibold text-green-800 leading-6">{{ showRegister ? '注册成功' : '登录成功' }}</h3>
+        <h3 class="text-base font-semibold text-green-800 leading-6">
+          {{ showRegister ? '注册成功' : '登录成功' }}
+        </h3>
         <div class="mt-1.5 text-sm text-green-700 leading-5 whitespace-pre-line">
           {{ showRegister ? '即将返回登录页面...' : '正在跳转到衣橱管理页面...' }}
         </div>
-        <button 
+        <button
           class="mt-2 text-xs font-medium text-green-600 hover:text-green-800 transition-colors focus:outline-none focus:ring-1 focus:ring-green-400 focus:ring-opacity-50"
           @click="showSuccess = false"
         >
@@ -107,11 +109,13 @@
         <font-awesome-icon :icon="['fas', 'exclamation-circle']" class="text-white text-xl" />
       </div>
       <div class="ml-3 flex-1">
-        <h3 class="text-base font-semibold text-red-800 leading-6">{{ showRegister ? '注册失败' : '登录失败' }}</h3>
+        <h3 class="text-base font-semibold text-red-800 leading-6">
+          {{ showRegister ? '注册失败' : '登录失败' }}
+        </h3>
         <div class="mt-1.5 text-sm text-red-700 leading-5 whitespace-pre-line">
           {{ showRegister ? registerErrors.general : loginErrors.general }}
         </div>
-        <button 
+        <button
           class="mt-2 text-xs font-medium text-red-600 hover:text-red-800 transition-colors focus:outline-none focus:ring-1 focus:ring-red-400 focus:ring-opacity-50"
           @click="showError = false"
         >
@@ -342,16 +346,32 @@
 
   /* 错误提示震动动画 */
   @keyframes shake {
-    0%, 100% { transform: translateX(0); }
-    10%, 30%, 50%, 70%, 90% { transform: translateX(-2px); }
-    20%, 40%, 60%, 80% { transform: translateX(2px); }
+    0%,
+    100% {
+      transform: translateX(0);
+    }
+    10%,
+    30%,
+    50%,
+    70%,
+    90% {
+      transform: translateX(-2px);
+    }
+    20%,
+    40%,
+    60%,
+    80% {
+      transform: translateX(2px);
+    }
   }
 
   /* 提示框悬浮效果 */
   .toast-success:hover,
   .toast-error:hover {
     transform: translateY(-2px) scale(1.02);
-    box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+    box-shadow:
+      0 10px 25px -5px rgba(0, 0, 0, 0.1),
+      0 10px 10px -5px rgba(0, 0, 0, 0.04);
     transition: all 0.3s ease;
   }
 
@@ -383,13 +403,23 @@
   }
 
   @keyframes pulseError {
-    0%, 100% { opacity: 0; }
-    50% { opacity: 1; }
+    0%,
+    100% {
+      opacity: 0;
+    }
+    50% {
+      opacity: 1;
+    }
   }
 
   @keyframes pulseSuccess {
-    0%, 100% { opacity: 0; }
-    50% { opacity: 1; }
+    0%,
+    100% {
+      opacity: 0;
+    }
+    50% {
+      opacity: 1;
+    }
   }
 
   /* 关闭按钮动画 */

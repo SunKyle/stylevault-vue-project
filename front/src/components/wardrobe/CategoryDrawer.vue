@@ -195,7 +195,11 @@
                     v-if="item.category || item.category_id"
                     class="text-xs text-gray-600 bg-green-50 px-2 py-1 rounded-md border border-green-100"
                   >
-                    {{ item.category?.name || getEnumLabel('category', item.category_id) || item.category }}
+                    {{
+                      item.category?.name ||
+                      getEnumLabel('category', item.category_id) ||
+                      item.category
+                    }}
                   </span>
                 </div>
               </div>
@@ -273,118 +277,127 @@
   </transition>
 </template>
 
-<script>
+<script setup>
+  import { ref } from 'vue';
   import { useClothingStore } from '@/stores';
   import { useEnumsStore } from '@/stores';
 
-  export default {
-    name: 'CategoryDrawer',
-    props: {
-      isDrawerOpen: {
-        type: Boolean,
-        required: true,
-      },
-      isSearchMode: {
-        type: Boolean,
-        required: true,
-      },
-      selectedCategory: {
-        type: [String, null],
-        required: true,
-      },
-      getCategoryItems: {
-        type: Function,
-        required: true,
-      },
-      getSelectedCategoryName: {
-        type: Function,
-        required: true,
-      },
-      getCategoryItemCount: {
-        type: Function,
-        required: true,
-      },
+  const props = defineProps({
+    isDrawerOpen: {
+      type: Boolean,
+      required: true,
     },
-    emits: [
-      'closeDrawer',
-      'showUpload',
-      'toggleFavorite',
-      'viewItemDetail',
-      'editItem',
-      'deleteItem',
-      'applyFilter',
-      'applySort',
-    ],
-    data() {
-      return {
-        currentFilter: 'all',
-        currentSort: null,
-        clothingStore: useClothingStore(),
-        enumsStore: useEnumsStore(),
-      };
+    isSearchMode: {
+      type: Boolean,
+      required: true,
     },
-    methods: {
-      beforeEnter() {
-        console.time('动画持续时间');
-      },
-      afterEnter() {
-        console.timeEnd('动画持续时间');
-      },
-      beforeLeave() {
-        // 动画开始前的处理
-      },
-      afterLeave() {
-        // 动画结束后的处理
-      },
-      applyFilter(filterType) {
-        this.currentFilter = filterType;
-        this.$emit('applyFilter', filterType);
-      },
-      applySort(sortType) {
-        // 切换排序状态：如果已经是该排序类型，则取消排序
-        this.currentSort = this.currentSort === sortType ? null : sortType;
-        this.$emit('applySort', this.currentSort);
-      },
-      getCategoryIcon() {
-        if (this.isSearchMode) return 'search';
-        if (!this.selectedCategory || this.selectedCategory === 'all') return 'tag';
-        try {
-          // 确保categories是数组
-          const categoriesArray = Array.isArray(this.clothingStore.categories) ? this.clothingStore.categories : [];
-          const category = categoriesArray.find(c => c.id === this.selectedCategory);
-          // 确保category存在且icon是有效的字符串
-          if (category && category.icon && typeof category.icon === 'string' && category.icon.trim() !== '') {
-            return category.icon;
-          }
-          return 'tag';
-        } catch (error) {
-          console.error('Error getting category icon:', error);
-          return 'tag';
-        }
-      },
-      // 获取枚举属性的显示文本
-      getEnumLabel(type, id) {
-        if (!id) return '';
-        const getterMap = {
-          category: 'getCategoryLabel',
-          style: 'getStyleLabel',
-          color: 'getColorLabel',
-          season: 'getSeasonLabel',
-          material: 'getMaterialLabel',
-          pattern: 'getPatternLabel',
-          size: 'getSizeLabel',
-          condition: 'getConditionLabel',
-          status: 'getStatusLabel',
-          occasion: 'getOccasionLabel'
-        };
-        
-        const getter = getterMap[type];
-        if (getter && this.enumsStore[getter]) {
-          return this.enumsStore[getter](id) || '';
-        }
-        return id;
-      },
+    selectedCategory: {
+      type: [String, null],
+      required: true,
     },
+    getCategoryItems: {
+      type: Function,
+      required: true,
+    },
+    getSelectedCategoryName: {
+      type: Function,
+      required: true,
+    },
+    getCategoryItemCount: {
+      type: Function,
+      required: true,
+    },
+  });
+
+  const emit = defineEmits([
+    'closeDrawer',
+    'showUpload',
+    'toggleFavorite',
+    'viewItemDetail',
+    'editItem',
+    'deleteItem',
+    'applyFilter',
+    'applySort',
+  ]);
+
+  const currentFilter = ref('all');
+  const currentSort = ref(null);
+  const clothingStore = useClothingStore();
+  const enumsStore = useEnumsStore();
+
+  const beforeEnter = () => {
+    console.time('动画持续时间');
+  };
+
+  const afterEnter = () => {
+    console.timeEnd('动画持续时间');
+  };
+
+  const beforeLeave = () => {
+    // 动画开始前的处理
+  };
+
+  const afterLeave = () => {
+    // 动画结束后的处理
+  };
+
+  const applyFilter = filterType => {
+    currentFilter.value = filterType;
+    emit('applyFilter', filterType);
+  };
+
+  const applySort = sortType => {
+    // 切换排序状态：如果已经是该排序类型，则取消排序
+    currentSort.value = currentSort.value === sortType ? null : sortType;
+    emit('applySort', currentSort.value);
+  };
+
+  const getCategoryIcon = () => {
+    if (props.isSearchMode) return 'search';
+    if (!props.selectedCategory || props.selectedCategory === 'all') return 'tag';
+    try {
+      // 确保categories是数组
+      const categoriesArray = Array.isArray(clothingStore.categories)
+        ? clothingStore.categories
+        : [];
+      const category = categoriesArray.find(c => c.id === props.selectedCategory);
+      // 确保category存在且icon是有效的字符串
+      if (
+        category &&
+        category.icon &&
+        typeof category.icon === 'string' &&
+        category.icon.trim() !== ''
+      ) {
+        return category.icon;
+      }
+      return 'tag';
+    } catch (error) {
+      console.error('Error getting category icon:', error);
+      return 'tag';
+    }
+  };
+
+  // 获取枚举属性的显示文本
+  const getEnumLabel = (type, id) => {
+    if (!id) return '';
+    const getterMap = {
+      category: 'getCategoryLabel',
+      style: 'getStyleLabel',
+      color: 'getColorLabel',
+      season: 'getSeasonLabel',
+      material: 'getMaterialLabel',
+      pattern: 'getPatternLabel',
+      size: 'getSizeLabel',
+      condition: 'getConditionLabel',
+      status: 'getStatusLabel',
+      occasion: 'getOccasionLabel',
+    };
+
+    const getter = getterMap[type];
+    if (getter && enumsStore[getter]) {
+      return enumsStore[getter](id) || '';
+    }
+    return id;
   };
 </script>
 

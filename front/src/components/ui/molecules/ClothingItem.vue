@@ -39,7 +39,9 @@
     </div>
     <div class="px-1">
       <h4 class="font-medium truncate text-sm">{{ item.name }}</h4>
-      <p class="text-xs text-neutral-500 mt-1">{{ getEnumLabel('category', item.categoryId) }} · {{ getEnumLabel('style', item.style) }}</p>
+      <p class="text-xs text-neutral-500 mt-1">
+        {{ getEnumLabel('category', item.categoryId) }} · {{ getEnumLabel('style', item.style) }}
+      </p>
       <!-- 季节信息 -->
       <div class="flex flex-wrap gap-1.5 mt-1" v-if="item.seasons && item.seasons.length > 0">
         <span
@@ -47,7 +49,7 @@
           :key="season"
           :class="[
             'text-sm px-3 py-1.5 rounded-full font-medium transition-all duration-200',
-            getSeasonBadgeClass(season)
+            getSeasonBadgeClass(season),
           ]"
         >
           {{ season }}
@@ -85,7 +87,7 @@
 
 <script setup>
   import { useEnumsStore } from '@/stores';
-  
+
   defineProps({
     item: {
       type: Object,
@@ -114,16 +116,16 @@
       size: 'getSizeLabel',
       condition: 'getConditionLabel',
       status: 'getStatusLabel',
-      occasion: 'getOccasionLabel'
+      occasion: 'getOccasionLabel',
     };
-    
+
     const getter = getterMap[type];
     if (getter && enumsStore[getter]) {
       return enumsStore[getter](id) || '';
     }
     return id;
   }
-  
+
   // 为不同季节添加特有的标签样式
   function getSeasonBadgeClass(season) {
     const seasonStyles = {
@@ -132,7 +134,7 @@
       autumn: 'bg-orange-100 text-orange-700 hover:bg-orange-200',
       winter: 'bg-blue-100 text-blue-700 hover:bg-blue-200',
     };
-    
+
     // 默认使用主题色样式
     return seasonStyles[season.toLowerCase()] || 'bg-primary/10 text-primary hover:bg-primary/20';
   }

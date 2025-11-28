@@ -7,9 +7,13 @@ export const clothingService = {
     try {
       const response = await clothingApi.getCategories();
       // 确保返回的数据格式一致
-      return Array.isArray(response.data) ? response.data : 
-             Array.isArray(response) ? response : 
-             response && response.length === undefined ? [response] : [];
+      return Array.isArray(response.data)
+        ? response.data
+        : Array.isArray(response)
+          ? response
+          : response && response.length === undefined
+            ? [response]
+            : [];
     } catch (error) {
       console.error('获取衣物类别失败:', error);
       throw error;
@@ -29,7 +33,7 @@ export const clothingService = {
   },
 
   // 搜索衣物
-  searchClothingItems: async (keyword) => {
+  searchClothingItems: async keyword => {
     try {
       const response = await clothingApi.search(keyword);
       return response.data || response;
@@ -40,7 +44,7 @@ export const clothingService = {
   },
 
   // 获取单个衣物详情
-  getClothingItemById: async (id) => {
+  getClothingItemById: async id => {
     try {
       const response = await clothingApi.getById(id);
       return response.data || response;
@@ -51,7 +55,7 @@ export const clothingService = {
   },
 
   // 添加衣物
-  addClothingItem: async (item) => {
+  addClothingItem: async item => {
     try {
       const response = await clothingApi.create(item);
       return response.data || response;
@@ -73,7 +77,7 @@ export const clothingService = {
   },
 
   // 删除衣物
-  deleteClothingItem: async (id) => {
+  deleteClothingItem: async id => {
     try {
       const response = await clothingApi.delete(id);
       return response.data || response;
@@ -95,7 +99,7 @@ export const clothingService = {
   },
 
   // 切换收藏状态
-  toggleFavoriteClothingItem: async (id) => {
+  toggleFavoriteClothingItem: async id => {
     try {
       const response = await clothingApi.toggleFavorite(id);
       return response.data || response;
@@ -103,5 +107,5 @@ export const clothingService = {
       console.error('切换收藏状态失败:', error);
       throw error;
     }
-  }
+  },
 };

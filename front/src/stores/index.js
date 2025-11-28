@@ -26,7 +26,7 @@ export const initializeStores = async () => {
 
     // 设置 UI 主题
     uiStore.setTheme(userStore.preferences.colorScheme);
-    
+
     // 初始化枚举数据
     try {
       // 尝试获取所有枚举数据

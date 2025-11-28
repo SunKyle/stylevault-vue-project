@@ -22,7 +22,7 @@ export const useAuthStore = defineStore('auth', {
         // 从response.data中获取token和user，这是后端实际返回的结构
         const token = response.data?.token;
         const user = response.data?.user;
-        
+
         // 如果有token和user，保存它们
         if (token) {
           this.token = token;
@@ -52,7 +52,7 @@ export const useAuthStore = defineStore('auth', {
         // 从response.data中获取token和user，这是后端实际返回的结构
         const token = response.data?.token;
         const user = response.data?.user;
-        
+
         // 如果有token和user，保存它们
         if (token) {
           this.token = token;

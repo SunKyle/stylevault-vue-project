@@ -3,10 +3,10 @@ import { API_ENDPOINTS } from '../core/apiEndpoints';
 
 // 认证API
 const authApi = {
-  login: async (credentials) => {
+  login: async credentials => {
     return apiClient.post(API_ENDPOINTS.auth.login, credentials);
   },
-  register: async (userData) => {
+  register: async userData => {
     return apiClient.post(API_ENDPOINTS.auth.register, userData);
   },
   logout: async () => {
@@ -19,7 +19,7 @@ const authApi = {
   getToken: () => {
     return localStorage.getItem('token');
   },
-  setToken: (token) => {
+  setToken: token => {
     localStorage.setItem('token', token);
   },
   removeToken: () => {
@@ -29,7 +29,7 @@ const authApi = {
     const userStr = localStorage.getItem('user');
     return userStr ? JSON.parse(userStr) : null;
   },
-  setUser: (user) => {
+  setUser: user => {
     localStorage.setItem('user', JSON.stringify(user));
   },
   removeUser: () => {

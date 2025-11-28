@@ -24,8 +24,8 @@ export const useEnumsStore = defineStore('enums', () => {
   const createEnumOptions = (items, includeColor = false) => {
     return items.map(item => {
       const option = {
-        value: item.id !== undefined ? item.id : (item.value !== undefined ? item.value : ''),
-        label: item.label || item.name || '未命名'
+        value: item.id !== undefined ? item.id : item.value !== undefined ? item.value : '',
+        label: item.label || item.name || '未命名',
       };
       if (includeColor && item.color) {
         option.color = item.color;
@@ -44,7 +44,7 @@ export const useEnumsStore = defineStore('enums', () => {
   const conditionOptions = computed(() => createEnumOptions(conditions.value));
 
   // 缓存相关函数
-  const getCachedData = (key) => {
+  const getCachedData = key => {
     try {
       const cached = localStorage.getItem(`enums_${key}`);
       if (cached) {
@@ -63,10 +63,13 @@ export const useEnumsStore = defineStore('enums', () => {
 
   const setCachedData = (key, data) => {
     try {
-      localStorage.setItem(`enums_${key}`, JSON.stringify({
-        data,
-        timestamp: Date.now()
-      }));
+      localStorage.setItem(
+        `enums_${key}`,
+        JSON.stringify({
+          data,
+          timestamp: Date.now(),
+        })
+      );
     } catch (error) {
       console.error('设置缓存失败:', error);
     }
@@ -74,7 +77,7 @@ export const useEnumsStore = defineStore('enums', () => {
 
   // 请求锁，用于防止并发请求
   let requestPromise = null;
-  
+
   // 获取所有枚举值 - 从attributes表获取数据
   const fetchAllEnums = async (forceRefresh = false) => {
     // 使用缓存和标志防止重复调用
@@ -101,7 +104,7 @@ export const useEnumsStore = defineStore('enums', () => {
     if (requestPromise) {
       return requestPromise;
     }
-    
+
     loading.value = true;
     error.value = null;
 
@@ -120,7 +123,7 @@ export const useEnumsStore = defineStore('enums', () => {
       colors.value = Array.isArray(data.colors) ? data.colors : [];
       sizes.value = Array.isArray(data.sizes) ? data.sizes : [];
       conditions.value = Array.isArray(data.conditions) ? data.conditions : [];
-      
+
       // 记录枚举数据详情
       console.log('分类数据:', categories.value);
       console.log('颜色数据:', colors.value);
@@ -135,7 +138,7 @@ export const useEnumsStore = defineStore('enums', () => {
         materials: materials.value,
         colors: colors.value,
         sizes: sizes.value,
-        conditions: conditions.value
+        conditions: conditions.value,
       });
       console.log('枚举数据缓存完成');
 
@@ -144,17 +147,17 @@ export const useEnumsStore = defineStore('enums', () => {
       console.error('获取枚举值失败:', err);
       error.value = err.response?.data?.message || '获取枚举值失败';
     } finally {
-        loading.value = false;
-        // 清除请求锁，允许后续请求
-        requestPromise = null;
-      }
+      loading.value = false;
+      // 清除请求锁，允许后续请求
+      requestPromise = null;
+    }
   };
 
   // 获取单个枚举值 - 从attributes表获取特定类型的枚举
   const fetchEnum = async type => {
     try {
       const data = await enumsApi.getEnumsByType(type);
-      
+
       switch (type) {
         case 'categories':
           categories.value = data;
@@ -203,7 +206,7 @@ export const useEnumsStore = defineStore('enums', () => {
 
     const items = enumMap[type];
     if (!items) return value;
-    
+
     // 优先查找id匹配，然后查找value匹配
     const item = items.find(item => item.id === value || item.value === value);
     return item?.label || item?.name || value;

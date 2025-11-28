@@ -6,7 +6,7 @@ const enumsApi = {
   getAllEnums: async () => {
     return apiClient.get(API_ENDPOINTS.enums.getAllEnums);
   },
-  getEnumsByType: async (type) => {
+  getEnumsByType: async type => {
     return apiClient.get(API_ENDPOINTS.enums.getEnumsByType(type));
   },
 };

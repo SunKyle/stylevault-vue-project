@@ -333,7 +333,7 @@
 
 <script setup>
   import { ref, computed } from 'vue';
-  import BaseButton from '@/components/ui/BaseButton.vue';
+  import BaseButton from '../ui/atoms/BaseButton.vue';
 
   // 定义props，以便父组件传递数据和方法
   defineProps({

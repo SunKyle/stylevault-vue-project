@@ -6,7 +6,7 @@ export function calculateClothingStats(clothingItems) {
     total: clothingItems.length,
     categories: [...new Set(clothingItems.map(item => item.category))].length,
     totalValue: clothingItems.reduce((sum, item) => sum + (item.price || 0), 0),
-    averagePrice: clothingItems.length 
+    averagePrice: clothingItems.length
       ? clothingItems.reduce((sum, item) => sum + (item.price || 0), 0) / clothingItems.length
       : 0,
   };

@@ -27,7 +27,7 @@
 
 <script setup>
   import { ref, computed } from 'vue';
-  import OutfitCard from '../ui/OutfitCard.vue';
+  import OutfitCard from '../ui/molecules/OutfitCard.vue';
 
   const props = defineProps({
     outfits: {

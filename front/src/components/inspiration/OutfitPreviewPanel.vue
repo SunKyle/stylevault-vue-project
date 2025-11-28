@@ -172,26 +172,41 @@
             </button>
           </div>
           <!-- 预览画布 -->
-          <div class="relative w-full aspect-[4/3] bg-gray-50 rounded-lg overflow-hidden shadow-sm border border-gray-200 mb-6">
+          <div
+            class="relative w-full aspect-[4/3] bg-gray-50 rounded-lg overflow-hidden shadow-sm border border-gray-200 mb-6"
+          >
             <!-- 顶部天气提示 -->
-            <div class="absolute top-3 left-3 bg-white/90 backdrop-blur-sm px-3 py-1.5 rounded-full text-xs text-gray-700 shadow-sm flex items-center">
-              <font-awesome-icon :icon="['fas', 'cloud-sun']" class="text-yellow-500 mr-1.5 text-xs" />
+            <div
+              class="absolute top-3 left-3 bg-white/90 backdrop-blur-sm px-3 py-1.5 rounded-full text-xs text-gray-700 shadow-sm flex items-center"
+            >
+              <font-awesome-icon
+                :icon="['fas', 'cloud-sun']"
+                class="text-yellow-500 mr-1.5 text-xs"
+              />
               今日天气：{{ weatherInfo?.description }}
             </div>
             <!-- 人体模型 -->
             <div class="absolute inset-0 flex items-center justify-center">
               <div class="relative w-24 h-36">
                 <!-- 衣物预览位置 -->
-                <div class="absolute top-1/4 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-32 h-24">
+                <div
+                  class="absolute top-1/4 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-32 h-24"
+                >
                   <!-- 上衣预览占位 -->
-                  <div class="w-full h-full flex items-center justify-center bg-gray-100 rounded-lg">
+                  <div
+                    class="w-full h-full flex items-center justify-center bg-gray-100 rounded-lg"
+                  >
                     <font-awesome-icon :icon="['fas', 'tshirt']" class="text-primary text-3xl" />
                   </div>
                 </div>
                 <!-- 裤子预览位置 -->
-                <div class="absolute top-2/3 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-24 h-16">
+                <div
+                  class="absolute top-2/3 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-24 h-16"
+                >
                   <!-- 裤子预览占位 -->
-                  <div class="w-full h-full flex items-center justify-center bg-gray-100 rounded-lg">
+                  <div
+                    class="w-full h-full flex items-center justify-center bg-gray-100 rounded-lg"
+                  >
                     <font-awesome-icon :icon="['fas', 'pants']" class="text-primary text-3xl" />
                   </div>
                 </div>
@@ -222,7 +237,9 @@
                     class="w-full px-4 py-3 border border-indigo-200 rounded-xl focus:ring-2 focus:ring-indigo-300/50 focus:border-indigo-400 text-sm bg-white/80 backdrop-blur-sm shadow-sm transition-all duration-300 hover:shadow-md"
                     placeholder="为你的搭配起个名字"
                   />
-                  <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
+                  <div
+                    class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none"
+                  >
                     <font-awesome-icon :icon="['fas', 'pen']" class="text-indigo-400 text-xs" />
                   </div>
                 </div>
@@ -258,7 +275,9 @@
                     @click="toggleSeason(season.id)"
                     class="py-2 px-3 rounded-lg text-sm font-medium transition-all duration-300 flex items-center justify-center"
                     :class="
-                      outfitSeason && Array.isArray(outfitSeason) && outfitSeason.includes(season.id)
+                      outfitSeason &&
+                      Array.isArray(outfitSeason) &&
+                      outfitSeason.includes(season.id)
                         ? 'bg-indigo-500 text-white shadow-md'
                         : 'bg-indigo-50 text-indigo-700 hover:bg-indigo-100 border border-indigo-100'
                     "

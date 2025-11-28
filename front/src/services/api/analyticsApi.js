@@ -1,18 +1,18 @@
 import apiClient from '../core/axiosConfig';
 import { API_ENDPOINTS } from '../core/apiEndpoints';
-import { 
-  calculateClothingStats, 
-  calculateCategoryDistribution, 
+import {
+  calculateClothingStats,
+  calculateCategoryDistribution,
   calculateUsageFrequency,
   calculateSeasonalAnalysis,
   calculateOutfitStats,
-  calculateCostAnalysis
+  calculateCostAnalysis,
 } from '../utils/localCalculations';
 
 // Analytics API
 const analyticsApi = {
   // 获取衣物统计
-  getClothingStats: async (clothingItems) => {
+  getClothingStats: async clothingItems => {
     try {
       return await apiClient.post(API_ENDPOINTS.analytics.clothingStats, { clothingItems });
     } catch (error) {
@@ -20,9 +20,9 @@ const analyticsApi = {
       return calculateClothingStats(clothingItems);
     }
   },
-  
+
   // 获取分类分布
-  getCategoryDistribution: async (clothingItems) => {
+  getCategoryDistribution: async clothingItems => {
     try {
       return await apiClient.post(API_ENDPOINTS.analytics.categoryDistribution, { clothingItems });
     } catch (error) {
@@ -30,36 +30,36 @@ const analyticsApi = {
       return calculateCategoryDistribution(clothingItems);
     }
   },
-  
+
   // 获取使用频率
-  getUsageFrequency: async (clothingItems) => {
+  getUsageFrequency: async clothingItems => {
     try {
       return await apiClient.post(API_ENDPOINTS.analytics.usageFrequency, { clothingItems });
     } catch (error) {
       return calculateUsageFrequency(clothingItems);
     }
   },
-  
+
   // 获取季节分析
-  getSeasonalAnalysis: async (clothingItems) => {
+  getSeasonalAnalysis: async clothingItems => {
     try {
       return await apiClient.post(API_ENDPOINTS.analytics.seasonalAnalysis, { clothingItems });
     } catch (error) {
       return calculateSeasonalAnalysis(clothingItems);
     }
   },
-  
+
   // 获取搭配统计
-  getOutfitStats: async (outfits) => {
+  getOutfitStats: async outfits => {
     try {
       return await apiClient.post(API_ENDPOINTS.analytics.outfitStats, { outfits });
     } catch (error) {
       return calculateOutfitStats(outfits);
     }
   },
-  
+
   // 获取成本分析
-  getCostAnalysis: async (clothingItems) => {
+  getCostAnalysis: async clothingItems => {
     try {
       return await apiClient.post(API_ENDPOINTS.analytics.costAnalysis, { clothingItems });
     } catch (error) {

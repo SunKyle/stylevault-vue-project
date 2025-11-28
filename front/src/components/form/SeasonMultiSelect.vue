@@ -11,10 +11,12 @@
             // 选中状态使用主题色
             'bg-primary text-white border-primary shadow-md': isSelected(option.value),
             // 默认状态
-            'bg-white text-neutral-700 border-neutral-200 hover:border-primary': !isSelected(option.value)
+            'bg-white text-neutral-700 border-neutral-200 hover:border-primary': !isSelected(
+              option.value
+            ),
           },
           // 为不同季节添加特有的微妙背景色
-          getSeasonBackgroundClass(option.value)
+          getSeasonBackgroundClass(option.value),
         ]"
       >
         {{ option.label }}
@@ -63,7 +65,7 @@
       winter: 'hover:bg-blue-50',
       // 其他季节可以根据需要添加
     };
-    
+
     return seasonColors[season.toLowerCase()] || '';
   };
 </script>

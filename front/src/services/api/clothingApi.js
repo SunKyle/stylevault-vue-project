@@ -10,24 +10,24 @@ clothingApi.getCategories = async () => {
   return apiClient.get(API_ENDPOINTS.clothing.getCategories);
 };
 
-clothingApi.getByCategory = async (categoryId) => {
+clothingApi.getByCategory = async categoryId => {
   return apiClient.get(API_ENDPOINTS.clothing.getByCategory(categoryId));
 };
 
-clothingApi.search = async (keyword) => {
+clothingApi.search = async keyword => {
   return apiClient.get(API_ENDPOINTS.clothing.search, { params: { q: keyword } });
 };
 
-clothingApi.getFavorites = async (userId) => {
+clothingApi.getFavorites = async userId => {
   return apiClient.get(API_ENDPOINTS.clothing.favorite, { params: { userId } });
 };
 
-clothingApi.toggleFavorite = async (id) => {
+clothingApi.toggleFavorite = async id => {
   return apiClient.post(`/clothing/${id}/favorite`);
 };
 
 // 批量更新
-clothingApi.batchUpdate = async (items) => {
+clothingApi.batchUpdate = async items => {
   return apiClient.patch(API_ENDPOINTS.clothing.batchUpdate, { items });
 };
 

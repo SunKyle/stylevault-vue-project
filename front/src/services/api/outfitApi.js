@@ -14,11 +14,11 @@ outfitApi.getOutfitsByTag = async (tag, params = {}) => {
   return apiClient.get(API_ENDPOINTS.outfit.getByTag(tag), { params });
 };
 
-outfitApi.getOutfitDetail = async (id) => {
+outfitApi.getOutfitDetail = async id => {
   return apiClient.get(API_ENDPOINTS.outfit.getItemById(id));
 };
 
-outfitApi.addOutfit = async (outfit) => {
+outfitApi.addOutfit = async outfit => {
   return apiClient.post(API_ENDPOINTS.outfit.createItem, outfit);
 };
 
@@ -26,11 +26,11 @@ outfitApi.updateOutfit = async (id, updates) => {
   return apiClient.put(API_ENDPOINTS.outfit.updateItem(id), updates);
 };
 
-outfitApi.deleteOutfit = async (id) => {
+outfitApi.deleteOutfit = async id => {
   return apiClient.delete(API_ENDPOINTS.outfit.deleteItem(id));
 };
 
-outfitApi.toggleLike = async (id) => {
+outfitApi.toggleLike = async id => {
   return apiClient.patch(API_ENDPOINTS.outfit.toggleLike(id));
 };
 

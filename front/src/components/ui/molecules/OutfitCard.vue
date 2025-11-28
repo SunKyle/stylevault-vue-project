@@ -44,7 +44,10 @@
                 <div
                   class="w-4 h-4 rounded-full bg-gradient-to-r from-indigo-500/20 to-purple-500/20 flex items-center justify-center mr-1.5"
                 >
-                  <font-awesome-icon :icon="['fas', 'map-marker-alt']" class="text-indigo-600 text-xs" />
+                  <font-awesome-icon
+                    :icon="['fas', 'map-marker-alt']"
+                    class="text-indigo-600 text-xs"
+                  />
                 </div>
                 <span class="text-xs text-indigo-700 font-medium">场景:</span>
                 <div class="flex flex-wrap gap-1 ml-1">
@@ -263,7 +266,10 @@
                   <div
                     class="w-5 h-5 rounded-full bg-gradient-to-r from-indigo-500/10 to-purple-500/10 flex items-center justify-center mr-2 shadow-sm"
                   >
-                    <font-awesome-icon :icon="['fas', 'map-marker-alt']" class="text-indigo-600 text-xs" />
+                    <font-awesome-icon
+                      :icon="['fas', 'map-marker-alt']"
+                      class="text-indigo-600 text-xs"
+                    />
                   </div>
                   适用场景
                 </label>

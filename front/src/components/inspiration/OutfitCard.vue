@@ -230,7 +230,10 @@
                   <div
                     class="w-5 h-5 rounded-full bg-gradient-to-r from-indigo-500/10 to-purple-500/10 flex items-center justify-center mr-2 shadow-sm"
                   >
-                    <font-awesome-icon :icon="['fas', 'map-marker-alt']" class="text-indigo-600 text-xs" />
+                    <font-awesome-icon
+                      :icon="['fas', 'map-marker-alt']"
+                      class="text-indigo-600 text-xs"
+                    />
                   </div>
                   <span class="line-clamp-1">
                     {{ outfit.scene || '未设置场景' }}
@@ -239,11 +242,16 @@
               </div>
               <!-- 衣物数量信息 -->
               <div class="flex items-center space-x-1 mt-2">
-                <div class="flex items-center text-xs text-indigo-700 bg-indigo-50 px-2 py-1 rounded-full">
+                <div
+                  class="flex items-center text-xs text-indigo-700 bg-indigo-50 px-2 py-1 rounded-full"
+                >
                   <div
                     class="w-4 h-4 rounded-full bg-indigo-500/10 flex items-center justify-center mr-1.5 shadow-sm"
                   >
-                    <font-awesome-icon :icon="['fas', 'layer-group']" class="text-indigo-600 text-xs" />
+                    <font-awesome-icon
+                      :icon="['fas', 'layer-group']"
+                      class="text-indigo-600 text-xs"
+                    />
                   </div>
                   <span>{{ outfit.clothingItems?.length || 0 }} 件衣物</span>
                 </div>
@@ -269,8 +277,7 @@
     },
   });
 
-  // 事件定义
-  const emit = defineEmits(['load-outfit', 'delete-outfit', 'edit-outfit']);
+
 
   // 状态管理
   // const expanded = ref(false); // 暂时未使用，因为toggleExpand函数已注释
@@ -297,21 +304,12 @@
     const item = options.find(opt => opt.id === value);
     return item ? item.name : value;
   };
-  
+
   const getSceneLabel = value => getLabel(sceneOptions.value, value);
   const getSeasonLabel = value => getLabel(seasonOptions.value, value);
   const getStyleLabel = value => getLabel(styleOptions.value, value);
 
-  // 通用数组切换函数
-  const toggleArrayItem = (array, value) => {
-    const index = array.indexOf(value);
-    index > -1 ? array.splice(index, 1) : array.push(value);
-  };
 
-  // 统一的选择函数
-  const selectScene = value => toggleArrayItem(editOutfit.scenes, value);
-  const selectSeason = value => toggleArrayItem(editOutfit.seasons, value);
-  const selectStyle = value => toggleArrayItem(editOutfit.styles, value);
   const hoveredIndex = ref(-1);
 
   // 切换展开状态 - 暂时未使用
@@ -388,16 +386,7 @@
       }
     },
 
-    saveEdit: () => {
-      emit('edit-outfit', {
-        id: editOutfit.id,
-        name: editOutfit.name,
-        scene: editOutfit.scenes.length > 0 ? editOutfit.scenes.join(',') : '',
-        season: editOutfit.seasons.length > 0 ? editOutfit.seasons[0] : '',
-        style: editOutfit.styles.length > 0 ? editOutfit.styles[0] : '',
-      });
-      isEditing.value = false;
-    },
+
 
     cancelEdit: () => {
       isEditing.value = false;
@@ -406,7 +395,7 @@
 
   // 保持向后兼容
   const toggleEditMode = editMethods.toggleEditMode;
-  const saveEdit = editMethods.saveEdit;
+
   const cancelEdit = editMethods.cancelEdit;
 </script>
 

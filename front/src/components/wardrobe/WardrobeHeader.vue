@@ -50,20 +50,19 @@
   </div>
 </template>
 
-<script>
-  import SearchBar from '../ui/SearchBar.vue';
+<script setup>
+  import SearchBar from '../ui/atoms/SearchBar.vue';
 
-  export default {
+  defineOptions({
     name: 'WardrobeHeader',
-    components: {
-      SearchBar,
+  });
+
+  defineProps({
+    handleSearch: {
+      type: Function,
+      required: true,
     },
-    props: {
-      handleSearch: {
-        type: Function,
-        required: true,
-      },
-    },
-    emits: ['showUpload', 'viewAll'],
-  };
+  });
+
+  defineEmits(['showUpload', 'viewAll']);
 </script>

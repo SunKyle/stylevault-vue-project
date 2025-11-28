@@ -33,7 +33,7 @@ apiClient.interceptors.response.use(
   error => {
     // 统一处理错误
     let errorMessage = '请求失败';
-    
+
     if (error.response) {
       switch (error.response.status) {
         case 401:
@@ -53,11 +53,11 @@ apiClient.interceptors.response.use(
     } else {
       errorMessage = '网络错误，请检查您的网络连接';
     }
-    
+
     console.error(errorMessage, error);
     // 可以在这里添加统一的错误提示逻辑
     // showToast(errorMessage, 'error');
-    
+
     return Promise.reject(error);
   }
 );

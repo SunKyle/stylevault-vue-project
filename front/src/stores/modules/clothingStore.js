@@ -27,7 +27,7 @@ const setCachedData = (key, data) => {
 // 防抖工具
 const debounce = (func, delay) => {
   let timeoutId;
-  return function(...args) {
+  return function (...args) {
     const context = this;
     clearTimeout(timeoutId);
     return new Promise(resolve => {
@@ -58,7 +58,7 @@ export const useClothingStore = defineStore('clothing', {
       itemsPerPage: 50,
       totalItems: 0,
     },
-    
+
     // 请求锁（用于防止并发请求）
     _fetchClothingItemsPromise: null,
   }),
@@ -84,7 +84,7 @@ export const useClothingStore = defineStore('clothing', {
     itemsByCategory: state => {
       const result = {};
       const items = Array.isArray(state.clothingItems) ? state.clothingItems : [];
-      
+
       // 直接从items中按category字段分组（根据数据库设计，clothing表使用category字段关联attributes表）
       items.forEach(item => {
         if (item && item.category != null) {
@@ -94,7 +94,7 @@ export const useClothingStore = defineStore('clothing', {
           result[item.category].push(item);
         }
       });
-      
+
       return result;
     },
 
@@ -187,7 +187,7 @@ export const useClothingStore = defineStore('clothing', {
       try {
         // 直接调用API客户端
         const response = await clothingApi.getCategories();
-        
+
         // 确保获取到的数据是数组格式
         let categoriesData = [];
         if (Array.isArray(response.data)) {
@@ -197,16 +197,20 @@ export const useClothingStore = defineStore('clothing', {
         } else if (response && response.length === undefined) {
           categoriesData = [response];
         }
-        
+
         this.categories = categoriesData.map(category => ({
           id: category.id,
           name: category.name || category.display_name || '未命名类别',
           icon: category.icon || 'shirt',
-          enabled: category.enabled !== undefined ? category.enabled : 
-                  (category.is_active !== undefined ? category.is_active : true),
-          ...category
+          enabled:
+            category.enabled !== undefined
+              ? category.enabled
+              : category.is_active !== undefined
+                ? category.is_active
+                : true,
+          ...category,
         }));
-        
+
         setCachedData(cacheKey, this.categories);
         return this.categories;
       } catch (error) {
@@ -241,7 +245,7 @@ export const useClothingStore = defineStore('clothing', {
         // 直接调用API
         this._fetchClothingItemsPromise = clothingApi.getAll();
         const response = await this._fetchClothingItemsPromise;
-        
+
         const items = response.items || response.data?.items || response.data || [];
         this.clothingItems = Array.isArray(items) ? items : [];
         this.pagination.totalItems = response.pagination?.totalItems || this.clothingItems.length;
@@ -511,7 +515,7 @@ export const useClothingStore = defineStore('clothing', {
 
       try {
         const updatedItem = await clothingApi.toggleFavorite(id);
-        
+
         this.clothingItems[index] = updatedItem;
         setCachedData('clothingItems', this.clothingItems);
         showToast(currentItem.favorite ? '已取消收藏' : '收藏成功', 'success');

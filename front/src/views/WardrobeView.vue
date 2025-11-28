@@ -159,7 +159,7 @@
 <script setup>
   import { ref, computed, onMounted, nextTick, onUnmounted } from 'vue';
   import ClothingCategory from '../components/ui/ClothingCategory.vue';
-  import ClothingItem from '../components/ui/ClothingItem.vue';
+  import ClothingItem from '../components/ui/molecules/ClothingItem.vue';
   import FavoriteSection from '../components/wardrobe/FavoriteSection.vue';
   import FeaturedOutfits from '../components/wardrobe/FeaturedOutfits.vue';
   import WardrobeHeader from '../components/wardrobe/WardrobeHeader.vue';
@@ -192,16 +192,16 @@
   const categories = computed(() => {
     // 确保从store获取的数据是数组格式
     const storeCategories = Array.isArray(clothingStore.categories) ? clothingStore.categories : [];
-    
+
     // 如果store中的categories不为空，直接返回
     if (storeCategories.length > 0) {
       return storeCategories;
     }
-    
+
     // 从衣物数据中提取唯一的分类ID和名称（如果有）
     const clothingItemsList = clothingItems.value || [];
     const uniqueCategories = new Map();
-    
+
     clothingItemsList.forEach(item => {
       if (item && item.category != null) {
         // 这里可以根据需要扩展，比如从item中获取更多分类信息
@@ -210,15 +210,15 @@
             id: item.category,
             name: `分类 ${item.category}`,
             icon: 'shirt',
-            enabled: true
+            enabled: true,
           });
         }
       }
     });
-    
+
     return Array.from(uniqueCategories.values());
   });
-  
+
   const selectedCategory = computed(() => clothingStore.selectedCategory);
   const loading = computed(() => clothingStore.loading);
   const error = computed(() => clothingStore.error);
@@ -228,7 +228,7 @@
   const itemsByCategory = computed(() => {
     const result = {};
     const items = clothingItems.value || [];
-    
+
     // 从items中按category字段分组（根据数据库设计）
     items.forEach(item => {
       if (item && item.category != null) {
@@ -238,7 +238,7 @@
         result[item.category].push(item);
       }
     });
-    
+
     return result;
   });
 
@@ -256,13 +256,13 @@
   //   }
   // };
 
-    // 获取指定分类的衣物数量
-  const getCategoryItemCount = (categoryId) => {
+  // 获取指定分类的衣物数量
+  const getCategoryItemCount = categoryId => {
     // 确保传入的参数是有效的
     if (categoryId === undefined || categoryId === null) {
       return 0;
     }
-    
+
     // 在搜索模式下
     if (isSearchMode.value) {
       const results = searchResults.value || [];
@@ -273,7 +273,7 @@
         return results.filter(item => item && item.category === categoryId).length;
       }
     }
-    
+
     // 非搜索模式下
     if (categoryId === 'all') {
       return clothingItems.value ? clothingItems.value.length : 0;
@@ -284,7 +284,6 @@
         : 0;
     }
   };
-
 
   function getSelectedCategoryName() {
     if (isSearchMode.value) return `搜索结果: "${currentSearchKeyword.value}"`;
@@ -448,10 +447,7 @@
       // 先获取枚举数据，确保其他数据获取前枚举映射已就绪
       await enumsStore.fetchAllEnums();
       // 再获取分类和衣物数据
-      await Promise.all([
-        clothingStore.fetchCategories(),
-        clothingStore.fetchClothingItems()
-      ]);
+      await Promise.all([clothingStore.fetchCategories(), clothingStore.fetchClothingItems()]);
       console.log('衣物数据加载完成:', clothingStore.clothingItems);
       console.log('分类数据加载完成:', clothingStore.categories);
     } catch (error) {

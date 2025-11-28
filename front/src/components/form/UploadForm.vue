@@ -194,7 +194,7 @@
               </option>
             </select>
           </div>
-          
+
           <div>
             <label class="block text-sm font-medium text-neutral-700 mb-2">新旧程度</label>
             <select
@@ -202,7 +202,11 @@
               class="w-full px-4 py-3 rounded-xl border border-neutral-200 focus:border-primary focus:ring-2 focus:ring-primary/20 focus:outline-none transition-all appearance-none bg-white"
             >
               <option value="">请选择新旧程度</option>
-              <option v-for="condition in conditionOptions" :key="condition.value" :value="condition.value">
+              <option
+                v-for="condition in conditionOptions"
+                :key="condition.value"
+                :value="condition.value"
+              >
                 {{ condition.label }}
               </option>
             </select>
@@ -287,13 +291,10 @@
 
 <script setup>
   import { reactive, ref, computed, nextTick, onMounted } from 'vue';
-  import { useRouter } from 'vue-router'; // 添加router导入
   import { useClothingStore } from '@/stores';
   import { useEnumsStore } from '@/stores/enums';
   import { showToast } from '../../utils/toast';
-  import SeasonMultiSelect from '@/components/SeasonMultiSelect.vue';
-
-  // const router = useRouter(); // 暂时未使用
+  import SeasonMultiSelect from './SeasonMultiSelect.vue';
   const clothingStore = useClothingStore();
   const enumsStore = useEnumsStore();
 
