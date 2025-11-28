@@ -50,7 +50,7 @@
         class="clothes-item absolute md:static w-24 h-24 md:w-28 md:h-28 rounded-lg overflow-hidden border-2 border-white transform rotate-6 translate-x-6 z-10"
       >
         <img
-          src="/src/assets/images/clothing/shirt.jpg"
+          src="https://picsum.photos/id/64/300/300"
           alt="时尚上衣展示"
           class="w-full h-full object-cover"
         />
@@ -59,7 +59,7 @@
         class="clothes-item w-28 h-28 md:w-32 md:h-32 rounded-lg overflow-hidden border-2 border-white transform -rotate-3 z-20"
       >
         <img
-          src="/src/assets/images/clothing/pants.jpg"
+          src="https://picsum.photos/id/65/300/300"
           alt="时尚裤子展示"
           class="w-full h-full object-cover"
         />
@@ -68,7 +68,7 @@
         class="clothes-item absolute md:static w-24 h-24 md:w-28 md:h-28 rounded-lg overflow-hidden border-2 border-white transform rotate-2 -translate-x-6 z-10"
       >
         <img
-          src="/src/assets/images/clothing/accessories.jpg"
+          src="https://picsum.photos/id/66/300/300"
           alt="时尚配饰展示"
           class="w-full h-full object-cover"
         />

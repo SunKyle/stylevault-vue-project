@@ -186,7 +186,10 @@
 
     // 延迟移除拖拽图像
     setTimeout(() => {
-      document.body.removeChild(dragIcon);
+      // 检查拖拽图像元素是否仍然存在于DOM中，避免parentNode为null错误
+      if (dragIcon.parentNode === document.body) {
+        document.body.removeChild(dragIcon);
+      }
     }, 0);
   }
 

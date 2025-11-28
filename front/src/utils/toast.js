@@ -37,7 +37,10 @@ export const showToast = (message, type = 'info') => {
   setTimeout(() => {
     toast.classList.add('opacity-0');
     setTimeout(() => {
-      document.body.removeChild(toast);
+      // 检查toast元素是否仍然存在于DOM中，避免parentNode为null错误
+      if (toast.parentNode === document.body) {
+        document.body.removeChild(toast);
+      }
     }, 300);
   }, 3000);
 };

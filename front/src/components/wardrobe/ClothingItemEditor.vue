@@ -537,6 +537,9 @@
       const enumsStore = useEnumsStore();
       const fileInput = ref(null);
 
+      // 分类数据
+      const categories = computed(() => enumsStore.categoryLabels || []);
+
       // 在组件挂载时获取枚举数据
       onMounted(async () => {
         try {
@@ -568,9 +571,6 @@
         image: '',
         notes: '',
       });
-
-      // 分类数据
-      const categories = computed(() => enumsStore.categoryLabels || []);
 
       // 表单验证
       const isFormValid = computed(() => {

@@ -9,10 +9,8 @@ module.exports = {
     'prettier'
   ],
   parserOptions: {
-    parser: '@babel/eslint-parser',
     ecmaVersion: 2020,
     sourceType: 'module',
-    requireConfigFile: false,
   },
   globals: {
     defineProps: 'readonly',
