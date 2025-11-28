@@ -15,7 +15,7 @@ clothingApi.getByCategory = async (categoryId) => {
 };
 
 clothingApi.search = async (keyword) => {
-  return apiClient.get(API_ENDPOINTS.clothing.search, { params: { keyword } });
+  return apiClient.get(API_ENDPOINTS.clothing.search, { params: { q: keyword } });
 };
 
 clothingApi.getFavorites = async (userId) => {

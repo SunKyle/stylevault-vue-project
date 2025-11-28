@@ -22,9 +22,9 @@ router.use(authMiddleware);
 // ===== 衣物管理路由 =====
 // 查询路由
 router.get('/clothing', validatePagination, clothingController.getClothingItems);
-router.get('/clothing/:id', validateIdParam, clothingController.getClothingItemDetail);
-router.get('/clothing/category/:categoryId', validateIdParam, validatePagination, clothingController.getClothingItemsByCategory);
 router.get('/clothing/search', validatePagination, clothingController.searchClothingItems);
+router.get('/clothing/category/:categoryId', validateIdParam, validatePagination, clothingController.getClothingItemsByCategory);
+router.get('/clothing/:id', validateIdParam, clothingController.getClothingItemDetail);
 router.get('/users/:userId/clothing', validateIdParam, validatePagination, clothingController.getUserClothingItems);
 
 // CRUD操作

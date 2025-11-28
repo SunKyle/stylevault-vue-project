@@ -27,10 +27,11 @@ const setCachedData = (key, data) => {
 // 防抖工具
 const debounce = (func, delay) => {
   let timeoutId;
-  return (...args) => {
+  return function(...args) {
+    const context = this;
     clearTimeout(timeoutId);
     return new Promise(resolve => {
-      timeoutId = setTimeout(() => resolve(func.apply(this, args)), delay);
+      timeoutId = setTimeout(() => resolve(func.apply(context, args)), delay);
     });
   };
 };
