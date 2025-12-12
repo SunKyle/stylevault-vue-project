@@ -406,6 +406,7 @@
     window.location.href = '/';
   };
 
+  // 保存衣物处理函数
   const saveClothes = async () => {
     if (isSaving.value) {
       return;
