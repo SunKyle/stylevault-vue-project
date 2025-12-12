@@ -494,3 +494,18 @@ watch(() => form.value.category, () => {
 // 初始化分类名称
 updateCategoryName();
 </script>
+
+<style scoped>
+  /* 确保隐藏浏览器默认的下拉箭头 */
+  select {
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+    background-image: none;
+  }
+
+  /* 针对特定浏览器的兼容性修复 */
+  select::-ms-expand {
+    display: none;
+  }
+</style>

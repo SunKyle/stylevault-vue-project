@@ -2,14 +2,14 @@
   <!-- 衣物编辑模态框组件 -->
   <!-- 用于创建和编辑衣物信息的弹出式表单，支持查看详情模式 -->
   <!-- 包含图片上传、基本信息填写、季节选择和收藏功能 -->
-  <transition name="fade">
+  <transition name="modal">
     <div
       v-if="isOpen"
       class="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4"
       @click="closeOnBackdrop"
     >
       <div
-        class="bg-white rounded-2xl shadow-2xl max-w-md w-full max-h-[90vh] overflow-hidden flex flex-col"
+        class="bg-white rounded-2xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-hidden flex flex-col"
         @click.stop
       >
         <!-- 头部 -->
@@ -71,34 +71,47 @@
         </div>
 
         <!-- 表单内容 -->
-        <div class="flex-1 overflow-y-auto p-6 bg-gradient-to-b from-white to-gray-50">
+        <div class="flex-1 overflow-y-auto p-6 bg-white">
           <!-- 图片上传区域 -->
-          <ImageUpload 
-            v-model:image="form.image" 
-            :read-only="readOnly"
-            @update:image="updateImage"
-          />
+          <div class="mb-6">
+            <ImageUpload 
+              v-model:image="form.image" 
+              :read-only="readOnly"
+              @update:image="updateImage"
+            />
+          </div>
 
           <!-- 基本信息 -->
-          <BasicInfoForm 
-            v-model="form" 
-            :read-only="readOnly"
-            :categories="categories"
-          />
+          <div class="mb-6">
+            <BasicInfoForm 
+              v-model="form" 
+              :read-only="readOnly"
+              :categories="categories"
+            />
+          </div>
 
           <!-- 季节选择 -->
-          <SeasonSelector 
-            v-model:seasons="form.seasons" 
-            :read-only="readOnly"
-            @update:seasons="updateSeasons"
-          />
+          <div class="mb-6">
+            <SeasonSelector 
+              v-model:seasons="form.seasons" 
+              :read-only="readOnly"
+              @update:seasons="updateSeasons"
+            />
+          </div>
 
           <!-- 收藏 -->
-          <FavoriteToggle 
-            v-model:favorite="form.favorite" 
-            :read-only="readOnly"
-            @update:favorite="updateFavorite"
-          />
+          <div class="mb-8">
+            <FavoriteToggle 
+              v-model:favorite="form.favorite" 
+              :read-only="readOnly"
+              @update:favorite="updateFavorite"
+            />
+          </div>
+
+          <!-- 错误提示 -->
+          <div v-if="!isFormValid && formSubmitted" class="mt-4 p-3 bg-red-50 border border-red-200 rounded-lg text-red-600 text-sm">
+            <font-awesome-icon :icon="['fas', 'exclamation-circle']" class="mr-2" />请填写必填项：衣物名称和分类
+          </div>
 
           <!-- 操作按钮 -->
           <div
@@ -141,7 +154,7 @@
    * @emits {void} close - 关闭模态框时触发
    * @emits {void} saved - 保存衣物信息成功时触发
    */
-  import { ref, computed, watch, onMounted } from 'vue';
+  import { ref, computed, watch, onMounted, onUnmounted } from 'vue';
   import { useClothingStore } from '@/stores';
   import { useEnumsStore } from '@/stores';
   import { showToast } from '../../utils/toast';
@@ -173,8 +186,9 @@
   // 分类数据
   const categories = computed(() => enumsStore.categoryLabels || []);
 
-  // 在组件挂载时获取枚举数据
+  // 在组件挂载时获取枚举数据并添加键盘事件监听器
   onMounted(async () => {
+    // 获取枚举数据
     try {
       console.log('组件挂载，开始获取枚举数据...');
       await enumsStore.fetchAllEnums();
@@ -182,6 +196,9 @@
     } catch (error) {
       console.error('获取枚举数据失败:', error);
     }
+    
+    // 添加键盘事件监听器
+    window.addEventListener('keydown', handleKeyDown);
   });
 
   // 监听分类数据变化
@@ -192,6 +209,9 @@
     },
     { deep: true }
   );
+
+  // 表单提交状态
+  const formSubmitted = ref(false);
 
   // 表单数据
   const form = ref({
@@ -333,6 +353,9 @@
 
   // 保存衣物前验证
   async function saveItem() {
+    // 设置表单提交状态为已提交
+    formSubmitted.value = true;
+    
     if (!isFormValid.value) {
       showToast('请填写必填项', 'error');
       return;
@@ -364,6 +387,9 @@
     }
 
     try {
+      // 重置表单提交状态
+      formSubmitted.value = false;
+      
       // 准备提交数据
       const submitData = {
         ...form.value,
@@ -418,7 +444,18 @@
     emit('close');
   }
 
+  // 键盘事件处理
+  function handleKeyDown(event) {
+    // ESC键关闭模态框
+    if (event.key === 'Escape') {
+      emit('close');
+    }
+  }
 
+  // 组件卸载时移除键盘事件监听器
+  onUnmounted(() => {
+    window.removeEventListener('keydown', handleKeyDown);
+  });
 
   // 更新分类名称
   function updateCategoryName() {
@@ -434,33 +471,51 @@
 </script>
 
 <style scoped>
-  .fade-enter-active,
-  .fade-leave-active {
+  .modal-enter-active,
+  .modal-leave-active {
     transition: opacity 0.3s ease;
   }
 
-  .fade-enter-from,
-  .fade-leave-to {
+  .modal-enter-from,
+  .modal-leave-to {
     opacity: 0;
   }
 
-  /* 自定义滚动条 */
+  /* 模态框内容动画 */
+  .modal-enter-active .bg-white,
+  .modal-leave-active .bg-white {
+    transition: transform 0.3s ease, opacity 0.3s ease;
+  }
+
+  .modal-enter-from .bg-white,
+  .modal-leave-to .bg-white {
+    transform: scale(0.95) translateY(-10px);
+    opacity: 0;
+  }
+
+  /* 自定义滚动条样式优化 */
   ::-webkit-scrollbar {
     width: 6px;
+    height: 6px;
   }
 
   ::-webkit-scrollbar-track {
-    background: #f1f1f1;
-    border-radius: 10px;
+    background: #f5f5f5;
+    border-radius: 3px;
   }
 
   ::-webkit-scrollbar-thumb {
     background: #c1c1c1;
-    border-radius: 10px;
+    border-radius: 3px;
+    transition: background-color 0.2s ease;
   }
 
   ::-webkit-scrollbar-thumb:hover {
     background: #a8a8a8;
+  }
+
+  ::-webkit-scrollbar-corner {
+    background: #f5f5f5;
   }
 
   /* 输入框聚焦效果 */
