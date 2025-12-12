@@ -118,6 +118,7 @@ export const useInspirationStore = defineStore('inspiration', () => {
     }
 
     const newOutfit = {
+      id: `outfit_${Date.now()}`, // 为新搭配生成唯一ID
       title: outfitInfo.name,
       description: outfitInfo.description || '',
       items: [...selectedClothes.value],
@@ -137,7 +138,7 @@ export const useInspirationStore = defineStore('inspiration', () => {
   };
 
   const deleteOutfit = async outfit => {
-    await outfitStore.removeOutfit(outfit.title);
+    await outfitStore.removeOutfit(outfit.id);
   };
 
   // 初始化

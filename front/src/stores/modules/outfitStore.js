@@ -104,14 +104,14 @@ export const useOutfitStore = defineStore('outfit', {
     },
 
     // 删除搭配
-    async removeOutfit(outfitTitle) {
+    async removeOutfit(outfitId) {
       this.setLoading(true);
       this.clearError();
 
       try {
-        const removedOutfit = await apiClient.outfitApi.deleteOutfit(outfitTitle);
+        const removedOutfit = await apiClient.outfitApi.deleteOutfit(outfitId);
         if (removedOutfit) {
-          this.outfits = this.outfits.filter(outfit => outfit.title !== outfitTitle);
+          this.outfits = this.outfits.filter(outfit => outfit.id !== outfitId);
           showToast('搭配删除成功', 'success');
         }
         return removedOutfit;
@@ -125,14 +125,14 @@ export const useOutfitStore = defineStore('outfit', {
     },
 
     // 切换搭配的喜欢状态
-    async toggleLike(outfitTitle) {
+    async toggleLike(outfitId) {
       this.setLoading(true);
       this.clearError();
 
       try {
-        const updatedOutfit = await apiClient.outfitApi.toggleLike(outfitTitle);
+        const updatedOutfit = await apiClient.outfitApi.toggleLike(outfitId);
         if (updatedOutfit) {
-          const index = this.outfits.findIndex(outfit => outfit.title === outfitTitle);
+          const index = this.outfits.findIndex(outfit => outfit.id === outfitId);
           if (index !== -1) {
             // 使用splice替换数组中的元素，确保Vue能够检测到变化
             this.outfits.splice(index, 1, updatedOutfit);

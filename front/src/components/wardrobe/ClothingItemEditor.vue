@@ -81,11 +81,9 @@
 
           <!-- 基本信息 -->
           <BasicInfoForm 
-            v-model:form="form" 
+            v-model="form" 
             :read-only="readOnly"
             :categories="categories"
-            @update:form="updateForm"
-            @update-category-name="updateCategoryName"
           />
 
           <!-- 季节选择 -->
@@ -200,6 +198,11 @@
     id: '',
     name: '',
     brand: '',
+    price: null,
+    purchaseDate: null,
+    size: '',
+    condition: '',
+    pattern: '',
     category: '', // 使用category字段（关联attributes表）
     categoryName: '',
     color: '',
@@ -240,6 +243,17 @@
       if (newItem) {
         // 深拷贝避免直接修改原始对象
         const itemCopy = { ...newItem };
+
+        // 确保所有字段都有正确的默认值
+    itemCopy.price = newItem.price ?? null;
+    itemCopy.purchaseDate = newItem.purchaseDate ?? null;
+    itemCopy.size = newItem.size ?? '';
+    itemCopy.condition = newItem.condition ?? '';
+    itemCopy.pattern = newItem.pattern ?? '';
+    itemCopy.color = newItem.color ?? '';
+    itemCopy.style = newItem.style ?? '';
+    itemCopy.material = newItem.material ?? '';
+    itemCopy.notes = newItem.notes ?? '';
 
         // 确保分类信息正确传递
         // 如果item中有categoryName但没有category，尝试匹配
@@ -289,7 +303,7 @@
         resetForm();
       }
     },
-    { immediate: true }
+    { immediate: true, deep: true }
   );
 
   // 重置表单
@@ -298,6 +312,11 @@
       id: '',
       name: '',
       brand: '',
+      price: null,
+      purchaseDate: null,
+      size: '',
+      condition: '',
+      pattern: '',
       category: '',
       categoryName: '',
       color: '',
@@ -404,9 +423,9 @@
   // 更新分类名称
   function updateCategoryName() {
     if (form.value.category) {
-      const selectedCategory = categories.value.find(c => c.value === form.value.category);
+      const selectedCategory = categories.value.find(c => c.id === form.value.category);
       if (selectedCategory) {
-        form.value.categoryName = selectedCategory.label;
+        form.value.categoryName = selectedCategory.name;
       }
     } else {
       form.value.categoryName = '';
@@ -518,12 +537,3 @@
   }
 </style>
 
-// 更新分类名称 function updateCategoryName() { if (form.value.categoryId) { const selectedCategory
-= categories.value.find(c => c.id === form.value.categoryId); if (selectedCategory) {
-form.value.categoryName = selectedCategory.name; } } else { form.value.categoryName = ''; } } //
-全选季节 const allSeasons = computed({ get() { if (!form.value.seasons ||
-!Array.isArray(form.value.seasons)) return false; return ( form.value.seasons.length === 4 &&
-form.value.seasons.includes('春季') && form.value.seasons.includes('夏季') &&
-form.value.seasons.includes('秋季') && form.value.seasons.includes('冬季') ); }, set(value) { if
-(value) { form.value.seasons = ['春季', '夏季', '秋季', '冬季']; } else { form.value.seasons = []; }
-}, });

@@ -433,10 +433,10 @@
   function handleDeleteOutfit(outfitId) {
     if (!savedOutfits.value || !Array.isArray(savedOutfits.value)) return;
 
-    // 找到搭配在数组中的索引
-    const index = savedOutfits.value.findIndex(outfit => outfit.id === outfitId);
-    if (index !== -1) {
-      emit('delete-outfit', index);
+    // 找到搭配对象
+    const outfit = savedOutfits.value.find(outfit => outfit.id === outfitId);
+    if (outfit) {
+      emit('delete-outfit', outfit);
     }
   }
 

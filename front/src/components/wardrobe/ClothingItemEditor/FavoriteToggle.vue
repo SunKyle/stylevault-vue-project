@@ -1,13 +1,14 @@
 <template>
   <div
-    class="flex items-center p-4 bg-gradient-to-r from-pink-50 to-purple-50 rounded-xl border border-pink-100"
+    class="mb-6 p-6 bg-neutral-50 rounded-xl border border-neutral-200 flex items-center"
   >
-    <input v-model="localFavorite" type="checkbox" id="favorite" class="sr-only" />
+    <input v-model="localFavorite" type="checkbox" id="favorite" class="sr-only" :disabled="readOnly" />
     <div
-      class="mr-2 w-5 h-5 flex items-center justify-center rounded border-2 border-gray-300 transition-colors duration-200"
+      class="mr-2 w-5 h-5 flex items-center justify-center rounded border-2 border-neutral-300 transition-colors duration-200"
       :class="{
         'bg-pink-500 border-pink-500': localFavorite,
-        'border-gray-300': !localFavorite,
+        'border-neutral-300': !localFavorite,
+        'cursor-not-allowed opacity-60': readOnly
       }"
     >
       <font-awesome-icon
@@ -18,7 +19,8 @@
     </div>
     <label
       for="favorite"
-      class="block text-sm text-gray-700 flex items-center cursor-pointer"
+      class="block text-sm text-neutral-700 flex items-center cursor-pointer"
+      :class="{ 'cursor-not-allowed': readOnly }"
     >
       <font-awesome-icon :icon="['fas', 'heart']" class="text-pink-500 mr-2" />
       添加到收藏

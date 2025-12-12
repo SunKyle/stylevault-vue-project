@@ -1,17 +1,19 @@
 <template>
-  <div>
-    <label class="block text-sm font-semibold text-gray-800 mb-2 flex items-center">
+  <div class="mb-6">
+    <h4 class="text-lg font-medium text-neutral-700 mb-4 flex items-center">
       <font-awesome-icon :icon="['fas', 'calendar-alt']" class="text-primary mr-2" />
       适用季节
-    </label>
+      <span class="text-red-500 ml-1" v-if="!readOnly">*</span>
+    </h4>
     <div
-      class="bg-white/80 backdrop-blur-sm border border-gray-300 rounded-xl p-4 shadow-sm"
+      class="bg-neutral-50 rounded-xl p-6 border border-neutral-200 shadow-sm hover:shadow-md transition-shadow"
     >
       <div class="grid grid-cols-2 gap-3">
         <label
           v-for="season in seasonsOptions"
           :key="season.value"
-          class="flex items-center space-x-2 cursor-pointer p-2 rounded-lg hover:bg-gray-50 transition-colors"
+          class="flex items-center space-x-2 cursor-pointer p-2 rounded-lg hover:bg-neutral-100 transition-colors"
+          :class="{ 'cursor-not-allowed': readOnly }"
         >
           <input
             type="checkbox"
@@ -20,7 +22,7 @@
             :disabled="readOnly"
             :class="[
               readOnly ? 'cursor-not-allowed' : '',
-              'rounded text-primary focus:ring-primary/30 border-gray-300',
+              'rounded text-primary focus:ring-primary/30 border-neutral-300',
             ]"
           />
           <span class="text-sm flex items-center">
@@ -32,9 +34,10 @@
           </span>
         </label>
       </div>
-      <div class="mt-3 pt-3 border-t border-gray-200">
+      <div class="mt-3 pt-3 border-t border-neutral-100">
         <label
-          class="flex items-center space-x-2 cursor-pointer p-2 rounded-lg hover:bg-gray-50 transition-colors"
+          class="flex items-center space-x-2 cursor-pointer p-2 rounded-lg hover:bg-neutral-100 transition-colors"
+          :class="{ 'cursor-not-allowed': readOnly }"
         >
           <input
             type="checkbox"
@@ -42,7 +45,7 @@
             :disabled="readOnly"
             :class="[
               readOnly ? 'cursor-not-allowed' : '',
-              'rounded text-primary focus:ring-primary/30 border-gray-300',
+              'rounded text-primary focus:ring-primary/30 border-neutral-300',
             ]"
           />
           <span class="text-sm flex items-center font-medium">

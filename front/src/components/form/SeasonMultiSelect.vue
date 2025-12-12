@@ -4,16 +4,19 @@
       <button
         v-for="option in options"
         :key="option.value"
-        @click="toggleSeason(option.value)"
+        @click="!disabled && toggleSeason(option.value)"
+        :disabled="disabled"
         :class="[
           'px-3 py-1.5 rounded-lg text-sm border transition-all duration-300 font-medium shadow-sm',
           {
             // 选中状态使用主题色
             'bg-primary text-white border-primary shadow-md': isSelected(option.value),
-            // 默认状态
-            'bg-white text-neutral-700 border-neutral-200 hover:border-primary': !isSelected(
+            // 默认状态 - 与其他组件保持一致的中性色设计
+            'bg-neutral-100 text-neutral-700 border-neutral-200 hover:border-primary hover:bg-neutral-200': !isSelected(
               option.value
             ),
+            // 禁用状态
+            'opacity-50 cursor-not-allowed hover:border-neutral-200 hover:bg-neutral-100': disabled,
           },
           // 为不同季节添加特有的微妙背景色
           getSeasonBackgroundClass(option.value),
@@ -34,6 +37,10 @@
     options: {
       type: Array,
       required: true,
+    },
+    disabled: {
+      type: Boolean,
+      default: false,
     },
   });
 

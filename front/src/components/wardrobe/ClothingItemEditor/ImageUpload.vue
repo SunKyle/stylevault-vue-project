@@ -1,8 +1,8 @@
 <template>
   <!-- 图片上传组件 -->
   <!-- 用于上传、预览和管理衣物图片 -->
-  <div class="p-5 bg-white rounded-xl shadow-sm border border-gray-100">
-    <label class="block text-sm font-semibold text-gray-800 mb-3 flex items-center">
+  <div class="mb-6 bg-neutral-50 rounded-xl p-6 border border-neutral-200">
+    <label class="block text-sm font-medium text-neutral-700 mb-3 flex items-center">
       <font-awesome-icon :icon="['fas', 'image']" class="text-primary mr-2" />
       衣物图片
     </label>
