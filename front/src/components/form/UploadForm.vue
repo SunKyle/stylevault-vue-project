@@ -292,7 +292,7 @@
 <script setup>
   import { reactive, ref, computed, nextTick, onMounted } from 'vue';
   import { useClothingStore } from '@/stores';
-  import { useEnumsStore } from '@/stores/enums';
+  import { useEnumsStore } from '@/stores/modules/enumsStore';
   import { showToast } from '../../utils/toast';
   import SeasonMultiSelect from './SeasonMultiSelect.vue';
   const clothingStore = useClothingStore();
@@ -301,6 +301,7 @@
   // 确保枚举值在组件挂载时加载
   onMounted(async () => {
     await enumsStore.fetchAllEnums();
+    console.log('categoryOptions:', enumsStore.categoryOptions);
   });
 
   // 计算属性 - 从store获取枚举值

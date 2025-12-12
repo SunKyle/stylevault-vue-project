@@ -145,7 +145,7 @@ export const useEnumsStore = defineStore('enums', {
 
       try {
         // 从enumsApi获取枚举数据
-        const data = await enumsApi.getAllEnums();
+        const data = (await enumsApi.getAllEnums()).data;
 
         // 合并数据到enumsData对象中
         if (data && typeof data === 'object') {
@@ -157,7 +157,6 @@ export const useEnumsStore = defineStore('enums', {
         }
         console.log('✅ 枚举数据加载成功');
       } catch (error) {
-        this.error = '加载枚举数据失败';
         console.error('❌ 加载枚举数据失败:', error);
       } finally {
         this.loading = false;
