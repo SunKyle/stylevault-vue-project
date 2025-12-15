@@ -57,10 +57,7 @@
           <p class="text-neutral-500 text-sm">暂无分类数据</p>
         </div>
         
-        <div
-          v-else
-          class="grid grid-cols-2 xs:grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 gap-3 sm:gap-4"
-        >
+        <div v-else class="grid grid-cols-2 xs:grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 gap-3 sm:gap-4">
           <ClothingCategory
             v-for="category in categories"
             :key="category.id"
@@ -79,7 +76,7 @@
       <FeaturedOutfits v-if="!loading && !error" :outfits="[]" />
       
       <!-- 分类选中时的空状态 -->
-      <div 
+      <!-- <div 
         v-if="!loading && !error && selectedCategory && getCategoryItems(selectedCategory).length === 0"
         class="container mx-auto px-4 py-12 text-center"
       >
@@ -93,7 +90,7 @@
             添加衣物
           </button>
         </div>
-      </div>
+      </div> -->
 
       <!-- 最近添加的衣物 -->
       <div v-if="!loading && !error && !selectedCategory" class="container mx-auto px-4">
@@ -110,7 +107,8 @@
         
         <!-- 最近添加空状态 -->
         <div v-if="recentlyAddedItems.length === 0" class="flex flex-col items-center justify-center py-12">
-          <font-awesome-icon :icon="['fas', 'plus-circle']" class="text-neutral-300 text-4xl mb-4" />
+          <img :src= "categoryIcon" class="w-8 h-8 object-contain"/>
+          <!-- <font-awesome-icon :icon="['fas', 'plus-circle']" class="text-neutral-300 text-4xl mb-4" /> -->
           <p class="text-neutral-500 mb-4">您还没有添加任何衣物</p>
           <button 
             @click="handleAddClothing" 

@@ -15,11 +15,9 @@
       :class="categoryBgClass"
     >
       <img
-        v-if="categoryIcon"
         :src= "categoryIcon"
         class="w-8 h-8 object-contain"
       />
-      <font-awesome-icon v-else :icon="categoryIcon" class="text-2xl" />
     </div>
     <p class="font-medium">{{ categoryName }}</p>
     <p class="text-sm text-neutral-500 mt-1">
@@ -29,7 +27,7 @@
 </template>
 
 <script setup>
-import { computed, onUnmounted } from 'vue';
+import { computed } from 'vue';
 
 // --- 1. 提取可配置常量（提升可维护性） ---
 const CATEGORY_GRADIENT_MAP = {
@@ -41,9 +39,6 @@ const CATEGORY_GRADIENT_MAP = {
   6: 'bg-gradient-to-br from-secondary/20 to-secondary/30 text-secondary', // 包包
   default: 'bg-gradient-to-br from-primary/25 to-secondary/40 text-primary'
 };
-
-// 图标默认配置
-const DEFAULT_ICON = ['fas', 'question-circle'];
 
 /**
  * 衣物分类卡片组件
@@ -88,7 +83,6 @@ const categoryName = computed(() => {
 // 分类图标
 const categoryIcon = computed(() => {
   const icon = props.category.icon.trim();
-  console.log("icon:！！！", icon);
   return '/src/assets/icons/' + icon; 
 });
 
