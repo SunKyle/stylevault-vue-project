@@ -1,107 +1,120 @@
 <template>
   <div
     class="bg-white rounded-xl p-5 text-center shadow-soft hover:shadow-medium transition-all duration-300 cursor-pointer transform hover:-translate-y-1"
-    :class="{ 'ring-2 ring-primary': selected }"
+    :class="[
+      { 'ring-2 ring-primary': selected },
+      { 'opacity-50 cursor-not-allowed': disabled } 
+    ]"
     @click="handleClick"
+    :aria-selected="selected" 
+    :aria-disabled="disabled"
+    :tabindex="disabled ? -1 : 0" 
   >
-    <div
+    <div 
       class="w-14 h-14 mx-auto rounded-full flex items-center justify-center mb-3"
-      :class="colorClass"
+      :class="categoryBgClass"
     >
-      <font-awesome-icon :icon="iconValue" class="text-2xl" />
+      <img
+        v-if="categoryIcon"
+        :src= "categoryIcon"
+        class="w-8 h-8 object-contain"
+      />
+      <font-awesome-icon v-else :icon="categoryIcon" class="text-2xl" />
     </div>
     <p class="font-medium">{{ categoryName }}</p>
-    <p class="text-sm text-neutral-500 mt-1">{{ count }} 件</p>
+    <p class="text-sm text-neutral-500 mt-1">
+      {{ count === 0 ? '暂无' : `${count} 件` }} <!-- 优化空数量显示 -->
+    </p>
   </div>
 </template>
 
 <script setup>
-  import { computed } from 'vue';
+import { computed, onUnmounted } from 'vue';
 
-  const props = defineProps({
-    category: {
-      type: Object,
-      required: true,
-    },
-    count: {
-      type: Number,
-      default: 0,
-    },
-    selected: {
-      type: Boolean,
-      default: false,
-    },
-  });
+// --- 1. 提取可配置常量（提升可维护性） ---
+const CATEGORY_GRADIENT_MAP = {
+  1: 'bg-gradient-to-br from-primary/10 to-primary/20 text-primary', // 上装
+  2: 'bg-gradient-to-br from-secondary/10 to-secondary/20 text-secondary', // 下装
+  3: 'bg-gradient-to-br from-primary/15 to-primary/25 text-primary', // 外套
+  4: 'bg-gradient-to-br from-secondary/15 to-secondary/25 text-secondary', // 鞋履
+  5: 'bg-gradient-to-br from-primary/20 to-primary/30 text-primary', // 配饰
+  6: 'bg-gradient-to-br from-secondary/20 to-secondary/30 text-secondary', // 包包
+  default: 'bg-gradient-to-br from-primary/25 to-secondary/40 text-primary'
+};
 
-  const emit = defineEmits(['click']);
+// 图标默认配置
+const DEFAULT_ICON = ['fas', 'question-circle'];
 
-  // 安全获取分类名称，避免undefined错误
-  const categoryName = computed(() => {
-    return props.category?.name || '未分类';
-  });
+/**
+ * 衣物分类卡片组件
+ * @props {Object} category - 分类数据对象（必传）
+ * @props {number} count - 分类下衣物数量（默认0）
+ * @props {boolean} selected - 是否选中（默认false）
+ * @props {boolean} disabled - 是否禁用（默认false）
+ */
+const props = defineProps({
+  category: {
+    type: Object,
+    required: true,
+    validator: (val) => val !== null // 确保不是null
+  },
+  count: {
+    type: Number,
+    default: 0,
+    validator: (val) => val >= 0 // 确保数量非负
+  },
+  selected: {
+    type: Boolean,
+    default: false
+  },
+  disabled: {
+    type: Boolean,
+    default: false
+  }
+});
 
-  // 增强的图标处理，确保总是返回有效的图标
-  const iconValue = computed(() => {
-    try {
-      // 1. 确保category存在
-      if (!props.category || typeof props.category !== 'object') {
-        return ['fas', 'question-circle'];
-      }
+/**
+ * 点击事件（传递分类ID）
+ * @event click
+ * @param {number} categoryId - 点击的分类ID
+ */
+const emit = defineEmits(['click']);
 
-      // 2. 确保icon是字符串且不为空
-      const icon = props.category.icon;
-      if (!icon || typeof icon !== 'string' || icon.trim() === '') {
-        return ['fas', 'question-circle'];
-      }
+// 分类名称（简化空值判断）
+const categoryName = computed(() => {
+  return props.category.name?.trim() || '未分类';
+});
 
-      // 3. 确保返回的是有效的图标数组
-      const trimmedIcon = icon.trim();
+// 分类图标
+const categoryIcon = computed(() => {
+  const icon = props.category.icon.trim();
+  console.log("icon:！！！", icon);
+  return '/src/assets/icons/' + icon; 
+});
 
-      // 检查是否已经是数组格式
-      if (Array.isArray(trimmedIcon)) {
-        return trimmedIcon;
-      }
+// 分类背景样式
+const categoryBgClass = computed(() => {
+  const categoryId = props.category.id;
+  return CATEGORY_GRADIENT_MAP[categoryId] || CATEGORY_GRADIENT_MAP.default;
+});
 
-      // 检查是否包含品牌图标前缀
-      if (typeof trimmedIcon === 'string' && trimmedIcon.startsWith('fab:')) {
-        return ['fab', trimmedIcon.substring(4)];
-      }
 
-      // 默认使用fas前缀
-      return ['fas', trimmedIcon];
-    } catch (error) {
-      console.error('Error processing icon:', error);
-      return ['fas', 'question-circle'];
-    }
-  });
+// 点击事件入口
+const handleClick = () => {
+  emit('click', props.category.id);
+};
 
-  // 处理点击事件
-  const handleClick = () => {
-    if (props.category) {
-      emit('click');
-    }
-  };
-
-  // 根据类别ID确定颜色，使用主题色适配
-  const colorClass = computed(() => {
-    // 使用主题色的渐变效果，提升视觉体验
-    const gradientMap = {
-      1: 'bg-gradient-to-br from-primary/10 to-primary/20 text-primary', // 上装 - 主要主题色
-      2: 'bg-gradient-to-br from-secondary/10 to-secondary/20 text-secondary', // 下装 - 次要主题色
-      3: 'bg-gradient-to-br from-primary/15 to-primary/25 text-primary', // 外套 - 主要主题色变体
-      4: 'bg-gradient-to-br from-secondary/15 to-secondary/25 text-secondary', // 鞋履 - 次要主题色变体
-      5: 'bg-gradient-to-br from-primary/20 to-primary/30 text-primary', // 配饰 - 主要主题色变体
-      6: 'bg-gradient-to-br from-secondary/20 to-secondary/30 text-secondary', // 包包 - 次要主题色变体
-    };
-
-    // 确保category存在且id有效
-    if (!props.category || !props.category.id) {
-      return 'bg-gray-100 text-gray-500';
-    }
-
-    return (
-      gradientMap[props.category.id] ||
-      'bg-gradient-to-br from-primary/10 to-primary/20 text-primary'
-    );
-  });
 </script>
+
+<style scoped>
+/* 禁用状态优化：禁止点击事件 */
+.opacity-50 {
+  pointer-events: none;
+}
+
+/* 聚焦样式优化（无障碍） */
+:focus {
+  outline: none;
+  box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.2);
+}
+</style>

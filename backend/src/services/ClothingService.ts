@@ -1,5 +1,6 @@
 import { Clothing } from '../models/entities/Clothing';
 import { clothingRepository } from '../repositories/ClothingRepository';
+import logger from '../utils/logger';
 
 // 更新接口定义以匹配数据库结构
 export interface ClothingQueryOptions {
@@ -26,7 +27,9 @@ export interface ClothingCreateData {
   mainImageUrl?: string;
   category?: number; // 从categoryId改为category
   color?: number; // 从colorId改为color
+  colorId?: number;
   style?: number; // 从styleId改为style
+  styleId?: number;
   parentId?: number;
   favorite?: boolean;
   seasons?: string[];
@@ -52,7 +55,6 @@ export interface ClothingUpdateData {
 }
 
 export class ClothingService {
-
 
   /**
    * 获取衣物列表（确保用户权限隔离）
@@ -107,9 +109,11 @@ export class ClothingService {
     
     // 处理颜色
     if (data.color) clothingItemData.color = parseInt(data.color as unknown as string);
+    else if (data.colorId) clothingItemData.color = parseInt(data.colorId as unknown as string);
     
     // 处理风格
     if (data.style) clothingItemData.style = parseInt(data.style as unknown as string);
+    else if (data.styleId) clothingItemData.style = parseInt(data.styleId as unknown as string);
     
     // 处理尺寸（从data或metadata中获取，并确保转换为数字）
     if (data.size) clothingItemData.size = parseInt(data.size as unknown as string);
@@ -122,13 +126,56 @@ export class ClothingService {
     // 处理parentId
     if (data.parentId) clothingItemData.parentId = data.parentId;
     
-    // 处理季节
-    if (data.seasons) clothingItemData.seasons = data.seasons;
-    else if (metadata.seasons) clothingItemData.seasons = metadata.seasons;
+    // 处理季节 - 兼容前端提交的seasons数组和后端的season字段
+    let seasonsData = data.seasons;
+    if (!seasonsData && metadata.seasons) {
+      seasonsData = metadata.seasons;
+    }
+    
+    // 如果有季节数据，取第一个季节作为主要季节（因为数据库只支持单个季节）
+    if (Array.isArray(seasonsData) && seasonsData.length > 0) {
+      // 季节数据是ID，直接使用
+      const firstSeason = seasonsData[0];
+      if (typeof firstSeason === 'number') {
+        clothingItemData.season = firstSeason;
+      } else {
+        // 如果是字符串格式的ID，转换为数字
+        const seasonId = parseInt(firstSeason);
+        if (!isNaN(seasonId)) {
+          clothingItemData.season = seasonId;
+        }
+      }
+    }
     
     // 处理材质（从data或metadata中获取，并确保转换为数字）
-    if (data.material) clothingItemData.material = parseInt(data.material as unknown as string);
-    else if (metadata.material) clothingItemData.material = parseInt(metadata.material);
+    if (data.material) {
+      if (typeof data.material === 'string') {
+        clothingItemData.material = parseInt(data.material);
+      } else {
+        clothingItemData.material = data.material;
+      }
+    } else if (metadata.material) {
+      if (typeof metadata.material === 'string') {
+        clothingItemData.material = parseInt(metadata.material);
+      } else {
+        clothingItemData.material = metadata.material;
+      }
+    }
+
+    // 处理尺寸
+    if (data.size) {
+      if (typeof data.size === 'string') {
+        clothingItemData.size = parseInt(data.size);
+      } else {
+        clothingItemData.size = data.size;
+      }
+    } else if (metadata.size) {
+      if (typeof metadata.size === 'string') {
+        clothingItemData.size = parseInt(metadata.size);
+      } else {
+        clothingItemData.size = metadata.size;
+      }
+    }
 
     return await clothingRepository.createClothingItem(clothingItemData);
   }

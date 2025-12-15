@@ -603,12 +603,6 @@ const saveClothes = async () => {
       material: clothingItem.material || null,
       size: clothingItem.size || null,
       price: clothingItem.price ? parseFloat(clothingItem.price) : null,
-      // metadata: {
-      //   seasons: [...selectedSeasons.value] || [],
-      //   material: clothingItem.material || null,
-      //   size: clothingItem.size || null,
-      //   price: clothingItem.price ? parseFloat(clothingItem.price) : null,
-      // },
     };
 
     // 重试逻辑（最多2次）
@@ -635,7 +629,7 @@ const saveClothes = async () => {
     await nextTick();
     
     // 重置表单
-    resetForm();
+    // resetForm();
   } catch (error) {
     showToast('添加失败，请稍后重试', 'error');
     console.error('添加衣物失败:', error);

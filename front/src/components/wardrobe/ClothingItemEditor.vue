@@ -1,11 +1,9 @@
 <template>
-  <!-- 衣物编辑模态框组件 -->
-  <!-- 用于创建和编辑衣物信息的弹出式表单，支持查看详情模式 -->
-  <!-- 包含图片上传、基本信息填写、季节选择和收藏功能 -->
+  <!-- 衣物编辑/详情模态框 -->
   <transition name="modal">
     <div
       v-if="isOpen"
-      class="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4"
+      class="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4"
       @click="closeOnBackdrop"
     >
       <div
@@ -15,48 +13,30 @@
         <!-- 头部 -->
         <div
           :class="[
-            readOnly
-              ? 'bg-gradient-to-r from-indigo-500 to-purple-500'
-              : 'bg-gradient-to-r from-blue-400 to-cyan-400',
-            'p-6 text-white relative overflow-hidden z-10 flex-shrink-0',
+            readOnly ? 'bg-gradient-to-r from-indigo-500 to-purple-500' : 'bg-gradient-to-r from-blue-400 to-cyan-400',
+            'p-6 text-white relative overflow-hidden z-10 flex-shrink-0'
           ]"
         >
           <!-- 装饰元素 -->
-          <div
-            class="absolute top-0 right-0 w-40 h-40 bg-white/10 rounded-full -mr-20 -mt-20"
-          ></div>
-          <div
-            class="absolute bottom-0 left-0 w-32 h-32 bg-white/10 rounded-full -ml-16 -mb-16"
-          ></div>
+          <div class="absolute top-0 right-0 w-40 h-40 bg-white/10 rounded-full -mr-20 -mt-20"></div>
+          <div class="absolute bottom-0 left-0 w-32 h-32 bg-white/10 rounded-full -ml-16 -mb-16"></div>
           <div class="absolute top-1/2 left-1/4 w-16 h-16 bg-white/5 rounded-full"></div>
 
           <!-- 头部内容 -->
           <div class="relative z-10">
             <div class="flex justify-between items-start">
-              <!-- 左侧标题区域 -->
               <div class="flex items-start">
-                <!-- 图标 -->
-                <div
-                  class="w-10 h-10 rounded-xl bg-white/20 backdrop-blur-sm flex items-center justify-center mr-4 shadow-sm"
-                >
-                  <font-awesome-icon
-                    :icon="readOnly ? ['fas', 'info'] : ['fas', 'edit']"
-                    class="text-white text-lg"
-                  />
+                <div class="w-10 h-10 rounded-xl bg-white/20 backdrop-blur-sm flex items-center justify-center mr-4 shadow-sm">
+                  <font-awesome-icon :icon="readOnly ? ['fas', 'info'] : ['fas', 'edit']" class="text-white text-lg" />
                 </div>
-
-                <!-- 文字内容 -->
                 <div>
-                  <h2 class="text-2xl font-bold tracking-wide mb-1">
-                    {{ readOnly ? '衣物详情' : '编辑衣物' }}
-                  </h2>
+                  <h2 class="text-2xl font-bold tracking-wide mb-1">{{ readOnly ? '衣物详情' : '编辑衣物' }}</h2>
                   <p class="text-white/80 text-sm max-w-xs">完善您的衣物信息，打造个性衣橱</p>
                 </div>
               </div>
 
-              <!-- 右侧关闭按钮 -->
               <button
-                @click="$emit('close')"
+                @click="emit('close')"
                 class="w-9 h-9 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center hover:bg-white/30 transition-all duration-300 hover:scale-105 shadow-sm ml-2"
               >
                 <font-awesome-icon :icon="['fas', 'times']" class="text-white text-sm" />
@@ -64,76 +44,81 @@
             </div>
           </div>
 
-          <!-- 底部装饰线 -->
-          <div
-            class="absolute bottom-0 left-0 right-0 h-1 bg-gradient-to-r from-transparent via-white/30 to-transparent"
-          ></div>
+          <div class="absolute bottom-0 left-0 right-0 h-1 bg-gradient-to-r from-transparent via-white/30 to-transparent"></div>
         </div>
 
         <!-- 表单内容 -->
         <div class="flex-1 overflow-y-auto p-6 bg-white">
-          <!-- 图片上传区域 -->
-          <div class="mb-6">
-            <ImageUpload 
-              v-model:image="form.image" 
-              :read-only="readOnly"
-              @update:image="updateImage"
-            />
+          <!-- 加载状态（新增） -->
+          <div v-if="loading" class="flex justify-center items-center py-8">
+            <div class="animate-spin rounded-full h-10 w-10 border-b-2 border-primary"></div>
           </div>
 
-          <!-- 基本信息 -->
-          <div class="mb-6">
-            <BasicInfoForm 
-              v-model="form" 
-              :read-only="readOnly"
-              :categories="categories"
-            />
-          </div>
+          <template v-else>
+            <!-- 图片上传区域 -->
+            <div class="mb-6">
+              <ImageUpload 
+                v-model:image="form.image" 
+                :read-only="readOnly"
+                @update:image="updateImage"
+              />
+            </div>
 
-          <!-- 季节选择 -->
-          <div class="mb-6">
-            <SeasonSelector 
-              v-model:seasons="form.seasons" 
-              :read-only="readOnly"
-              @update:seasons="updateSeasons"
-            />
-          </div>
+            <!-- 基本信息 -->
+            <div class="mb-6">
+              <BasicInfoForm 
+                v-model="form" 
+                :read-only="readOnly"
+                :categories="categories"
+                @update:category="updateCategoryName"
+              />
+            </div>
 
-          <!-- 收藏 -->
-          <div class="mb-8">
-            <FavoriteToggle 
-              v-model:favorite="form.favorite" 
-              :read-only="readOnly"
-              @update:favorite="updateFavorite"
-            />
-          </div>
+            <!-- 季节选择 -->
+            <div class="mb-6">
+              <SeasonSelector 
+                v-model:seasons="form.seasons" 
+                :read-only="readOnly"
+                @update:seasons="updateSeasons"
+              />
+            </div>
 
-          <!-- 错误提示 -->
-          <div v-if="!isFormValid && formSubmitted" class="mt-4 p-3 bg-red-50 border border-red-200 rounded-lg text-red-600 text-sm">
-            <font-awesome-icon :icon="['fas', 'exclamation-circle']" class="mr-2" />请填写必填项：衣物名称和分类
-          </div>
+            <!-- 收藏 -->
+            <div class="mb-8">
+              <FavoriteToggle 
+                v-model:favorite="form.favorite" 
+                :read-only="readOnly"
+                @update:favorite="updateFavorite"
+              />
+            </div>
 
-          <!-- 操作按钮 -->
-          <div
-            class="flex justify-end space-x-4 mt-8 pt-5 border-t border-gray-200 bg-white/80 backdrop-blur-sm rounded-b-xl -mx-6 -mb-6 px-6 pb-6"
-          >
-            <button
-              @click="$emit('close')"
-              class="px-5 py-2.5 border border-gray-300 text-gray-700 rounded-xl font-medium hover:bg-gray-50 transition-all duration-300 flex items-center"
-            >
-              <font-awesome-icon :icon="['fas', 'times']" class="mr-2" />
-              {{ readOnly ? '关闭' : '取消' }}
-            </button>
-            <button
-              v-if="!readOnly"
-              @click="saveItem"
-              :disabled="!isFormValid"
-              class="px-5 py-2.5 bg-gradient-to-r from-primary to-primary/90 text-white rounded-xl font-medium hover:shadow-lg hover:shadow-primary/20 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed flex items-center disabled:hover:shadow-none"
-            >
-              <font-awesome-icon :icon="['fas', 'save']" class="mr-2" />
-              保存
-            </button>
-          </div>
+            <!-- 错误提示（优化文案和样式） -->
+            <div v-if="formError" class="mt-4 p-3 bg-red-50 border border-red-200 rounded-lg text-red-600 text-sm flex items-center">
+              <font-awesome-icon :icon="['fas', 'exclamation-circle']" class="mr-2 flex-shrink-0" />
+              {{ formError }}
+            </div>
+
+            <!-- 操作按钮 -->
+            <div class="flex justify-end space-x-4 mt-8 pt-5 border-t border-gray-200 bg-white/80 backdrop-blur-sm rounded-b-xl -mx-6 -mb-6 px-6 pb-6">
+              <button
+                @click="emit('close')"
+                class="px-5 py-2.5 border border-gray-300 text-gray-700 rounded-xl font-medium hover:bg-gray-50 transition-all duration-300 flex items-center"
+              >
+                <font-awesome-icon :icon="['fas', 'times']" class="mr-2" />
+                {{ readOnly ? '关闭' : '取消' }}
+              </button>
+              <button
+                v-if="!readOnly"
+                @click="saveItem"
+                :disabled="!isFormValid || loading"
+                class="px-5 py-2.5 bg-gradient-to-r from-primary to-primary/90 text-white rounded-xl font-medium hover:shadow-lg hover:shadow-primary/20 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed flex items-center disabled:hover:shadow-none"
+              >
+                <font-awesome-icon v-if="loading" :icon="['fas', 'spinner']" class="mr-2 animate-spin" />
+                <font-awesome-icon v-else :icon="['fas', 'save']" class="mr-2" />
+                保存
+              </button>
+            </div>
+          </template>
         </div>
       </div>
     </div>
@@ -141,461 +126,368 @@
 </template>
 
 <script setup>
-  /**
-   * 衣物编辑模态框组件
-   * 
-   * 用于创建和编辑衣物信息的弹出式表单，支持查看详情模式。
-   * 包含图片上传、基本信息填写、季节选择和收藏功能。
-   * 
-   * @component
-   * @props {Boolean} isOpen - 控制模态框显示/隐藏
-   * @props {Object} item - 衣物数据对象，用于编辑时初始化表单
-   * @props {Boolean} readOnly - 是否为只读模式，只读时显示详情
-   * @emits {void} close - 关闭模态框时触发
-   * @emits {void} saved - 保存衣物信息成功时触发
-   */
-  import { ref, computed, watch, onMounted, onUnmounted } from 'vue';
-  import { useClothingStore } from '@/stores';
-  import { useEnumsStore } from '@/stores';
-  import { showToast } from '../../utils/toast';
-  import ImageUpload from './ClothingItemEditor/ImageUpload.vue';
-  import SeasonSelector from './ClothingItemEditor/SeasonSelector.vue';
-  import BasicInfoForm from './ClothingItemEditor/BasicInfoForm.vue';
-  import FavoriteToggle from './ClothingItemEditor/FavoriteToggle.vue';
+/**
+ * 衣物编辑/详情模态框组件
+ * @component
+ * @props {Boolean} isOpen - 控制模态框显示/隐藏
+ * @props {Object} item - 衣物数据对象，用于编辑时初始化表单
+ * @props {Boolean} readOnly - 是否为只读模式，只读时显示详情
+ * @emits {void} close - 关闭模态框时触发
+ * @emits {void} saved - 保存衣物信息成功时触发
+ */
+import { ref, computed, watch, onMounted, onUnmounted, shallowRef } from 'vue';
+import { useClothingStore } from '@/stores';
+import { useEnumsStore } from '@/stores';
+import { showToast } from '../../utils/toast';
+import ImageUpload from './ClothingItemEditor/ImageUpload.vue';
+import SeasonSelector from './ClothingItemEditor/SeasonSelector.vue';
+import BasicInfoForm from './ClothingItemEditor/BasicInfoForm.vue';
+import FavoriteToggle from './ClothingItemEditor/FavoriteToggle.vue';
 
-  const props = defineProps({
-    isOpen: {
-      type: Boolean,
-      required: true,
-    },
-    item: {
-      type: Object,
-      default: null,
-    },
-    readOnly: {
-      type: Boolean,
-      default: false,
-    },
-  });
+// 1. 类型定义（新增，提升代码规范）
+/**
+ * @typedef {Object} ClothingForm
+ * @property {string} id - 衣物ID
+ * @property {string} name - 衣物名称
+ * @property {string} brand - 品牌
+ * @property {number|null} price - 价格
+ * @property {string|null} purchaseDate - 购买日期
+ * @property {string} size - 尺寸
+ * @property {string} condition - 新旧程度
+ * @property {string} pattern - 图案
+ * @property {string|number} category - 分类ID
+ * @property {string} categoryName - 分类名称
+ * @property {string} color - 颜色
+ * @property {string} style - 风格
+ * @property {string[]} seasons - 适用季节
+ * @property {string} material - 材质
+ * @property {boolean} favorite - 是否收藏
+ * @property {string} image - 图片URL
+ * @property {string} notes - 备注
+ */
 
-  const emit = defineEmits(['close', 'saved']);
+// 2. Props & Emits 定义（精简）
+const props = defineProps({
+  isOpen: {
+    type: Boolean,
+    required: true,
+  },
+  item: {
+    type: Object,
+    default: null,
+  },
+  readOnly: {
+    type: Boolean,
+    default: false,
+  },
+});
 
-  const clothingStore = useClothingStore();
-  const enumsStore = useEnumsStore();
+const emit = defineEmits(['close', 'saved']);
 
-  // 分类数据
-  const categories = computed(() => enumsStore.categoryLabels || []);
+// 3. Store 实例（使用shallowRef优化性能）
+const clothingStore = shallowRef(useClothingStore());
+const enumsStore = shallowRef(useEnumsStore());
 
-  // 在组件挂载时获取枚举数据并添加键盘事件监听器
-  onMounted(async () => {
-    // 获取枚举数据
+// 4. 响应式数据（精简冗余）
+const categories = computed(() => enumsStore.value.categoryLabels || []);
+const loading = ref(false); // 新增：保存加载状态
+const formError = ref(''); // 新增：精细化错误提示
+const formSubmitted = ref(false);
+
+// 5. 表单初始化（提取默认值，避免重复）
+const DEFAULT_FORM = {
+  id: '',
+  name: '',
+  brand: '',
+  price: null,
+  purchaseDate: null,
+  size: '',
+  condition: '',
+  pattern: '',
+  category: '',
+  categoryName: '',
+  color: '',
+  style: '',
+  seasons: [],
+  material: '',
+  favorite: false,
+  image: '',
+  notes: '',
+};
+
+const form = ref({ ...DEFAULT_FORM });
+
+// 6. 表单验证（精简逻辑）
+const isFormValid = computed(() => {
+  const { name, category } = form.value;
+  return !!name.trim() && !!category;
+});
+
+// 7. 事件处理（精简，职责单一）
+const updateImage = (newImage) => {
+  form.value.image = newImage;
+};
+
+const updateSeasons = (newSeasons) => {
+  form.value.seasons = newSeasons;
+};
+
+const updateFavorite = (newFavorite) => {
+  form.value.favorite = newFavorite;
+};
+
+// 更新分类名称（提取为独立函数，避免重复）
+const updateCategoryName = () => {
+  const { category } = form.value;
+  if (!category) {
+    form.value.categoryName = '';
+    return;
+  }
+  
+  const matchedCategory = categories.value.find(c => c.id === category);
+  form.value.categoryName = matchedCategory?.name || '';
+};
+
+// 8. 表单重置（精简）
+const resetForm = () => {
+  form.value = { ...DEFAULT_FORM };
+  formError.value = '';
+  formSubmitted.value = false;
+};
+
+// 9. 数据适配（提取为独立函数，精简watch逻辑）
+const adaptItemToForm = (item) => {
+  if (!item) return { ...DEFAULT_FORM };
+
+  // 浅拷贝（避免深拷贝性能损耗）
+  const adapted = { ...DEFAULT_FORM, ...item };
+
+  // 1. 分类字段兼容（精简逻辑）
+  if (!adapted.category && adapted.categoryId) {
+    adapted.category = adapted.categoryId;
+    delete adapted.categoryId;
+  }
+  
+  // 2. 分类名称自动匹配
+  if (adapted.category && !adapted.categoryName) {
+    const matched = categories.value.find(c => c.id === adapted.category);
+    adapted.categoryName = matched?.name || '';
+  } else if (!adapted.category && adapted.categoryName) {
+    const matched = categories.value.find(c => c.name === adapted.categoryName);
+    adapted.category = matched?.id || '';
+  }
+
+  // 3. 季节字段兼容（精简）
+  // if (item.season && typeof item.season === 'number' && !adapted.seasons?.length) {
+  //   const seasonName = enumsStore.value.getSeasonLabel(item.season);
+  //   adapted.seasons = seasonName ? [seasonName] : [];
+  // }
+  
+  // 4. 确保季节是数组
+  adapted.seasons = Array.isArray(adapted.seasons) ? adapted.seasons : [];
+
+  return adapted;
+};
+
+// 10. 监听item变化（精简，减少深层监听）
+watch(
+  () => props.item,
+  (newItem) => {
+    form.value = adaptItemToForm(newItem);
+  },
+  { immediate: true }
+);
+
+// 11. 更新衣物信息逻辑
+const saveItem = async () => {
+  formSubmitted.value = true;
+  formError.value = '';
+
+  // 1. 基础验证
+  if (!isFormValid.value) {
+    formError.value = '请填写必填项：衣物名称和分类';
+    showToast(formError.value, 'error');
+    return;
+  }
+
+  // 2. 图片URL验证（修复逻辑漏洞，精简）
+  const validateImageUrl = (url) => {
+    if (!url || url.trim() === '' || url.startsWith('data:')) {
+      return 'https://via.placeholder.com/300x400/6366f1/ffffff?text=Image';
+    }
+    
+    // 长度限制（后端255，留余量）
+    if (url.length > 200) {
+      return 'https://via.placeholder.com/300x400/6366f1/ffffff?text=Image';
+    }
+    
+    // 简单URL格式验证
+    const urlRegex = /^(https?:\/\/|\/).+/;
+    return urlRegex.test(url) ? url : 'https://via.placeholder.com/300x400/6366f1/ffffff?text=Image';
+  };
+
+  try {
+    loading.value = true;
+    const validImageUrl = validateImageUrl(form.value.image);
+
+    // 3. 构造提交数据（精简，避免冗余）
+    const submitData = {
+      ...form.value,
+      mainImageUrl: validImageUrl,
+      season: form.value.seasons.length ? enumsStore.value.seasonOptions.find(s => s.label === form.value.seasons[0])?.value : undefined,
+      // 数字类型转换（精简）
+      size: form.value.size ? Number(form.value.size) : undefined,
+      condition: form.value.condition ? Number(form.value.condition) : undefined,
+      category: form.value.category ? Number(form.value.category) : undefined,
+      color: form.value.color ? Number(form.value.color) : undefined,
+      style: form.value.style ? Number(form.value.style) : undefined,
+      material: form.value.material ? Number(form.value.material) : undefined,
+    };
+
+    // 移除无用字段
+    delete submitData.metadata;
+    delete submitData.categoryName;
+
+    // 4. 提交数据
+    if (form.value.id) {
+      await clothingStore.value.updateClothingItem(form.value.id, submitData);
+      showToast('衣物信息已更新', 'success');
+    } else {
+      await clothingStore.value.addClothingItem(submitData);
+      showToast('新衣物已添加', 'success');
+    }
+
+    emit('saved');
+    emit('close');
+  } catch (error) {
+    console.error('保存衣物失败:', error);
+    const errorMsg = error.response?.data?.error?.details || '保存失败，请重试';
+    formError.value = errorMsg;
+    showToast(errorMsg, 'error');
+  } finally {
+    loading.value = false;
+  }
+};
+
+// 12. 键盘事件（防抖，修复重复触发）
+let escapeKeyTimeout = null;
+const handleKeyDown = (event) => {
+  if (event.key === 'Escape' && props.isOpen) {
+    clearTimeout(escapeKeyTimeout);
+    escapeKeyTimeout = setTimeout(() => {
+      emit('close');
+    }, 100); // 防抖，避免快速连续触发
+  }
+};
+
+// 13. 生命周期（精简，移除无用日志）
+onMounted(async () => {
+  if (!readOnly && categories.value.length === 0) {
     try {
-      console.log('组件挂载，开始获取枚举数据...');
-      await enumsStore.fetchAllEnums();
-      console.log('枚举数据加载完成，当前分类数据:', categories.value);
+      await enumsStore.value.fetchAllEnums();
     } catch (error) {
       console.error('获取枚举数据失败:', error);
-    }
-    
-    // 添加键盘事件监听器
-    window.addEventListener('keydown', handleKeyDown);
-  });
-
-  // 监听分类数据变化
-  watch(
-    categories,
-    newCategories => {
-      console.log('分类数据已更新:', newCategories);
-    },
-    { deep: true }
-  );
-
-  // 表单提交状态
-  const formSubmitted = ref(false);
-
-  // 表单数据
-  const form = ref({
-    id: '',
-    name: '',
-    brand: '',
-    price: null,
-    purchaseDate: '',
-    size: '',
-    condition: '',
-    pattern: '',
-    category: '', // 使用category字段（关联attributes表）
-    categoryName: '',
-    color: '',
-    style: '',
-    seasons: [], // 确保初始化为数组
-    material: '',
-    favorite: false,
-    image: '',
-    notes: '',
-  });
-
-  // 子组件事件处理函数
-  const updateImage = (newImage) => {
-    form.value.image = newImage;
-  };
-
-  const updateForm = (newForm) => {
-    form.value = { ...form.value, ...newForm };
-  };
-
-  const updateSeasons = (newSeasons) => {
-    form.value.seasons = newSeasons;
-  };
-
-  const updateFavorite = (newFavorite) => {
-    form.value.favorite = newFavorite;
-  };
-
-  // 表单验证
-  const isFormValid = computed(() => {
-    return form.value.name.trim() !== '' && form.value.category !== '';
-  });
-
-  // 监听props.item变化，更新表单
-  watch(
-    () => props.item,
-    newItem => {
-      if (newItem) {
-        // 深拷贝避免直接修改原始对象
-        const itemCopy = { ...newItem };
-
-        // 确保所有字段都有正确的默认值
-    itemCopy.price = newItem.price ?? null;
-    itemCopy.purchaseDate = newItem.purchaseDate ?? null;
-    itemCopy.size = newItem.size ?? '';
-    itemCopy.condition = newItem.condition ?? '';
-    itemCopy.pattern = newItem.pattern ?? '';
-    itemCopy.color = newItem.color ?? '';
-    itemCopy.style = newItem.style ?? '';
-    itemCopy.material = newItem.material ?? '';
-    itemCopy.notes = newItem.notes ?? '';
-
-        // 确保分类信息正确传递
-        // 如果item中有categoryName但没有category，尝试匹配
-        if (!itemCopy.category && itemCopy.categoryName) {
-          const matchedCategory = categories.value.find(c => c.name === itemCopy.categoryName);
-          if (matchedCategory) {
-            itemCopy.category = matchedCategory.id;
-          }
-        }
-
-        // 如果item中有category但没有categoryName，尝试设置categoryName
-        if (itemCopy.category && !itemCopy.categoryName) {
-          const matchedCategory = categories.value.find(c => c.id === itemCopy.category);
-          if (matchedCategory) {
-            itemCopy.categoryName = matchedCategory.name;
-          }
-        }
-
-        // 兼容旧数据中的category字段
-        if (!itemCopy.category && itemCopy.categoryId) {
-          // 如果有categoryId字段但没有category，使用categoryId
-          itemCopy.category = itemCopy.categoryId;
-          delete itemCopy.categoryId;
-          const matchedCategory = categories.value.find(c => c.id === itemCopy.category);
-          if (matchedCategory) {
-            itemCopy.categoryName = matchedCategory.name;
-          }
-        }
-
-        // 处理季节数据 - 从ID转换为名称
-        if (itemCopy.season && typeof itemCopy.season === 'number') {
-          const seasonName = enumsStore.getSeasonLabel(itemCopy.season);
-          if (seasonName && !itemCopy.seasons) {
-            itemCopy.seasons = [seasonName];
-          }
-        }
-
-        // 确保季节数据是数组
-        if (!itemCopy.seasons || !Array.isArray(itemCopy.seasons)) {
-          // 如果没有季节数据或不是数组，初始化为空数组
-          itemCopy.seasons = [];
-        }
-
-        form.value = itemCopy;
-      } else {
-        // 重置表单
-        resetForm();
-      }
-    },
-    { immediate: true, deep: true }
-  );
-
-  // 重置表单
-  function resetForm() {
-    form.value = {
-      id: '',
-      name: '',
-      brand: '',
-      price: null,
-      purchaseDate: null,
-      size: '',
-      condition: '',
-      pattern: '',
-      category: '',
-      categoryName: '',
-      color: '',
-      style: '',
-      seasons: [], // 确保重置时也是数组
-      material: '',
-      favorite: false,
-      image: '',
-      notes: '',
-    };
-  }
-
-
-
-  // 保存衣物前验证
-  async function saveItem() {
-    // 设置表单提交状态为已提交
-    formSubmitted.value = true;
-    
-    if (!isFormValid.value) {
-      showToast('请填写必填项', 'error');
-      return;
-    }
-
-    // 严格验证图片URL，确保100%通过后端验证
-    let validImageUrl = form.value.image || '';
-
-    // 1. 拒绝DataURL格式
-    if (validImageUrl.startsWith('data:')) {
-      validImageUrl = 'https://via.placeholder.com/300x400/6366f1/ffffff?text=Image';
-    }
-
-    // 2. 拒绝空值
-    if (!validImageUrl || validImageUrl.trim() === '') {
-      validImageUrl = 'https://via.placeholder.com/300x400/6366f1/ffffff?text=Image';
-    }
-
-    // 3. 拒绝超长URL（后端限制255字符）
-    if (validImageUrl.length > 200) {
-      // 留有余量
-      validImageUrl = 'https://via.placeholder.com/300x400/6366f1/ffffff?text=Image';
-    }
-
-    // 4. 拒绝无效URL格式（简化验证）
-    const isValidUrl = /^https?:\/\/.+|^\/.+/.test(validImageUrl);
-    if (!isValidUrl) {
-      validImageUrl = 'https://via.placeholder.com/300x400/6366f1/ffffff?text=Image';
-    }
-
-    try {
-      // 重置表单提交状态
-      formSubmitted.value = false;
-      
-      // 准备提交数据
-      const submitData = {
-        ...form.value,
-        mainImageUrl: validImageUrl,
-      };
-
-      // 将季节名称转换为ID（如果需要）
-      if (form.value.seasons && form.value.seasons.length > 0) {
-        // 如果是多季节选择，取第一个季节作为主要季节
-        const primarySeason = form.value.seasons[0];
-        // 查找对应的季节ID
-        const season = enumsStore.seasonOptions.find(s => s.label === primarySeason);
-        if (season && season.value) {
-          submitData.season = season.value;
-        }
-      }
-
-      // 准备完整的提交数据
-      const finalSubmitData = {
-        ...submitData,
-        // 确保所有字段都以独立字段形式传递
-        // 移除可能存在的metadata对象
-        metadata: undefined,
-        // 确保下拉框字段是数字类型
-        size: submitData.size ? Number(submitData.size) : undefined,
-        condition: submitData.condition ? Number(submitData.condition) : undefined,
-        category: submitData.category ? Number(submitData.category) : undefined,
-        color: submitData.color ? Number(submitData.color) : undefined,
-        style: submitData.style ? Number(submitData.style) : undefined,
-        material: submitData.material ? Number(submitData.material) : undefined,
-      };
-
-      if (form.value.id) {
-        // 更新现有衣物
-        await clothingStore.updateClothingItem(form.value.id, finalSubmitData);
-        showToast('衣物信息已更新', 'success');
-      } else {
-        // 添加新衣物
-        await clothingStore.addClothingItem(finalSubmitData);
-        showToast('新衣物已添加', 'success');
-      }
-
-      // 通知父组件保存成功
-      emit('saved');
-      // 关闭模态框
-      emit('close');
-    } catch (error) {
-      console.error('保存衣物失败:', error);
-      if (error.response?.data?.error?.details) {
-        showToast(`保存失败: ${error.response.data.error.details}`, 'error');
-      } else {
-        showToast('保存失败，请重试', 'error');
-      }
+      formError.value = '分类数据加载失败，请刷新页面';
     }
   }
+  window.addEventListener('keydown', handleKeyDown);
+});
 
-  // 点击背景关闭
-  function closeOnBackdrop() {
+onUnmounted(() => {
+  window.removeEventListener('keydown', handleKeyDown);
+  clearTimeout(escapeKeyTimeout); // 清理定时器
+});
+
+// 14. 辅助函数（精简）
+const closeOnBackdrop = () => {
+  if (!loading.value) { // 保存中不允许关闭
     emit('close');
   }
-
-  // 键盘事件处理
-  function handleKeyDown(event) {
-    // ESC键关闭模态框
-    if (event.key === 'Escape') {
-      emit('close');
-    }
-  }
-
-  // 组件卸载时移除键盘事件监听器
-  onUnmounted(() => {
-    window.removeEventListener('keydown', handleKeyDown);
-  });
-
-  // 更新分类名称
-  function updateCategoryName() {
-    if (form.value.category) {
-      const selectedCategory = categories.value.find(c => c.id === form.value.category);
-      if (selectedCategory) {
-        form.value.categoryName = selectedCategory.name;
-      }
-    } else {
-      form.value.categoryName = '';
-    }
-  }
+};
 </script>
 
 <style scoped>
-  .modal-enter-active,
-  .modal-leave-active {
-    transition: opacity 0.3s ease;
-  }
+/* 动画优化（保留核心） */
+.modal-enter-active,
+.modal-leave-active {
+  transition: opacity 0.3s ease;
+}
 
-  .modal-enter-from,
-  .modal-leave-to {
-    opacity: 0;
-  }
+.modal-enter-from,
+.modal-leave-to {
+  opacity: 0;
+}
 
-  /* 模态框内容动画 */
-  .modal-enter-active .bg-white,
-  .modal-leave-active .bg-white {
-    transition: transform 0.3s ease, opacity 0.3s ease;
-  }
+.modal-enter-active .bg-white,
+.modal-leave-active .bg-white {
+  transition: transform 0.3s ease, opacity 0.3s ease;
+}
 
-  .modal-enter-from .bg-white,
-  .modal-leave-to .bg-white {
-    transform: scale(0.95) translateY(-10px);
-    opacity: 0;
-  }
+.modal-enter-from .bg-white,
+.modal-leave-to .bg-white {
+  transform: scale(0.95) translateY(-10px);
+  opacity: 0;
+}
 
-  /* 自定义滚动条样式优化 */
-  ::-webkit-scrollbar {
-    width: 6px;
-    height: 6px;
-  }
+/* 滚动条优化（保留） */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
 
-  ::-webkit-scrollbar-track {
-    background: #f5f5f5;
-    border-radius: 3px;
-  }
+::-webkit-scrollbar-track {
+  background: #f5f5f5;
+  border-radius: 3px;
+}
 
-  ::-webkit-scrollbar-thumb {
-    background: #c1c1c1;
-    border-radius: 3px;
-    transition: background-color 0.2s ease;
-  }
+::-webkit-scrollbar-thumb {
+  background: #c1c1c1;
+  border-radius: 3px;
+  transition: background-color 0.2s ease;
+}
 
-  ::-webkit-scrollbar-thumb:hover {
-    background: #a8a8a8;
-  }
+::-webkit-scrollbar-thumb:hover {
+  background: #a8a8a8;
+}
 
-  ::-webkit-scrollbar-corner {
-    background: #f5f5f5;
-  }
+/* 聚焦样式（精简，避免重复） */
+:focus {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+}
 
-  /* 输入框聚焦效果 */
-  input:focus,
-  textarea:focus,
-  select:focus {
-    outline: none;
-    box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
-  }
+/* 按钮效果（保留核心，移除冗余） */
+button {
+  position: relative;
+  overflow: hidden;
+}
 
-  /* 复选框样式 */
-  input[type='checkbox'] {
-    position: relative;
-    cursor: pointer;
-  }
+button::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+  transition: left 0.5s;
+}
 
-  input[type='checkbox']:before {
-    content: '';
-    display: block;
-    position: absolute;
-    width: 16px;
-    height: 16px;
-    top: 0;
-    left: 0;
-    background-color: white;
-    border-radius: 3px;
-    border: 1px solid #d1d5db;
-  }
+button:hover::before {
+  left: 100%;
+}
 
-  input[type='checkbox']:checked:before {
-    content: '';
-    display: block;
-    position: absolute;
-    width: 16px;
-    height: 16px;
-    top: 0;
-    left: 0;
-    background-color: currentColor;
-    border-radius: 3px;
-  }
+/* 加载动画（新增） */
+.animate-spin {
+  animation: spin 1s linear infinite;
+}
 
-  input[type='checkbox']:checked:after {
-    content: '';
-    display: block;
-    width: 5px;
-    height: 10px;
-    border: solid white;
-    border-width: 0 2px 2px 0;
-    position: absolute;
-    top: 2px;
-    left: 6px;
-    transform: rotate(45deg);
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
   }
-
-  /* 按钮悬停效果 */
-  button {
-    position: relative;
-    overflow: hidden;
+  to {
+    transform: rotate(360deg);
   }
-
-  button:before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: -100%;
-    width: 100%;
-    height: 100%;
-    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
-    transition: left 0.5s;
-  }
-
-  button:hover:before {
-    left: 100%;
-  }
+}
 </style>
-

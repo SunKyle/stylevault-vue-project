@@ -1,19 +1,18 @@
 <template>
   <ContentLayout>
-    <section :key="forceUpdateKey">
+    <section>
       <!-- 搜索和上传区 -->
       <WardrobeHeader
         :handleSearch="handleSearch"
         @showUpload="handleAddClothing"
         @viewAll="viewAllCategories"
+        :isSearching="isSearching"
       />
 
       <!-- 加载状态 -->
       <div v-if="loading" class="container mx-auto px-4 mb-12">
         <div class="flex justify-center items-center h-64">
-          <div
-            class="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary"
-          ></div>
+          <div class="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary"></div>
         </div>
       </div>
 
@@ -51,7 +50,15 @@
             />
           </a>
         </div>
+        
+        <!-- 分类空状态 -->
+        <div v-if="categories.length === 0" class="flex flex-col items-center justify-center py-8">
+          <font-awesome-icon :icon="['fas', 'folder-open']" class="text-neutral-300 text-3xl mb-2" />
+          <p class="text-neutral-500 text-sm">暂无分类数据</p>
+        </div>
+        
         <div
+          v-else
           class="grid grid-cols-2 xs:grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 gap-3 sm:gap-4"
         >
           <ClothingCategory
@@ -69,19 +76,23 @@
       <FavoriteSection />
 
       <!-- 精选搭配 -->
-      <FeaturedOutfits v-if="!loading && !error" :outfits="outfits" />
-      <div
-        v-if="getCategoryItems(selectedCategory).length > 0"
-        class="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 xl:grid-cols-7 2xl:grid-cols-8 gap-4"
+      <FeaturedOutfits v-if="!loading && !error" :outfits="[]" />
+      
+      <!-- 分类选中时的空状态 -->
+      <div 
+        v-if="!loading && !error && selectedCategory && getCategoryItems(selectedCategory).length === 0"
+        class="container mx-auto px-4 py-12 text-center"
       >
-        <ClothingItem
-          v-for="item in getCategoryItems(selectedCategory)"
-          :key="item.id"
-          :item="item"
-          @like="toggleFavorite(item)"
-          @viewDetail="viewItemDetail"
-          class="transform transition-transform hover:scale-105"
-        />
+        <div class="flex flex-col items-center justify-center">
+          <font-awesome-icon :icon="['fas', 'shirt']" class="text-neutral-300 text-4xl mb-4" />
+          <p class="text-neutral-500 mb-4">该分类下暂无衣物</p>
+          <button 
+            @click="handleAddClothing" 
+            class="px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary/90 transition-colors"
+          >
+            添加衣物
+          </button>
+        </div>
       </div>
 
       <!-- 最近添加的衣物 -->
@@ -96,7 +107,21 @@
             />
           </a>
         </div>
+        
+        <!-- 最近添加空状态 -->
+        <div v-if="recentlyAddedItems.length === 0" class="flex flex-col items-center justify-center py-12">
+          <font-awesome-icon :icon="['fas', 'plus-circle']" class="text-neutral-300 text-4xl mb-4" />
+          <p class="text-neutral-500 mb-4">您还没有添加任何衣物</p>
+          <button 
+            @click="handleAddClothing" 
+            class="px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary/90 transition-colors"
+          >
+            添加第一件衣物
+          </button>
+        </div>
+        
         <div
+          v-else
           class="grid grid-cols-2 xs:grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 gap-4 sm:gap-5"
         >
           <ClothingItem
@@ -125,6 +150,7 @@
           </div>
         </div>
       </div>
+      
       <!-- 分类结果展示 -->
       <CategoryDrawer
         :isDrawerOpen="isDrawerOpen"
@@ -133,7 +159,6 @@
         :getCategoryItems="getCategoryItems"
         :getSelectedCategoryName="getSelectedCategoryName"
         :getCategoryItemCount="getCategoryItemCount"
-        :key="forceUpdateKey"
         @closeDrawer="closeDrawer"
         @showUpload="$emit('showUpload')"
         @toggleFavorite="toggleFavorite"
@@ -152,604 +177,417 @@
         @close="closeEditor"
         @saved="handleEditSaved"
       />
+
+      <!-- 删除确认弹窗 -->
+      <ConfirmDialog
+        v-model:visible="deleteConfirmVisible"
+        title="确认删除"
+        content="确定要删除这件衣物吗？此操作不可撤销。"
+        confirmText="删除"
+        cancelText="取消"
+        confirmType="danger"
+        @confirm="confirmDelete"
+      />
     </section>
   </ContentLayout>
 </template>
 
 <script setup>
-  import { ref, computed, onMounted, nextTick, onUnmounted } from 'vue';
-  import ClothingCategory from '../components/ui/ClothingCategory.vue';
-  import ClothingItem from '../components/ui/molecules/ClothingItem.vue';
-  import FavoriteSection from '../components/wardrobe/FavoriteSection.vue';
-  import FeaturedOutfits from '../components/wardrobe/FeaturedOutfits.vue';
-  import WardrobeHeader from '../components/wardrobe/WardrobeHeader.vue';
-  import CategoryDrawer from '../components/wardrobe/CategoryDrawer.vue';
-  import ClothingItemEditor from '../components/wardrobe/ClothingItemEditor.vue';
-  import ContentLayout from '../components/layout/ContentLayout.vue';
-  import { useClothingStore } from '../stores/index';
-  import { useEnumsStore } from '../stores/index';
-  import { useRouter } from 'vue-router';
-  import { showToast } from '../utils/toast';
-  // import { outfitService } from '../services/outfitService'; // 暂时未使用
+import { ref, computed, onMounted, onUnmounted } from 'vue';
+import { debounce } from 'lodash';
+import ClothingCategory from '../components/ui/ClothingCategory.vue';
+import ClothingItem from '../components/ui/molecules/ClothingItem.vue';
+import FavoriteSection from '../components/wardrobe/FavoriteSection.vue';
+import FeaturedOutfits from '../components/wardrobe/FeaturedOutfits.vue';
+import WardrobeHeader from '../components/wardrobe/WardrobeHeader.vue';
+import CategoryDrawer from '../components/wardrobe/CategoryDrawer.vue';
+import ClothingItemEditor from '../components/wardrobe/ClothingItemEditor.vue';
+import ContentLayout from '../components/layout/ContentLayout.vue';
+import ConfirmDialog from '../components/ui/ConfirmDialog.vue'; // 通用确认弹窗组件
+import { useClothingStore } from '../stores/index';
+import { useEnumsStore } from '../stores/index';
+import { useRouter } from 'vue-router';
+import { showToast } from '../utils/toast';
 
-  const router = useRouter();
-  const clothingStore = useClothingStore();
-  const enumsStore = useEnumsStore();
-  // const emit = defineEmits(['showUpload']); // 暂时未使用
+const router = useRouter();
+const clothingStore = useClothingStore();
+const enumsStore = useEnumsStore();
 
-  // 状态
-  const isDrawerOpen = ref(false);
-  const searchResults = ref([]);
-  const isSearchMode = ref(false);
-  const currentSearchKeyword = ref('');
-  const currentFilter = ref('all');
-  const currentSort = ref(null);
-  const editingItem = ref(null);
-  const isEditorOpen = ref(false);
-  const isReadOnlyMode = ref(false);
 
-  // 计算属性
-  const categories = computed(() => {
-    // 确保从store获取的数据是数组格式
-    const storeCategories = Array.isArray(clothingStore.categories) ? clothingStore.categories : [];
+// 核心状态
+const isDrawerOpen = ref(false);
+const searchResults = ref([]);
+const isSearchMode = ref(false);
+const currentSearchKeyword = ref('');
+const currentFilter = ref('all');
+const currentSort = ref(null);
+const editingItem = ref(null);
+const isEditorOpen = ref(false);
+const isReadOnlyMode = ref(false);
+const isSearching = ref(false);
+const deleteConfirmVisible = ref(false);
+const currentDeleteItem = ref(null);
 
-    // 如果store中的categories不为空，直接返回
-    if (storeCategories.length > 0) {
-      return storeCategories;
-    }
 
-    // 从衣物数据中提取唯一的分类ID和名称（如果有）
-    const clothingItemsList = clothingItems.value || [];
-    const uniqueCategories = new Map();
-
-    clothingItemsList.forEach(item => {
-      if (item && item.category != null) {
-        // 这里可以根据需要扩展，比如从item中获取更多分类信息
-        if (!uniqueCategories.has(item.category)) {
-          uniqueCategories.set(item.category, {
-            id: item.category,
-            name: `分类 ${item.category}`,
-            icon: 'shirt',
-            enabled: true,
-          });
-        }
-      }
-    });
-
-    return Array.from(uniqueCategories.values());
+// 3. 获取分类数据
+const categories = computed(() => {
+  const merged = new Map();
+  clothingStore.categories.forEach(cate => {
+    merged.set(cate.id, cate);
   });
+  return Array.from(merged.values());
+});
 
-  const selectedCategory = computed(() => clothingStore.selectedCategory);
-  const loading = computed(() => clothingStore.loading);
-  const error = computed(() => clothingStore.error);
-  const recentlyAddedItems = computed(() => clothingStore.recentlyAddedItems);
-  // const favoriteItems = computed(() => clothingStore.favoriteItems); // 暂时未使用
-  const clothingItems = computed(() => clothingStore.clothingItems);
-  const itemsByCategory = computed(() => {
-    const result = {};
-    const items = clothingItems.value || [];
+// 基础数据计算属性
+const selectedCategory = computed(() => clothingStore.selectedCategory);
+const loading = computed(() => clothingStore.loading);
+const error = computed(() => clothingStore.error);
+const recentlyAddedItems = computed(() => clothingStore.recentlyAddedItems);
+const clothingItems = computed(() => clothingStore.clothingItems);
 
-    // 从items中按category字段分组（根据数据库设计）
-    items.forEach(item => {
-      if (item && item.category != null) {
-        if (!result[item.category]) {
-          result[item.category] = [];
-        }
-        result[item.category].push(item);
+// 按分类分组（缓存结果）
+const itemsByCategory = computed(() => {
+  const result = {};
+  clothingItems.value.forEach(item => {
+    if (item?.category != null) {
+      if (!result[item.category]) {
+        result[item.category] = [];
       }
-    });
-
-    return result;
+      result[item.category].push(item);
+    }
   });
+  return result;
+});
 
-  // 精选搭配数据
-  // const outfits = ref([]); // 暂时未使用
-
-  // 获取搭配数据
-  // const fetchOutfits = async () => { // 暂时未使用
-  //   try {
-  //     const response = await outfitService.getOutfits();
-  //     outfits.value = response.data || [];
-  //   } catch (error) {
-  //     console.error('获取搭配数据失败:', error);
-  //     outfits.value = [];
-  //   }
-  // };
-
-  // 获取指定分类的衣物数量
-  const getCategoryItemCount = categoryId => {
-    // 确保传入的参数是有效的
-    if (categoryId === undefined || categoryId === null) {
-      return 0;
-    }
-
-    // 在搜索模式下
-    if (isSearchMode.value) {
-      const results = searchResults.value || [];
-      if (categoryId === 'all') {
-        return results.length;
-      } else {
-        // 过滤搜索结果中对应category的项（使用category字段）
-        return results.filter(item => item && item.category === categoryId).length;
-      }
-    }
-
-    // 非搜索模式下
-    if (categoryId === 'all') {
-      return clothingItems.value ? clothingItems.value.length : 0;
-    } else {
-      // 使用计算属性中的itemsByCategory来获取数量
-      return itemsByCategory.value && itemsByCategory.value[categoryId]
-        ? itemsByCategory.value[categoryId].length
-        : 0;
-    }
-  };
-
-  function getSelectedCategoryName() {
-    if (isSearchMode.value) return `搜索结果: "${currentSearchKeyword.value}"`;
-    if (!selectedCategory.value) return '';
-    if (selectedCategory.value === 'all') return '全部衣物';
-    const category = categories.value.find(c => c.id === selectedCategory.value);
-    return category ? category.name : '';
+// --- 工具函数优化：拆分冗长逻辑 ---
+// 1. 筛选函数
+const filterItems = (items, filterType) => {
+  if (filterType === 'favorites') {
+    return items.filter(item => item.favorite);
   }
-
-  function getCategoryItems(categoryId) {
-    // 获取基础数据
-    let items;
-    if (isSearchMode.value) {
-      // 返回搜索结果
-      items = [...searchResults.value];
-    } else if (categoryId === 'all') {
-      // 返回所有衣物
-      items = [...clothingStore.clothingItems];
-    } else {
-      // 使用后端API获取特定分类的衣物
-      items = clothingStore.itemsByCategory[categoryId] || [];
-    }
-
-    // 应用筛选
-    if (currentFilter.value === 'favorites') {
-      items = items.filter(item => item.favorite);
-    } else if (currentFilter.value === 'recent') {
-      items = [...items].sort((a, b) => {
-        const dateA = new Date(a.purchaseDate || a.createdAt || 0);
-        const dateB = new Date(b.purchaseDate || b.createdAt || 0);
-        return dateB - dateA;
-      });
-    }
-
-    // 应用排序
-    if (currentSort.value === 'name') {
-      items = [...items].sort((a, b) => a.name.localeCompare(b.name));
-    }
-
-    return items;
-  }
-
-  // 定义暴露的方法
-  import { defineExpose } from 'vue';
-
-  // 添加一个方法来刷新数据
-  function refreshWardrobeData() {
-    // 强制更新组件，确保新添加的衣物能立即显示
-    forceUpdate();
-  }
-
-  // 在<script setup>中使用defineExpose暴露方法
-  defineExpose({
-    refreshWardrobeData,
-  });
-
-  // 强制更新组件的key
-  const forceUpdateKey = ref(0);
-
-  function forceUpdate() {
-    forceUpdateKey.value++;
-    nextTick(() => {
-      console.log('组件已强制更新');
+  if (filterType === 'recent') {
+    return [...items].sort((a, b) => {
+      const dateA = new Date(a.purchaseDate || a.createdAt || 0);
+      const dateB = new Date(b.purchaseDate || b.createdAt || 0);
+      return dateB - dateA;
     });
   }
+  return items;
+};
 
-  function handleAddClothing() {
-    router.push('/upload');
+// 2. 排序函数
+const sortItems = (items, sortType) => {
+  if (sortType === 'name') {
+    return [...items].sort((a, b) => a.name.localeCompare(b.name));
+  }
+  return items;
+};
+
+// 3. 获取分类衣物数量
+const getCategoryItemCount = (categoryId) => {
+  // 参数校验
+  if (categoryId === undefined || categoryId === null) return 0;
+
+  if (isSearchMode.value) {
+    const results = searchResults.value || [];
+    return categoryId === 'all' 
+      ? results.length 
+      : results.filter(item => item?.category === categoryId).length;
   }
 
-  onMounted(() => {
-    initializeData();
+  return categoryId === 'all' 
+    ? clothingItems.value.length 
+    : (itemsByCategory.value[categoryId]?.length || 0);
+};
 
-    // 监听全局查看全部衣物事件
-    document.addEventListener('view-all-clothing', viewAllCategories);
-  });
+// 4. 获取分类名称
+const getSelectedCategoryName = () => {
+  if (isSearchMode.value) return `搜索结果: "${currentSearchKeyword.value}"`;
+  if (!selectedCategory.value) return '';
+  if (selectedCategory.value === 'all') return '全部衣物';
+  
+  const category = categories.value.find(c => c.id === selectedCategory.value);
+  return category?.name || '';
+};
 
-  onUnmounted(() => {
-    // 清理事件监听器
-    document.removeEventListener('view-all-clothing', viewAllCategories);
-  });
-
-  function selectCategory(categoryId) {
-    console.log('点击分类，ID:', categoryId);
-    console.log('当前选中分类:', clothingStore.selectedCategory);
-    console.log('所有分类:', categories.value);
-    console.log('所有衣物:', clothingStore.clothingItems);
-
-    // 如果当前是搜索模式，先退出搜索模式
-    if (isSearchMode.value) {
-      isSearchMode.value = false;
-      searchResults.value = [];
-    }
-
-    // 重置筛选和排序状态
-    currentFilter.value = 'all';
-    currentSort.value = null;
-
-    if (clothingStore.selectedCategory === categoryId) {
-      console.log('清除选中分类');
-      clothingStore.clearSelectedCategory();
-      // 关闭抽屉
-      isDrawerOpen.value = false;
-    } else {
-      console.log('设置选中分类:', categoryId);
-      clothingStore.setSelectedCategory(categoryId);
-      // 打开抽屉
-      isDrawerOpen.value = true;
-    }
-
-    console.log('更新后选中分类:', clothingStore.selectedCategory);
-
-    // 强制更新组件
-    forceUpdate();
+// 5. 获取分类衣物（精简版）
+const getCategoryItems = (categoryId) => {
+  // 参数校验
+  if (!categoryId) return [];
+  
+  // 获取基础数据
+  let items = [];
+  if (isSearchMode.value) {
+    items = [...searchResults.value];
+  } else if (categoryId === 'all') {
+    items = [...clothingItems.value];
+  } else {
+    items = itemsByCategory.value[categoryId] || [];
   }
 
-  async function toggleFavorite(item) {
-    try {
-      await clothingStore.updateClothingItem(item.id, { favorite: !item.favorite });
-      showToast(item.favorite ? '已取消收藏' : '已添加到收藏', 'success');
-    } catch (error) {
-      showToast('操作失败，请重试', 'error');
-    }
+  // 应用筛选和排序
+  items = filterItems(items, currentFilter.value);
+  items = sortItems(items, currentSort.value);
+
+  return items;
+};
+
+// --- 业务逻辑优化 ---
+// 1. 刷新数据（响应式驱动，移除强制刷新）
+const refreshWardrobeData = async () => {
+  try {
+    await clothingStore.fetchClothingItems(true);
+  } catch (error) {
+    showToast('数据刷新失败', 'error');
+  }
+};
+
+// 2. 添加衣物
+const handleAddClothing = () => {
+  router.push('/upload');
+};
+
+// 3. 选择分类
+const selectCategory = async (categoryId) => {
+  // 参数校验
+  if (!categoryId) return;
+
+  // 退出搜索模式
+  if (isSearchMode.value) {
+    isSearchMode.value = false;
+    searchResults.value = [];
   }
 
-  async function handleSearch(keyword) {
-    console.log('开始搜索，关键词:', keyword);
+  // 重置筛选排序
+  currentFilter.value = 'all';
+  currentSort.value = null;
 
-    if (!keyword.trim()) {
-      // 搜索关键词为空，退出搜索模式
-      isSearchMode.value = false;
-      searchResults.value = [];
-      clothingStore.clearSelectedCategory();
-      return;
-    }
-
-    try {
-      // 进入搜索模式
-      isSearchMode.value = true;
-
-      // 使用后端API进行搜索
-      const results = await clothingStore.searchClothingItems(keyword);
-      searchResults.value = results;
-
-      // 搜索时清除分类选择
-      clothingStore.clearSelectedCategory();
-
-      // 保存搜索关键词
-      currentSearchKeyword.value = keyword;
-      showToast(`找到 ${results.length} 件相关衣物`, 'success');
-      // 打开抽屉展示
-      isDrawerOpen.value = true;
-    } catch (error) {
-      console.error('搜索失败:', error);
-      showToast('搜索失败，请重试', 'error');
-    }
-  }
-
-  async function initializeData() {
-    try {
-      // 先获取枚举数据，确保其他数据获取前枚举映射已就绪
-      await enumsStore.fetchAllEnums();
-      // 再获取分类和衣物数据
-      await Promise.all([clothingStore.fetchCategories(), clothingStore.fetchClothingItems()]);
-      console.log('衣物数据加载完成:', clothingStore.clothingItems);
-      console.log('分类数据加载完成:', clothingStore.categories);
-    } catch (error) {
-      console.error('初始化数据失败:', error);
-      showToast('数据加载失败，请稍后重试', 'error');
-    }
-  }
-
-  function closeDrawer() {
-    // 如果是搜索模式，清除搜索状态
-    if (isSearchMode.value) {
-      isSearchMode.value = false;
-      searchResults.value = [];
-    } else {
-      clothingStore.clearSelectedCategory();
-    }
-    // 重置筛选和排序状态
-    currentFilter.value = 'all';
-    currentSort.value = null;
+  // 切换分类选中状态
+  if (clothingStore.selectedCategory === categoryId) {
+    clothingStore.clearSelectedCategory();
     isDrawerOpen.value = false;
-  }
-
-  function viewItemDetail(item) {
-    // 设置当前查看的衣物
-    editingItem.value = item;
-    // 打开编辑模态框，设置为只读模式
-    isEditorOpen.value = true;
-    isReadOnlyMode.value = true;
-  }
-
-  function editItem(item) {
-    // 设置当前编辑的衣物
-    editingItem.value = item;
-    // 打开编辑模态框
-    isEditorOpen.value = true;
-  }
-
-  async function deleteItem(item) {
-    // 删除衣物的逻辑
-    if (confirm(`确定要删除 "${item.name}" 吗？此操作不可撤销。`)) {
-      try {
-        await clothingStore.deleteClothingItem(item.id);
-        showToast('衣物已成功删除', 'success');
-        // 如果删除后当前分类为空，关闭抽屉
-        if (getCategoryItems(selectedCategory.value).length === 1) {
-          closeDrawer();
-        }
-      } catch (error) {
-        showToast('删除失败，请重试', 'error');
-      }
-    }
-  }
-
-  function viewAllCategories() {
-    // 查看所有分类的逻辑
-    // 如果当前是搜索模式，先退出搜索模式
-    if (isSearchMode.value) {
-      isSearchMode.value = false;
-      searchResults.value = [];
-    }
-    // 重置筛选和排序状态
-    currentFilter.value = 'all';
-    currentSort.value = null;
-    // 设置一个特殊值表示查看全部
-    clothingStore.setSelectedCategory('all');
-
-    // 强制更新组件，确保显示最新添加的衣物
-    forceUpdate();
-
+  } else {
+    clothingStore.setSelectedCategory(categoryId);
     isDrawerOpen.value = true;
+    // 主动刷新数据（响应式更新）
+    await refreshWardrobeData();
+  }
+};
+
+// 4. 切换收藏
+const toggleFavorite = async (item) => {
+  // 参数校验
+  if (!item?.id) return;
+
+  try {
+    await clothingStore.updateClothingItem(item.id, { favorite: !item.favorite });
+    showToast(item.favorite ? '已取消收藏' : '已添加到收藏', 'success');
+  } catch (error) {
+    showToast('操作失败，请重试', 'error');
+  }
+};
+
+// 5. 搜索防抖（300ms）
+const handleSearch = debounce(async (keyword) => {
+  if (!keyword.trim()) {
+    isSearchMode.value = false;
+    searchResults.value = [];
+    clothingStore.clearSelectedCategory();
+    return;
   }
 
-  // 筛选处理函数
-  function handleFilter(filterType) {
-    currentFilter.value = filterType;
-    // 强制更新组件，以应用筛选
-    forceUpdate();
+  try {
+    isSearching.value = true;
+    isSearchMode.value = true;
+    
+    const results = await clothingStore.searchClothingItems(keyword);
+    searchResults.value = results;
+    clothingStore.clearSelectedCategory();
+    currentSearchKeyword.value = keyword;
+    
+    showToast(`找到 ${results.length} 件相关衣物`, 'success');
+    isDrawerOpen.value = true;
+  } catch (error) {
+    console.error('搜索失败:', error);
+    showToast('搜索失败，请重试', 'error');
+  } finally {
+    isSearching.value = false;
   }
+}, 300);
 
-  // 排序处理函数
-  function handleSort(sortType) {
-    currentSort.value = sortType;
-    // 强制更新组件，以应用排序
-    forceUpdate();
+// 6. 初始化数据
+const initializeData = async () => {
+  try {
+    await enumsStore.fetchAllEnums();
+    await Promise.all([
+      clothingStore.fetchCategories(),
+      clothingStore.fetchClothingItems()
+    ]);
+  } catch (error) {
+    console.error('初始化数据失败:', error);
+    showToast('数据加载失败，请稍后重试', 'error');
   }
+};
 
-  // 处理编辑保存
-  function handleEditSaved() {
-    // 编辑保存后强制更新组件，刷新数据
-    forceUpdate();
+// 7. 关闭抽屉
+const closeDrawer = () => {
+  if (isSearchMode.value) {
+    isSearchMode.value = false;
+    searchResults.value = [];
+  } else {
+    clothingStore.clearSelectedCategory();
   }
+  currentFilter.value = 'all';
+  currentSort.value = null;
+  isDrawerOpen.value = false;
+};
 
-  // 关闭编辑器
-  function closeEditor() {
-    isEditorOpen.value = false;
-    editingItem.value = null;
-    isReadOnlyMode.value = false;
+// 8. 查看详情
+const viewItemDetail = (item) => {
+  if (!item) return;
+  editingItem.value = item;
+  isEditorOpen.value = true;
+  isReadOnlyMode.value = true;
+};
+
+// 9. 编辑衣物
+const editItem = (item) => {
+  if (!item) return;
+  editingItem.value = item;
+  isEditorOpen.value = true;
+  isReadOnlyMode.value = false;
+};
+
+// 10. 触发删除确认
+const deleteItem = (item) => {
+  if (!item) return;
+  currentDeleteItem.value = item;
+  deleteConfirmVisible.value = true;
+};
+
+// 11. 确认删除
+const confirmDelete = async () => {
+  if (!currentDeleteItem.value) return;
+
+  try {
+    await clothingStore.deleteClothingItem(currentDeleteItem.value.id);
+    showToast('衣物已成功删除', 'success');
+    deleteConfirmVisible.value = false;
+    
+    // 删除后空分类处理
+    if (getCategoryItems(selectedCategory.value).length === 0) {
+      closeDrawer();
+    }
+    
+    // 刷新数据
+    await refreshWardrobeData();
+  } catch (error) {
+    showToast('删除失败，请重试', 'error');
   }
+};
 
-  // 生命周期 - 已经在上面的onMounted中调用了initializeData()
+// 12. 查看全部分类
+const viewAllCategories = () => {
+  if (isSearchMode.value) {
+    isSearchMode.value = false;
+    searchResults.value = [];
+  }
+  
+  currentFilter.value = 'all';
+  currentSort.value = null;
+  clothingStore.setSelectedCategory('all');
+  isDrawerOpen.value = true;
+};
+
+// 13. 筛选处理
+const handleFilter = (filterType) => {
+  if (!filterType) return;
+  currentFilter.value = filterType;
+};
+
+// 14. 排序处理
+const handleSort = (sortType) => {
+  currentSort.value = sortType;
+};
+
+// 15. 编辑保存后处理
+const handleEditSaved = async () => {
+  await refreshWardrobeData();
+  closeEditor();
+};
+
+// 16. 关闭编辑器
+const closeEditor = () => {
+  isEditorOpen.value = false;
+  editingItem.value = null;
+  isReadOnlyMode.value = false;
+};
+
+// --- 生命周期优化 ---
+onMounted(() => {
+  initializeData();
+  
+  // 全局事件防抖监听
+  const debouncedViewAll = debounce(viewAllCategories, 100);
+  document.addEventListener('view-all-clothing', debouncedViewAll);
+  window._wardrobeViewAllListener = debouncedViewAll;
+});
+
+onUnmounted(() => {
+  // 清理全局事件
+  if (window._wardrobeViewAllListener) {
+    document.removeEventListener('view-all-clothing', window._wardrobeViewAllListener);
+    delete window._wardrobeViewAllListener;
+  }
+  
+  // 清理防抖定时器
+  handleSearch.cancel();
+});
+
+// 暴露公共方法
+defineExpose({
+  refreshWardrobeData
+});
 </script>
 
 <style scoped>
-  .animate-fadeIn {
-    animation: fadeIn 0.5s ease-in-out;
-  }
+/* 仅保留核心样式，移除冗余动画 */
+.animate-fadeIn {
+  animation: fadeIn 0.5s ease-in-out;
+}
 
-  @keyframes fadeIn {
-    from {
-      opacity: 0;
-      transform: translateY(10px);
-    }
-    to {
-      opacity: 1;
-      transform: translateY(0);
-    }
-  }
-
-  /* 过渡动画 */
-  .fade-enter-active,
-  .fade-leave-active {
-    transition: opacity 0.3s ease;
-  }
-
-  .fade-enter-from,
-  .fade-leave-to {
+@keyframes fadeIn {
+  from {
     opacity: 0;
+    transform: translateY(10px);
   }
-
-  .animated {
-    animation-duration: 1s;
-    animation-fill-mode: both;
-  }
-
-  .slide-up-enter-active {
-    animation-name: slideUpIn;
-    animation-duration: 1s;
-  }
-
-  .slide-up-leave-active {
-    animation-name: slideUpOut;
-    animation-duration: 0.3s;
-  }
-
-  .slide-up-enter-from {
-    transform: translateY(100%) scale(0.95);
-    opacity: 0;
-  }
-
-  .slide-up-enter-to {
-    transform: translateY(0) scale(1);
-    opacity: 1;
-  }
-
-  .slide-up-leave-from {
-    transform: translateY(0) scale(1);
-    opacity: 1;
-  }
-
-  .slide-up-leave-to {
-    transform: translateY(100%) scale(0.95);
-    opacity: 0;
-  }
-
-  @keyframes slideUpIn {
-    from {
-      transform: translateY(100%) scale(0.95);
-      opacity: 0;
-    }
-    to {
-      transform: translateY(0) scale(1);
-      opacity: 1;
-    }
-  }
-
-  @keyframes slideUpOut {
-    from {
-      transform: translateY(0) scale(1);
-      opacity: 1;
-    }
-    to {
-      transform: translateY(100%) scale(0.95);
-      opacity: 0;
-    }
-  }
-
-  /* 隐藏滚动条但保持滚动功能 */
-  .scrollbar-hide::-webkit-scrollbar {
-    display: none;
-  }
-
-  .scrollbar-hide {
-    -ms-overflow-style: none;
-    scrollbar-width: none;
-  }
-
-  /* 交错淡入动画 */
-  .staggered-fade-enter-active {
-    transition: all 0.5s ease;
-  }
-
-  .staggered-fade-enter-from {
-    opacity: 0;
-    transform: translateY(20px);
-  }
-
-  .staggered-fade-enter-to {
+  to {
     opacity: 1;
     transform: translateY(0);
   }
+}
 
-  /* 向上淡入动画 */
-  .fade-up-enter-active,
-  .fade-up-leave-active {
-    transition: all 0.6s ease;
-  }
+/* 隐藏滚动条但保持滚动功能 */
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
 
-  .fade-up-enter-from {
-    opacity: 0;
-    transform: translateY(30px);
-  }
+.scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
 
-  .fade-up-enter-to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+/* 加载动画 */
+.animate-spin {
+  animation: spin 1s linear infinite;
+}
 
-  /* 浮动动画 */
-  @keyframes float {
-    0%,
-    100% {
-      transform: translateY(0);
-    }
-    50% {
-      transform: translateY(-10px);
-    }
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
   }
-
-  .animate-float {
-    animation: float 3s ease-in-out infinite;
+  to {
+    transform: rotate(360deg);
   }
-
-  /* 慢速脉冲动画 */
-  @keyframes pulse-slow {
-    0%,
-    100% {
-      opacity: 1;
-    }
-    50% {
-      opacity: 0.7;
-    }
-  }
-
-  .animate-pulse-slow {
-    animation: pulse-slow 3s cubic-bezier(0.4, 0, 0.6, 1) infinite;
-  }
-
-  /* 慢速扩散动画 */
-  @keyframes ping-slow {
-    75%,
-    100% {
-      transform: scale(1.5);
-      opacity: 0;
-    }
-  }
-
-  .animate-ping-slow {
-    animation: ping-slow 2s cubic-bezier(0, 0, 0.2, 1) infinite;
-  }
-
-  /* 弹跳进入动画 */
-  @keyframes bounce-in {
-    0% {
-      transform: scale(0.8);
-      opacity: 0;
-    }
-    50% {
-      transform: scale(1.1);
-    }
-    100% {
-      transform: scale(1);
-      opacity: 1;
-    }
-  }
-
-  .animate-bounce-in {
-    animation: bounce-in 0.5s ease-out;
-  }
-
-  /* 延迟淡入动画 */
-  @keyframes fade-in-delay {
-    from {
-      opacity: 0;
-      transform: translateY(10px);
-    }
-    to {
-      opacity: 1;
-      transform: translateY(0);
-    }
-  }
-
-  .animate-fade-in-delay {
-    animation: fade-in-delay 0.5s ease-out;
-  }
+}
 </style>
