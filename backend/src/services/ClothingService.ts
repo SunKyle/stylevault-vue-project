@@ -82,12 +82,15 @@ export class ClothingService {
    * 创建衣物
    */
   async createClothingItem(data: ClothingCreateData) {
-    // 直接使用独立字段处理数据
+    // 从metadata中提取字段（兼容前端可能的不同数据结构）
+    const metadata = (data as any).metadata || {};
+    
+    // 直接使用独立字段处理数据，如果独立字段不存在则从metadata中获取
     const clothingItemData: any = {
       userId: data.userId,
       name: data.name.trim(),
       brand: data.brand?.trim(),
-      condition: data.condition || 'good',
+      condition: data.condition || metadata.condition || 1, // 默认值设为1（假设1代表'good'）
       notes: data.notes?.trim(),
       imageUrls: Array.isArray(data.imageUrls) ? data.imageUrls.filter((url: string) => url && url.trim()) : [],
       mainImageUrl: data.mainImageUrl?.trim(),
@@ -97,30 +100,35 @@ export class ClothingService {
 
     // 处理purchaseDate
     if (data.purchaseDate) clothingItemData.purchaseDate = new Date(data.purchaseDate);
+    else if (metadata.purchaseDate) clothingItemData.purchaseDate = new Date(metadata.purchaseDate);
     
     // 处理分类
-    if (data.category) clothingItemData.category = data.category;
+    if (data.category) clothingItemData.category = parseInt(data.category as unknown as string);
     
     // 处理颜色
-    if (data.color) clothingItemData.color = data.color;
+    if (data.color) clothingItemData.color = parseInt(data.color as unknown as string);
     
     // 处理风格
-    if (data.style) clothingItemData.style = data.style;
+    if (data.style) clothingItemData.style = parseInt(data.style as unknown as string);
     
-    // 处理尺寸
-    if (data.size) clothingItemData.size = data.size;
+    // 处理尺寸（从data或metadata中获取，并确保转换为数字）
+    if (data.size) clothingItemData.size = parseInt(data.size as unknown as string);
+    else if (metadata.size) clothingItemData.size = parseInt(metadata.size);
     
     // 处理价格
-    if (data.price !== undefined) clothingItemData.price = data.price;
+    if (data.price !== undefined) clothingItemData.price = parseFloat(data.price as unknown as string);
+    else if (metadata.price !== undefined) clothingItemData.price = parseFloat(metadata.price);
     
     // 处理parentId
     if (data.parentId) clothingItemData.parentId = data.parentId;
     
     // 处理季节
     if (data.seasons) clothingItemData.seasons = data.seasons;
+    else if (metadata.seasons) clothingItemData.seasons = metadata.seasons;
     
-    // 处理材质
-    if (data.material) clothingItemData.material = data.material;
+    // 处理材质（从data或metadata中获取，并确保转换为数字）
+    if (data.material) clothingItemData.material = parseInt(data.material as unknown as string);
+    else if (metadata.material) clothingItemData.material = parseInt(metadata.material);
 
     return await clothingRepository.createClothingItem(clothingItemData);
   }
@@ -129,7 +137,55 @@ export class ClothingService {
    * 更新衣物
    */
   async updateClothingItem(id: number, userId: number, data: ClothingUpdateData): Promise<any> {
-    const [affectedRows, [updatedItem]] = await clothingRepository.updateClothingItem(id, userId, data);
+    // 从metadata中提取字段（兼容前端可能的不同数据结构）
+    const metadata = (data as any).metadata || {};
+    
+    // 准备更新数据
+    const updateData: any = {};
+    
+    // 更新基本信息
+    if (data.name !== undefined) updateData.name = data.name.trim();
+    if (data.brand !== undefined) updateData.brand = data.brand.trim();
+    if (data.condition !== undefined) updateData.condition = data.condition;
+    else if (metadata.condition !== undefined) updateData.condition = metadata.condition;
+    if (data.notes !== undefined) updateData.notes = data.notes.trim();
+    if (data.imageUrls !== undefined) updateData.imageUrls = Array.isArray(data.imageUrls) ? data.imageUrls.filter((url: string) => url && url.trim()) : [];
+    if (data.mainImageUrl !== undefined) updateData.mainImageUrl = data.mainImageUrl?.trim();
+    if (data.favorite !== undefined) updateData.isFavorite = data.favorite;
+    
+    // 更新日期
+    if (data.purchaseDate !== undefined) updateData.purchaseDate = new Date(data.purchaseDate);
+    else if (metadata.purchaseDate !== undefined) updateData.purchaseDate = new Date(metadata.purchaseDate);
+    
+    // 更新分类
+    if (data.category !== undefined) updateData.category = parseInt(data.category as unknown as string);
+    else if (metadata.category !== undefined) updateData.category = parseInt(metadata.category as unknown as string);
+    
+    // 更新颜色
+    if (data.color !== undefined) updateData.color = parseInt(data.color as unknown as string);
+    else if (metadata.color !== undefined) updateData.color = parseInt(metadata.color as unknown as string);
+    
+    // 更新风格
+    if (data.style !== undefined) updateData.style = parseInt(data.style as unknown as string);
+    else if (metadata.style !== undefined) updateData.style = parseInt(metadata.style as unknown as string);
+    
+    // 更新尺寸
+    if (data.size !== undefined) updateData.size = parseInt(data.size as unknown as string);
+    else if (metadata.size !== undefined) updateData.size = parseInt(metadata.size as unknown as string);
+    
+    // 更新价格
+    if (data.price !== undefined) updateData.price = parseFloat(data.price as unknown as string);
+    else if (metadata.price !== undefined) updateData.price = parseFloat(metadata.price as unknown as string);
+    
+    // 更新季节
+    if (data.seasons !== undefined) updateData.seasons = data.seasons;
+    else if (metadata.seasons !== undefined) updateData.seasons = metadata.seasons;
+    
+    // 更新材质
+    if (data.material !== undefined) updateData.material = parseInt(data.material as unknown as string);
+    else if (metadata.material !== undefined) updateData.material = parseInt(metadata.material as unknown as string);
+    
+    const [affectedRows, [updatedItem]] = await clothingRepository.updateClothingItem(id, userId, updateData);
 
     if (affectedRows === 0) {
       throw new Error('衣物不存在或无权限修改');

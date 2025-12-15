@@ -35,7 +35,8 @@
           <img
             :src="clothingItem.image"
             alt="衣物预览"
-            class="max-h-full max-w-full object-contain"
+            class="max-h-full max-w-full object-contain cursor-zoom-in"
+            @click="openImagePreview(clothingItem.image)"
           />
           <div
             class="absolute inset-0 bg-black/40 opacity-0 hover:opacity-100 transition-opacity flex items-center justify-center"
@@ -97,7 +98,9 @@
               v-model="clothingItem.name"
               placeholder="例如：黑色修身牛仔裤"
               class="w-full px-4 py-3 rounded-xl border border-neutral-200 focus:border-primary focus:ring-2 focus:ring-primary/20 focus:outline-none transition-all"
+              @blur="validateField('name')"
             />
+            <p v-if="validateField('name')" class="mt-1 text-xs text-red-500">{{ validateField('name') }}</p>
           </div>
 
           <div>
@@ -108,8 +111,10 @@
             <select
               v-model="clothingItem.category"
               class="w-full px-4 py-3 rounded-xl border border-neutral-200 focus:border-primary focus:ring-2 focus:ring-primary/20 focus:outline-none transition-all appearance-none bg-white"
+              @blur="validateField('category')"
             >
-              <option value="">请选择类别</option>
+              <option value="" disabled v-if="enumsStore.loading">加载中...</option>
+              <option value="" v-else>请选择类别</option>
               <option
                 v-for="category in categoryOptions"
                 :key="category.value"
@@ -117,7 +122,11 @@
               >
                 {{ category.label }}
               </option>
+              <option value="" disabled v-if="!enumsStore.loading && categoryOptions.length === 0">
+                暂无类别数据
+              </option>
             </select>
+            <p v-if="validateField('category')" class="mt-1 text-xs text-red-500">{{ validateField('category') }}</p>
           </div>
 
           <div>
@@ -126,9 +135,17 @@
               v-model="clothingItem.style"
               class="w-full px-4 py-3 rounded-xl border border-neutral-200 focus:border-primary focus:ring-2 focus:ring-primary/20 focus:outline-none transition-all appearance-none bg-white"
             >
-              <option value="">请选择风格</option>
-              <option v-for="style in styleOptions" :key="style.value" :value="style.value">
+              <option value="" disabled v-if="enumsStore.loading">加载中...</option>
+              <option value="" v-else>请选择风格</option>
+              <option
+                v-for="style in styleOptions"
+                :key="style.value"
+                :value="style.value"
+              >
                 {{ style.label }}
+              </option>
+              <option value="" disabled v-if="!enumsStore.loading && styleOptions.length === 0">
+                暂无风格数据
               </option>
             </select>
           </div>
@@ -158,9 +175,17 @@
               v-model="clothingItem.color"
               class="w-full px-4 py-3 rounded-xl border border-neutral-200 focus:border-primary focus:ring-2 focus:ring-primary/20 focus:outline-none transition-all appearance-none bg-white"
             >
-              <option value="">请选择颜色</option>
-              <option v-for="color in colorOptions" :key="color.value" :value="color.value">
+              <option value="" disabled v-if="enumsStore.loading">加载中...</option>
+              <option value="" v-else>请选择颜色</option>
+              <option
+                v-for="color in colorOptions"
+                :key="color.value"
+                :value="color.value"
+              >
                 {{ color.label }}
+              </option>
+              <option value="" disabled v-if="!enumsStore.loading && colorOptions.length === 0">
+                暂无颜色数据
               </option>
             </select>
           </div>
@@ -171,13 +196,17 @@
               v-model="clothingItem.material"
               class="w-full px-4 py-3 rounded-xl border border-neutral-200 focus:border-primary focus:ring-2 focus:ring-primary/20 focus:outline-none transition-all appearance-none bg-white"
             >
-              <option value="">请选择材质</option>
+              <option value="" disabled v-if="enumsStore.loading">加载中...</option>
+              <option value="" v-else>请选择材质</option>
               <option
                 v-for="material in materialOptions"
                 :key="material.value"
                 :value="material.value"
               >
                 {{ material.label }}
+              </option>
+              <option value="" disabled v-if="!enumsStore.loading && materialOptions.length === 0">
+                暂无材质数据
               </option>
             </select>
           </div>
@@ -188,9 +217,17 @@
               v-model="clothingItem.size"
               class="w-full px-4 py-3 rounded-xl border border-neutral-200 focus:border-primary focus:ring-2 focus:ring-primary/20 focus:outline-none transition-all appearance-none bg-white"
             >
-              <option value="">请选择尺寸</option>
-              <option v-for="size in sizeOptions" :key="size.value" :value="size.value">
+              <option value="" disabled v-if="enumsStore.loading">加载中...</option>
+              <option value="" v-else>请选择尺寸</option>
+              <option
+                v-for="size in sizeOptions"
+                :key="size.value"
+                :value="size.value"
+              >
                 {{ size.label }}
+              </option>
+              <option value="" disabled v-if="!enumsStore.loading && sizeOptions.length === 0">
+                暂无尺寸数据
               </option>
             </select>
           </div>
@@ -201,13 +238,17 @@
               v-model="clothingItem.condition"
               class="w-full px-4 py-3 rounded-xl border border-neutral-200 focus:border-primary focus:ring-2 focus:ring-primary/20 focus:outline-none transition-all appearance-none bg-white"
             >
-              <option value="">请选择新旧程度</option>
+              <option value="" disabled v-if="enumsStore.loading">加载中...</option>
+              <option value="" v-else>请选择新旧程度</option>
               <option
                 v-for="condition in conditionOptions"
                 :key="condition.value"
                 :value="condition.value"
               >
                 {{ condition.label }}
+              </option>
+              <option value="" disabled v-if="!enumsStore.loading && conditionOptions.length === 0">
+                暂无新旧程度数据
               </option>
             </select>
           </div>
@@ -219,6 +260,7 @@
               <span class="text-red-500">*</span>
             </label>
             <SeasonMultiSelect v-model="selectedSeasons" :options="seasonOptions" />
+            <p v-if="validateField('seasons')" class="mt-1 text-xs text-red-500">{{ validateField('seasons') }}</p>
           </div>
         </div>
       </div>
@@ -239,7 +281,9 @@
               min="0"
               step="0.01"
               class="w-full px-4 py-3 rounded-xl border border-neutral-200 focus:border-primary focus:ring-2 focus:ring-primary/20 focus:outline-none transition-all"
+              @blur="validateField('price')"
             />
+            <p v-if="validateField('price')" class="mt-1 text-xs text-red-500">{{ validateField('price') }}</p>
           </div>
 
           <div>
@@ -249,7 +293,9 @@
               v-model="clothingItem.purchaseDate"
               :max="new Date().toISOString().split('T')[0]"
               class="w-full px-4 py-3 rounded-xl border border-neutral-200 focus:border-primary focus:ring-2 focus:ring-primary/20 focus:outline-none transition-all"
+              @blur="validateField('purchaseDate')"
             />
+            <p v-if="validateField('purchaseDate')" class="mt-1 text-xs text-red-500">{{ validateField('purchaseDate') }}</p>
           </div>
         </div>
       </div>
@@ -266,7 +312,6 @@
           placeholder="记录这件衣物的特殊信息，如：购买渠道、搭配建议、注意事项等..."
           class="w-full px-4 py-3 rounded-xl border border-neutral-200 focus:border-primary focus:ring-2 focus:ring-primary/20 focus:outline-none transition-all resize-none bg-white"
         ></textarea>
-        <!-- <p class="text-sm text-neutral-500 mt-2">支持添加关于衣物的额外描述、搭配心得或特殊说明</p> -->
       </div>
     </div>
 
@@ -283,38 +328,169 @@
         class="px-6 py-3 bg-primary text-white rounded-xl font-medium hover:bg-primary/90 transition-colors shadow-soft min-w-[120px] flex items-center justify-center disabled:opacity-70 disabled:cursor-not-allowed"
       >
         <font-awesome-icon :icon="['fas', 'save']" class="mr-2" />
-        保存衣物
+        {{ isSaving ? '保存中...' : '保存衣物' }}
       </button>
     </div>
   </div>
+
+  <!-- 图片预览弹窗 -->
+  <teleport to="body">
+    <div v-if="showImagePreview" class="fixed inset-0 bg-black/80 flex items-center justify-center z-50 p-4" @click="showImagePreview = false">
+      <img :src="previewImageUrl" alt="大图预览" class="max-h-[90vh] max-w-[90vw] object-contain" />
+    </div>
+  </teleport>
 </template>
 
 <script setup>
-  import { reactive, ref, computed, nextTick, onMounted } from 'vue';
-  import { useClothingStore } from '@/stores';
-  import { useEnumsStore } from '@/stores/modules/enumsStore';
-  import { showToast } from '../../utils/toast';
-  import SeasonMultiSelect from './SeasonMultiSelect.vue';
-  const clothingStore = useClothingStore();
-  const enumsStore = useEnumsStore();
+import { reactive, ref, computed, nextTick, onMounted, onUnmounted } from 'vue';
+import { useClothingStore } from '@/stores';
+import { useEnumsStore } from '@/stores/modules/enumsStore';
+import { showToast } from '../../utils/toast';
+import SeasonMultiSelect from './SeasonMultiSelect.vue';
 
-  // 确保枚举值在组件挂载时加载
-  onMounted(async () => {
-    await enumsStore.fetchAllEnums();
-    console.log('categoryOptions:', enumsStore.categoryOptions);
-  });
+// 1. 常量定义（统一管理硬编码）
+const IMAGE_CONFIG = {
+  MAX_SIZE: 5 * 1024 * 1024, // 5MB
+  ACCEPT_TYPES: ['image/jpeg', 'image/jpg', 'image/png'],
+  PLACEHOLDER_URL: 'https://via.placeholder.com/300x400/6366f1/ffffff?text=Image'
+};
+const ROUTES = {
+  HOME: '/'
+};
 
-  // 计算属性 - 从store获取枚举值
-  const categoryOptions = computed(() => enumsStore.categoryOptions);
-  const styleOptions = computed(() => enumsStore.styleOptions);
-  const seasonOptions = computed(() => enumsStore.seasonOptions);
-  const materialOptions = computed(() => enumsStore.materialOptions);
-  const colorOptions = computed(() => enumsStore.colorOptions);
-  const sizeOptions = computed(() => enumsStore.sizeOptions);
-  const conditionOptions = computed(() => enumsStore.conditionOptions);
+// 2. Store 初始化
+const clothingStore = useClothingStore();
+const enumsStore = useEnumsStore();
 
-  // 表单数据 - 使用独立ref管理季节数组以避免响应式问题
-  const clothingItem = reactive({
+// 3. 枚举数据加载 + 状态判断
+onMounted(async () => {
+  await enumsStore.fetchAllEnums();
+});
+
+// 4. 封装通用枚举获取函数（减少冗余）
+const getEnumOptions = (type) => {
+  return computed(() => enumsStore.getOptions(type));
+};
+const categoryOptions = getEnumOptions('categories');
+const styleOptions = getEnumOptions('styles');
+const seasonOptions = getEnumOptions('seasons');
+const materialOptions = getEnumOptions('materials');
+const colorOptions = getEnumOptions('colors');
+const sizeOptions = getEnumOptions('sizes');
+const conditionOptions = getEnumOptions('conditions');
+
+// 5. 表单数据 + 响应式优化
+const clothingItem = reactive({
+  name: '',
+  category: '',
+  style: '',
+  color: '',
+  material: '',
+  size: '',
+  condition: '',
+  brand: '',
+  price: null,
+  purchaseDate: '',
+  notes: '',
+  image: '',
+});
+const selectedSeasons = ref([]);
+const hasImage = computed(() => {
+  const image = clothingItem.image;
+  return image && typeof image === 'string' && image.trim() !== '';
+});
+
+// 6. 图片处理相关响应式
+const fileInput = ref(null);
+const isDragging = ref(false);
+const imageObjectURLs = ref([]); // 存储生成的ObjectURL，用于卸载时释放
+const showImagePreview = ref(false);
+const previewImageUrl = ref('');
+
+// 7. 状态管理
+const isSaving = ref(false);
+
+// 8. 工具方法
+// 触发文件选择
+const triggerFileInput = () => {
+  fileInput.value?.click();
+};
+
+// 处理文件选择
+const handleFileChange = event => {
+  const file = event.target.files[0];
+  if (file) {
+    processImageFile(file);
+    // 清空input值，避免重复选择同一文件不触发change事件
+    event.target.value = '';
+  }
+};
+
+// 处理拖拽悬停
+const handleDragOver = () => {
+  isDragging.value = true;
+};
+
+// 处理拖拽离开
+const handleDragLeave = () => {
+  isDragging.value = false;
+};
+
+// 处理文件拖放
+const handleDrop = event => {
+  isDragging.value = false;
+  const file = event.dataTransfer.files[0];
+  if (file && file.type.startsWith('image/')) {
+    processImageFile(file);
+  } else {
+    showToast('请上传图片文件', 'error');
+  }
+};
+
+// 处理图片文件（优化：使用ObjectURL替代FileReader，支持内存释放）
+const processImageFile = file => {
+  // 验证文件类型
+  if (!IMAGE_CONFIG.ACCEPT_TYPES.includes(file.type)) {
+    showToast(`请上传${IMAGE_CONFIG.ACCEPT_TYPES.map(type => type.split('/')[1]).join('/')}格式的图片`, 'error');
+    return;
+  }
+
+  // 验证文件大小
+  if (file.size > IMAGE_CONFIG.MAX_SIZE) {
+    showToast(`图片大小不能超过${IMAGE_CONFIG.MAX_SIZE / 1024 / 1024}MB`, 'error');
+    return;
+  }
+
+  try {
+    // 释放旧的URL
+    if (clothingItem.image && imageObjectURLs.value.includes(clothingItem.image)) {
+      URL.revokeObjectURL(clothingItem.image);
+    }
+    // 生成新的ObjectURL
+    const imageUrl = URL.createObjectURL(file);
+    clothingItem.image = imageUrl;
+    imageObjectURLs.value.push(imageUrl);
+    showToast('图片上传成功', 'success');
+  } catch (error) {
+    showToast('图片处理失败，请重试', 'error');
+    console.error('图片处理错误:', error);
+  }
+};
+
+// 图片预览放大
+const openImagePreview = (url) => {
+  previewImageUrl.value = url;
+  showImagePreview.value = true;
+};
+
+// 表单重置（含内存释放）
+const resetForm = () => {
+  // 释放图片URL
+  if (clothingItem.image && imageObjectURLs.value.includes(clothingItem.image)) {
+    URL.revokeObjectURL(clothingItem.image);
+  }
+  // 清空表单数据
+  Object.assign(clothingItem, {
     name: '',
     category: '',
     style: '',
@@ -328,171 +504,152 @@
     notes: '',
     image: '',
   });
+  selectedSeasons.value = [];
+  imageObjectURLs.value = [];
+};
 
-  // 独立管理季节数组，避免reactive对象的数组问题
-  const selectedSeasons = ref([]);
+// 单个字段校验（实时提示）
+const validateField = (field) => {
+  switch (field) {
+    case 'name':
+      return clothingItem.name.trim() ? '' : '衣物名称不能为空';
+    case 'category':
+      return clothingItem.category ? '' : '衣物类别不能为空';
+    case 'seasons':
+      return selectedSeasons.value.length > 0 ? '' : '请选择至少一个适用季节';
+    case 'price':
+      return clothingItem.price === null || !isNaN(Number(clothingItem.price)) ? '' : '价格必须是有效数字';
+    case 'purchaseDate':
+      return !clothingItem.purchaseDate || new Date(clothingItem.purchaseDate) <= new Date() ? '' : '购买日期不能晚于今天';
+    default:
+      return '';
+  }
+};
 
-  // 判断是否有图片
-  const hasImage = computed(() => {
-    return clothingItem.image && clothingItem.image.trim() !== '';
-  });
+// 统一表单校验
+const validateForm = () => {
+  const errors = [];
+  if (!clothingItem.name.trim()) errors.push('衣物名称不能为空');
+  if (!clothingItem.category) errors.push('衣物类别不能为空');
+  if (selectedSeasons.value.length === 0) errors.push('请选择至少一个适用季节');
+  if (clothingItem.price !== null && isNaN(Number(clothingItem.price))) {
+    errors.push('价格必须是有效数字');
+  }
+  if (clothingItem.purchaseDate && new Date(clothingItem.purchaseDate) > new Date()) {
+    errors.push('购买日期不能晚于今天');
+  }
+  return errors;
+};
 
-  // 文件输入引用
-  const fileInput = ref(null);
-  const isDragging = ref(false);
+// 取消按钮处理（含确认提示）
+const handleCancel = () => {
+  // 判断表单是否有未保存内容
+  const hasFormData = Object.values(clothingItem).some(val => 
+    val !== '' && val !== null && val !== undefined
+  ) || selectedSeasons.value.length > 0;
 
-  // 保存状态
-  const isSaving = ref(false);
-
-  // 触发文件选择
-  const triggerFileInput = () => {
-    fileInput.value.click();
-  };
-
-  // 处理文件选择
-  const handleFileChange = event => {
-    const file = event.target.files[0];
-    if (file) {
-      processImageFile(file);
+  if (hasFormData) {
+    if (confirm('你输入的内容尚未保存，确定要取消吗？')) {
+      resetForm();
+      window.location.href = ROUTES.HOME;
     }
-  };
+  } else {
+    resetForm();
+    window.location.href = ROUTES.HOME;
+  }
+};
 
-  // 处理拖拽悬停
-  const handleDragOver = () => {
-    isDragging.value = true;
-  };
+// 保存衣物（含重试逻辑）
+const saveClothes = async () => {
+  if (isSaving.value) return;
+  isSaving.value = true;
 
-  // 处理拖拽离开
-  const handleDragLeave = () => {
-    isDragging.value = false;
-  };
+  // 统一表单校验
+  const errors = validateForm();
+  if (errors.length > 0) {
+    showToast(errors.join('；'), 'error');
+    isSaving.value = false;
+    return;
+  }
 
-  // 处理文件拖放
-  const handleDrop = event => {
-    isDragging.value = false;
-    const file = event.dataTransfer.files[0];
-    if (file && file.type.startsWith('image/')) {
-      processImageFile(file);
-    } else {
-      showToast('请上传图片文件', 'error');
-    }
-  };
+  try {
+    const today = new Date().toISOString().split('T')[0];
+    let validatedMainImageUrl = clothingItem.image || null;
 
-  // 处理图片文件
-  const processImageFile = file => {
-    // 验证文件类型
-    if (!file.type.match('image.*')) {
-      showToast('请上传图片文件', 'error');
-      return;
-    }
-
-    // 验证文件大小（限制为5MB）
-    if (file.size > 5 * 1024 * 1024) {
-      showToast('图片大小不能超过5MB', 'error');
-      return;
+    // 处理图片URL（替换为占位符）
+    if (
+      validatedMainImageUrl &&
+      (validatedMainImageUrl.startsWith('data:') ||
+        validatedMainImageUrl.length > 200 ||
+        !/^https?:\/\/.+|^\/.+/.test(validatedMainImageUrl))
+    ) {
+      validatedMainImageUrl = IMAGE_CONFIG.PLACEHOLDER_URL;
+      showToast('图片已转换为占位符', 'info');
     }
 
-    // 创建图片URL
-    const reader = new FileReader();
-    reader.onload = e => {
-      clothingItem.image = e.target.result;
-      showToast('图片上传成功', 'success');
+    const itemToSubmit = {
+      name: clothingItem.name,
+      category: clothingItem.category,
+      colorId: clothingItem.color || null,
+      styleId: clothingItem.style || null,
+      condition: clothingItem.condition || null,
+      brand: clothingItem.brand,
+      notes: clothingItem.notes,
+      imageUrls: validatedMainImageUrl ? [validatedMainImageUrl] : [],
+      mainImageUrl: validatedMainImageUrl,
+      purchaseDate: clothingItem.purchaseDate || today,
+      favorite: false,
+      seasons: [...selectedSeasons.value] || [],
+      material: clothingItem.material || null,
+      size: clothingItem.size || null,
+      price: clothingItem.price ? parseFloat(clothingItem.price) : null,
+      // metadata: {
+      //   seasons: [...selectedSeasons.value] || [],
+      //   material: clothingItem.material || null,
+      //   size: clothingItem.size || null,
+      //   price: clothingItem.price ? parseFloat(clothingItem.price) : null,
+      // },
     };
-    reader.readAsDataURL(file);
-  };
 
-  // 取消按钮处理函数
-  const handleCancel = () => {
-    window.location.href = '/';
-  };
+    // 重试逻辑（最多2次）
+    let retryCount = 0;
+    const maxRetries = 2;
+    let submitSuccess = false;
 
-  // 保存衣物处理函数
-  const saveClothes = async () => {
-    if (isSaving.value) {
-      return;
-    }
-
-    isSaving.value = true;
-
-    // 验证必填字段
-    if (!clothingItem.name || !clothingItem.category) {
-      showToast('请填写衣物名称和类别', 'error');
-      isSaving.value = false;
-      return;
-    }
-
-    // 验证季节选择
-    if (!selectedSeasons.value || selectedSeasons.value.length === 0) {
-      showToast('请选择至少一个适用季节', 'error');
-      isSaving.value = false;
-      return;
-    }
-
-    try {
-      const today = new Date().toISOString().split('T')[0];
-
-      // 验证并处理mainImageUrl
-      let validatedMainImageUrl = clothingItem.image || null;
-
-      // 如果是DataURL格式或无效URL，使用占位符
-      if (
-        validatedMainImageUrl &&
-        (validatedMainImageUrl.startsWith('data:') ||
-          validatedMainImageUrl.length > 200 ||
-          !/^https?:\/\/.+|^\/.+/.test(validatedMainImageUrl))
-      ) {
-        validatedMainImageUrl = 'https://via.placeholder.com/300x400/6366f1/ffffff?text=Image';
-        showToast('图片已转换为占位符', 'info');
+    while (retryCount <= maxRetries && !submitSuccess) {
+      try {
+        await clothingStore.addClothingItem(itemToSubmit);
+        submitSuccess = true;
+      } catch (error) {
+        retryCount++;
+        if (retryCount > maxRetries) {
+          throw error;
+        }
+        showToast(`提交失败，正在重试（${retryCount}/${maxRetries}）`, 'warning');
+        await new Promise(resolve => setTimeout(resolve, 1000));
       }
-
-      // 现在数据库attributes表中已存在condition相关的记录，可以使用用户选择的值
-      const itemToSubmit = {
-        name: clothingItem.name,
-        category: clothingItem.category,
-        colorId: clothingItem.color || null,
-        styleId: clothingItem.style || null,
-        condition: clothingItem.condition || null,
-        brand: clothingItem.brand,
-        notes: clothingItem.notes,
-        imageUrls: validatedMainImageUrl ? [validatedMainImageUrl] : [],
-        mainImageUrl: validatedMainImageUrl,
-        purchaseDate: clothingItem.purchaseDate || today,
-        favorite: false,
-        metadata: {
-          seasons: [...selectedSeasons.value] || [], // 使用独立季节数组
-          material: clothingItem.material || null,
-          size: clothingItem.size || null,
-          price: clothingItem.price ? parseFloat(clothingItem.price) : null,
-        },
-      };
-
-      await clothingStore.addClothingItem(itemToSubmit);
-      showToast('衣物添加成功', 'success');
-
-      await clothingStore.fetchClothingItems();
-      await nextTick();
-
-      // 清空表单
-      Object.assign(clothingItem, {
-        name: '',
-        category: '',
-        style: '',
-        color: '',
-        material: '',
-        size: '',
-        condition: '',
-        brand: '',
-        price: null,
-        purchaseDate: '',
-        notes: '',
-        image: '',
-      });
-      selectedSeasons.value = []; // 清空季节选择
-    } catch (error) {
-      showToast('添加失败，请重试', 'error');
-      console.error('添加衣物失败:', error);
-    } finally {
-      isSaving.value = false;
     }
-  };
+
+    showToast('衣物添加成功', 'success');
+    await clothingStore.fetchClothingItems();
+    await nextTick();
+    
+    // 重置表单
+    resetForm();
+  } catch (error) {
+    showToast('添加失败，请稍后重试', 'error');
+    console.error('添加衣物失败:', error);
+  } finally {
+    isSaving.value = false;
+  }
+};
+
+// 组件卸载时清理资源
+onUnmounted(() => {
+  // 释放所有生成的ObjectURL
+  imageObjectURLs.value.forEach(url => {
+    URL.revokeObjectURL(url);
+  });
+  imageObjectURLs.value = [];
+});
 </script>

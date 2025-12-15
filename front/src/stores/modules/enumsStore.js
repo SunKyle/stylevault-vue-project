@@ -1,195 +1,87 @@
 import { defineStore } from 'pinia';
 import { enumsApi } from '../../services/apiClient';
 
-// 定义枚举类型的Store
+// 枚举类型列表（统一管理，避免硬编码）
+const ENUM_TYPES = [
+  'categories', 'styles', 'colors', 'seasons',
+  'materials', 'patterns', 'sizes', 'conditions',
+  'statuses', 'occasions'
+];
+
 export const useEnumsStore = defineStore('enums', {
   state: () => ({
-    // 存储枚举数据
-    enumsData: {
-      categories: [],
-      styles: [],
-      colors: [],
-      seasons: [],
-      materials: [],
-      patterns: [],
-      sizes: [],
-      conditions: [],
-      statuses: [],
-      occasions: [],
-    },
+    enumsData: Object.fromEntries(ENUM_TYPES.map(type => [type, []])),
     loading: false,
     error: null,
+    // 标记数据是否已加载完成，避免重复请求
+    isLoaded: false
   }),
 
   getters: {
-    // 获取所有枚举数据
-    getAllEnums: state => state.enumsData,
-
-    // 获取分类标签
-    getCategoryLabel: state => id => {
-      if (!id || !state.enumsData.categories) return id;
-      const item = state.enumsData.categories.find(cat => cat.value === id);
+    // 根据类型和id获取label
+    getLabel: state => (type, id) => {
+      // 校验：类型不存在/ID为空/枚举数据为空 → 返回原ID
+      if (!ENUM_TYPES.includes(type) || !id || !state.enumsData[type].length) return id;
+      const item = state.enumsData[type].find(item => item.value === id);
       return item ? item.label : id;
     },
 
-    // 获取风格标签
-    getStyleLabel: state => id => {
-      if (!id || !state.enumsData.styles) return id;
-      const item = state.enumsData.styles.find(style => style.value === id);
-      return item ? item.label : id;
+    // 根据类型获取选项列表
+    getOptions: state => (type) => {
+      return ENUM_TYPES.includes(type) ? state.enumsData[type] : [];
     },
-
-    // 获取颜色标签
-    getColorLabel: state => id => {
-      if (!id || !state.enumsData.colors) return id;
-      const item = state.enumsData.colors.find(color => color.value === id);
-      return item ? item.label : id;
-    },
-
-    // 获取季节标签
-    getSeasonLabel: state => id => {
-      if (!id || !state.enumsData.seasons) return id;
-      const item = state.enumsData.seasons.find(season => season.value === id);
-      return item ? item.label : id;
-    },
-
-    // 获取材质标签
-    getMaterialLabel: state => id => {
-      if (!id || !state.enumsData.materials) return id;
-      const item = state.enumsData.materials.find(material => material.value === id);
-      return item ? item.label : id;
-    },
-
-    // 获取图案标签
-    getPatternLabel: state => id => {
-      if (!id || !state.enumsData.patterns) return id;
-      const item = state.enumsData.patterns.find(pattern => pattern.value === id);
-      return item ? item.label : id;
-    },
-
-    // 获取尺码标签
-    getSizeLabel: state => id => {
-      if (!id || !state.enumsData.sizes) return id;
-      const item = state.enumsData.sizes.find(size => size.value === id);
-      return item ? item.label : id;
-    },
-
-    // 获取状态标签
-    getStatusLabel: state => id => {
-      if (!id || !state.enumsData.statuses) return id;
-      const item = state.enumsData.statuses.find(status => status.value === id);
-      return item ? item.label : id;
-    },
-
-    // 获取场合标签
-    getOccasionLabel: state => id => {
-      if (!id || !state.enumsData.occasions) return id;
-      const item = state.enumsData.occasions.find(occasion => occasion.value === id);
-      return item ? item.label : id;
-    },
-
-    // 获取穿着状态标签
-    getConditionLabel: state => id => {
-      if (!id || !state.enumsData.conditions) return id;
-      const item = state.enumsData.conditions.find(condition => condition.value === id);
-      return item ? item.label : id;
-    },
-
-    // 获取场景选项
-    sceneOptions: state => state.enumsData.occasions || [],
-
-    // 获取季节选项
-    seasonOptions: state => state.enumsData.seasons || [],
-
-    // 获取风格选项
-    styleOptions: state => state.enumsData.styles || [],
-
-    // 获取分类选项
-    categoryOptions: state => state.enumsData.categories || [],
-
-    // 获取材质选项
-    materialOptions: state => state.enumsData.materials || [],
-
-    // 获取颜色选项
-    colorOptions: state => state.enumsData.colors || [],
-
-    // 获取尺寸选项
-    sizeOptions: state => state.enumsData.sizes || [],
-
-    // Computed properties for common access
-    categories: state => state.enumsData.categories || [],
-    seasons: state => state.enumsData.seasons || [],
-    colors: state => state.enumsData.colors || [],
-    materials: state => state.enumsData.materials || [],
-    sizes: state => state.enumsData.sizes || [],
-
-    // Formatted labels for select options
-    categoryLabels: state =>
-      (state.enumsData.categories || []).map(cat => ({
-        value: cat.value,
-        label: cat.label,
-      })),
-
-    seasonLabels: state =>
-      (state.enumsData.seasons || []).map(season => ({
-        value: season.value,
-        label: season.label,
-      })),
   },
 
   actions: {
-    // 获取所有枚举数据
     async fetchAllEnums() {
+      // 防重复请求：正在加载 或 已加载完成 → 直接返回
+      if (this.loading || this.isLoaded) return;
+
       this.loading = true;
       this.error = null;
 
       try {
-        // 从enumsApi获取枚举数据
-        const data = (await enumsApi.getAllEnums()).data;
+        const response = await enumsApi.getAllEnums();
+        const data = response.data;
 
-        // 合并数据到enumsData对象中
         if (data && typeof data === 'object') {
           Object.keys(data).forEach(key => {
-            if (Object.prototype.hasOwnProperty.call(this.enumsData, key)) {
+            if (ENUM_TYPES.includes(key)) {
               this.enumsData[key] = Array.isArray(data[key]) ? data[key] : [];
             }
           });
         }
+        this.isLoaded = true; // 标记加载完成
         console.log('✅ 枚举数据加载成功');
       } catch (error) {
-        console.error('❌ 加载枚举数据失败:', error);
+        const errorMsg = error.message || '加载枚举数据失败';
+        console.error('❌ 加载枚举数据失败:', errorMsg);
+        this.error = errorMsg; // 存储错误信息，供组件使用
       } finally {
         this.loading = false;
       }
     },
 
-    // 设置特定类型的枚举数据
+    // 优化：增加类型校验
     setEnums(type, data) {
-      if (Object.prototype.hasOwnProperty.call(this.enumsData, type)) {
-        this.enumsData[type] = data || [];
+      if (ENUM_TYPES.includes(type)) {
+        this.enumsData[type] = Array.isArray(data) ? data : [];
+        this.isLoaded = true; // 手动设置数据后标记为已加载
       }
     },
 
-    // 清空枚举数据
+    // 优化：复用初始化逻辑，清空后重置标记
     clearEnums() {
-      this.enumsData = {
-        categories: [],
-        styles: [],
-        colors: [],
-        seasons: [],
-        materials: [],
-        patterns: [],
-        sizes: [],
-        conditions: [],
-        statuses: [],
-        occasions: [],
-      };
+      ENUM_TYPES.forEach(type => {
+        this.enumsData[type] = [];
+      });
+      this.isLoaded = false; // 清空后允许重新加载
+      this.error = null;
     },
 
-    // 初始化时自动获取数据
-    initializeStore() {
-      // This can be called from components when needed
-      this.fetchAllEnums();
-    },
+    // 优化：异步初始化，支持等待完成
+    async initializeStore() {
+      await this.fetchAllEnums(); // 等待请求完成
+    }
   },
 });

@@ -426,6 +426,27 @@ export class AttributeService {
   }
 
   /**
+   * 获取图案枚举值
+   */
+  async getPatterns(): Promise<EnumValue[]> {
+    return this.getEnumValues('pattern');
+  }
+
+  /**
+   * 获取状况枚举值
+   */
+  async getConditions(): Promise<EnumValue[]> {
+    return this.getEnumValues('condition');
+  }
+
+  /**
+   * 获取状态枚举值
+   */
+  async getStatuses(): Promise<EnumValue[]> {
+    return this.getEnumValues('status');
+  }
+
+  /**
    * 获取所有枚举值
    */
   async getAllEnums(): Promise<Record<string, EnumValue[]>> {
@@ -439,6 +460,9 @@ export class AttributeService {
       const materials = await this.getMaterials();
       const categories = await this.getCategories();
       const sizes = await this.getSizes();
+      const patterns = await this.getPatterns();
+      const conditions = await this.getConditions();
+      const statuses = await this.getStatuses();
 
       return {
         seasons,
@@ -448,7 +472,10 @@ export class AttributeService {
         colors,
         materials,
         categories,
-        sizes
+        sizes,
+        patterns,
+        conditions,
+        statuses
       };
     } catch (error) {
       logger.error('获取所有枚举值失败:', error);

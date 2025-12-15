@@ -219,7 +219,7 @@
     name: '',
     brand: '',
     price: null,
-    purchaseDate: null,
+    purchaseDate: '',
     size: '',
     condition: '',
     pattern: '',
@@ -401,7 +401,7 @@
         // 如果是多季节选择，取第一个季节作为主要季节
         const primarySeason = form.value.seasons[0];
         // 查找对应的季节ID
-        const season = enumsStore.seasons.find(s => s.label === primarySeason);
+        const season = enumsStore.seasonOptions.find(s => s.label === primarySeason);
         if (season && season.value) {
           submitData.season = season.value;
         }
@@ -413,6 +413,13 @@
         // 确保所有字段都以独立字段形式传递
         // 移除可能存在的metadata对象
         metadata: undefined,
+        // 确保下拉框字段是数字类型
+        size: submitData.size ? Number(submitData.size) : undefined,
+        condition: submitData.condition ? Number(submitData.condition) : undefined,
+        category: submitData.category ? Number(submitData.category) : undefined,
+        color: submitData.color ? Number(submitData.color) : undefined,
+        style: submitData.style ? Number(submitData.style) : undefined,
+        material: submitData.material ? Number(submitData.material) : undefined,
       };
 
       if (form.value.id) {
