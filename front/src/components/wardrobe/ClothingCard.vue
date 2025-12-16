@@ -57,11 +57,6 @@
     <div class="aspect-[3/4] overflow-hidden relative">
       <div class="absolute inset-0 bg-gradient-to-br from-transparent to-black/10 z-10"></div>
       
-      <!-- 图片骨架屏（加载中） -->
-      <!-- <div v-if="!imgLoaded && !imgError" class="absolute inset-0 bg-gray-100 skeleton-pulse flex items-center justify-center">
-        <font-awesome-icon :icon="['fas', 'tshirt']" class="text-gray-300 text-3xl" />
-      </div> -->
-      
       <!-- 主图片（懒加载+加载状态） -->
       <img
         v-show="!imgError"

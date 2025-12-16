@@ -108,7 +108,6 @@
 import { ref, computed, onUnmounted } from 'vue';
 import { debounce } from 'lodash';
 import { useClothingStore } from '@/stores';
-import { useEnumsStore } from '@/stores';
 import DrawerHeader from './DrawerHeader.vue';
 import ClothingCard from './ClothingCard.vue';
 import EmptyState from './EmptyState.vue';
@@ -186,7 +185,7 @@ const categoryItemCount = computed(() => {
 
 // 分类图标
 const categoryIcon = computed(() => {
-  if (props.isSearchMode) return 'search';
+  if (props.isSearchMode) return 'search.png';
   if (!props.selectedCategory || props.selectedCategory === 'all') return 'tag';
 
   try {

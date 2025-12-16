@@ -158,7 +158,7 @@
         :getSelectedCategoryName="getSelectedCategoryName"
         :getCategoryItemCount="getCategoryItemCount"
         @closeDrawer="closeDrawer"
-        @showUpload="$emit('showUpload')"
+        @showUpload="handleAddClothing"
         @toggleFavorite="toggleFavorite"
         @viewItemDetail="viewItemDetail"
         @editItem="editItem"
@@ -283,15 +283,13 @@ const sortItems = (items, sortType) => {
 
 // 3. 获取分类衣物数量
 const getCategoryItemCount = (categoryId) => {
-  // 参数校验
-  if (categoryId === undefined || categoryId === null) return 0;
-
   if (isSearchMode.value) {
     const results = searchResults.value || [];
-    return categoryId === 'all' 
-      ? results.length 
-      : results.filter(item => item?.category === categoryId).length;
+    return results.length;
   }
+
+  // 参数校验仅在非搜索模式下生效
+  if (categoryId === undefined || categoryId === null) return 0;
 
   return categoryId === 'all' 
     ? clothingItems.value.length 
@@ -310,19 +308,22 @@ const getSelectedCategoryName = () => {
 
 // 5. 获取分类衣物（精简版）
 const getCategoryItems = (categoryId) => {
-  // 参数校验
-  if (!categoryId) return [];
-  
   // 获取基础数据
   let items = [];
   if (isSearchMode.value) {
     items = [...searchResults.value];
-  } else if (categoryId === 'all') {
-    items = [...clothingItems.value];
   } else {
-    items = itemsByCategory.value[categoryId] || [];
+    // 参数校验仅在非搜索模式下生效
+    if (!categoryId) return [];
+    
+    if (categoryId === 'all') {
+      items = [...clothingItems.value];
+    } else {
+      items = itemsByCategory.value[categoryId] || [];
+    }
   }
-
+  console.log('获取分类衣物!!!!:', categoryId, items.length);
+  console.log('是否搜索模式:', isSearchMode.value);
   // 应用筛选和排序
   items = filterItems(items, currentFilter.value);
   items = sortItems(items, currentSort.value);
@@ -387,6 +388,7 @@ const toggleFavorite = async (item) => {
 
 // 5. 搜索防抖（300ms）
 const handleSearch = debounce(async (keyword) => {
+  console.log('搜索关键词:', keyword);
   if (!keyword.trim()) {
     isSearchMode.value = false;
     searchResults.value = [];
@@ -399,11 +401,12 @@ const handleSearch = debounce(async (keyword) => {
     isSearchMode.value = true;
     
     const results = await clothingStore.searchClothingItems(keyword);
-    searchResults.value = results;
+    console.log('搜索结果:', results);
+    searchResults.value = results.data.items;
     clothingStore.clearSelectedCategory();
     currentSearchKeyword.value = keyword;
     
-    showToast(`找到 ${results.length} 件相关衣物`, 'success');
+    showToast(`找到 ${results.data.items?.length || 0} 件相关衣物`, 'success');
     isDrawerOpen.value = true;
   } catch (error) {
     console.error('搜索失败:', error);

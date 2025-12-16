@@ -3,7 +3,7 @@
     <div class="flex flex-col items-center justify-center h-full py-12 text-center px-4">
       <div class="relative mb-6 animate-float">
         <div class="w-24 h-24 rounded-full bg-gradient-to-br from-primary/20 to-secondary/20 flex items-center justify-center mx-auto mb-4 shadow-lg">
-           <img :src= "'/src/assets/icons/' + props.categoryIcon" class="w-8 h-8 object-contain" />
+           <img :src="'/src/assets/icons/' + props.categoryIcon" class="w-8 h-8 object-contain" />
         </div>
         <div class="absolute -top-2 -right-2 w-10 h-10 rounded-full bg-yellow-400 flex items-center justify-center animate-ping-slow">
           <font-awesome-icon :icon="['fas', 'plus']" class="text-white" />      

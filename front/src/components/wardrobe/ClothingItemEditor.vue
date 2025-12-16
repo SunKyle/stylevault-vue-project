@@ -59,7 +59,7 @@
             <div class="mb-6">
               <ImageUpload 
                 v-model:image="form.image" 
-                :read-only="readOnly"
+                :read-only="props.readOnly"
                 @update:image="updateImage"
               />
             </div>
@@ -68,7 +68,7 @@
             <div class="mb-6">
               <BasicInfoForm 
                 v-model="form" 
-                :read-only="readOnly"
+                :read-only="props.readOnly"
                 :categories="categories"
                 @update:category="updateCategoryName"
               />
@@ -78,7 +78,7 @@
             <div class="mb-6">
               <SeasonSelector 
                 v-model:seasons="form.seasons" 
-                :read-only="readOnly"
+                :read-only="props.readOnly"
                 @update:seasons="updateSeasons"
               />
             </div>
@@ -87,7 +87,7 @@
             <div class="mb-8">
               <FavoriteToggle 
                 v-model:favorite="form.favorite" 
-                :read-only="readOnly"
+                :read-only="props.readOnly"
                 @update:favorite="updateFavorite"
               />
             </div>
