@@ -254,7 +254,7 @@
           </div>
 
           <!-- 季节选择区域 -->
-          <div>
+          <div class="col-span-1 md:col-span-2">
             <label class="block text-sm font-medium text-neutral-700 mb-2">
               适用季节
               <span class="text-red-500">*</span>
