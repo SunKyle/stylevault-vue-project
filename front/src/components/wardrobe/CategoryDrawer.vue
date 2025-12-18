@@ -152,7 +152,7 @@ const props = defineProps({
 const emit = defineEmits([
   'closeDrawer',
   'showUpload',
-  'toggleFavorite',
+  'toggle-favorite',
   'viewItemDetail',
   'editItem',
   'deleteItem',
@@ -218,7 +218,7 @@ const handleShowUpload = () => {
 // 切换收藏
 const handleToggleFavorite = (item) => {
   if (!item?.id) return;
-  debouncedEmit('toggleFavorite', item);
+  debouncedEmit('toggle-favorite', item);
 };
 
 // 查看详情

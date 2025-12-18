@@ -159,7 +159,7 @@
         :getCategoryItemCount="getCategoryItemCount"
         @closeDrawer="closeDrawer"
         @showUpload="handleAddClothing"
-        @toggleFavorite="toggleFavorite"
+        @toggle-favorite="toggleFavorite"
         @viewItemDetail="viewItemDetail"
         @editItem="editItem"
         @deleteItem="deleteItem"
@@ -311,15 +311,18 @@ const getCategoryItems = (categoryId) => {
   // 获取基础数据
   let items = [];
   if (isSearchMode.value) {
-    items = [...searchResults.value];
+    // 直接使用搜索结果，避免创建副本
+    items = searchResults.value;
   } else {
     // 参数校验仅在非搜索模式下生效
     if (!categoryId) return [];
     
     if (categoryId === 'all') {
-      items = [...clothingItems.value];
+      // 直接使用store中的最新数据
+      items = clothingStore.clothingItems;
     } else {
-      items = itemsByCategory.value[categoryId] || [];
+      // 直接从store中获取最新的按分类分组数据
+      items = clothingStore.itemsByCategory[categoryId] || [];
     }
   }
   console.log('获取分类衣物!!!!:', categoryId, items.length);
@@ -377,10 +380,10 @@ const selectCategory = async (categoryId) => {
 const toggleFavorite = async (item) => {
   // 参数校验
   if (!item?.id) return;
-
+  console.log('切换收藏:', item);
   try {
-    await clothingStore.updateClothingItem(item.id, { favorite: !item.favorite });
-    showToast(item.favorite ? '已取消收藏' : '已添加到收藏', 'success');
+    await clothingStore.toggleFavorite(item.id);
+    showToast(item.isFavorite ? '已取消收藏' : '已添加到收藏', 'success');
   } catch (error) {
     showToast('操作失败，请重试', 'error');
   }

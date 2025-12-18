@@ -25,7 +25,7 @@ export class OutfitController {
         return;
       }
 
-      const userId = (req as any).user.id; // 从authMiddleware获取用户ID
+      const userId = (req as any).user.userId; // 从authMiddleware获取用户ID
       const outfitData: OutfitCreateData = {
         userId,
         name: req.body.name,
@@ -59,7 +59,7 @@ export class OutfitController {
    */
   async getOutfits(req: Request, res: Response): Promise<void> {
     try {
-      const userId = (req as any).user.id;
+      const userId = (req as any).user.userId;
       const queryOptions: OutfitQueryOptions = {
         userId,
         status: req.query.status as string,
@@ -94,7 +94,7 @@ export class OutfitController {
    */
   async getOutfitById(req: Request, res: Response): Promise<void> {
     try {
-      const userId = (req as any).user.id;
+      const userId = (req as any).user.userId;
       const outfitId = parseInt(req.params.id, 10);
 
       if (isNaN(outfitId)) {
@@ -153,7 +153,7 @@ export class OutfitController {
         return;
       }
 
-      const userId = (req as any).user.id;
+      const userId = (req as any).user.userId;
       const outfitId = parseInt(req.params.id, 10);
 
       if (isNaN(outfitId)) {

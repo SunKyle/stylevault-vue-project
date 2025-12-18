@@ -46,7 +46,7 @@
     </div>
 
     <!-- 收藏标记（优化动画，更柔和） -->
-    <div v-if="item.favorite" class="absolute top-2 left-2 z-20 animate-bounce-in-mild">
+    <div v-if="item.isFavorite" class="absolute top-2 left-2 z-20 animate-bounce-in-mild">
       <div class="w-8 h-8 rounded-full bg-red-500 flex items-center justify-center shadow-md">
         <font-awesome-icon :icon="['fas', 'heart']" class="text-white text-sm" />
         <span class="sr-only">已收藏</span>

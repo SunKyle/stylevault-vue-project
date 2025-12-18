@@ -312,7 +312,7 @@ export class ClothingController {
   async updateClothingItem(req: Request, res: Response) {
     try {
       const { id } = req.params;
-      const userId = (req as any).user.id;
+      const userId = (req as any).user.userId;
       
       const clothingItem = await clothingService.updateClothingItem(
         parseInt(id), 
@@ -358,7 +358,7 @@ export class ClothingController {
    */
   async deleteClothingItem(req: Request, res: Response) {
     try {
-      const userId = (req as any).user.id;
+      const userId = (req as any).user.userId;
       const { id } = req.params;
 
       await clothingService.deleteClothingItem(parseInt(id), userId);
@@ -391,7 +391,7 @@ export class ClothingController {
    */
   async toggleFavorite(req: Request, res: Response) {
     try {
-      const userId = (req as any).user.id;
+      const userId = (req as any).user.userId;
       const { id } = req.params;
 
       const result = await clothingService.toggleFavorite(parseInt(id), userId);
