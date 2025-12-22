@@ -260,25 +260,31 @@ const itemsByCategory = computed(() => {
 // --- 工具函数优化：拆分冗长逻辑 ---
 // 1. 筛选函数
 const filterItems = (items, filterType) => {
+  // 始终创建数组副本，避免修改原始数据
+  const result = [...items];
+  
   if (filterType === 'favorites') {
-    return items.filter(item => item.favorite);
+    return result.filter(item => item.favorite);
   }
   if (filterType === 'recent') {
-    return [...items].sort((a, b) => {
+    return result.sort((a, b) => {
       const dateA = new Date(a.purchaseDate || a.createdAt || 0);
       const dateB = new Date(b.purchaseDate || b.createdAt || 0);
       return dateB - dateA;
     });
   }
-  return items;
+  return result;
 };
 
 // 2. 排序函数
 const sortItems = (items, sortType) => {
+  // 始终创建数组副本，避免修改原始数据
+  const result = [...items];
+  
   if (sortType === 'name') {
-    return [...items].sort((a, b) => a.name.localeCompare(b.name));
+    return result.sort((a, b) => a.name.localeCompare(b.name));
   }
-  return items;
+  return result;
 };
 
 // 3. 获取分类衣物数量
@@ -306,27 +312,27 @@ const getSelectedCategoryName = () => {
   return category?.name || '';
 };
 
-// 5. 获取分类衣物（精简版）
+// 5. 获取分类衣物
 const getCategoryItems = (categoryId) => {
   // 获取基础数据
   let items = [];
   if (isSearchMode.value) {
-    // 直接使用搜索结果，避免创建副本
-    items = searchResults.value;
+    // 创建搜索结果的副本，避免修改原始数据
+    items = [...(searchResults.value || [])];
   } else {
     // 参数校验仅在非搜索模式下生效
     if (!categoryId) return [];
     
+    // 直接从clothingItems中筛选，避免依赖itemsByCategory计算属性
+    const allItems = [...clothingStore.clothingItems];
+    
     if (categoryId === 'all') {
-      // 直接使用store中的最新数据
-      items = clothingStore.clothingItems;
+      items = allItems;
     } else {
-      // 直接从store中获取最新的按分类分组数据
-      items = clothingStore.itemsByCategory[categoryId] || [];
+      items = allItems.filter(item => item.category === categoryId);
     }
   }
-  console.log('获取分类衣物!!!!:', categoryId, items.length);
-  console.log('是否搜索模式:', isSearchMode.value);
+  
   // 应用筛选和排序
   items = filterItems(items, currentFilter.value);
   items = sortItems(items, currentSort.value);

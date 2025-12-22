@@ -579,11 +579,12 @@ export const useClothingStore = defineStore('clothing', {
       showToast('缓存已清理', 'success');
     },
 
-    // 切换收藏（简化）
+    // 切换收藏（优化：避免重复更新）
     async toggleFavorite(id) {
       const targetItem = this.clothingItems.find(item => item.id === id);
       if (!targetItem) return;
 
+      // 乐观更新，只更新favorite字段
       const { rollback } = utils.optimisticUpdate(
         this.clothingItems, 
         id, 
@@ -592,9 +593,9 @@ export const useClothingStore = defineStore('clothing', {
 
       try {
         const updatedItem = await clothingApi.toggleFavorite(id);
-        const index = this.clothingItems.findIndex(item => item.id === id);
-        if (index !== -1) this.clothingItems[index] = updatedItem;
-
+        
+        // API调用成功后，我们不需要再次更新数组，因为乐观更新已经是正确的
+        // 只需要更新缓存和显示提示即可
         cacheManager.delete(CACHE_KEYS.ITEM_DETAIL(id));
         cacheManager.delete(CACHE_KEYS.CLOTHING_ITEMS);
         cacheManager.delete(CACHE_KEYS.FAVORITE_ITEMS);

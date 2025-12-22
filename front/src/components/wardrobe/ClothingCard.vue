@@ -10,7 +10,7 @@
       <button
         @click.stop="handleToggleFavorite"
         class="card-action-btn"
-        :class="{ 'text-red-500': item.favorite, 'text-gray-400': !item.favorite }"
+        :class="{ 'text-red-500': item.isFavorite, 'text-gray-400': !item.favorite }"
         :disabled="isLoading"
       >
         <font-awesome-icon :icon="['fas', 'heart']" class="text-sm" />
