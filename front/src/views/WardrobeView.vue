@@ -264,7 +264,7 @@ const filterItems = (items, filterType) => {
   const result = [...items];
   
   if (filterType === 'favorites') {
-    return result.filter(item => item.favorite);
+    return result.filter(item => item.isFavorite);
   }
   if (filterType === 'recent') {
     return result.sort((a, b) => {
