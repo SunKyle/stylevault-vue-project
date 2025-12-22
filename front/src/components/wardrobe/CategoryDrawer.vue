@@ -186,7 +186,7 @@ const categoryItemCount = computed(() => {
 // 分类图标
 const categoryIcon = computed(() => {
   if (props.isSearchMode) return 'search.png';
-  if (!props.selectedCategory || props.selectedCategory === 'all') return 'tag';
+  if (!props.selectedCategory || props.selectedCategory === 'all') return 'all.png';
 
   try {
     const categories = Array.isArray(clothingStore.categories) ? clothingStore.categories : [];
