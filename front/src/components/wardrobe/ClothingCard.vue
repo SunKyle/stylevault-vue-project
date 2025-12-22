@@ -79,27 +79,22 @@
     <div class="p-3 bg-white border-t border-gray-100">
       <h3 class="font-semibold text-gray-900 truncate text-sm mb-1.5">{{ item.name || '未命名衣物' }}</h3>
 
-      <div class="flex items-center text-xs text-gray-500 mb-2">
-        <span v-if="item.brand" class="truncate">{{ item.brand }}</span>
-        <span v-else class="text-gray-400">无品牌</span>
-      </div>
-
       <!-- 标签区域（限制行数，避免溢出；提取通用样式） -->
       <div class="flex flex-wrap gap-1 mt-1.5 max-h-12 overflow-hidden">
-        <span class="clothing-tag season-tag">
-          {{ getEnumLabel('season', item.season) || '四季' }}
+        <span v-if="item.season" class="clothing-tag season-tag">
+          {{ getEnumLabel('seasons', item.season) }}
         </span>
         <span
           v-if="item.color"
           class="clothing-tag color-tag"
         >
-          {{ item.color }}
+          {{ getEnumLabel('colors', item.color) }} 
         </span>
         <span
-          v-if="item.category || item.category_id"
+          v-if="item.brand"
           class="clothing-tag category-tag"
         >
-          {{ item.category?.name || getEnumLabel('category', item.category_id) || item.category }}
+          {{ item.brand }}
         </span>
       </div>
     </div>
@@ -109,21 +104,8 @@
 <script setup>
 import { ref, onUnmounted, onUpdated } from 'vue';
 import { debounce } from 'lodash';
-import { useEnumsStore } from '@/stores';
+import { useEnumsStore } from '@/stores/modules/enumsStore';
 
-// 枚举映射表（集中管理，便于维护）
-const ENUM_GETTER_MAP = {
-  category: 'getCategoryLabel',
-  style: 'getStyleLabel',
-  color: 'getColorLabel',
-  season: 'getSeasonLabel',
-  material: 'getMaterialLabel',
-  pattern: 'getPatternLabel',
-  size: 'getSizeLabel',
-  condition: 'getConditionLabel',
-  status: 'getStatusLabel',
-  occasion: 'getOccasionLabel',
-};
 
 // --- Props 定义（增强校验，减少运行时错误） ---
 const props = defineProps({
@@ -212,9 +194,8 @@ const handleImgError = () => {
 const getEnumLabel = (type, id) => {
   if (!id || !type) return '';
   
-  const getter = ENUM_GETTER_MAP[type];
-  if (getter && typeof enumsStore[getter] === 'function') {
-    return enumsStore[getter](id) || '';
+  if (typeof enumsStore.getLabel === 'function') {
+    return enumsStore.getLabel(type, id) || '';
   }
   
   return String(id); // 确保返回字符串，避免渲染错误

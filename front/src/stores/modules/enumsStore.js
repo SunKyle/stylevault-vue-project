@@ -22,7 +22,7 @@ export const useEnumsStore = defineStore('enums', {
     getLabel: state => (type, id) => {
       // 校验：类型不存在/ID为空/枚举数据为空 → 返回原ID
       if (!ENUM_TYPES.includes(type) || !id || !state.enumsData[type].length) return id;
-      const item = state.enumsData[type].find(item => item.value === id);
+      const item = state.enumsData[type].find(item => item.value === String(id));
       return item ? item.label : id;
     },
 
