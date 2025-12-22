@@ -170,7 +170,7 @@ export const useClothingStore = defineStore('clothing', {
 
     // 获取收藏的衣物（简化）
     favoriteItems: state => {
-      return state.clothingItems.filter(item => item && item.favorite);
+      return state.clothingItems.filter(item => item && item.isFavorite);
     },
 
     // 按类别分组衣物（简化）
@@ -223,7 +223,7 @@ export const useClothingStore = defineStore('clothing', {
         categories: [...new Set(state.clothingItems.map(item => item?.category).filter(Boolean))].length,
         totalValue,
         averagePrice: state.clothingItems.length ? totalValue / state.clothingItems.length : 0,
-        favoriteCount: state.clothingItems.filter(item => item?.favorite).length
+        favoriteCount: state.clothingItems.filter(item => item?.isFavorite).length
       };
     }
   },
@@ -588,7 +588,7 @@ export const useClothingStore = defineStore('clothing', {
       const { rollback } = utils.optimisticUpdate(
         this.clothingItems, 
         id, 
-        { favorite: !targetItem.favorite }
+        { isFavorite: !targetItem.isFavorite }
       );
 
       try {
@@ -600,7 +600,7 @@ export const useClothingStore = defineStore('clothing', {
         cacheManager.delete(CACHE_KEYS.CLOTHING_ITEMS);
         cacheManager.delete(CACHE_KEYS.FAVORITE_ITEMS);
         
-        showToast(updatedItem.favorite ? '收藏成功' : '已取消收藏', 'success');
+        showToast(updatedItem.isFavorite ? '收藏成功' : '已取消收藏', 'success');
         return updatedItem;
       } catch (error) {
         rollback();

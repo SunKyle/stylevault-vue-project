@@ -382,7 +382,7 @@ const handleKeyDown = (event) => {
 
 // 13. 生命周期（精简，移除无用日志）
 onMounted(async () => {
-  if (!readOnly && categories.value.length === 0) {
+  if (!props.readOnly && categories.value.length === 0) {
     try {
       await enumsStore.value.fetchAllEnums();
     } catch (error) {
