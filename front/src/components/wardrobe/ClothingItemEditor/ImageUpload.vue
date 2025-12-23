@@ -132,18 +132,10 @@ const handleImageUpload = (event) => {
     const reader = new FileReader();
     reader.onload = e => {
       const dataUrl = e.target.result;
-
-      // 任何DataURL都使用占位符，避免验证失败
-      if (dataUrl.startsWith('data:')) {
-        localImage.value = 'https://via.placeholder.com/300x400/6366f1/ffffff?text=Image';
-        showToast('已使用占位符图片', 'info');
-      } else if (dataUrl.length > 200) {
-        // 任何长URL都使用占位符
-        localImage.value = 'https://via.placeholder.com/300x400/6366f1/ffffff?text=Image';
-        showToast('图片链接过长，已使用占位符', 'info');
-      } else {
-        localImage.value = dataUrl;
-      }
+      
+      // 显示实际的图片预览，不在上传时替换为占位符
+      // 占位符替换将在表单提交时进行
+      localImage.value = dataUrl;
     };
     reader.readAsDataURL(file);
   }

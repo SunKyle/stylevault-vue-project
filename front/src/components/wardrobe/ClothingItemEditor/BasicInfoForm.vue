@@ -58,17 +58,6 @@
               />
             </div>
           </div>
-          <!-- <div v-if="errors.category" class="error-message">
-            <font-awesome-icon :icon="['fas', 'exclamation-circle']" class="error-icon" />
-            {{ errors.category }}
-          </div> -->
-          <!-- <p
-            v-if="form.category && !categoryOptions.find(c => c.value === form.category)"
-            class="text-xs text-yellow-600 mt-1 flex items-center"
-          >
-            <font-awesome-icon :icon="['fas', 'exclamation-triangle']" class="mr-1" />
-            当前衣物分类已不存在，请重新选择
-          </p> -->
         </div>
 
         <!-- 风格 -->
@@ -382,7 +371,7 @@ const validateName = (value) => {
 };
 
 const validateCategory = (value) => {
-  if (!value.trim()) {
+  if (value === null) {
     return '请选择衣物分类';
   }
   return null;
@@ -474,7 +463,8 @@ watch(() => props.modelValue, (newValue) => {
       price: 0, // 价格应该默认为0而非null
       purchaseDate: '',
       notes: '',
-      seasons: []
+      seasons: [],
+      image: '' // 图片字段的默认值
     };
     
     // 使用循环设置默认值，避免重复代码

@@ -58,7 +58,7 @@
             <!-- 图片上传区域 -->
             <div class="mb-6">
               <ImageUpload 
-                v-model:image="form.image" 
+                v-model:image="form.mainImageUrl" 
                 :read-only="props.readOnly"
                 @update:image="updateImage"
               />
@@ -300,6 +300,7 @@ watch(
 
 // 11. 更新衣物信息逻辑
 const saveItem = async () => {
+  console.log('form.value!!!:', form.value);
   formSubmitted.value = true;
   formError.value = '';
 
