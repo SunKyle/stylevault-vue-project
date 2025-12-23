@@ -2,6 +2,7 @@ import express from 'express';
 import { clothingController } from '../controllers/clothingController';
 import { authMiddleware } from '../middleware/auth';
 import { validateIdParam, validatePagination } from '../middleware/validation';
+import uploadMiddleware from '../middleware/uploadMiddleware';
 
 const router = express.Router();
 
@@ -18,6 +19,9 @@ router.get('/enums/all', clothingController.getAllEnums);
 
 // 需要认证的路由
 router.use(authMiddleware);
+
+// ===== 图片上传路由 =====
+router.post('/clothing/images', uploadMiddleware.single('image'), clothingController.uploadClothingImage);
 
 // ===== 衣物管理路由 =====
 // 查询路由

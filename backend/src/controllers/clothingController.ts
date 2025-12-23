@@ -583,6 +583,39 @@ export class ClothingController {
       });
     }
   }
+
+  /**
+   * 上传衣物图片
+   */
+  async uploadClothingImage(req: Request, res: Response) {
+    try {
+      // 检查是否有文件上传
+      const file = (req as any).file;
+      if (!file) {
+        return res.status(400).json({
+          success: false,
+          message: '请选择要上传的图片',
+          error: { code: 'FILE_UPLOAD_REQUIRED' }
+        });
+      }
+
+      // 构建图片URL (使用相对路径)
+      const imageUrl = `/uploads/${file.filename}`;
+
+      res.json({
+        success: true,
+        data: { imageUrl },
+        message: '图片上传成功'
+      });
+    } catch (error) {
+      console.error('图片上传失败:', error);
+      res.status(500).json({
+        success: false,
+        message: '图片上传失败',
+        error: { code: 'IMAGE_UPLOAD_ERROR', details: error instanceof Error ? error.message : String(error) }
+      });
+    }
+  }
 }
 
 export const clothingController = new ClothingController();

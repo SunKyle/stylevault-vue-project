@@ -31,4 +31,13 @@ clothingApi.batchUpdate = async items => {
   return apiClient.patch(API_ENDPOINTS.clothing.batchUpdate, { items });
 };
 
+// 上传衣物图片
+clothingApi.uploadImage = async formData => {
+  return apiClient.post(API_ENDPOINTS.clothing.uploadImage, formData, {
+    headers: {
+      'Content-Type': 'multipart/form-data'
+    }
+  });
+};
+
 export default clothingApi;

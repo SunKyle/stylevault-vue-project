@@ -57,20 +57,24 @@
     <div class="aspect-[3/4] overflow-hidden relative">
       <div class="absolute inset-0 bg-gradient-to-br from-transparent to-black/10 z-10"></div>
       
+      <!-- 骨架屏 -->
+      <div v-if="!imgLoaded && !imgError" class="absolute inset-0 bg-gray-100 skeleton-pulse"></div>
+      
       <!-- 主图片（懒加载+加载状态） -->
       <img
         v-show="!imgError"
-        :src="item.image || `https://picsum.photos/seed/${item.id}/300/300`"
+        :src="getImageUrl(item)"
         :alt="item.name || '衣物图片'"
-        class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+        :class="['w-full h-full object-cover transition-transform duration-500 group-hover:scale-105', imgLoaded ? 'loaded' : '']"
         @load="imgLoaded = true"
         @error="handleImgError"
         loading="lazy"
       />
       
       <!-- 图片加载失败兜底 -->
-      <div v-if="imgError" class="absolute inset-0 bg-gray-100 flex items-center justify-center">
+      <div v-if="imgError" class="absolute inset-0 bg-gray-100 flex flex-col items-center justify-center gap-2">
         <font-awesome-icon :icon="['fas', 'tshirt']" class="text-gray-400 text-3xl" />
+        <p class="text-xs text-gray-500">图片加载失败</p>
         <span class="sr-only">图片加载失败</span>
       </div>
     </div>
@@ -102,7 +106,7 @@
 </template>
 
 <script setup>
-import { ref, onUnmounted, onUpdated } from 'vue';
+import { ref, onUnmounted, watch } from 'vue';
 import { debounce } from 'lodash';
 import { useEnumsStore } from '@/stores/modules/enumsStore';
 
@@ -143,8 +147,40 @@ onUnmounted(() => {
   debouncedEmit.cancel(); // 取消未执行的防抖事件
 });
 
-onUpdated(() => {
-  // 组件更新时重置图片状态，避免复用组件时的状态残留
+// 获取图片URL（处理多种图片字段情况）
+const getImageUrl = (item) => {
+  if (!item) return `https://picsum.photos/seed/default/300/300`;
+  
+  let imageUrl = '';
+  
+  // 优先使用 mainImageUrl（主图URL）
+  if (item.mainImageUrl) {
+    imageUrl = item.mainImageUrl;
+  } 
+  // 其次使用 imageUrls 数组的第一张图片
+  else if (Array.isArray(item.imageUrls) && item.imageUrls.length > 0) {
+    imageUrl = item.imageUrls[0];
+  } 
+  // 兼容旧版 image 字段
+  else if (item.image) {
+    imageUrl = item.image;
+  } 
+  // 最后使用默认图片
+  else {
+    return `https://picsum.photos/seed/${item.id || 'default'}/300/300`;
+  }
+  // console.log('imageUrl!!!!!', imageUrl);
+  // 处理相对路径，转换为前端代理路径
+  if (imageUrl.startsWith('/') && !imageUrl.startsWith('//')) {
+    // 使用相对路径，让前端代理处理
+    return imageUrl;
+  }
+  
+  return imageUrl;
+};
+
+// 监听图片URL变化，只在URL改变时重置图片状态
+watch(() => getImageUrl(props.item), () => {
   imgError.value = false;
   imgLoaded.value = false;
 });
@@ -240,8 +276,29 @@ const getEnumLabel = (type, id) => {
   animation: bounce-in-mild 0.5s ease-out;
 }
 
+/* 骨架屏动画 - 优化为渐变效果 */
 .skeleton-pulse {
-  animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+  background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+  background-size: 200% 100%;
+  animation: skeleton-shimmer 1.5s infinite;
+}
+
+/* 图片淡入效果 */
+img {
+  opacity: 0;
+  transition: opacity 0.3s ease-in;
+}
+img.loaded {
+  opacity: 1;
+}
+
+@keyframes skeleton-shimmer {
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
 }
 
 @keyframes skeleton-pulse {

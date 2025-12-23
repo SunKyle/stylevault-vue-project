@@ -100,7 +100,7 @@
               class="w-full px-4 py-3 rounded-xl border border-neutral-200 focus:border-primary focus:ring-2 focus:ring-primary/20 focus:outline-none transition-all"
               @blur="validateField('name')"
             />
-            <p v-if="validateField('name')" class="mt-1 text-xs text-red-500">{{ validateField('name') }}</p>
+            <p v-if="validationErrors.name" class="mt-1 text-xs text-red-500">{{ validationErrors.name }}</p>
           </div>
 
           <div>
@@ -126,7 +126,7 @@
                 暂无类别数据
               </option>
             </select>
-            <p v-if="validateField('category')" class="mt-1 text-xs text-red-500">{{ validateField('category') }}</p>
+            <p v-if="validationErrors.category" class="mt-1 text-xs text-red-500">{{ validationErrors.category }}</p>
           </div>
 
           <div>
@@ -260,7 +260,7 @@
               <span class="text-red-500">*</span>
             </label>
             <SeasonMultiSelect v-model="selectedSeasons" :options="seasonOptions" />
-            <p v-if="validateField('seasons')" class="mt-1 text-xs text-red-500">{{ validateField('seasons') }}</p>
+            <p v-if="validationErrors.seasons" class="mt-1 text-xs text-red-500">{{ validationErrors.seasons }}</p>
           </div>
         </div>
       </div>
@@ -283,7 +283,7 @@
               class="w-full px-4 py-3 rounded-xl border border-neutral-200 focus:border-primary focus:ring-2 focus:ring-primary/20 focus:outline-none transition-all"
               @blur="validateField('price')"
             />
-            <p v-if="validateField('price')" class="mt-1 text-xs text-red-500">{{ validateField('price') }}</p>
+            <p v-if="validationErrors.price" class="mt-1 text-xs text-red-500">{{ validationErrors.price }}</p>
           </div>
 
           <div>
@@ -295,7 +295,7 @@
               class="w-full px-4 py-3 rounded-xl border border-neutral-200 focus:border-primary focus:ring-2 focus:ring-primary/20 focus:outline-none transition-all"
               @blur="validateField('purchaseDate')"
             />
-            <p v-if="validateField('purchaseDate')" class="mt-1 text-xs text-red-500">{{ validateField('purchaseDate') }}</p>
+            <p v-if="validationErrors.purchaseDate" class="mt-1 text-xs text-red-500">{{ validationErrors.purchaseDate }}</p>
           </div>
         </div>
       </div>
@@ -342,9 +342,10 @@
 </template>
 
 <script setup>
-import { reactive, ref, computed, nextTick, onMounted, onUnmounted } from 'vue';
+import { reactive, ref, computed, nextTick, onMounted, onUnmounted, watch } from 'vue';
 import { useClothingStore } from '@/stores';
 import { useEnumsStore } from '@/stores/modules/enumsStore';
+import  clothingApi  from '@/services/api/clothingApi';
 import { showToast } from '../../utils/toast';
 import SeasonMultiSelect from './SeasonMultiSelect.vue';
 
@@ -406,6 +407,7 @@ const isDragging = ref(false);
 const imageObjectURLs = ref([]); // 存储生成的ObjectURL，用于卸载时释放
 const showImagePreview = ref(false);
 const previewImageUrl = ref('');
+const selectedFile = ref(null); // 存储用户选择的原始图片文件
 
 // 7. 状态管理
 const isSaving = ref(false);
@@ -466,11 +468,13 @@ const processImageFile = file => {
     if (clothingItem.image && imageObjectURLs.value.includes(clothingItem.image)) {
       URL.revokeObjectURL(clothingItem.image);
     }
-    // 生成新的ObjectURL
+    // 保存原始文件
+    selectedFile.value = file;
+    // 生成新的ObjectURL用于预览
     const imageUrl = URL.createObjectURL(file);
     clothingItem.image = imageUrl;
     imageObjectURLs.value.push(imageUrl);
-    showToast('图片上传成功', 'success');
+    showToast('图片已选择', 'success');
   } catch (error) {
     showToast('图片处理失败，请重试', 'error');
     console.error('图片处理错误:', error);
@@ -508,23 +512,61 @@ const resetForm = () => {
   imageObjectURLs.value = [];
 };
 
+// 验证错误信息缓存
+const validationErrors = ref({
+  name: '',
+  category: '',
+  seasons: '',
+  price: '',
+  purchaseDate: ''
+});
+
 // 单个字段校验（实时提示）
 const validateField = (field) => {
+  let error = '';
   switch (field) {
     case 'name':
-      return clothingItem.name.trim() ? '' : '衣物名称不能为空';
+      error = clothingItem.name.trim() ? '' : '衣物名称不能为空';
+      break;
     case 'category':
-      return clothingItem.category ? '' : '衣物类别不能为空';
+      error = clothingItem.category ? '' : '衣物类别不能为空';
+      break;
     case 'seasons':
-      return selectedSeasons.value.length > 0 ? '' : '请选择至少一个适用季节';
+      error = selectedSeasons.value.length > 0 ? '' : '请选择至少一个适用季节';
+      break;
     case 'price':
-      return clothingItem.price === null || !isNaN(Number(clothingItem.price)) ? '' : '价格必须是有效数字';
+      error = clothingItem.price === null || !isNaN(Number(clothingItem.price)) ? '' : '价格必须是有效数字';
+      break;
     case 'purchaseDate':
-      return !clothingItem.purchaseDate || new Date(clothingItem.purchaseDate) <= new Date() ? '' : '购买日期不能晚于今天';
+      error = !clothingItem.purchaseDate || new Date(clothingItem.purchaseDate) <= new Date() ? '' : '购买日期不能晚于今天';
+      break;
     default:
-      return '';
+      error = '';
   }
+  validationErrors.value[field] = error;
+  return error;
 };
+
+// 监听表单字段变化，自动更新验证
+watch(
+  [() => clothingItem.name, () => clothingItem.category, () => clothingItem.price, () => clothingItem.purchaseDate],
+  ([name, category, price, purchaseDate]) => {
+    validateField('name');
+    validateField('category');
+    validateField('price');
+    validateField('purchaseDate');
+  },
+  { deep: true }
+);
+
+// 监听季节变化，自动更新验证
+watch(
+  () => selectedSeasons.value,
+  () => {
+    validateField('seasons');
+  },
+  { deep: true }
+);
 
 // 统一表单校验
 const validateForm = () => {
@@ -574,17 +616,29 @@ const saveClothes = async () => {
 
   try {
     const today = new Date().toISOString().split('T')[0];
-    let validatedMainImageUrl = clothingItem.image || null;
+    let validatedMainImageUrl = null;
 
-    // 处理图片URL（替换为占位符）
-    if (
-      validatedMainImageUrl &&
-      (validatedMainImageUrl.startsWith('data:') ||
-        validatedMainImageUrl.length > 200 ||
-        !/^https?:\/\/.+|^\/.+/.test(validatedMainImageUrl))
-    ) {
+    // 上传图片到服务器
+    if (selectedFile.value) {
+      showToast('正在上传图片...', 'info');
+      const formData = new FormData();
+      formData.append('image', selectedFile.value);
+      
+      try {
+          const uploadResponse = await clothingApi.uploadImage(formData);
+          if (uploadResponse && uploadResponse.data && uploadResponse.data.imageUrl) {
+            validatedMainImageUrl = uploadResponse.data.imageUrl;
+            // showToast('图片上传成功', 'success');
+          } else {
+            throw new Error('图片上传失败，未获取到图片URL');
+          }
+      } catch (uploadError) {
+        console.error('图片上传失败:', uploadError);
+        showToast('图片上传失败，将使用占位符图片', 'warning');
+        validatedMainImageUrl = IMAGE_CONFIG.PLACEHOLDER_URL;
+      }
+    } else {
       validatedMainImageUrl = IMAGE_CONFIG.PLACEHOLDER_URL;
-      showToast('图片已转换为占位符', 'info');
     }
 
     const itemToSubmit = {
@@ -625,7 +679,6 @@ const saveClothes = async () => {
     }
 
     showToast('衣物添加成功', 'success');
-    await clothingStore.fetchClothingItems();
     await nextTick();
     
     // 重置表单

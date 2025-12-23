@@ -22,6 +22,7 @@ export const API_ENDPOINTS = {
     favorite: '/clothing/favorites',
     toggleFavorite: id => `/clothing/${id}/favorite`,
     batchUpdate: '/clothing/batch',
+    uploadImage: '/clothing/images',
   },
   outfit: {
     getItems: '/outfits',

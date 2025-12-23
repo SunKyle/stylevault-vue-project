@@ -74,14 +74,18 @@ const emit = defineEmits(['update:modelValue']);
 
 const localSeasons = ref([...props.modelValue]);
 
-// 监听外部值变化
+// 监听外部值变化，仅在内容不同时更新
 watch(() => props.modelValue, (newValue) => {
-  localSeasons.value = [...newValue];
+  if (JSON.stringify(newValue) !== JSON.stringify(localSeasons.value)) {
+    localSeasons.value = [...newValue];
+  }
 }, { deep: true });
 
-// 监听内部值变化并向外部触发事件
-watch(localSeasons, (newValue) => {
-  emit('update:modelValue', [...newValue]);
+// 监听内部值变化并向外部触发事件，仅在内容不同时触发
+watch(localSeasons, (newValue, oldValue) => {
+  if (JSON.stringify(newValue) !== JSON.stringify(oldValue)) {
+    emit('update:modelValue', [...newValue]);
+  }
 }, { deep: true });
 
 // 为不同季节获取对应的图标
