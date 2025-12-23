@@ -60,7 +60,6 @@
               <ImageUpload 
                 v-model:image="form.mainImageUrl" 
                 :read-only="props.readOnly"
-                @update:image="updateImage"
               />
             </div>
 
@@ -86,7 +85,7 @@
             <!-- 收藏 -->
             <div class="mb-8">
               <FavoriteToggle 
-                v-model:favorite="form.favorite" 
+                v-model:favorite="form.isFavorite" 
                 :read-only="props.readOnly"
                 @update:favorite="updateFavorite"
               />
@@ -224,9 +223,7 @@ const isFormValid = computed(() => {
 });
 
 // 7. 事件处理（精简，职责单一）
-const updateImage = (newImage) => {
-  form.value.image = newImage;
-};
+// 图片更新由v-model自动处理，不再需要单独的updateImage方法
 
 const updateSeasons = (newSeasons) => {
   form.value.seasons = newSeasons;

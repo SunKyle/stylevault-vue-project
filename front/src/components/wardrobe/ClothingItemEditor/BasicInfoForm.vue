@@ -444,37 +444,44 @@ const categoryOptions = computed(() => enumsStore.getOptions('categories'));
 // 监听外部值变化
 watch(() => props.modelValue, (newValue) => {
   if (newValue) {
-    // 使用JSON.parse(JSON.stringify())进行深拷贝，避免structuredClone错误
-    // 只对可序列化数据有效
-    const clonedValue = JSON.parse(JSON.stringify(newValue));
-    form.value = clonedValue;
-    // 确保所有字段都有默认值，避免显示问题
-    const defaultValues = {
-      name: '',
-      category: '',
-      categoryName: '',
-      style: '',
-      color: '',
-      material: '',
-      size: '',
-      condition: '',
-      pattern: '',
-      brand: '',
-      price: 0, // 价格应该默认为0而非null
-      purchaseDate: '',
-      notes: '',
-      seasons: [],
-      image: '' // 图片字段的默认值
-    };
+    // 比较内部form和外部modelValue，只有当它们确实不同时才更新，避免循环
+    const hasChanges = JSON.stringify(form.value) !== JSON.stringify(newValue);
     
-    // 使用循环设置默认值，避免重复代码
-    Object.keys(defaultValues).forEach(key => {
-      // @ts-ignore - 动态键访问
-      if (form.value[key] === undefined || form.value[key] === null) {
+    if (hasChanges) {
+      // 使用JSON.parse(JSON.stringify())进行深拷贝，避免structuredClone错误
+      // 只对可序列化数据有效
+      const clonedValue = JSON.parse(JSON.stringify(newValue));
+      
+      // 确保所有字段都有默认值，避免显示问题
+      const defaultValues = {
+        name: '',
+        category: '',
+        categoryName: '',
+        style: '',
+        color: '',
+        material: '',
+        size: '',
+        condition: '',
+        pattern: '',
+        brand: '',
+        price: 0, // 价格应该默认为0而非null
+        purchaseDate: '',
+        notes: '',
+        seasons: [],
+        image: '' // 图片字段的默认值
+      };
+      
+      // 合并默认值和新值
+      Object.keys(defaultValues).forEach(key => {
         // @ts-ignore - 动态键访问
-        form.value[key] = defaultValues[key];
-      }
-    });
+        if (clonedValue[key] === undefined || clonedValue[key] === null) {
+          // @ts-ignore - 动态键访问
+          clonedValue[key] = defaultValues[key];
+        }
+      });
+      
+      form.value = clonedValue;
+    }
   }
 }, { immediate: true }); // 移除deep: true，避免性能问题和不必要的更新
 
