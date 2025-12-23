@@ -39,7 +39,7 @@ export class ClothingRepository {
   async findClothingItems(options: ClothingQueryOptions = {}) {
     const {
       page = 1,
-      limit = 20,
+      limit,
       category, // 修复字段名称
       userId,
       search,
@@ -48,7 +48,8 @@ export class ClothingRepository {
       status = 1 // 默认为活跃状态的ID
     } = options;
 
-    const offset = (page - 1) * limit;
+    // 只有当提供了limit时才计算offset
+    const offset = limit ? (page - 1) * limit : 0;
     
     const whereClause: any = { status };
     
@@ -73,8 +74,8 @@ export class ClothingRepository {
 
     const { count, rows } = await Clothing.findAndCountAll({
       where: whereClause,
-      limit,
-      offset,
+      limit: limit || undefined,
+      offset: limit ? offset : 0,
       order: [[sortBy, sortOrder]],
       include: [
         {
@@ -106,11 +107,11 @@ export class ClothingRepository {
       items: rows,
       pagination: {
         currentPage: page,
-        totalPages: Math.ceil(count / limit),
+        totalPages: limit ? Math.ceil(count / limit) : 1,
         totalItems: count,
-        itemsPerPage: limit,
-        hasNext: offset + rows.length < count,
-        hasPrev: page > 1
+        itemsPerPage: limit || rows.length,
+        hasNext: limit ? offset + rows.length < count : false,
+        hasPrev: limit ? page > 1 : false
       }
     };
   }

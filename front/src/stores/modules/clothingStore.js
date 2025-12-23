@@ -150,7 +150,7 @@ export const useClothingStore = defineStore('clothing', {
 
     pagination: {
       currentPage: 1,
-      itemsPerPage: 50,
+      itemsPerPage: 9999999,
       totalItems: 0,
       totalPages: 0,
       useServerPagination: false

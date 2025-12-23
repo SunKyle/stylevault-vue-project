@@ -57,19 +57,25 @@ export const validateIdParam = (req: Request, res: Response, next: NextFunction)
  * 确保分页参数在合理范围内
  */
 export const validatePagination = (req: Request, res: Response, next: NextFunction): void => {
-  const page = parseInt(req.query.page as string) || 1;
-  const limit = parseInt(req.query.limit as string) || 20;
+  const page = req.query.page ? parseInt(req.query.page as string) : undefined;
+  const limit = req.query.limit ? parseInt(req.query.limit as string) : undefined;
   
-  if (page < 1 || limit < 1 || limit > 100) {
+  // 只有当提供了分页参数时才验证
+  if ((page !== undefined && page < 1) || (limit !== undefined && (limit < 1 || limit > 100))) {
     res.status(400).json({
       success: false,
-      message: '分页参数无效',
-      error: { code: 'INVALID_PAGINATION' }
+      message: '无效的分页参数',
+      error: { code: 'INVALID_PAGINATION_PARAMS', details: '页码必须大于等于1，每页数量必须在1-100之间' }
     });
     return;
   }
   
-  req.query.page = page.toString();
-  req.query.limit = limit.toString();
+  // 只有当参数有值时才更新请求对象
+  if (page !== undefined) {
+    req.query.page = page.toString();
+  }
+  if (limit !== undefined) {
+    req.query.limit = limit.toString();
+  }
   next();
 };

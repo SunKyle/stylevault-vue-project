@@ -139,13 +139,13 @@ export class ClothingController {
    */
   async getClothingItems(req: Request, res: Response) {
     try {
-      const { page = 1, limit = 20, category, search, sortBy = 'createdAt', sortOrder = 'DESC' } = req.query;
+      const { page, limit, category, search, sortBy = 'createdAt', sortOrder = 'DESC' } = req.query;
       const userId = (req as any).user.userId;
       
       const result = await clothingService.getClothingItems({
         userId,
-        page: Number(page),
-        limit: Number(limit),
+        page: page ? Number(page) : undefined,
+        limit: limit ? Number(limit) : undefined,
         category: category && category !== 'all' ? parseInt(category as string) : undefined,
         search: search && search !== '' ? search as string : undefined,
         sortBy: sortBy as string,
@@ -173,7 +173,7 @@ export class ClothingController {
   async getClothingItemsByCategory(req: Request, res: Response) {
     try {
       const { categoryId } = req.params;
-      const { page = 1, limit = 20, search, sortBy = 'createdAt', sortOrder = 'DESC' } = req.query;
+      const { page, limit, search, sortBy = 'createdAt', sortOrder = 'DESC' } = req.query;
       const userId = (req as any).user.userId;
       
       const result = await clothingService.getClothingItemsByCategory(parseInt(categoryId), userId, {
@@ -237,7 +237,7 @@ export class ClothingController {
    */
   async searchClothingItems(req: Request, res: Response) {
     try {
-      const { q, page = 1, limit = 20, category, sortBy = 'createdAt', sortOrder = 'DESC' } = req.query;
+      const { q, page, limit, category, sortBy = 'createdAt', sortOrder = 'DESC' } = req.query;
       
       if (!q || (q as string).trim() === '') {
         return res.status(400).json({
