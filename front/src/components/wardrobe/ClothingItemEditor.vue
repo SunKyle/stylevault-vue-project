@@ -380,7 +380,7 @@ const handleKeyDown = (event) => {
   }
 };
 
-// 13. 生命周期（精简，移除无用日志）
+// 13. 生命周期
 onMounted(async () => {
   if (!props.readOnly && categories.value.length === 0) {
     try {

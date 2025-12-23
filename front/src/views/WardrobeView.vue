@@ -74,23 +74,6 @@
 
       <!-- 精选搭配 -->
       <FeaturedOutfits v-if="!loading && !error" :outfits="[]" />
-      
-      <!-- 分类选中时的空状态 -->
-      <!-- <div 
-        v-if="!loading && !error && selectedCategory && getCategoryItems(selectedCategory).length === 0"
-        class="container mx-auto px-4 py-12 text-center"
-      >
-        <div class="flex flex-col items-center justify-center">
-          <font-awesome-icon :icon="['fas', 'shirt']" class="text-neutral-300 text-4xl mb-4" />
-          <p class="text-neutral-500 mb-4">该分类下暂无衣物</p>
-          <button 
-            @click="handleAddClothing" 
-            class="px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary/90 transition-colors"
-          >
-            添加衣物
-          </button>
-        </div>
-      </div> -->
 
       <!-- 最近添加的衣物 -->
       <div v-if="!loading && !error && !selectedCategory" class="container mx-auto px-4">

@@ -40,12 +40,12 @@
     <div class="px-1">
       <h4 class="font-medium truncate text-sm">{{ item.name }}</h4>
       <p class="text-xs text-neutral-500 mt-1">
-        {{ getEnumLabel('category', item.categoryId) }} · {{ getEnumLabel('style', item.style) }}
+        {{ getEnumLabel('categories', item.category) }} · {{ getEnumLabel('styles', item.style) }}
       </p>
       <!-- 季节信息 -->
-      <div class="flex flex-wrap gap-1.5 mt-1" v-if="item.seasons && item.seasons.length > 0">
+      <div class="flex flex-wrap gap-1.5 mt-1" v-if="item.season && item.season.length > 0">
         <span
-          v-for="season in item.seasons"
+          v-for="season in item.season"
           :key="season"
           :class="[
             'text-sm px-3 py-1.5 rounded-full font-medium transition-all duration-200',
@@ -86,7 +86,7 @@
 </template>
 
 <script setup>
-  import { useEnumsStore } from '@/stores';
+  import {useEnumsStore}  from '@/stores/modules/enumsStore';
 
   defineProps({
     item: {
@@ -105,25 +105,8 @@
 
   // 获取枚举属性的显示文本
   function getEnumLabel(type, id) {
-    if (!id) return '';
-    const getterMap = {
-      category: 'getCategoryLabel',
-      style: 'getStyleLabel',
-      color: 'getColorLabel',
-      season: 'getSeasonLabel',
-      material: 'getMaterialLabel',
-      pattern: 'getPatternLabel',
-      size: 'getSizeLabel',
-      condition: 'getConditionLabel',
-      status: 'getStatusLabel',
-      occasion: 'getOccasionLabel',
-    };
-
-    const getter = getterMap[type];
-    if (getter && enumsStore[getter]) {
-      return enumsStore[getter](id) || '';
-    }
-    return id;
+    console.log(type, id);
+    return enumsStore.getLabel(type, id) || '';
   }
 
   // 为不同季节添加特有的标签样式
