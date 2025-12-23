@@ -105,7 +105,6 @@
 
   // 获取枚举属性的显示文本
   function getEnumLabel(type, id) {
-    console.log(type, id);
     return enumsStore.getLabel(type, id) || '';
   }
 
