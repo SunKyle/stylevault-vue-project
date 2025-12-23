@@ -149,7 +149,6 @@ onUnmounted(() => {
 
 // 获取图片URL（处理多种图片字段情况）
 const getImageUrl = (item) => {
-  if (!item) return `https://picsum.photos/seed/default/300/300`;
   
   let imageUrl = '';
   

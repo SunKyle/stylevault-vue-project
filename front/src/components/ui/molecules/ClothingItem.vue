@@ -5,7 +5,7 @@
       :class="{ 'border-primary/50 shadow-lg': item.favorite }"
     >
       <img
-        :src="item.image"
+        :src="item.mainImageUrl || (item.imageUrls && item.imageUrls[0]) || 'https://via.placeholder.com/300x300?text=No+Image'"
         :alt="item.name"
         class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
       />
