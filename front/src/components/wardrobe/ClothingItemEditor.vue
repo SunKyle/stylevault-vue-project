@@ -146,7 +146,6 @@ import FavoriteToggle from './ClothingItemEditor/FavoriteToggle.vue';
  * @property {string} condition - 新旧程度
  * @property {string} pattern - 图案
  * @property {string|number} category - 分类ID
- * @property {string} categoryName - 分类名称
  * @property {string} color - 颜色
  * @property {string} style - 风格
  * @property {string[]} seasons - 适用季节
@@ -184,7 +183,7 @@ const loading = ref(false); // 新增：保存加载状态
 const formError = ref(''); // 新增：精细化错误提示
 const formSubmitted = ref(false);
 
-// 5. 表单初始化（提取默认值，避免重复）
+// 5. 表单默认值（提取为常量，便于维护）
 const DEFAULT_FORM = {
   id: '',
   name: '',
@@ -195,7 +194,6 @@ const DEFAULT_FORM = {
   condition: '',
   pattern: '',
   category: '',
-  categoryName: '',
   color: '',
   style: '',
   seasons: [],
@@ -220,29 +218,6 @@ const updateSeasons = (newSeasons) => {
   form.value.seasons = newSeasons;
 };
 
-const updateFavorite = (newFavorite) => {
-  form.value.favorite = newFavorite;
-};
-
-// 更新分类名称（提取为独立函数，避免重复）
-const updateCategoryName = () => {
-  const { category } = form.value;
-  if (!category) {
-    form.value.categoryName = '';
-    return;
-  }
-  
-  const matchedCategory = categories.value.find(c => c.value === category);
-  form.value.categoryName = matchedCategory?.label || '';
-};
-
-// 8. 表单重置（精简）
-const resetForm = () => {
-  form.value = { ...DEFAULT_FORM };
-  formError.value = '';
-  formSubmitted.value = false;
-};
-
 // 9. 数据适配（提取为独立函数，精简watch逻辑）
 const adaptItemToForm = (item) => {
   if (!item) return { ...DEFAULT_FORM };
@@ -254,15 +229,6 @@ const adaptItemToForm = (item) => {
   if (!adapted.category && adapted.categoryId) {
     adapted.category = adapted.categoryId;
     delete adapted.categoryId;
-  }
-  
-  // 2. 分类名称自动匹配
-  if (adapted.category && !adapted.categoryName) {
-    const matched = categories.value.find(c => c.value === adapted.category);
-    adapted.categoryName = matched?.label || '';
-  } else if (!adapted.category && adapted.categoryName) {
-    const matched = categories.value.find(c => c.label === adapted.categoryName);
-    adapted.category = matched?.value || '';
   }
 
   // 3. 季节字段兼容
@@ -347,7 +313,6 @@ const saveItem = async () => {
 
     // 移除无用字段
     delete submitData.metadata;
-    delete submitData.categoryName;
 
     // 4. 提交数据
     if (form.value.id) {

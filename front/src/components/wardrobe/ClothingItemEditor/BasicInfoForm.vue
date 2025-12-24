@@ -40,7 +40,6 @@
               v-model="form.category"
               :disabled="readOnly"
               class="form-control"
-              @change="updateCategoryName"
             >
               <option value="">请选择分类</option>
               <option
@@ -342,7 +341,6 @@ const emit = defineEmits(['update:modelValue']);
 const form = ref({
   name: '',
   category: '',
-  categoryName: '',
   style: '',
   color: '',
   material: '',
@@ -456,7 +454,6 @@ watch(() => props.modelValue, (newValue) => {
       const defaultValues = {
         name: '',
         category: '',
-        categoryName: '',
         style: '',
         color: '',
         material: '',
@@ -491,29 +488,7 @@ watch(form, (newValue) => {
   emit('update:modelValue', JSON.parse(JSON.stringify(newValue)));
 }, { deep: true });
 
-// 更新分类名称
-const updateCategoryName = () => {
-  if (!form.value.category) {
-    form.value.categoryName = '';
-    return;
-  }
-  
-  // 只执行一次查找，提高性能
-  const selectedCategory = categoryOptions.value.find(category => 
-    category.value === form.value.category || category.id === form.value.category
-  );
-  
-  // 设置分类名称，优先级：label > name > 空字符串
-  form.value.categoryName = selectedCategory?.label || selectedCategory?.name || '';
-};
 
-// 监听分类变化，更新分类名称
-watch(() => form.value.category, () => {
-  updateCategoryName();
-});
-
-// 初始化分类名称
-updateCategoryName();
 </script>
 
 <style scoped>
