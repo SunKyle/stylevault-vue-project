@@ -505,6 +505,17 @@ const handleSort = (sortType) => {
 
 // 15. 编辑保存后处理
 const handleEditSaved = async () => {
+  console.log('编辑保存:', editingItem.value);
+  if (!editingItem.value) return;
+  try {
+    await clothingStore.updateClothingItem(editingItem.value);
+    showToast('衣物信息已更新', 'success');
+    formSubmitted.value = true;
+  } catch (error) {
+    showToast('更新失败，请重试', 'error');
+    formError.value = error.message || '更新失败';
+    return;
+  }
   await refreshWardrobeData();
   closeEditor();
 };

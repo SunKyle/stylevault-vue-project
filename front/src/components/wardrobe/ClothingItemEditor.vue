@@ -82,15 +82,6 @@
               />
             </div>
 
-            <!-- 收藏 -->
-            <div class="mb-8">
-              <FavoriteToggle 
-                v-model:favorite="form.isFavorite" 
-                :read-only="props.readOnly"
-                @update:favorite="updateFavorite"
-              />
-            </div>
-
             <!-- 错误提示（优化文案和样式） -->
             <div v-if="formError" class="mt-4 p-3 bg-red-50 border border-red-200 rounded-lg text-red-600 text-sm flex items-center">
               <font-awesome-icon :icon="['fas', 'exclamation-circle']" class="mr-2 flex-shrink-0" />
@@ -160,8 +151,8 @@ import FavoriteToggle from './ClothingItemEditor/FavoriteToggle.vue';
  * @property {string} style - 风格
  * @property {string[]} seasons - 适用季节
  * @property {string} material - 材质
- * @property {boolean} favorite - 是否收藏
- * @property {string} image - 图片URL
+ * @property {boolean} isFavorite - 是否收藏
+ * @property {string} mainImageUrl - 主图片URL
  * @property {string} notes - 备注
  */
 
@@ -188,7 +179,7 @@ const clothingStore = shallowRef(useClothingStore());
 const enumsStore = shallowRef(useEnumsStore());
 
 // 4. 响应式数据（精简冗余）
-const categories = computed(() => enumsStore.value.categoryLabels || []);
+const categories = computed(() => enumsStore.value.getOptions('categories') || []);
 const loading = ref(false); // 新增：保存加载状态
 const formError = ref(''); // 新增：精细化错误提示
 const formSubmitted = ref(false);
@@ -241,8 +232,8 @@ const updateCategoryName = () => {
     return;
   }
   
-  const matchedCategory = categories.value.find(c => c.id === category);
-  form.value.categoryName = matchedCategory?.name || '';
+  const matchedCategory = categories.value.find(c => c.value === category);
+  form.value.categoryName = matchedCategory?.label || '';
 };
 
 // 8. 表单重置（精简）
@@ -267,18 +258,30 @@ const adaptItemToForm = (item) => {
   
   // 2. 分类名称自动匹配
   if (adapted.category && !adapted.categoryName) {
-    const matched = categories.value.find(c => c.id === adapted.category);
-    adapted.categoryName = matched?.name || '';
+    const matched = categories.value.find(c => c.value === adapted.category);
+    adapted.categoryName = matched?.label || '';
   } else if (!adapted.category && adapted.categoryName) {
-    const matched = categories.value.find(c => c.name === adapted.categoryName);
-    adapted.category = matched?.id || '';
+    const matched = categories.value.find(c => c.label === adapted.categoryName);
+    adapted.category = matched?.value || '';
   }
 
-  // 3. 季节字段兼容（精简）
-  // if (item.season && typeof item.season === 'number' && !adapted.seasons?.length) {
-  //   const seasonName = enumsStore.value.getSeasonLabel(item.season);
-  //   adapted.seasons = seasonName ? [seasonName] : [];
-  // }
+  // 3. 季节字段兼容
+  if (item.season !== undefined && !adapted.seasons?.length) {
+    // 如果是数字类型的季节值，转换为标签数组
+    if (typeof item.season === 'number') {
+      const seasonOption = enumsStore.value.getOptions('seasons').find(s => s.value === item.season);
+      adapted.seasons = seasonOption ? [seasonOption.label] : [];
+    } else if (Array.isArray(item.season)) {
+      // 如果已经是数组，确保元素是标签
+      adapted.seasons = item.season.map(seasonValue => {
+        const option = enumsStore.value.getOptions('seasons').find(s => s.value === seasonValue);
+        return option ? option.label : '';
+      }).filter(Boolean);
+    } else {
+      // 其他情况转为空数组
+      adapted.seasons = [];
+    }
+  }
   
   // 4. 确保季节是数组
   adapted.seasons = Array.isArray(adapted.seasons) ? adapted.seasons : [];
@@ -326,13 +329,13 @@ const saveItem = async () => {
 
   try {
     loading.value = true;
-    const validImageUrl = validateImageUrl(form.value.image);
+    const validImageUrl = validateImageUrl(form.value.mainImageUrl);
 
     // 3. 构造提交数据（精简，避免冗余）
     const submitData = {
       ...form.value,
       mainImageUrl: validImageUrl,
-      season: form.value.seasons.length ? enumsStore.value.seasonOptions.find(s => s.label === form.value.seasons[0])?.value : undefined,
+      season: Array.isArray(form.value.seasons) && form.value.seasons.length ? enumsStore.value.getOptions('seasons').find(s => s.label === form.value.seasons[0])?.value : undefined,
       // 数字类型转换（精简）
       size: form.value.size ? Number(form.value.size) : undefined,
       condition: form.value.condition ? Number(form.value.condition) : undefined,

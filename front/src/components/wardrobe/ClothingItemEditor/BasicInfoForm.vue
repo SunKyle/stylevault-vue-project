@@ -371,7 +371,7 @@ const validateName = (value) => {
 };
 
 const validateCategory = (value) => {
-  if (value === null) {
+  if (value === null || value === '') {
     return '请选择衣物分类';
   }
   return null;

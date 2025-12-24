@@ -29,7 +29,7 @@ export interface ClothingCreateData {
   style?: number; // 从styleId改为style
   parentId?: number;
   favorite?: boolean;
-  seasons?: string[];
+  season?: number; // 从seasons改为season，与前端和模型保持一致
   material?: number;
 }
 
@@ -47,7 +47,7 @@ export interface ClothingUpdateData {
   color?: number; // 从colorId改为color
   style?: number; // 从styleId改为style
   favorite?: boolean;
-  seasons?: string[];
+  season?: number; // 从seasons改为season，与前端和模型保持一致
   material?: number;
 }
 
@@ -123,8 +123,8 @@ export class ClothingService {
     if (data.parentId) clothingItemData.parentId = data.parentId;
     
     // 处理季节
-    if (data.seasons) clothingItemData.seasons = data.seasons;
-    else if (metadata.seasons) clothingItemData.seasons = metadata.seasons;
+    if (data.season !== undefined) clothingItemData.season = data.season;
+    else if (metadata.season !== undefined) clothingItemData.season = metadata.season;
     
     // 处理材质（从data或metadata中获取，并确保转换为数字）
     if (data.material) clothingItemData.material = parseInt(data.material as unknown as string);
@@ -178,19 +178,36 @@ export class ClothingService {
     else if (metadata.price !== undefined) updateData.price = parseFloat(metadata.price as unknown as string);
     
     // 更新季节
-    if (data.seasons !== undefined) updateData.seasons = data.seasons;
-    else if (metadata.seasons !== undefined) updateData.seasons = metadata.seasons;
+    if (data.season !== undefined) updateData.season = data.season;
+    else if (metadata.season !== undefined) updateData.season = metadata.season;
     
     // 更新材质
     if (data.material !== undefined) updateData.material = parseInt(data.material as unknown as string);
     else if (metadata.material !== undefined) updateData.material = parseInt(metadata.material as unknown as string);
     
-    const [affectedRows, [updatedItem]] = await clothingRepository.updateClothingItem(id, userId, updateData);
-
-    if (affectedRows === 0) {
+    // 执行更新
+    const updateResult = await clothingRepository.updateClothingItem(id, userId, updateData);
+    
+    // 处理更新结果，sequelize可能返回不同的格式
+    let updatedItem;
+    if (Array.isArray(updateResult)) {
+      const [affectedRows, items] = updateResult;
+      if (affectedRows === 0) {
+        throw new Error('衣物不存在或无权限修改');
+      }
+      updatedItem = items && items.length > 0 ? items[0] : await clothingRepository.findClothingItemById(id, userId);
+    } else {
+      // 如果只返回受影响的行数
+      if (updateResult === 0) {
+        throw new Error('衣物不存在或无权限修改');
+      }
+      updatedItem = await clothingRepository.findClothingItemById(id, userId);
+    }
+    
+    if (!updatedItem) {
       throw new Error('衣物不存在或无权限修改');
     }
-
+    
     return updatedItem;
   }
 
