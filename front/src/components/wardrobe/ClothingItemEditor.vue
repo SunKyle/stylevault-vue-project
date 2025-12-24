@@ -209,8 +209,8 @@ const DEFAULT_FORM = {
   style: '',
   seasons: [],
   material: '',
-  favorite: false,
-  image: '',
+  isFavorite: false,
+  mainImageUrl: '',
   notes: '',
 };
 
