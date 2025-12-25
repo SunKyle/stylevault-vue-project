@@ -23,64 +23,12 @@
           <span>取消收藏</span>
         </button>
       </div>
-
-      <!-- 非收藏区域的添加按钮 -->
-      <div
-        v-else
-        class="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex items-end justify-center pb-4 rounded-xl"
-        :class="{ hidden: item.favorite }"
-      >
-        <button
-          class="w-10 h-10 rounded-full bg-primary text-white flex items-center justify-center hover:bg-primary-dark transition-colors shadow-md transform scale-90 group-hover:scale-100 transition-transform"
-        >
-          <font-awesome-icon :icon="['fas', 'plus']" />
-        </button>
-      </div>
     </div>
     <div class="px-1">
       <h4 class="font-medium truncate text-sm">{{ item.name }}</h4>
       <p class="text-xs text-neutral-500 mt-1">
         {{ getEnumLabel('categories', item.category) }} · {{ getEnumLabel('styles', item.style) }}
       </p>
-      <!-- 季节信息 -->
-      <div class="flex flex-wrap gap-1.5 mt-1" v-if="item.season && item.season.length > 0">
-        <span
-          v-for="season in item.season"
-          :key="season"
-          :class="[
-            'text-sm px-3 py-1.5 rounded-full font-medium transition-all duration-200',
-            getSeasonBadgeClass(season),
-          ]"
-        >
-          {{ season }}
-        </span>
-      </div>
-    </div>
-
-    <!-- 非收藏区域显示的按钮组 -->
-    <div v-if="!showInFavoriteMode" class="absolute top-3 right-3 flex flex-col gap-2 z-10">
-      <!-- 爱心按钮 -->
-      <button
-        class="w-8 h-8 rounded-full flex items-center justify-center transition-all duration-300 shadow-md"
-        :class="
-          item.favorite
-            ? 'bg-primary text-white animate-pulse-once'
-            : 'bg-white/90 backdrop-blur text-neutral-400 hover:text-primary hover:bg-white'
-        "
-        @click="$emit('like', item)"
-      >
-        <font-awesome-icon
-          :icon="item.favorite ? ['fas', 'heart'] : ['far', 'heart']"
-          class="text-sm"
-        />
-      </button>
-      <!-- 详细信息按钮 -->
-      <button
-        class="w-8 h-8 rounded-full bg-white/90 backdrop-blur text-neutral-400 hover:text-primary hover:bg-white flex items-center justify-center transition-all duration-300 shadow-md"
-        @click="$emit('viewDetail', item)"
-      >
-        <font-awesome-icon :icon="['fas', 'info']" class="text-sm" />
-      </button>
     </div>
   </div>
 </template>
