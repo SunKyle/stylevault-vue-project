@@ -138,11 +138,9 @@ export class ClothingService {
     // 处理季节（同时支持season和seasons字段）
     const seasonValue = Array.isArray(data.season) ? data.season : 
                        Array.isArray(data.seasons) ? data.seasons : [];
-    clothingItemData.seasons = seasonValue
+    clothingItemData.season = seasonValue
       .map((season: any) => parseNumber(season))
       .filter((season: number | undefined) => season !== undefined);
-
-    console.log('clothingItemData!!!!!', clothingItemData);  
     return await clothingRepository.createClothingItem(clothingItemData);
   }
 
@@ -197,7 +195,7 @@ export class ClothingService {
     if (data.season !== undefined || data.seasons !== undefined) {
       const seasonValue = Array.isArray(data.season) ? data.season : 
                          Array.isArray(data.seasons) ? data.seasons : [];
-      updateData.seasons = seasonValue
+      updateData.season = seasonValue
         .map((season: any) => parseNumber(season))
         .filter((season: number | undefined) => season !== undefined);
     }

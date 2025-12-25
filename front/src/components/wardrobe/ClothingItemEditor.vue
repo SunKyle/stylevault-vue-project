@@ -231,9 +231,9 @@ const adaptItemToForm = (item) => {
     delete adapted.categoryId;
   }
 
-  // 3. 季节字段处理 - 只使用新的seasons字段（数组）
-  if (Array.isArray(item.seasons) && item.seasons.length) {
-    adapted.seasons = item.seasons.map(seasonValue => {
+  // 3. 季节字段处理 - 只使用新的season字段（数组）
+  if (Array.isArray(item.season) && item.season.length) {
+    adapted.seasons = item.season.map(seasonValue => {
       const option = enumsStore.value.getOptions('seasons').find(s => Number(s.value) === seasonValue);
       return option ? option.label : '';
     }).filter(Boolean);
