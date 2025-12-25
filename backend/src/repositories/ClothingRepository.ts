@@ -69,9 +69,6 @@ export class ClothingRepository {
       ];
     }
 
-    console.log('findClothingItems options:', options);
-    console.log('whereClause:', whereClause);
-
     const { count, rows } = await Clothing.findAndCountAll({
       where: whereClause,
       limit: limit || undefined,
@@ -148,11 +145,6 @@ export class ClothingRepository {
         {
           model: Attribute,
           as: 'styleAttribute',
-          attributes: ['id', 'name', 'display_name']
-        },
-        {
-          model: Attribute,
-          as: 'seasonAttribute',
           attributes: ['id', 'name', 'display_name']
         },
         {
