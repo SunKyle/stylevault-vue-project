@@ -72,9 +72,6 @@
       <!-- 我的收藏 -->
       <FavoriteSection />
 
-      <!-- 精选搭配 -->
-      <FeaturedOutfits v-if="!loading && !error" :outfits="[]" />
-
       <!-- 最近添加的衣物 -->
       <div v-if="!loading && !error && !selectedCategory" class="container mx-auto px-4">
         <div class="flex items-center justify-between mb-6">
@@ -131,7 +128,10 @@
           </div>
         </div>
       </div>
-      
+
+      <!-- 精选搭配 -->
+      <!-- <FeaturedOutfits v-if="!loading && !error" :outfits="[]" /> -->
+
       <!-- 分类结果展示 -->
       <CategoryDrawer
         :isDrawerOpen="isDrawerOpen"
