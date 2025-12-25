@@ -126,10 +126,10 @@
 import { ref, computed, watch, onMounted, onUnmounted, shallowRef } from 'vue';
 import { useClothingStore } from '@/stores';
 import { useEnumsStore } from '@/stores';
-import { showToast } from '../../utils/toast';
-import ImageUpload from './ClothingItemEditor/ImageUpload.vue';
-import SeasonSelector from './ClothingItemEditor/SeasonSelector.vue';
-import BasicInfoForm from './ClothingItemEditor/BasicInfoForm.vue';
+import { showToast } from '@/utils/toast';
+import ImageUpload from '@/components/molecules/ImageUpload.vue';
+import SeasonSelector from '@/components/molecules/SeasonSelector.vue';
+import BasicInfoForm from '@/components/organisms/BasicInfoForm.vue';
 
 // 1. 类型定义（新增，提升代码规范
 /**

@@ -108,9 +108,9 @@
 import { ref, computed, onUnmounted } from 'vue';
 import { debounce } from 'lodash';
 import { useClothingStore } from '@/stores';
-import DrawerHeader from './DrawerHeader.vue';
+import DrawerHeader from '@/components/layouts/DrawerHeader.vue';
 import ClothingCard from './ClothingCard.vue';
-import EmptyState from './EmptyState.vue';
+import EmptyState from '@/components/features/wardrobe/EmptyState.vue';
 
 // --- Props 定义（新增注释+校验） ---
 /**

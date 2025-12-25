@@ -71,6 +71,6 @@
 </template>
 
 <script setup>
-  import PageLayout from '../components/layout/PageLayout.vue';
-  import StatCard from '../components/ui/StatCard.vue';
+  import PageLayout from '../components/layouts/PageLayout.vue';
+  import StatCard from '../components/molecules/StatCard.vue';
 </script>

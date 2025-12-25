@@ -30,9 +30,9 @@
 <script setup>
   import { onMounted } from 'vue';
   import { useInspirationStore } from '@/stores';
-  import SavedOutfits from '@/components/inspiration/SavedOutfits.vue';
-  import OutfitCreator from '@/components/inspiration/OutfitCreator.vue';
-  import ContentLayout from '@/components/layout/ContentLayout.vue';
+  import SavedOutfits from '@/components/features/inspiration/SavedOutfits.vue';
+  import OutfitCreator from '@/components/organisms/OutfitCreator.vue';
+  import ContentLayout from '@/components/layouts/ContentLayout.vue';
 
   const inspirationStore = useInspirationStore();
 

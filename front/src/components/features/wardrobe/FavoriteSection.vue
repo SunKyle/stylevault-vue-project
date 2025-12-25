@@ -80,7 +80,7 @@
 <script setup>
   import { computed, ref, watch } from 'vue';
   import { useClothingStore } from '@/stores';
-  import ClothingItem from '../ui/molecules/ClothingItem.vue';
+  import ClothingItem from '../../molecules/ClothingItem.vue';
 
   const clothingStore = useClothingStore();
 

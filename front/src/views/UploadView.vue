@@ -6,6 +6,6 @@
   </ContentLayout>
 </template>
 <script setup>
-  import UploadForm from '../components/form/UploadForm.vue';
-  import ContentLayout from '../components/layout/ContentLayout.vue';
+  import UploadForm from '../components/features/form/UploadForm.vue';
+  import ContentLayout from '../components/layouts/ContentLayout.vue';
 </script>

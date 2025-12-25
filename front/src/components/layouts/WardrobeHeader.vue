@@ -51,7 +51,7 @@
 </template>
 
 <script setup>
-  import SearchBar from '../ui/atoms/SearchBar.vue';
+  import SearchBar from '../atoms/SearchBar.vue';
 
   defineOptions({
     name: 'WardrobeHeader',

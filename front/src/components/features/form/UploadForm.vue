@@ -346,7 +346,7 @@ import { reactive, ref, computed, nextTick, onMounted, onUnmounted, watch } from
 import { useClothingStore } from '@/stores';
 import { useEnumsStore } from '@/stores/modules/enumsStore';
 import  clothingApi  from '@/services/api/clothingApi';
-import { showToast } from '../../utils/toast';
+import { showToast } from '@/utils/toast';
 import SeasonMultiSelect from './SeasonMultiSelect.vue';
 
 // 1. 常量定义（统一管理硬编码）

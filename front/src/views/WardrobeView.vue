@@ -176,15 +176,15 @@
 <script setup>
 import { ref, computed, onMounted, onUnmounted } from 'vue';
 import { debounce } from 'lodash';
-import ClothingCategory from '../components/ui/ClothingCategory.vue';
-import ClothingItem from '../components/ui/molecules/ClothingItem.vue';
-import FavoriteSection from '../components/wardrobe/FavoriteSection.vue';
-import FeaturedOutfits from '../components/wardrobe/FeaturedOutfits.vue';
-import WardrobeHeader from '../components/wardrobe/WardrobeHeader.vue';
-import CategoryDrawer from '../components/wardrobe/CategoryDrawer.vue';
-import ClothingItemEditor from '../components/wardrobe/ClothingItemEditor.vue';
-import ContentLayout from '../components/layout/ContentLayout.vue';
-import ConfirmDialog from '../components/ui/ConfirmDialog.vue'; // 通用确认弹窗组件
+import ClothingCategory from '../components/organisms/ClothingCategory.vue';
+import ClothingItem from '../components/molecules/ClothingItem.vue';
+import FavoriteSection from '../components/features/wardrobe/FavoriteSection.vue';
+import FeaturedOutfits from '../components/features/inspiration/FeaturedOutfits.vue';
+import WardrobeHeader from '../components/layouts/WardrobeHeader.vue';
+import CategoryDrawer from '../components/organisms/CategoryDrawer.vue';
+import ClothingItemEditor from '../components/features/wardrobe/ClothingItemEditor.vue';
+import ContentLayout from '../components/layouts/ContentLayout.vue';
+import ConfirmDialog from '../components/molecules/ConfirmDialog.vue'; // 通用确认弹窗组件
 import { useClothingStore } from '../stores/index';
 import { useEnumsStore } from '../stores/index';
 import { useRouter } from 'vue-router';

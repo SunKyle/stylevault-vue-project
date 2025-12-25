@@ -34,9 +34,9 @@
 <script setup>
   import { ref, watch } from 'vue';
   import { useRoute, useRouter } from 'vue-router';
-  import Header from './components/layout/Header.vue';
-  import Footer from './components/layout/Footer.vue';
-  import FloatingActionButton from './components/ui/FloatingActionButton.vue';
+  import Header from './components/layouts/Header.vue';
+  import Footer from './components/layouts/Footer.vue';
+  import FloatingActionButton from './components/molecules/FloatingActionButton.vue';
 
   const route = useRoute();
   const router = useRouter();

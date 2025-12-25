@@ -17,6 +17,6 @@
 </template>
 
 <script setup>
-  import PageLayout from '../components/layout/PageLayout.vue';
-  import FeatureCard from '../components/ui/FeatureCard.vue';
+  import PageLayout from '../components/layouts/PageLayout.vue';
+  import FeatureCard from '../components/atoms/FeatureCard.vue';
 </script>

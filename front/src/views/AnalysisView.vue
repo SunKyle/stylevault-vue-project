@@ -5,6 +5,6 @@
 </template>
 
 <script setup>
-  import AnalysisSection from '../components/analysis/AnalysisSection.vue';
-  import ContentLayout from '../components/layout/ContentLayout.vue';
+  import AnalysisSection from '../components/features/analysis/AnalysisSection.vue';
+  import ContentLayout from '../components/layouts/ContentLayout.vue';
 </script>

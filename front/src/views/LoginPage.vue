@@ -125,9 +125,9 @@
 import { ref, reactive, onUnmounted } from 'vue';
 import { useRouter } from 'vue-router';
 import { useAuthStore } from '../stores/auth.store.js';
-import BrandSection from '@/components/login/BrandSection.vue';
-import LoginForm from '@/components/login/LoginForm.vue';
-import RegisterForm from '@/components/login/RegisterForm.vue';
+import BrandSection from '@/components/features/login/BrandSection.vue';
+import LoginForm from '@/components/features/login/LoginForm.vue';
+import RegisterForm from '@/components/features/login/RegisterForm.vue';
 
 // 1. 基础响应式数据
 const router = useRouter();

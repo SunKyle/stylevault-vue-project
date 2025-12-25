@@ -295,7 +295,7 @@
   import { ref, computed, onMounted } from 'vue';
   import { useInspirationStore } from '@/stores';
   import { useEnumsStore } from '@/stores/enums';
-  import OutfitCard from './OutfitCard.vue';
+  import OutfitCard from '@/components/molecules/OutfitCard.vue';
   // import { scenesMockData } from '../../mock/data'; // 暂时未使用
 
   const inspirationStore = useInspirationStore();

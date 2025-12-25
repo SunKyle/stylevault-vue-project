@@ -71,7 +71,7 @@
  * />
  */
 import { ref, watch } from 'vue';
-import { showToast } from '../../../utils/toast';
+import { showToast } from '@/utils/toast';
 
 const props = defineProps({
   image: {
