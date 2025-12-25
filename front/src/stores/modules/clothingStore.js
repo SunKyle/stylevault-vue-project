@@ -406,14 +406,13 @@ export const useClothingStore = defineStore('clothing', {
         throw error;
       }
 
-      const { tempId, remove, replace } = utils.optimisticAdd(this.clothingItems, item);
+      const { remove, replace } = utils.optimisticAdd(this.clothingItems, item);
       this.setPagination({ totalItems: this.pagination.totalItems + 1 });
 
       try {
         const newItem = await clothingApi.create(item);
         replace(newItem);
         cacheManager.delete(CACHE_KEYS.CLOTHING_ITEMS);
-        
         showToast('衣物添加成功', 'success');
         return newItem;
       } catch (error) {

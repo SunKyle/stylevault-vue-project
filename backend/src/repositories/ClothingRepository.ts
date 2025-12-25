@@ -185,17 +185,18 @@ export class ClothingRepository {
       formattedData.style = parseInt(formattedData.style);
     }
     // 处理季节数组，确保每个元素都是数字类型，默认空数组
-    if (formattedData.seasons !== undefined) {
-      if (Array.isArray(formattedData.seasons)) {
+    if (formattedData.season !== undefined) {
+      if (Array.isArray(formattedData.season)) {
         // 保留ClothingService中已经处理好的数字数组
-        formattedData.season = formattedData.seasons;
+        // 确保所有元素都是数字类型
+        formattedData.season = formattedData.season.map((s: any) => parseInt(s, 10)).filter((s: number) => !isNaN(s));
       } else {
         // 如果不是数组，转换为数组
-        const seasonId = parseInt(formattedData.seasons);
+        const seasonId = parseInt(formattedData.season);
         formattedData.season = isNaN(seasonId) ? [] : [seasonId];
       }
     } else {
-      // 如果seasons未定义，设置为空数组
+      // 如果season未定义，设置为空数组
       formattedData.season = [];
     }
     // 删除原始的seasons字段，使用season字段保存到数据库

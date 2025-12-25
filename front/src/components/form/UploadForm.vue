@@ -659,7 +659,6 @@ const saveClothes = async () => {
       size: clothingItem.size || null,
       price: clothingItem.price ? parseFloat(clothingItem.price) : null,
     };
-
     // 重试逻辑（最多2次）
     let retryCount = 0;
     const maxRetries = 2;
