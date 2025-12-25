@@ -144,7 +144,6 @@ const validSeasons = computed(() => {
   
   // 确保是数组
   const seasonArray = Array.isArray(seasons) ? seasons : [seasons];
-  console.log('seasonArray!!!!!:', seasonArray.filter(seasonId => seasonId));
   // 过滤掉无效值
   return seasonArray.filter(seasonId => seasonId);
 });
@@ -181,7 +180,6 @@ const getImageUrl = (item) => {
   else {
     return `https://picsum.photos/seed/${item.id || 'default'}/300/300`;
   }
-  // console.log('imageUrl!!!!!', imageUrl);
   // 处理相对路径，转换为前端代理路径
   if (imageUrl.startsWith('/') && !imageUrl.startsWith('//')) {
     // 使用相对路径，让前端代理处理

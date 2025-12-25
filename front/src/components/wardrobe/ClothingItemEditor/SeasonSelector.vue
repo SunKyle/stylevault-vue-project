@@ -76,9 +76,10 @@
  * />
  */
 import { ref, computed, watch } from 'vue';
+import { useEnumsStore } from '@/stores';
 
 const props = defineProps({
-  modelValue: {
+  seasons: {
     type: Array,
     default: () => [],
   },
@@ -88,25 +89,29 @@ const props = defineProps({
   },
 });
 
-const emit = defineEmits(['update:modelValue']);
+const emit = defineEmits(['update:seasons']);
 
+// 使用枚举store获取季节选项
+const enumsStore = useEnumsStore();
+
+// 硬编码季节选项，与后端季节ID对应
 const seasonsOptions = [
-  { value: '春季', label: '春季', icon: ['fas', 'seedling'], colorClass: 'text-green-500' },
-  { value: '夏季', label: '夏季', icon: ['fas', 'sun'], colorClass: 'text-yellow-500' },
-  { value: '秋季', label: '秋季', icon: ['fas', 'leaf'], colorClass: 'text-orange-500' },
-  { value: '冬季', label: '冬季', icon: ['fas', 'snowflake'], colorClass: 'text-blue-500' },
+  { value: 1, label: '春季', icon: ['fas', 'seedling'], colorClass: 'text-green-500' },
+  { value: 2, label: '夏季', icon: ['fas', 'sun'], colorClass: 'text-yellow-500' },
+  { value: 3, label: '秋季', icon: ['fas', 'leaf'], colorClass: 'text-orange-500' },
+  { value: 4, label: '冬季', icon: ['fas', 'snowflake'], colorClass: 'text-blue-500' },
 ];
 
-const localSeasons = ref([...props.modelValue]);
+const localSeasons = ref([...props.seasons]);
 
 // 监听外部值变化
-watch(() => props.modelValue, (newValue) => {
+watch(() => props.seasons, (newValue) => {
   localSeasons.value = [...newValue];
 }, { deep: true });
 
 // 监听内部值变化并向外部触发事件
 watch(localSeasons, (newValue) => {
-  emit('update:modelValue', [...newValue]);
+  emit('update:seasons', [...newValue]);
 }, { deep: true });
 
 // 全选季节
@@ -115,15 +120,15 @@ const allSeasons = computed({
     if (!localSeasons.value || !Array.isArray(localSeasons.value)) return false;
     return (
       localSeasons.value.length === 4 &&
-      localSeasons.value.includes('春季') &&
-      localSeasons.value.includes('夏季') &&
-      localSeasons.value.includes('秋季') &&
-      localSeasons.value.includes('冬季')
+      localSeasons.value.includes(1) &&
+      localSeasons.value.includes(2) &&
+      localSeasons.value.includes(3) &&
+      localSeasons.value.includes(4)
     );
   },
   set(value) {
     if (value) {
-      localSeasons.value = ['春季', '夏季', '秋季', '冬季'];
+      localSeasons.value = [1, 2, 3, 4];
     } else {
       localSeasons.value = [];
     }

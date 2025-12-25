@@ -69,7 +69,6 @@
                 v-model="form" 
                 :read-only="props.readOnly"
                 :categories="categories"
-                @update:category="updateCategoryName"
               />
             </div>
 
@@ -78,7 +77,6 @@
               <SeasonSelector 
                 v-model:seasons="form.seasons" 
                 :read-only="props.readOnly"
-                @update:seasons="updateSeasons"
               />
             </div>
 
@@ -132,9 +130,8 @@ import { showToast } from '../../utils/toast';
 import ImageUpload from './ClothingItemEditor/ImageUpload.vue';
 import SeasonSelector from './ClothingItemEditor/SeasonSelector.vue';
 import BasicInfoForm from './ClothingItemEditor/BasicInfoForm.vue';
-import FavoriteToggle from './ClothingItemEditor/FavoriteToggle.vue';
 
-// 1. 类型定义（新增，提升代码规范）
+// 1. 类型定义（新增，提升代码规范
 /**
  * @typedef {Object} ClothingForm
  * @property {string} id - 衣物ID
@@ -212,11 +209,7 @@ const isFormValid = computed(() => {
 });
 
 // 7. 事件处理（精简，职责单一）
-// 图片更新由v-model自动处理，不再需要单独的updateImage方法
-
-const updateSeasons = (newSeasons) => {
-  form.value.seasons = newSeasons;
-};
+// 图片更新和季节更新由v-model自动处理，不再需要单独的事件处理方法
 
 // 9. 数据适配（提取为独立函数，精简watch逻辑）
 const adaptItemToForm = (item) => {
@@ -233,15 +226,12 @@ const adaptItemToForm = (item) => {
 
   // 3. 季节字段处理 - 只使用新的season字段（数组）
   if (Array.isArray(item.season) && item.season.length) {
-    adapted.seasons = item.season.map(seasonValue => {
-      const option = enumsStore.value.getOptions('seasons').find(s => Number(s.value) === seasonValue);
-      return option ? option.label : '';
-    }).filter(Boolean);
+    adapted.seasons = item.season;
   }
   
   // 确保季节是数组
   adapted.seasons = Array.isArray(adapted.seasons) ? adapted.seasons : [];
-
+  console.log('adapted.seasons!!!!!:', adapted.seasons);
   return adapted;
 };
 
@@ -288,13 +278,10 @@ const saveItem = async () => {
     const validImageUrl = validateImageUrl(form.value.mainImageUrl);
 
     // 3. 构造提交数据（精简，避免冗余）
-    // 转换季节名称为季节ID数组
+    // 确保季节是数字ID数组
     const seasonIds = Array.isArray(form.value.seasons) ? form.value.seasons
-      .map(seasonLabel => {
-        const seasonOption = enumsStore.value.getOptions('seasons').find(s => s.label === seasonLabel);
-        return seasonOption ? Number(seasonOption.value) : null;
-      })
-      .filter(id => id !== null)
+      .map(seasonId => Number(seasonId))
+      .filter(id => !isNaN(id))
       : [];
 
     const submitData = {
