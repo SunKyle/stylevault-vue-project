@@ -641,11 +641,12 @@ const saveClothes = async () => {
       validatedMainImageUrl = IMAGE_CONFIG.PLACEHOLDER_URL;
     }
 
+    const seasonIds = [...selectedSeasons.value] || [];
     const itemToSubmit = {
       name: clothingItem.name,
       category: clothingItem.category,
-      colorId: clothingItem.color || null,
-      styleId: clothingItem.style || null,
+      color: clothingItem.color || null,
+      style: clothingItem.style || null,
       condition: clothingItem.condition || null,
       brand: clothingItem.brand,
       notes: clothingItem.notes,
@@ -653,7 +654,8 @@ const saveClothes = async () => {
       mainImageUrl: validatedMainImageUrl,
       purchaseDate: clothingItem.purchaseDate || today,
       favorite: false,
-      seasons: [...selectedSeasons.value] || [],
+      season: seasonIds,
+      seasons: seasonIds,
       material: clothingItem.material || null,
       size: clothingItem.size || null,
       price: clothingItem.price ? parseFloat(clothingItem.price) : null,

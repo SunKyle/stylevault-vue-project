@@ -157,14 +157,15 @@ export class Clothing extends BaseModel<Clothing> {
   color?: number;
 
   /**
-   * 季节ID（关联attributes表）
+   * 季节ID数组
    */
-  @ForeignKey(() => Attribute)
   @Column({
-    type: DataType.INTEGER,
-    comment: '季节ID（关联attributes表）'
+    type: DataType.JSON,
+    field: 'season',
+    defaultValue: [],
+    comment: '季节ID数组'
   })
-  season?: number;
+  season?: number[];
 
   /**
    * 材质ID（关联attributes表）
@@ -282,14 +283,7 @@ export class Clothing extends BaseModel<Clothing> {
   })
   colorAttribute?: Attribute;
 
-  /**
-   * 关联的季节属性
-   */
-  @BelongsTo(() => Attribute, {
-    foreignKey: 'season',
-    constraints: false
-  })
-  seasonAttribute?: Attribute;
+
 
   /**
    * 关联的材质属性

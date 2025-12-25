@@ -181,7 +181,7 @@ export class ClothingRepository {
   async createClothingItem(data: any): Promise<Clothing> {
     // 确保数据格式正确
     const formattedData: any = { ...data };
-    
+    // console.log('formattedData!!!!!', formattedData);  
     // 转换数字类型字段
     if (formattedData.category !== undefined) {
       formattedData.category = parseInt(formattedData.category);
@@ -192,9 +192,22 @@ export class ClothingRepository {
     if (formattedData.style !== undefined) {
       formattedData.style = parseInt(formattedData.style);
     }
-    if (formattedData.season !== undefined) {
-      formattedData.season = parseInt(formattedData.season);
+    // 处理季节数组，确保每个元素都是数字类型，默认空数组
+    if (formattedData.seasons !== undefined) {
+      if (Array.isArray(formattedData.seasons)) {
+        // 保留ClothingService中已经处理好的数字数组
+        formattedData.season = formattedData.seasons;
+      } else {
+        // 如果不是数组，转换为数组
+        const seasonId = parseInt(formattedData.seasons);
+        formattedData.season = isNaN(seasonId) ? [] : [seasonId];
+      }
+    } else {
+      // 如果seasons未定义，设置为空数组
+      formattedData.season = [];
     }
+    // 删除原始的seasons字段，使用season字段保存到数据库
+    delete formattedData.seasons;
     if (formattedData.material !== undefined) {
       formattedData.material = parseInt(formattedData.material);
     }
@@ -207,7 +220,7 @@ export class ClothingRepository {
     if (formattedData.status !== undefined) {
       formattedData.status = parseInt(formattedData.status);
     }
-
+    console.log('formattedData?????', formattedData);  
     return await Clothing.create(formattedData);
   }
 
@@ -242,6 +255,22 @@ export class ClothingRepository {
         ? updateData.imageUrls.filter((url: string) => url && url.trim()) 
         : updateData.imageUrls;
     }
+    // 处理季节数据，确保每个元素都是数字类型，默认空数组
+    if (updateData.seasons !== undefined) {
+      if (Array.isArray(updateData.seasons)) {
+        // 保留ClothingService中已经处理好的数字数组
+        updateData.season = updateData.seasons;
+      } else {
+        // 如果不是数组，转换为数组
+        const seasonId = parseInt(updateData.seasons);
+        updateData.season = isNaN(seasonId) ? [] : [seasonId];
+      }
+    } else {
+      // 如果seasons未定义，设置为空数组
+      updateData.season = [];
+    }
+    // 删除原始的seasons字段，使用season字段保存到数据库
+    delete updateData.seasons;
 
     return await Clothing.update(updateData, {
       where: { id, userId, status: 1 }, // status现在是数字ID

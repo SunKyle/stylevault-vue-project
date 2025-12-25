@@ -231,25 +231,15 @@ const adaptItemToForm = (item) => {
     delete adapted.categoryId;
   }
 
-  // 3. 季节字段兼容
-  if (item.season !== undefined && !adapted.seasons?.length) {
-    // 如果是数字类型的季节值，转换为标签数组
-    if (typeof item.season === 'number') {
-      const seasonOption = enumsStore.value.getOptions('seasons').find(s => s.value === item.season);
-      adapted.seasons = seasonOption ? [seasonOption.label] : [];
-    } else if (Array.isArray(item.season)) {
-      // 如果已经是数组，确保元素是标签
-      adapted.seasons = item.season.map(seasonValue => {
-        const option = enumsStore.value.getOptions('seasons').find(s => s.value === seasonValue);
-        return option ? option.label : '';
-      }).filter(Boolean);
-    } else {
-      // 其他情况转为空数组
-      adapted.seasons = [];
-    }
+  // 3. 季节字段处理 - 只使用新的seasons字段（数组）
+  if (Array.isArray(item.seasons) && item.seasons.length) {
+    adapted.seasons = item.seasons.map(seasonValue => {
+      const option = enumsStore.value.getOptions('seasons').find(s => Number(s.value) === seasonValue);
+      return option ? option.label : '';
+    }).filter(Boolean);
   }
   
-  // 4. 确保季节是数组
+  // 确保季节是数组
   adapted.seasons = Array.isArray(adapted.seasons) ? adapted.seasons : [];
 
   return adapted;
@@ -298,10 +288,20 @@ const saveItem = async () => {
     const validImageUrl = validateImageUrl(form.value.mainImageUrl);
 
     // 3. 构造提交数据（精简，避免冗余）
+    // 转换季节名称为季节ID数组
+    const seasonIds = Array.isArray(form.value.seasons) ? form.value.seasons
+      .map(seasonLabel => {
+        const seasonOption = enumsStore.value.getOptions('seasons').find(s => s.label === seasonLabel);
+        return seasonOption ? Number(seasonOption.value) : null;
+      })
+      .filter(id => id !== null)
+      : [];
+
     const submitData = {
       ...form.value,
       mainImageUrl: validImageUrl,
-      season: Array.isArray(form.value.seasons) && form.value.seasons.length ? enumsStore.value.getOptions('seasons').find(s => s.label === form.value.seasons[0])?.value : undefined,
+      season: seasonIds,
+      seasons: seasonIds,
       // 数字类型转换（精简）
       size: form.value.size ? Number(form.value.size) : undefined,
       condition: form.value.condition ? Number(form.value.condition) : undefined,
