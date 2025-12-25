@@ -54,7 +54,37 @@ export interface ClothingUpdateData {
 }
 
 export class ClothingService {
+  // 私有辅助方法：安全解析整数
+  private parseNumber(value: any): number | undefined {
+    if (value === undefined || value === null) return undefined;
+    const parsed = parseInt(String(value), 10);
+    return isNaN(parsed) ? undefined : parsed;
+  }
 
+  // 私有辅助方法：安全解析浮点数
+  private parseFloatNumber(value: any): number | undefined {
+    if (value === undefined || value === null) return undefined;
+    const parsed = parseFloat(String(value));
+    return isNaN(parsed) ? undefined : parsed;
+  }
+
+  // 私有辅助方法：处理季节字段（同时支持season和seasons字段）
+  private processSeasonData(season: any, seasons: any): number[] {
+    const seasonValue = Array.isArray(season) ? season : Array.isArray(seasons) ? seasons : [];
+    return seasonValue
+      .map((s: any) => this.parseNumber(s))
+      .filter((s: number | undefined) => s !== undefined) as number[];
+  }
+
+  // 私有辅助方法：安全处理字符串
+  private safeTrim(str?: string): string | undefined {
+    return str?.trim();
+  }
+
+  // 私有辅助方法：安全处理字符串数组
+  private safeFilterArray(arr?: string[]): string[] {
+    return Array.isArray(arr) ? arr.filter(url => this.safeTrim(url)) : [];
+  }
 
   /**
    * 获取衣物列表（确保用户权限隔离）
@@ -84,63 +114,49 @@ export class ClothingService {
    * 创建衣物
    */
   async createClothingItem(data: ClothingCreateData) {
-    // 辅助函数：安全解析数字
-    const parseNumber = (value: any): number | undefined => {
-      if (value === undefined || value === null) return undefined;
-      const parsed = parseInt(String(value), 10);
-      return isNaN(parsed) ? undefined : parsed;
-    };
-    
-    // 辅助函数：安全解析浮点数
-    const parseFloatNumber = (value: any): number | undefined => {
-      if (value === undefined || value === null) return undefined;
-      const parsed = parseFloat(String(value));
-      return isNaN(parsed) ? undefined : parsed;
-    };
-
-    // 直接使用独立字段处理数据，不再从metadata中获取
+    // 构建衣物数据对象，使用默认值和安全处理函数
     const clothingItemData: any = {
       userId: data.userId,
-      name: data.name.trim(),
-      brand: data.brand?.trim(),
+      name: this.safeTrim(data.name)!, // name是必填字段，确保非空
+      brand: this.safeTrim(data.brand),
       condition: data.condition ?? 1, // 默认值设为1（假设1代表'good'）
-      notes: data.notes?.trim(),
-      imageUrls: Array.isArray(data.imageUrls) ? data.imageUrls.filter((url: string) => url?.trim()) : [],
-      mainImageUrl: data.mainImageUrl?.trim(),
+      notes: this.safeTrim(data.notes),
+      imageUrls: this.safeFilterArray(data.imageUrls),
+      mainImageUrl: this.safeTrim(data.mainImageUrl),
       isFavorite: data.favorite ?? false,
       status: 1, // 1-有效，0-无效
     };
 
-    // 处理purchaseDate
+    // 处理可选日期字段
     if (data.purchaseDate) {
       clothingItemData.purchaseDate = new Date(data.purchaseDate);
     }
     
-    // 处理分类、颜色、风格、尺寸、材质（使用辅助函数减少重复代码）
+    // 处理数字属性字段
     const numberFields = ['category', 'color', 'style', 'size', 'material'];
     for (const field of numberFields) {
       const value = (data as any)[field];
-      if (value !== undefined && value !== null) {
-        clothingItemData[field] = parseNumber(value);
+      const parsed = this.parseNumber(value);
+      if (parsed !== undefined) {
+        clothingItemData[field] = parsed;
       }
     }
     
     // 处理价格（使用浮点数解析）
-    if (data.price !== undefined && data.price !== null) {
-      clothingItemData.price = parseFloatNumber(data.price);
+    const price = this.parseFloatNumber(data.price);
+    if (price !== undefined) {
+      clothingItemData.price = price;
     }
     
     // 处理parentId
-    if (data.parentId !== undefined && data.parentId !== null) {
-      clothingItemData.parentId = data.parentId;
+    const parentId = this.parseNumber(data.parentId);
+    if (parentId !== undefined) {
+      clothingItemData.parentId = parentId;
     }
     
-    // 处理季节（同时支持season和seasons字段）
-    const seasonValue = Array.isArray(data.season) ? data.season : 
-                       Array.isArray(data.seasons) ? data.seasons : [];
-    clothingItemData.season = seasonValue
-      .map((season: any) => parseNumber(season))
-      .filter((season: number | undefined) => season !== undefined);
+    // 处理季节数据
+    clothingItemData.season = this.processSeasonData(data.season, data.seasons);
+    
     return await clothingRepository.createClothingItem(clothingItemData);
   }
 
@@ -148,69 +164,53 @@ export class ClothingService {
    * 更新衣物
    */
   async updateClothingItem(id: number, userId: number, data: ClothingUpdateData): Promise<any> {
-    // 辅助函数：安全解析数字
-    const parseNumber = (value: any): number | undefined => {
-      if (value === undefined || value === null) return undefined;
-      const parsed = parseInt(String(value), 10);
-      return isNaN(parsed) ? undefined : parsed;
-    };
-    
-    // 辅助函数：安全解析浮点数
-    const parseFloatNumber = (value: any): number | undefined => {
-      if (value === undefined || value === null) return undefined;
-      const parsed = parseFloat(String(value));
-      return isNaN(parsed) ? undefined : parsed;
-    };
-    
-    // 准备更新数据
+    // 准备更新数据对象
     const updateData: any = {};
     
-    // 更新基本信息
-    if (data.name !== undefined) updateData.name = data.name.trim();
-    if (data.brand !== undefined) updateData.brand = data.brand.trim();
+    // 更新基本信息字段
+    if (data.name !== undefined) updateData.name = this.safeTrim(data.name);
+    if (data.brand !== undefined) updateData.brand = this.safeTrim(data.brand);
     if (data.condition !== undefined) updateData.condition = data.condition;
-    if (data.notes !== undefined) updateData.notes = data.notes.trim();
-    if (data.imageUrls !== undefined) updateData.imageUrls = Array.isArray(data.imageUrls) ? data.imageUrls.filter((url: string) => url?.trim()) : [];
-    if (data.mainImageUrl !== undefined) updateData.mainImageUrl = data.mainImageUrl?.trim();
+    if (data.notes !== undefined) updateData.notes = this.safeTrim(data.notes);
+    if (data.imageUrls !== undefined) updateData.imageUrls = this.safeFilterArray(data.imageUrls);
+    if (data.mainImageUrl !== undefined) updateData.mainImageUrl = this.safeTrim(data.mainImageUrl);
     if (data.favorite !== undefined) updateData.isFavorite = data.favorite;
     
-    // 更新日期
+    // 更新日期字段
     if (data.purchaseDate !== undefined) updateData.purchaseDate = new Date(data.purchaseDate);
     
-    // 处理分类、颜色、风格、尺寸、材质（使用辅助函数减少重复代码）
+    // 处理数字属性字段
     const numberFields = ['category', 'color', 'style', 'size', 'material'];
     for (const field of numberFields) {
       const value = (data as any)[field];
       if (value !== undefined) {
-        updateData[field] = parseNumber(value);
+        const parsed = this.parseNumber(value);
+        updateData[field] = parsed;
       }
     }
     
-    // 更新价格（使用浮点数解析）
+    // 更新价格字段
     if (data.price !== undefined) {
-      updateData.price = parseFloatNumber(data.price);
+      const price = this.parseFloatNumber(data.price);
+      updateData.price = price;
     }
     
-    // 更新季节（同时支持season和seasons字段）
+    // 更新季节字段
     if (data.season !== undefined || data.seasons !== undefined) {
-      const seasonValue = Array.isArray(data.season) ? data.season : 
-                         Array.isArray(data.seasons) ? data.seasons : [];
-      updateData.season = seasonValue
-        .map((season: any) => parseNumber(season))
-        .filter((season: number | undefined) => season !== undefined);
+      updateData.season = this.processSeasonData(data.season, data.seasons);
     }
     
-    // 执行更新
+    // 执行更新操作
     const updateResult = await clothingRepository.updateClothingItem(id, userId, updateData);
     
-    // 处理更新结果，sequelize可能返回不同的格式
+    // 处理更新结果，确保获取到更新后的衣物信息
     let updatedItem;
     if (Array.isArray(updateResult)) {
       const [affectedRows, items] = updateResult;
       if (affectedRows === 0) {
         throw new Error('衣物不存在或无权限修改');
       }
-      updatedItem = items && items.length > 0 ? items[0] : await clothingRepository.findClothingItemById(id, userId);
+      updatedItem = items?.length > 0 ? items[0] : await clothingRepository.findClothingItemById(id, userId);
     } else {
       // 如果只返回受影响的行数
       if (updateResult === 0) {

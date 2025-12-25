@@ -239,14 +239,30 @@ const adaptItemToForm = (item) => {
 watch(
   () => props.item,
   (newItem) => {
-    form.value = adaptItemToForm(newItem);
+    // 只有当item确实存在且与当前form不同时才更新，避免不必要的更新
+    if (newItem && JSON.stringify(adaptItemToForm(newItem)) !== JSON.stringify(form.value)) {
+      form.value = adaptItemToForm(newItem);
+    }
   },
   { immediate: true }
 );
 
 // 11. 更新衣物信息逻辑
+// 添加防护变量，防止重复调用
+let isSaving = false;
+
 const saveItem = async () => {
-  console.log('form.value!!!:', form.value);
+  // 防护机制：如果正在保存，直接返回
+  if (isSaving) {
+    console.log('Save operation is already in progress');
+    return;
+  }
+  
+  // 立即设置loading状态和防护变量，防止重复点击
+  isSaving = true;
+  loading.value = true;
+  console.log('saveItem called at', new Date().toISOString());
+  console.log('form.value:', form.value);
   formSubmitted.value = true;
   formError.value = '';
 
@@ -254,6 +270,7 @@ const saveItem = async () => {
   if (!isFormValid.value) {
     formError.value = '请填写必填项：衣物名称和分类';
     showToast(formError.value, 'error');
+    loading.value = false; // 验证失败，重置loading状态
     return;
   }
 
@@ -274,7 +291,6 @@ const saveItem = async () => {
   };
 
   try {
-    loading.value = true;
     const validImageUrl = validateImageUrl(form.value.mainImageUrl);
 
     // 3. 构造提交数据（精简，避免冗余）
@@ -287,8 +303,7 @@ const saveItem = async () => {
     const submitData = {
       ...form.value,
       mainImageUrl: validImageUrl,
-      season: seasonIds,
-      seasons: seasonIds,
+      season: seasonIds, // 只使用后端期望的字段名
       // 数字类型转换（精简）
       size: form.value.size ? Number(form.value.size) : undefined,
       condition: form.value.condition ? Number(form.value.condition) : undefined,
@@ -297,6 +312,9 @@ const saveItem = async () => {
       style: form.value.style ? Number(form.value.style) : undefined,
       material: form.value.material ? Number(form.value.material) : undefined,
     };
+
+    // 移除可能导致混淆的重复字段
+    delete submitData.seasons;
 
     // 移除无用字段
     delete submitData.metadata;
@@ -309,7 +327,6 @@ const saveItem = async () => {
       await clothingStore.value.addClothingItem(submitData);
       showToast('新衣物已添加', 'success');
     }
-
     emit('saved');
     emit('close');
   } catch (error) {
@@ -318,7 +335,9 @@ const saveItem = async () => {
     formError.value = errorMsg;
     showToast(errorMsg, 'error');
   } finally {
+    // 重置状态变量
     loading.value = false;
+    isSaving = false;
   }
 };
 

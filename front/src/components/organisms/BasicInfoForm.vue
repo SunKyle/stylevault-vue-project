@@ -484,8 +484,11 @@ watch(() => props.modelValue, (newValue) => {
 
 // 监听内部值变化并向外部触发事件
 // 使用JSON.parse(JSON.stringify())进行深拷贝，避免直接传递响应式对象
+// 注意：在readOnly模式下不触发更新，避免不必要的数据流动
 watch(form, (newValue) => {
-  emit('update:modelValue', JSON.parse(JSON.stringify(newValue)));
+  if (!props.readOnly) {
+    emit('update:modelValue', JSON.parse(JSON.stringify(newValue)));
+  }
 }, { deep: true });
 
 
