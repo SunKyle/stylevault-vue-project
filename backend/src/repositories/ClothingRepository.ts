@@ -248,22 +248,26 @@ export class ClothingRepository {
         ? updateData.imageUrls.filter((url: string) => url && url.trim()) 
         : updateData.imageUrls;
     }
-    // 处理季节数据，确保每个元素都是数字类型，默认空数组
-    if (updateData.seasons !== undefined) {
-      if (Array.isArray(updateData.seasons)) {
-        // 保留ClothingService中已经处理好的数字数组
-        updateData.season = updateData.seasons;
-      } else {
-        // 如果不是数组，转换为数组
-        const seasonId = parseInt(updateData.seasons);
-        updateData.season = isNaN(seasonId) ? [] : [seasonId];
+    // 处理季节数据
+    // 优先使用season字段，如果没有则使用seasons字段
+    let seasonData = updateData.season !== undefined ? updateData.season : updateData.seasons;
+    
+    if (seasonData !== undefined) {
+      // 确保季节数据是数字数组
+      if (!Array.isArray(seasonData)) {
+        seasonData = [Number(seasonData)];
       }
+      // 过滤掉无效值并转换为数字
+      updateData.season = seasonData.map((seasonId: any) => Number(seasonId)).filter((id: number) => !isNaN(id));
     } else {
-      // 如果seasons未定义，设置为空数组
+      // 如果没有提供季节，设置为空数组
       updateData.season = [];
     }
-    // 删除原始的seasons字段，使用season字段保存到数据库
-    delete updateData.seasons;
+    
+    // 移除临时的seasons字段（如果存在）
+    if (updateData.seasons) {
+      delete updateData.seasons;
+    }
 
     return await Clothing.update(updateData, {
       where: { id, userId, status: 1 }, // status现在是数字ID

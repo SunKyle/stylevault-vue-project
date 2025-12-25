@@ -208,6 +208,7 @@ const isReadOnlyMode = ref(false);
 const isSearching = ref(false);
 const deleteConfirmVisible = ref(false);
 const currentDeleteItem = ref(null);
+const formSubmitted = ref(false);
 
 
 // 3. 获取分类数据
@@ -513,7 +514,7 @@ const handleEditSaved = async () => {
     formSubmitted.value = true;
   } catch (error) {
     showToast('更新失败，请重试', 'error');
-    formError.value = error.message || '更新失败';
+    console.error('更新失败:', error);
     return;
   }
   await refreshWardrobeData();

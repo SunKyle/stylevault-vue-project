@@ -17,7 +17,7 @@
         >
           <input
             type="checkbox"
-            v-model="localSeasons"
+            v-model="seasonsComputed"
             :value="season.value"
             :disabled="readOnly"
             :class="[
@@ -76,7 +76,6 @@
  * />
  */
 import { ref, computed, watch } from 'vue';
-import { useEnumsStore } from '@/stores';
 
 const props = defineProps({
   seasons: {
@@ -91,9 +90,6 @@ const props = defineProps({
 
 const emit = defineEmits(['update:seasons']);
 
-// 使用枚举store获取季节选项
-const enumsStore = useEnumsStore();
-
 // 硬编码季节选项，与后端季节ID对应
 const seasonsOptions = [
   { value: 1, label: '春季', icon: ['fas', 'seedling'], colorClass: 'text-green-500' },
@@ -102,17 +98,32 @@ const seasonsOptions = [
   { value: 4, label: '冬季', icon: ['fas', 'snowflake'], colorClass: 'text-blue-500' },
 ];
 
-const localSeasons = ref([...props.seasons]);
+// 使用本地ref存储季节数据
+const localSeasons = ref(Array.isArray(props.seasons) ? [...props.seasons] : []);
 
-// 监听外部值变化
-watch(() => props.seasons, (newValue) => {
-  localSeasons.value = [...newValue];
-}, { deep: true });
+// 监听props.seasons变化，同步到本地ref
+watch(
+  () => props.seasons,
+  (newSeasons) => {
+    if (Array.isArray(newSeasons)) {
+      localSeasons.value = [...newSeasons];
+    } else {
+      localSeasons.value = [];
+    }
+  },
+  { deep: true }
+);
 
-// 监听内部值变化并向外部触发事件
-watch(localSeasons, (newValue) => {
-  emit('update:seasons', [...newValue]);
-}, { deep: true });
+// 使用计算属性处理双向绑定
+const seasonsComputed = computed({
+  get() {
+    return localSeasons.value;
+  },
+  set(value) {
+    localSeasons.value = value;
+    emit('update:seasons', value);
+  },
+});
 
 // 全选季节
 const allSeasons = computed({
@@ -128,9 +139,9 @@ const allSeasons = computed({
   },
   set(value) {
     if (value) {
-      localSeasons.value = [1, 2, 3, 4];
+      seasonsComputed.value = [1, 2, 3, 4];
     } else {
-      localSeasons.value = [];
+      seasonsComputed.value = [];
     }
   },
 });

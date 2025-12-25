@@ -425,20 +425,30 @@ export const useClothingStore = defineStore('clothing', {
 
     // 更新衣物（简化）
     async updateClothingItem(id, updates) {
-      if (!id || !updates) {
+      // 支持两种调用方式：1) (id, updates) 2) (itemObject)
+      let itemId, itemUpdates;
+      if (arguments.length === 1 && typeof id === 'object' && id.id) {
+        itemId = id.id;
+        itemUpdates = id;
+      } else {
+        itemId = id;
+        itemUpdates = updates;
+      }
+      
+      if (!itemId || !itemUpdates) {
         const error = new Error('更新数据不能为空');
         handleApiError(error, '更新衣物失败', this);
         throw error;
       }
 
-      const { rollback } = utils.optimisticUpdate(this.clothingItems, id, updates);
+      const { rollback } = utils.optimisticUpdate(this.clothingItems, itemId, itemUpdates);
 
       try {
-        const updatedItem = await clothingApi.update(id, updates);
-        const index = this.clothingItems.findIndex(item => item.id === id);
+        const updatedItem = await clothingApi.update(itemId, itemUpdates);
+        const index = this.clothingItems.findIndex(item => item.id === itemId);
         if (index !== -1) this.clothingItems[index] = updatedItem;
 
-        cacheManager.delete(CACHE_KEYS.ITEM_DETAIL(id));
+        cacheManager.delete(CACHE_KEYS.ITEM_DETAIL(itemId));
         cacheManager.delete(CACHE_KEYS.CLOTHING_ITEMS);
         
         showToast('衣物更新成功', 'success');
