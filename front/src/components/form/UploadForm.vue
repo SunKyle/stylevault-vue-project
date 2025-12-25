@@ -620,7 +620,7 @@ const saveClothes = async () => {
 
     // 上传图片到服务器
     if (selectedFile.value) {
-      showToast('正在上传图片...', 'info');
+      // showToast('正在上传图片...', 'info');
       const formData = new FormData();
       formData.append('image', selectedFile.value);
       
@@ -628,13 +628,12 @@ const saveClothes = async () => {
           const uploadResponse = await clothingApi.uploadImage(formData);
           if (uploadResponse && uploadResponse.data && uploadResponse.data.imageUrl) {
             validatedMainImageUrl = uploadResponse.data.imageUrl;
-            // showToast('图片上传成功', 'success');
           } else {
             throw new Error('图片上传失败，未获取到图片URL');
           }
       } catch (uploadError) {
         console.error('图片上传失败:', uploadError);
-        showToast('图片上传失败，将使用占位符图片', 'warning');
+        // showToast('图片上传失败，将使用占位符图片', 'warning');
         validatedMainImageUrl = IMAGE_CONFIG.PLACEHOLDER_URL;
       }
     } else {
