@@ -85,9 +85,9 @@
 
       <!-- 标签区域（限制行数，避免溢出；提取通用样式） -->
       <div class="flex flex-wrap gap-1 mt-1.5 max-h-12 overflow-hidden">
-        <span v-if="item.season" class="clothing-tag season-tag">
-          {{ getEnumLabel('seasons', item.season) }}
-        </span>
+          <span v-for="seasonId in validSeasons" :key="seasonId" class="clothing-tag season-tag">
+            {{ getEnumLabel('seasons', seasonId) }}
+          </span>
         <span
           v-if="item.color"
           class="clothing-tag color-tag"
@@ -106,7 +106,7 @@
 </template>
 
 <script setup>
-import { ref, onUnmounted, watch } from 'vue';
+import { ref, onUnmounted, watch, computed } from 'vue';
 import { debounce } from 'lodash';
 import { useEnumsStore } from '@/stores/modules/enumsStore';
 
@@ -135,6 +135,19 @@ const enumsStore = useEnumsStore();
 const imgError = ref(false);
 const imgLoaded = ref(false);
 const isLoading = ref(false); // 按钮加载状态
+
+// --- 计算属性（优化模板逻辑，提高可维护性） ---
+// 处理季节数组，确保返回有效的季节ID数组
+const validSeasons = computed(() => {
+  const seasons = props.item?.season;
+  if (!seasons) return [];
+  
+  // 确保是数组
+  const seasonArray = Array.isArray(seasons) ? seasons : [seasons];
+  console.log('seasonArray!!!!!:', seasonArray.filter(seasonId => seasonId));
+  // 过滤掉无效值
+  return seasonArray.filter(seasonId => seasonId);
+});
 
 // 防抖函数（避免高频点击触发多次事件）
 const debouncedEmit = debounce((event, data) => {
