@@ -59,14 +59,15 @@ export const useInspirationStore = defineStore('inspiration', () => {
 
   // 分页数据
   const visibleOutfits = computed(() => {
+    // 确保 savedOutfits.value 是一个数组
+    const outfits = Array.isArray(savedOutfits.value) ? savedOutfits.value : [];
     const start = 0;
     const end = pagination.page * pagination.pageSize;
-    return savedOutfits.value.slice(start, end);
+    return outfits.slice(start, end);
   });
 
   // 兼容属性
   const hasMore = computed(() => pagination.hasMore);
-  const loadMoreOutfits = loadMore;
 
   // 方法
   const setFilter = (type, value) => {
@@ -105,12 +106,17 @@ export const useInspirationStore = defineStore('inspiration', () => {
   };
 
   const loadMore = () => {
+    // 确保 savedOutfits.value 是一个数组
+    const outfits = Array.isArray(savedOutfits.value) ? savedOutfits.value : [];
     const currentEnd = pagination.page * pagination.pageSize;
-    pagination.hasMore = currentEnd < savedOutfits.value.length;
+    pagination.hasMore = currentEnd < outfits.length;
     if (pagination.hasMore) {
       pagination.page++;
     }
   };
+
+  // 兼容属性
+  const loadMoreOutfits = loadMore;
 
   const saveOutfit = async outfitInfo => {
     if (selectedClothes.value.length === 0) {
@@ -147,15 +153,14 @@ export const useInspirationStore = defineStore('inspiration', () => {
     try {
       const promises = [outfitStore.fetchOutfits()];
 
-      if (clothingStore.categories.length === 0) {
-        promises.push(clothingStore.fetchCategories());
-      }
-      if (clothingStore.clothingItems.length === 0) {
-        promises.push(clothingStore.fetchClothingItems());
-      }
+      // 总是获取最新的分类和衣物数据，不依赖缓存
+      promises.push(clothingStore.fetchCategories(true));
+      promises.push(clothingStore.fetchClothingItems(true));
 
       await Promise.all(promises);
-      pagination.hasMore = savedOutfits.value.length > pagination.pageSize;
+      // 确保 savedOutfits.value 是一个数组
+      const outfits = Array.isArray(savedOutfits.value) ? savedOutfits.value : [];
+      pagination.hasMore = outfits.length > pagination.pageSize;
     } finally {
       isLoading.value = false;
     }

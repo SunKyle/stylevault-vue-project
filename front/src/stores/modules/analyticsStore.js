@@ -1,5 +1,5 @@
 import { defineStore } from 'pinia';
-import apiClient from '../../services/apiClient';
+import { analyticsApi } from '../../services/apiClient';
 import { showToast } from '../../utils/toast';
 import { useClothingStore } from './clothingStore';
 import { useOutfitStore } from './outfitStore';
@@ -35,7 +35,7 @@ export const useAnalyticsStore = defineStore('analytics', {
       this.error = null;
       try {
         const clothingStore = useClothingStore();
-        const stats = await apiClient.analyticsApi.getClothingStats(clothingStore.clothingItems);
+        const stats = await analyticsApi.getClothingStats(clothingStore.clothingItems);
         this.clothingStats = stats;
         this.lastUpdated = new Date();
         return stats;
@@ -51,7 +51,7 @@ export const useAnalyticsStore = defineStore('analytics', {
     async fetchCategoryDistribution() {
       try {
         const clothingStore = useClothingStore();
-        const distribution = await apiClient.analyticsApi.getCategoryDistribution(
+        const distribution = await analyticsApi.getCategoryDistribution(
           clothingStore.clothingItems
         );
         this.categoryDistribution = distribution;
@@ -65,7 +65,7 @@ export const useAnalyticsStore = defineStore('analytics', {
     async fetchUsageFrequency() {
       try {
         const clothingStore = useClothingStore();
-        const frequency = await apiClient.analyticsApi.getUsageFrequency(
+        const frequency = await analyticsApi.getUsageFrequency(
           clothingStore.clothingItems
         );
         this.usageFrequency = frequency;
@@ -79,7 +79,7 @@ export const useAnalyticsStore = defineStore('analytics', {
     async fetchSeasonalAnalysis() {
       try {
         const clothingStore = useClothingStore();
-        const seasonal = await apiClient.analyticsApi.getSeasonalAnalysis(
+        const seasonal = await analyticsApi.getSeasonalAnalysis(
           clothingStore.clothingItems
         );
         this.seasonalAnalysis = seasonal;
@@ -93,7 +93,7 @@ export const useAnalyticsStore = defineStore('analytics', {
     async fetchOutfitStats() {
       try {
         const outfitStore = useOutfitStore();
-        const stats = await apiClient.analyticsApi.getOutfitStats(outfitStore.outfits);
+        const stats = await analyticsApi.getOutfitStats(outfitStore.outfits);
         this.outfitStats = stats;
         return stats;
       } catch (error) {
@@ -105,7 +105,7 @@ export const useAnalyticsStore = defineStore('analytics', {
     async fetchCostAnalysis() {
       try {
         const clothingStore = useClothingStore();
-        const cost = await apiClient.analyticsApi.getCostAnalysis(clothingStore.clothingItems);
+        const cost = await analyticsApi.getCostAnalysis(clothingStore.clothingItems);
         this.costAnalysis = cost;
         return cost;
       } catch (error) {

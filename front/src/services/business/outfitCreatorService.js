@@ -2,12 +2,14 @@ import { ref, computed } from 'vue';
 import { outfitCreatorApi } from '../apiClient';
 import { useInspirationStore } from '@/stores/modules/inspirationStore';
 import { useEnumsStore } from '@/stores/modules/enumsStore';
+import { useOutfitStore } from '@/stores/modules/outfitStore';
 import { showToast } from '@/utils/toast';
 
 // 搭配创建器服务
 export function useOutfitCreator() {
   const inspirationStore = useInspirationStore();
   const enumsStore = useEnumsStore();
+  const outfitStore = useOutfitStore();
 
   // 状态管理
   const outfitName = ref('');
@@ -124,7 +126,7 @@ export function useOutfitCreator() {
       resetClothes();
 
       // 刷新搭配列表
-      inspirationStore.fetchSavedOutfits();
+      outfitStore.fetchOutfits();
 
       return response;
     } catch (error) {
@@ -145,7 +147,7 @@ export function useOutfitCreator() {
       }
 
       // 加载衣物数据
-      await inspirationStore.fetchClothingItems();
+      await inspirationStore.initialize();
     } catch (error) {
       console.error('初始化搭配创建器失败:', error);
     }

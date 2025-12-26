@@ -12,15 +12,26 @@
         <div v-else>
           <!-- 已保存搭配展示区域 -->
           <SavedOutfits
-            :loadMore="loadMoreOutfits"
-            :onLoadOutfit="loadOutfit"
-            :onDeleteOutfit="deleteOutfit"
-            :onShareOutfit="shareOutfit"
-            @scroll-to-create="scrollToCreateSection"
-          />
+      :loadMore="loadMoreOutfits"
+      :onLoadOutfit="loadOutfit"
+      :onDeleteOutfit="deleteOutfit"
+      @scroll-to-create="scrollToCreateSection"
+    />
 
           <!-- 创建搭配区域 -->
-          <OutfitCreator v-show="clothes.length > 0" />
+          <div v-if="clothingItems.length > 0">
+            <OutfitCreator />
+          </div>
+          <div v-else class="bg-white rounded-xl shadow-md p-8 text-center mb-12">
+            <div class="text-gray-400 mb-4">
+              <i class="fas fa-tshirt text-6xl"></i>
+            </div>
+            <h3 class="text-xl font-semibold text-gray-800 mb-2">还没有添加衣物</h3>
+            <p class="text-gray-600 mb-6">请先添加一些衣物，然后开始创建你的搭配方案</p>
+            <router-link to="/clothing/add" class="inline-flex items-center px-6 py-3 bg-primary text-white font-medium rounded-lg hover:bg-primary-dark transition-colors">
+              <i class="fas fa-plus mr-2"></i> 添加衣物
+            </router-link>
+          </div>
         </div>
       </div>
     </section>
@@ -28,46 +39,29 @@
 </template>
 
 <script setup>
-  import { onMounted } from 'vue';
-  import { useInspirationStore } from '@/stores';
+  import { onMounted, computed } from 'vue';
+  import { useInspirationStore, useClothingStore } from '@/stores';
   import SavedOutfits from '@/components/features/inspiration/SavedOutfits.vue';
   import OutfitCreator from '@/components/organisms/OutfitCreator.vue';
   import ContentLayout from '@/components/layouts/ContentLayout.vue';
 
   const inspirationStore = useInspirationStore();
+  const clothingStore = useClothingStore();
 
   // 直接从store解构，只包含使用的变量
-  const { clothes, isLoading } = inspirationStore;
+  const { isLoading } = inspirationStore;
+  const clothingItems = computed(() => clothingStore.clothingItems);
+
 
   // 方法直接委托给store，只包含使用的方法
   const { loadMoreOutfits, loadOutfit, deleteOutfit, initialize } = inspirationStore;
 
   const scrollToCreateSection = () => {
-    const element = document.querySelector('.outfit-creator');
+    const element = document.getElementById('create-section');
     element?.scrollIntoView({ behavior: 'smooth' });
   };
 
-  const shareOutfit = async outfit => {
-    const shareData = {
-      title: `搭配方案: ${outfit.title}`,
-      text: `分享我的穿搭方案：${outfit.description || '无描述'}`,
-      url: window.location.href,
-    };
 
-    try {
-      if (navigator.share) {
-        await navigator.share(shareData);
-      } else {
-        await navigator.clipboard.writeText(
-          `${shareData.title}\n${shareData.text}\n${shareData.url}`
-        );
-        alert('已复制到剪贴板！');
-      }
-    } catch (error) {
-      console.error('分享失败:', error);
-      alert('分享失败，请重试');
-    }
-  };
 
   // 初始化数据
   onMounted(() => {

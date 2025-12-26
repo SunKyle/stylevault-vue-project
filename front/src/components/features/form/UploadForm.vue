@@ -550,7 +550,7 @@ const validateField = (field) => {
 // 监听表单字段变化，自动更新验证
 watch(
   [() => clothingItem.name, () => clothingItem.category, () => clothingItem.price, () => clothingItem.purchaseDate],
-  ([name, category, price, purchaseDate]) => {
+  () => {
     validateField('name');
     validateField('category');
     validateField('price');

@@ -18,7 +18,7 @@
           <span
             class="bg-white/80 backdrop-blur-sm text-indigo-600 px-3 py-1 rounded-full font-medium text-sm shadow-sm border border-indigo-100"
           >
-            {{ selectedClothes.length }}件衣物
+            {{ safeSelectedClothes.length }}件衣物
           </span>
         </div>
       </div>
@@ -47,7 +47,7 @@
         ></div>
 
         <!-- 空状态 -->
-        <div v-if="selectedClothes.length === 0" class="text-center relative z-10">
+        <div v-if="safeSelectedClothes.length === 0" class="text-center relative z-10">
           <div
             class="w-24 h-24 rounded-full bg-white/80 backdrop-blur-sm flex items-center justify-center mx-auto mb-4 shadow-md border border-white/50"
           >
@@ -62,7 +62,7 @@
           class="w-full h-full flex flex-wrap justify-center items-center gap-3 md:gap-4 relative z-10"
         >
           <div
-            v-for="(item, idx) in selectedClothes.slice(0, 8)"
+            v-for="(item, idx) in safeSelectedClothes.slice(0, 8)"
             :key="idx"
             class="relative group transform transition-all duration-500 hover:z-10 outfit-item"
             :class="idx >= 6 ? 'opacity-70 scale-95' : ''"
@@ -85,10 +85,10 @@
               loading="lazy"
             />
             <div
-              v-if="idx === 7 && selectedClothes.length > 8"
+              v-if="idx === 7 && safeSelectedClothes.length > 8"
               class="absolute inset-0 bg-black/80 rounded-xl flex items-center justify-center text-white text-xs font-bold z-20"
             >
-              +{{ selectedClothes.length - 8 }}
+              +{{ safeSelectedClothes.length - 8 }}
             </div>
             <div
               class="absolute inset-x-0 -bottom-7 bg-black/80 backdrop-blur-sm text-white text-xs py-1 px-2 rounded-lg opacity-0 group-hover:opacity-100 transition-all duration-300 pointer-events-none text-center truncate z-20 whitespace-nowrap shadow-lg"
@@ -315,10 +315,10 @@
       <div class="flex-1 flex flex-col">
         <div class="mb-3 flex justify-between items-center">
           <span class="text-sm font-semibold text-indigo-800">
-            衣物清单 ({{ selectedClothes.length }})
+            衣物清单 ({{ safeSelectedClothes.length }})
           </span>
           <button
-            v-if="selectedClothes.length > 0"
+            v-if="safeSelectedClothes.length > 0"
             class="text-xs text-indigo-600 hover:text-indigo-800 transition-colors flex items-center"
             @click="$emit('reset-clothes')"
           >
@@ -331,7 +331,7 @@
           class="h-40 overflow-y-auto pr-2 scrollbar-thin scrollbar-thumb-indigo-200 scrollbar-track-transparent space-y-2.5"
         >
           <div
-            v-if="selectedClothes.length === 0"
+            v-if="safeSelectedClothes.length === 0"
             class="text-center text-indigo-400 py-6 border-2 border-dashed border-indigo-200 rounded-xl bg-indigo-50/50 backdrop-blur-sm"
           >
             <font-awesome-icon :icon="['fas', 'info-circle']" class="mr-2" />
@@ -339,7 +339,7 @@
           </div>
           <div
             v-else
-            v-for="(item, idx) in selectedClothes"
+            v-for="(item, idx) in safeSelectedClothes"
             :key="idx"
             class="flex items-center gap-3 bg-white/80 backdrop-blur-sm rounded-xl px-3 py-3 group hover:bg-indigo-50 transition-all duration-300 transform hover:translate-x-1 border border-indigo-100 hover:border-indigo-300 shadow-sm hover:shadow-md"
           >
@@ -375,10 +375,10 @@
         <!-- 操作按钮 -->
         <div class="mt-5 flex gap-3">
           <button
-            class="flex-1 bg-gradient-to-r from-indigo-500 to-purple-500 hover:from-indigo-600 hover:to-purple-600 text-white font-medium py-3.5 rounded-xl transition-all duration-300 transform hover:scale-[1.02] active:scale-[0.98] shadow-lg hover:shadow-xl flex items-center justify-center disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none relative overflow-hidden group/button"
-            @click="handleSaveOutfit"
-            :disabled="selectedClothes.length === 0 || !trimmedOutfitName"
-          >
+              class="flex-1 bg-gradient-to-r from-indigo-500 to-purple-500 hover:from-indigo-600 hover:to-purple-600 text-white font-medium py-3.5 rounded-xl transition-all duration-300 transform hover:scale-[1.02] active:scale-[0.98] shadow-lg hover:shadow-xl flex items-center justify-center disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none relative overflow-hidden group/button"
+              @click="handleSaveOutfit"
+              :disabled="safeSelectedClothes.length === 0 || !trimmedOutfitName"
+            >
             <!-- 按钮装饰效果 -->
             <div
               class="absolute inset-0 bg-white/10 opacity-0 group-hover/button:opacity-100 transition-opacity duration-300"
@@ -565,11 +565,17 @@
     showToast('已从搭配中移除', 'info');
   }
 
-  defineProps({
+  // 定义组件的属性
+  const props = defineProps({
     selectedClothes: {
       type: Array,
       default: () => [],
     },
+  });
+
+  // 确保 selectedClothes 始终是数组类型
+  const safeSelectedClothes = computed(() => {
+    return Array.isArray(props.selectedClothes) ? props.selectedClothes : [];
   });
 </script>
 

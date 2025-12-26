@@ -87,3 +87,36 @@ export interface PaginatedResponse<T> {
     totalPages: number;
   };
 }
+
+// 分类数据接口
+export interface Category {
+  id: string;
+  name: string;
+  parentId?: string;
+  children?: Category[];
+  description?: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+// 标签数据接口
+export interface Tag {
+  id: string;
+  name: string;
+  color?: string;
+  usageCount: number;
+  createdAt: string;
+  updatedAt: string;
+}
+
+// 筛选条件接口
+export interface OutfitFilters {
+  categories?: string[];
+  colors?: string[];
+  tags?: string[];
+  seasons?: string[];
+  occasions?: string[];
+  isFavorite?: boolean;
+  sortBy?: string;
+  sortOrder?: 'asc' | 'desc';
+}

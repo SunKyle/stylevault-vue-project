@@ -1,5 +1,5 @@
 import { defineStore } from 'pinia';
-import apiClient from '../../services/apiClient';
+import { weatherApi } from '../../services/apiClient';
 import { showToast } from '../../utils/toast';
 import { useClothingStore } from './clothingStore';
 
@@ -27,7 +27,7 @@ export const useWeatherStore = defineStore('weather', {
       this.loading = true;
       this.error = null;
       try {
-        const weatherData = await apiClient.weatherApi.getCurrentWeather(location);
+        const weatherData = await weatherApi.getCurrentWeather(location);
         this.currentWeather = weatherData;
         this.location = location;
         this.lastUpdated = new Date();
@@ -50,7 +50,7 @@ export const useWeatherStore = defineStore('weather', {
       this.loading = true;
       this.error = null;
       try {
-        const forecast = await apiClient.weatherApi.getWeatherForecast(location);
+        const forecast = await weatherApi.getWeatherForecast(location);
         this.weatherForecast = forecast;
         showToast('获取天气预报成功', 'success');
         return forecast;
@@ -77,7 +77,7 @@ export const useWeatherStore = defineStore('weather', {
         });
 
         // 生成推荐搭配
-        const recommended = await apiClient.weatherApi.getOutfitRecommendations({
+        const recommended = await weatherApi.getOutfitRecommendations({
           weather: this.currentWeather,
           clothes: suitableClothes,
         });

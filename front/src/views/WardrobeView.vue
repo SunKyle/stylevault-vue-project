@@ -179,7 +179,6 @@ import { debounce } from 'lodash';
 import ClothingCategory from '../components/organisms/ClothingCategory.vue';
 import ClothingItem from '../components/molecules/ClothingItem.vue';
 import FavoriteSection from '../components/features/wardrobe/FavoriteSection.vue';
-import FeaturedOutfits from '../components/features/inspiration/FeaturedOutfits.vue';
 import WardrobeHeader from '../components/layouts/WardrobeHeader.vue';
 import CategoryDrawer from '../components/organisms/CategoryDrawer.vue';
 import ClothingItemEditor from '../components/features/wardrobe/ClothingItemEditor.vue';
@@ -208,7 +207,6 @@ const isReadOnlyMode = ref(false);
 const isSearching = ref(false);
 const deleteConfirmVisible = ref(false);
 const currentDeleteItem = ref(null);
-const formSubmitted = ref(false);
 
 
 // 3. 获取分类数据

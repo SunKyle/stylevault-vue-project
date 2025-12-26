@@ -19,6 +19,7 @@ export { default as outfitCreatorApi } from './api/outfitCreatorApi';
 export { default as clothingApi } from './api/clothingApi';
 export { default as outfitApi } from './api/outfitApi';
 export { default as analyticsApi } from './api/analyticsApi';
+export { default as weatherApi } from './api/weatherApi';
 
 // 导出默认的axios实例
 export default apiClient;

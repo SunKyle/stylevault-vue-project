@@ -7,7 +7,7 @@
         v-model:outfitScene="service.outfitScene"
         v-model:outfitSeason="service.outfitSeason"
         v-model:outfitStyle="service.outfitStyle"
-        :selected-clothes="service.selectedClothes"
+        :selectedClothes="clothingItems"
         @remove-cloth="service.removeCloth"
         @reset-clothes="service.resetClothes"
         @save-outfit="service.saveOutfit"
@@ -35,10 +35,13 @@
 </template>
 
 <script setup>
+  import { computed } from 'vue';
   import { useOutfitCreator } from '@/services/business/outfitCreatorService';
   import OutfitPreviewPanel from './OutfitPreviewPanel.vue';
   import ClothingSelectionPanel from './ClothingSelectionPanel.vue';
-
-  // 使用独立服务
+  import { useClothingStore } from '@/stores/index';
   const service = useOutfitCreator();
+  const clothingStore = useClothingStore();
+  const clothingItems = computed(() => clothingStore.clothingItems);
+
 </script>

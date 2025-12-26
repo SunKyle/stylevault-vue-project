@@ -237,16 +237,15 @@
               v-for="outfit in visibleOutfits"
               :key="outfit.id"
               :outfit="outfit"
-              @load-outfit="$emit('load-outfit', $event)"
-              @delete-outfit="handleDeleteOutfit"
-              @edit-outfit="handleEditOutfit"
+              @load-outfit="props.onLoadOutfit($event)"
+              @delete-outfit="props.onDeleteOutfit($event)"
             />
           </div>
 
           <!-- 加载更多按钮 -->
           <div v-if="hasMore" class="flex justify-center mt-8">
             <button
-              @click="loadMore"
+              @click="props.loadMore"
               :disabled="isLoading"
               class="flex items-center gap-2 px-6 py-3 bg-primary hover:bg-primary/90 text-white rounded-lg transition-colors disabled:opacity-50"
             >
@@ -292,11 +291,26 @@
 </template>
 
 <script setup>
-  import { ref, computed, onMounted } from 'vue';
+  import { ref, computed, onMounted, watch } from 'vue';
   import { useInspirationStore } from '@/stores';
   import { useEnumsStore } from '@/stores/enums';
   import OutfitCard from '@/components/molecules/OutfitCard.vue';
-  // import { scenesMockData } from '../../mock/data'; // 暂时未使用
+
+  // 定义props
+  const props = defineProps({
+    loadMore: {
+      type: Function,
+      required: true
+    },
+    onLoadOutfit: {
+      type: Function,
+      required: true
+    },
+    onDeleteOutfit: {
+      type: Function,
+      required: true
+    }
+  });
 
   const inspirationStore = useInspirationStore();
   const enumsStore = useEnumsStore();
@@ -304,19 +318,15 @@
   // 组件加载时获取枚举值
   onMounted(() => {
     enumsStore.fetchAllEnums();
-    inspirationStore.fetchSavedOutfits();
+    inspirationStore.initialize();
   });
 
   // 从store获取数据
   const { savedOutfits, visibleOutfits, hasMore, isLoading } = inspirationStore;
 
   // 事件定义
-  const emit = defineEmits([
-    'load-outfit',
-    'delete-outfit',
-    'share-outfit',
-    'load-more',
-    'scroll-to-create',
+  defineEmits([
+    'scroll-to-create'
   ]);
 
   // 从store获取筛选相关数据
@@ -429,34 +439,9 @@
   //   return Array.from(tags);
   // }
 
-  // 处理删除搭配事件
-  function handleDeleteOutfit(outfitId) {
-    if (!savedOutfits.value || !Array.isArray(savedOutfits.value)) return;
+  // 处理删除搭配事件 - 已移至props.onDeleteOutfit
 
-    // 找到搭配对象
-    const outfit = savedOutfits.value.find(outfit => outfit.id === outfitId);
-    if (outfit) {
-      emit('delete-outfit', outfit);
-    }
-  }
-
-  // 处理编辑搭配事件
-  function handleEditOutfit(editedOutfit) {
-    if (!savedOutfits.value || !Array.isArray(savedOutfits.value)) return;
-
-    // 找到搭配在数组中的索引
-    const index = savedOutfits.value.findIndex(outfit => outfit.id === editedOutfit.id);
-    if (index !== -1) {
-      // 更新搭配信息
-      const updatedOutfit = {
-        ...savedOutfits.value[index],
-        name: editedOutfit.name,
-        scene: editedOutfit.scene,
-      };
-      // 发送编辑事件
-      emit('edit-outfit', { index, outfit: updatedOutfit });
-    }
-  }
+  // 处理编辑搭配事件 - 暂时移除
 
   // 获取随机点赞数（模拟） - 暂时未使用
   // function getRandomLikes() {

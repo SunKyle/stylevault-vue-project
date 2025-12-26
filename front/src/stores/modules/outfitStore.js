@@ -1,5 +1,5 @@
 import { defineStore } from 'pinia';
-import apiClient from '../../services/apiClient';
+import { outfitApi } from '../../services/apiClient';
 import { showToast } from '../../utils/toast';
 
 export const useOutfitStore = defineStore('outfit', {
@@ -55,7 +55,7 @@ export const useOutfitStore = defineStore('outfit', {
       this.clearError();
 
       try {
-        const outfits = await apiClient.outfitApi.getOutfits();
+        const outfits = await outfitApi.getOutfits();
         this.outfits = outfits;
         return outfits;
       } catch (error) {
@@ -73,7 +73,7 @@ export const useOutfitStore = defineStore('outfit', {
       this.clearError();
 
       try {
-        const outfits = await apiClient.outfitApi.getOutfitsByTag(tag);
+        const outfits = await outfitApi.getOutfitsByTag(tag);
         return outfits;
       } catch (error) {
         this.setError(`获取标签为"${tag}"的搭配失败`);
@@ -90,7 +90,7 @@ export const useOutfitStore = defineStore('outfit', {
       this.clearError();
 
       try {
-        const newOutfit = await apiClient.outfitApi.addOutfit(outfit);
+        const newOutfit = await outfitApi.addOutfit(outfit);
         this.outfits.push(newOutfit);
         showToast('搭配添加成功', 'success');
         return newOutfit;
@@ -109,7 +109,7 @@ export const useOutfitStore = defineStore('outfit', {
       this.clearError();
 
       try {
-        const removedOutfit = await apiClient.outfitApi.deleteOutfit(outfitId);
+        const removedOutfit = await outfitApi.deleteOutfit(outfitId);
         if (removedOutfit) {
           this.outfits = this.outfits.filter(outfit => outfit.id !== outfitId);
           showToast('搭配删除成功', 'success');
@@ -130,7 +130,7 @@ export const useOutfitStore = defineStore('outfit', {
       this.clearError();
 
       try {
-        const updatedOutfit = await apiClient.outfitApi.toggleLike(outfitId);
+        const updatedOutfit = await outfitApi.toggleLike(outfitId);
         if (updatedOutfit) {
           const index = this.outfits.findIndex(outfit => outfit.id === outfitId);
           if (index !== -1) {
