@@ -266,7 +266,7 @@
 
 <script setup>
   import { ref, reactive, computed, onMounted } from 'vue';
-  import { useEnumsStore } from '@/stores/enums';
+  import { useEnumsStore } from '@/stores/modules/enumsStore';
   import InfoChip from './InfoChip.vue';
 
   // Props定义

@@ -1,4 +1,5 @@
 // Stores 入口文件 - 统一导出所有 store
+export { useAuthStore } from './authStore';
 export { useAnalyticsStore } from './modules/analyticsStore';
 export { useClothingStore } from './modules/clothingStore';
 export { useEnumsStore } from './modules/enumsStore';
@@ -7,7 +8,6 @@ export { useOutfitStore } from './modules/outfitStore';
 export { useUserStore } from './modules/userStore';
 export { useUiStore } from './modules/uiStore';
 export { useWeatherStore } from './modules/weatherStore';
-// 注意：wardrobeStore已被clothingStore替代，保留兼容导出
 
 // 创建 store 初始化函数
 export const initializeStores = async () => {

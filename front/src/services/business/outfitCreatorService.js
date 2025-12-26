@@ -11,12 +11,11 @@ export function useOutfitCreator() {
   const enumsStore = useEnumsStore();
   const outfitStore = useOutfitStore();
 
-  // 状态管理
+  // 状态管理 - 直接引用 inspirationStore 的 selectedClothes，统一数据源
   const outfitName = ref('');
   const outfitScene = ref('');
   const outfitSeason = ref('');
   const outfitStyle = ref('');
-  const selectedClothes = ref([]);
   const loading = ref(false);
 
   // 从枚举store获取分类和标签
@@ -52,27 +51,19 @@ export function useOutfitCreator() {
     return inspirationStore.clothes || [];
   });
 
-  // 切换衣物选中状态
+  // 切换衣物选中状态 - 使用 inspirationStore 的方法
   const toggleCloth = cloth => {
-    const index = selectedClothes.value.findIndex(item => item.id === cloth.id);
-    if (index > -1) {
-      selectedClothes.value.splice(index, 1);
-    } else {
-      selectedClothes.value.push(cloth);
-    }
+    inspirationStore.toggleClothSelection(cloth);
   };
 
-  // 移除衣物
+  // 移除衣物 - 使用 inspirationStore 的方法
   const removeCloth = clothId => {
-    const index = selectedClothes.value.findIndex(item => item.id === clothId);
-    if (index > -1) {
-      selectedClothes.value.splice(index, 1);
-    }
+    inspirationStore.removeFromSelection(clothId);
   };
 
   // 重置选中的衣物
   const resetClothes = () => {
-    selectedClothes.value = [];
+    inspirationStore.clearSelection();
     outfitName.value = '';
     outfitScene.value = '';
     outfitSeason.value = '';
@@ -105,7 +96,9 @@ export function useOutfitCreator() {
       return;
     }
 
-    if (selectedClothes.value.length === 0) {
+    // 使用统一的 selectedClothes 数据源
+    const selectedItems = inspirationStore.selectedClothes;
+    if (selectedItems.length === 0) {
       showToast('请至少选择一件衣物', 'warning');
       return;
     }
@@ -118,8 +111,8 @@ export function useOutfitCreator() {
         scene: outfitScene.value,
         season: outfitSeason.value,
         style: outfitStyle.value,
-        clothingIds: selectedClothes.value.map(cloth => cloth.id),
-        clothingItems: selectedClothes.value,
+        clothingIds: selectedItems.map(cloth => cloth.id),
+        clothingItems: selectedItems,
       };
 
       const response = await outfitCreatorApi.saveOutfit(outfitData);
@@ -164,7 +157,7 @@ export function useOutfitCreator() {
     outfitScene,
     outfitSeason,
     outfitStyle,
-    selectedClothes,
+    // selectedClothes 统一使用 inspirationStore.selectedClothes
     loading,
     categories,
     tags,

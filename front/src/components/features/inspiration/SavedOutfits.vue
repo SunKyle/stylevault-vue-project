@@ -293,7 +293,7 @@
 <script setup>
   import { ref, computed, onMounted, watch } from 'vue';
   import { useInspirationStore } from '@/stores';
-  import { useEnumsStore } from '@/stores/enums';
+  import { useEnumsStore } from '@/stores/modules/enumsStore';
   import OutfitCard from '@/components/molecules/OutfitCard.vue';
 
   // 定义props

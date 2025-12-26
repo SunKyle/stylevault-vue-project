@@ -268,7 +268,7 @@
   import { ref, onMounted, onUnmounted } from 'vue';
   import { useRouter } from 'vue-router';
   import { useUserStore } from '@/stores/modules/userStore';
-  import { useAuthStore } from '@/stores/auth.store.js';
+  import { useAuthStore } from '@/stores/authStore.js';
 
   const router = useRouter();
   const userStore = useUserStore();

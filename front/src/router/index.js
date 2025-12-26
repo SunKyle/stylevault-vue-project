@@ -1,5 +1,5 @@
 import { createRouter, createWebHistory } from 'vue-router';
-import { useAuthStore } from '../stores/auth.store.js';
+import { useAuthStore } from '../stores/authStore.js';
 import WardrobeView from '../views/WardrobeView.vue';
 import WeatherView from '../views/WeatherView.vue';
 import InspirationView from '../views/InspirationView.vue';

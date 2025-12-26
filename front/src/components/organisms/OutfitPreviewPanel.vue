@@ -406,7 +406,7 @@
 <script setup>
   import { ref, defineModel, computed, onMounted } from 'vue';
   import { showToast } from '../../utils/toast';
-  import { useEnumsStore } from '@/stores/enums';
+  import { useEnumsStore } from '@/stores/modules/enumsStore';
 
   // 定义模型
   const outfitName = defineModel('outfitName', { type: String, default: '' });

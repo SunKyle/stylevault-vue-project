@@ -40,11 +40,13 @@
   import OutfitPreviewPanel from './OutfitPreviewPanel.vue';
   import ClothingSelectionPanel from './ClothingSelectionPanel.vue';
   import { useInspirationStore } from '@/stores/modules/inspirationStore';
+
   const service = useOutfitCreator();
   const inspirationStore = useInspirationStore();
+
   const categories = computed(() => inspirationStore.categories);
   const tags = computed(() => inspirationStore.tags);
   const filteredClothes = computed(() => inspirationStore.filteredClothes);
-  const selectedClothes = computed(() => service.selectedClothes);
-
+  // selectedClothes 统一从 inspirationStore 获取
+  const selectedClothes = computed(() => inspirationStore.selectedClothes);
 </script>

@@ -368,7 +368,7 @@
 
 <script setup>
   import { ref, reactive, computed, onMounted } from 'vue';
-  import { useEnumsStore } from '@/stores/enums';
+  import { useEnumsStore } from '@/stores/modules/enumsStore';
 
   // Props定义
   const props = defineProps({

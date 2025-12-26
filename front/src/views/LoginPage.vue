@@ -124,7 +124,7 @@
 <script setup>
 import { ref, reactive, onUnmounted } from 'vue';
 import { useRouter } from 'vue-router';
-import { useAuthStore } from '../stores/auth.store.js';
+import { useAuthStore } from '../stores/authStore.js';
 import BrandSection from '@/components/features/login/BrandSection.vue';
 import LoginForm from '@/components/features/login/LoginForm.vue';
 import RegisterForm from '@/components/features/login/RegisterForm.vue';
