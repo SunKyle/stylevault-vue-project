@@ -21,7 +21,7 @@ export function useOutfitCreator() {
 
   // 从枚举store获取分类和标签
   const categories = computed(() => {
-    return enumsStore.categoryOptions || [];
+    return enumsStore.getOptions('categories') || [];
   });
 
   const tags = computed(() => {
@@ -29,15 +29,17 @@ export function useOutfitCreator() {
     const allTags = [];
 
     // 添加风格标签
-    if (enumsStore.styleOptions) {
-      enumsStore.styleOptions.forEach(style => {
+    const styleOptions = enumsStore.getOptions('styles');
+    if (styleOptions) {
+      styleOptions.forEach(style => {
         allTags.push({ ...style, type: 'style' });
       });
     }
 
     // 添加季节标签
-    if (enumsStore.seasonOptions) {
-      enumsStore.seasonOptions.forEach(season => {
+    const seasonOptions = enumsStore.getOptions('seasons');
+    if (seasonOptions) {
+      seasonOptions.forEach(season => {
         allTags.push({ ...season, type: 'season' });
       });
     }

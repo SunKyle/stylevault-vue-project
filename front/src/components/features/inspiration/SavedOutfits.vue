@@ -350,9 +350,9 @@
     { value: 'sports', label: '运动' },
   ];
 
-  const seasonOptions = computed(() => enumsStore.seasonOptions);
+  const seasonOptions = computed(() => enumsStore.getOptions('seasons'));
 
-  const styleOptions = computed(() => enumsStore.styleOptions);
+  const styleOptions = computed(() => enumsStore.getOptions('styles'));
 
   // 计算过滤后的搭配
   const filteredOutfits = computed(() => {
@@ -513,13 +513,13 @@
     let options = [];
     switch (type) {
       case 'scene':
-        options = sceneOptions;
+        options = (sceneOptions && sceneOptions.value) || [];
         break;
       case 'season':
-        options = seasonOptions;
+        options = (seasonOptions.value && seasonOptions.value) || [];
         break;
       case 'style':
-        options = styleOptions;
+        options = (styleOptions.value && styleOptions.value) || [];
         break;
     }
 

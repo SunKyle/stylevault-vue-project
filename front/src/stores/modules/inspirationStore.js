@@ -5,12 +5,56 @@
  * - 管理搭配创建流程中的筛选条件、分页状态
  * - 处理衣物选择、搭配保存等核心业务逻辑
  * - 协调 clothingStore 和 outfitStore 的数据交互
+ * 
+ * 性能优化：
+ * - 筛选防抖：避免频繁筛选导致的性能问题
+ * - 结果缓存：减少重复计算开销
  */
 
 import { defineStore } from 'pinia';
-import { ref, computed, reactive } from 'vue';
+import { ref, computed, reactive, watch } from 'vue';
 import { useClothingStore } from './clothingStore';
 import { useOutfitStore } from './outfitStore';
+
+// ===================== 工具函数 =====================
+
+/**
+ * 简单的防抖函数
+ * @param {Function} fn - 要防抖的函数
+ * @param {number} delay - 延迟时间（毫秒）
+ * @returns {Function} 防抖后的函数
+ */
+function debounce(fn, delay) {
+  let timer = null;
+  return function (...args) {
+    if (timer) {
+      clearTimeout(timer);
+    }
+    timer = setTimeout(() => {
+      fn.apply(this, args);
+      timer = null;
+    }, delay);
+  };
+}
+
+/**
+ * 生成筛选缓存Key
+ * @param {object} filters - 筛选条件对象
+ * @returns {string} 缓存Key
+ */
+function generateFilterCacheKey(filters) {
+  return `${filters.category}|${
+    filters.tag || ''
+  }|${
+    filters.search || ''
+  }|${
+    filters.scene.join(',')
+  }|${
+    filters.season.join(',')
+  }|${
+    filters.style.join(',')
+  }`;
+}
 
 // ===================== 常量定义 =====================
 
@@ -22,6 +66,12 @@ const DEFAULT_CATEGORY = '全部';
 
 /** 默认标签选项 */
 const DEFAULT_TAG = '最近穿着';
+
+/** 筛选防抖延迟（毫秒） */
+const FILTER_DEBOUNCE_DELAY = 300;
+
+/** 筛选结果缓存最大数量 */
+const FILTER_CACHE_MAX_SIZE = 50;
 
 // ===================== Store 定义 =====================
 
@@ -55,6 +105,22 @@ export const useInspirationStore = defineStore('inspiration', () => {
 
   /** 加载状态标识 */
   const isLoading = ref(false);
+
+  /** 筛选结果缓存 Map<cacheKey, filteredResult> */
+  const filterCache = reactive(new Map());
+
+  /** 待应用的筛选状态（防抖用） */
+  const pendingFilters = reactive({
+    category: DEFAULT_CATEGORY,
+    tag: '',
+    search: '',
+    scene: [],
+    season: [],
+    style: [],
+  });
+
+  /** 防抖后的筛选应用函数 */
+  let applyFiltersDebounced = null;
 
   // --- 计算属性 ---
 
@@ -98,10 +164,20 @@ export const useInspirationStore = defineStore('inspiration', () => {
 
   /**
    * 根据当前筛选条件过滤后的衣物列表
+   * 性能优化：使用缓存减少重复计算
    * @returns {object[]} 符合条件的衣物数组
    */
   const filteredClothes = computed(() => {
-    return allClothes.value.filter(item => {
+    // 生成缓存Key
+    const cacheKey = generateFilterCacheKey(filters);
+    
+    // 命中缓存直接返回
+    if (filterCache.has(cacheKey)) {
+      return filterCache.get(cacheKey);
+    }
+    
+    // 执行筛选计算
+    const result = allClothes.value.filter(item => {
       // 分类匹配：选中"全部"或分类名称匹配
       const matchCategory = 
         filters.category === DEFAULT_CATEGORY || 
@@ -118,6 +194,18 @@ export const useInspirationStore = defineStore('inspiration', () => {
 
       return matchCategory && matchTag && matchSearch;
     });
+    
+    // 缓存结果，管理缓存大小
+    if (filterCache.size >= FILTER_CACHE_MAX_SIZE) {
+      // 清除最早的缓存（Map的entries().next()获取第一个）
+      const firstKey = filterCache.keys().next().value;
+      if (firstKey) {
+        filterCache.delete(firstKey);
+      }
+    }
+    filterCache.set(cacheKey, result);
+    
+    return result;
   });
 
   /**
@@ -139,19 +227,41 @@ export const useInspirationStore = defineStore('inspiration', () => {
 
   /**
    * 设置筛选条件
+   * 性能优化：搜索和普通筛选使用防抖，避免频繁计算
    * @param {string} type - 筛选类型：category/tag/search/scene/season/style
    * @param {string|object} value - 筛选值
+   * @param {boolean} immediate - 是否立即应用（用于下拉选择等非频繁操作）
    */
-  const setFilter = (type, value) => {
+  const setFilter = (type, value, immediate = false) => {
+    // 初始化防抖函数（延迟执行，仅用于搜索类型）
+    if (!applyFiltersDebounced) {
+      applyFiltersDebounced = debounce((pending, current) => {
+        // 将待应用的筛选值同步到当前筛选状态
+        Object.assign(current, pending);
+        // 重置分页
+        pagination.page = 1;
+      }, FILTER_DEBOUNCE_DELAY);
+    }
+
+    // 搜索类型使用防抖
+    if (type === 'search') {
+      if (immediate) {
+        filters.search = value;
+        pagination.page = 1;
+      } else {
+        pendingFilters.search = value;
+        applyFiltersDebounced(pendingFilters, filters);
+      }
+      return;
+    }
+
+    // 其他类型（category, tag, scene, season, style）直接应用
     switch (type) {
       case 'category':
         filters.category = value;
         break;
       case 'tag':
         filters.tag = value;
-        break;
-      case 'search':
-        filters.search = value;
         break;
       case 'scene':
       case 'season':
@@ -180,6 +290,7 @@ export const useInspirationStore = defineStore('inspiration', () => {
 
   /**
    * 重置所有筛选条件为默认值
+   * 性能优化：同时清除筛选缓存
    */
   const resetFilters = () => {
     filters.category = DEFAULT_CATEGORY;
@@ -188,6 +299,15 @@ export const useInspirationStore = defineStore('inspiration', () => {
     filters.scene = [];
     filters.season = [];
     filters.style = [];
+    // 清除筛选缓存
+    filterCache.clear();
+    // 重置待应用的筛选状态
+    pendingFilters.category = DEFAULT_CATEGORY;
+    pendingFilters.tag = '';
+    pendingFilters.search = '';
+    pendingFilters.scene = [];
+    pendingFilters.season = [];
+    pendingFilters.style = [];
     pagination.page = 1;
   };
 
@@ -310,10 +430,12 @@ export const useInspirationStore = defineStore('inspiration', () => {
     pagination,
     selectedClothes,
     isLoading,
+    filterCache,  // 导出缓存供调试使用
 
     // 计算属性
     categories,
     tags,
+    savedOutfits,
     filteredClothes,
     visibleOutfits,
     hasMore,
@@ -330,4 +452,11 @@ export const useInspirationStore = defineStore('inspiration', () => {
     deleteOutfit,
     initialize,
   };
+}, {
+  // 持久化配置
+  persist: {
+    key: 'stylevault-inspiration',
+    paths: ['filters', 'selectedClothes', 'pagination'],
+    storage: localStorage,
+  },
 });

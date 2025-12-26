@@ -290,13 +290,13 @@
   });
 
   // 场景选项映射
-  const sceneOptions = computed(() => enumsStore.sceneOptions);
+  const sceneOptions = computed(() => enumsStore.getOptions('occasions'));
 
   // 季节选项映射
-  const seasonOptions = computed(() => enumsStore.seasonOptions);
+  const seasonOptions = computed(() => enumsStore.getOptions('seasons'));
 
   // 风格选项映射
-  const styleOptions = computed(() => enumsStore.styleOptions);
+  const styleOptions = computed(() => enumsStore.getOptions('styles'));
 
   // 通用工具函数 - 获取标签
   const getLabel = (options, value) => {

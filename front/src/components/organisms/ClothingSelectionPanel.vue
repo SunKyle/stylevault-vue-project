@@ -49,56 +49,74 @@
 
       <!-- 衣物列表 -->
       <div class="cloth-list">
-        <transition-group name="fade" tag="div" class="list-container">
-          <div v-for="item in safeFilteredClothes" :key="item.id" class="cloth-item group" :data-id="item.id">
-            <!-- 衣物卡片 -->
-            <div
-              class="cloth-card"
-              :class="{ selected: isItemSelected(item) }"
-              @click="$emit('toggle-cloth', item)"
-              draggable="true"
-              @dragstart="handleDragStart($event, item)"
-              @dragend="handleDragEnd"
+        <!-- 性能优化：使用虚拟滚动处理大量数据 -->
+        <DynamicScroller
+          :items="safeFilteredClothes"
+          :min-item-size="280"
+          class="list-container"
+          key-field="id"
+          v-if="safeFilteredClothes.length > 0"
+        >
+          <template #default="{ item, index, active }">
+            <DynamicScrollerItem
+              :item="item"
+              :active="active"
+              :data-index="index"
+              class="scroller-item"
             >
-              <!-- 衣物图片 -->
-              <div class="img-wrapper">
-                <img
-                  :src="item.img"
-                  :alt="item.name"
-                  class="cloth-img"
-                  loading="lazy"
-                />
+              <div class="cloth-item-wrapper">
+                <div class="cloth-item group" :data-id="item.id">
+                  <!-- 衣物卡片 -->
+                  <div
+                    class="cloth-card"
+                    :class="{ selected: isItemSelected(item) }"
+                    @click="$emit('toggle-cloth', item)"
+                    draggable="true"
+                    @dragstart="handleDragStart($event, item)"
+                    @dragend="handleDragEnd"
+                  >
+                    <!-- 衣物图片 -->
+                    <div class="img-wrapper">
+                      <img
+                        :src="item.img"
+                        :alt="item.name"
+                        class="cloth-img"
+                        loading="lazy"
+                      />
+                    </div>
+
+                    <!-- 状态遮罩 -->
+                    <div class="selected-mask" v-if="isItemSelected(item)"></div>
+                    <div class="hover-mask"></div>
+
+                    <!-- 选择指示器 -->
+                    <div class="indicator" :class="{ selected: isItemSelected(item) }">
+                      <font-awesome-icon 
+                        :icon="isItemSelected(item) ? ['fas', 'check'] : ['fas', 'plus']" 
+                        class="indicator-icon"
+                      />
+                    </div>
+
+                    <!-- 衣物信息（图片下方） -->
+                    <div class="card-info">
+                      <p class="name">{{ item.name }}</p>
+                      <p class="type">{{ item.type }}</p>
+                    </div>
+                  </div>
+
+                  <!-- 衣物信息（卡片下方） -->
+                  <div class="item-info">
+                    <p class="name">{{ item.name }}</p>
+                    <p class="type">{{ item.type }}</p>
+                  </div>
+                </div>
               </div>
-
-              <!-- 状态遮罩 -->
-              <div class="selected-mask" v-if="isItemSelected(item)"></div>
-              <div class="hover-mask"></div>
-
-              <!-- 选择指示器 -->
-              <div class="indicator" :class="{ selected: isItemSelected(item) }">
-                <font-awesome-icon 
-                  :icon="isItemSelected(item) ? ['fas', 'check'] : ['fas', 'plus']" 
-                  class="indicator-icon"
-                />
-              </div>
-
-              <!-- 衣物信息（图片下方） -->
-              <div class="card-info">
-                <p class="name">{{ item.name }}</p>
-                <p class="type">{{ item.type }}</p>
-              </div>
-            </div>
-
-            <!-- 衣物信息（卡片下方） -->
-            <div class="item-info">
-              <p class="name">{{ item.name }}</p>
-              <p class="type">{{ item.type }}</p>
-            </div>
-          </div>
-        </transition-group>
+            </DynamicScrollerItem>
+          </template>
+        </DynamicScroller>
 
         <!-- 空状态 -->
-        <div class="empty-state" v-if="safeFilteredClothes.length === 0">
+        <div class="empty-state" v-else>
           <div class="empty-icon-wrapper">
             <font-awesome-icon :icon="['fas', 'search']" class="empty-icon" />
           </div>
@@ -343,10 +361,7 @@ const createDragIcon = (imgSrc) => {
 
 /* 衣物列表 */
 .cloth-list {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 1.25rem;
-  max-height: 600px;
+  height: 600px;
   overflow-y: auto;
   padding-right: 0.5rem;
   padding-top: 0.5rem;
@@ -354,22 +369,43 @@ const createDragIcon = (imgSrc) => {
   scrollbar-color: rgba(0,0,0,0.1) transparent;
 }
 @media (min-width: 640px) {
-  .cloth-list { grid-template-columns: repeat(3, 1fr); }
+  .cloth-list { height: 700px; }
 }
 @media (min-width: 768px) {
-  .cloth-list { grid-template-columns: repeat(4, 1fr); }
+  .cloth-list { height: 800px; }
 }
 @media (min-width: 1024px) {
-  .cloth-list { grid-template-columns: repeat(5, 1fr); }
+  .cloth-list { height: 900px; }
 }
 
+/* 虚拟滚动容器 */
 .list-container {
-  display: contents;
+  height: 100%;
 }
 
-/* 衣物项 */
+.scroller-item {
+  padding-bottom: 0;
+}
+
+.cloth-item-wrapper {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1.25rem;
+  padding: 0 0.25rem;
+}
+@media (min-width: 640px) {
+  .cloth-item-wrapper { grid-template-columns: repeat(3, 1fr); }
+}
+@media (min-width: 768px) {
+  .cloth-item-wrapper { grid-template-columns: repeat(4, 1fr); }
+}
+@media (min-width: 1024px) {
+  .cloth-item-wrapper { grid-template-columns: repeat(5, 1fr); }
+}
+
 .cloth-item {
   position: relative;
+  width: 100%;
 }
 
 /* 衣物卡片 */

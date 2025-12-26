@@ -1,5 +1,8 @@
 import { createApp } from 'vue';
 import { createPinia } from 'pinia';
+import piniaPluginPersistedstate from 'pinia-plugin-persistedstate';
+import VueVirtualScroller from 'vue-virtual-scroller';
+import 'vue-virtual-scroller/dist/vue-virtual-scroller.css';
 import App from './App.vue';
 import router from './router';
 import './assets/styles/global/tailwind.css';
@@ -21,8 +24,13 @@ const app = createApp(App);
 // 注册全局组件
 app.component('font-awesome-icon', FontAwesomeIcon);
 
+// 注册虚拟滚动组件
+app.use(VueVirtualScroller);
+
 // 使用 Pinia 状态管理
 const pinia = createPinia();
+// 配置持久化插件
+pinia.use(piniaPluginPersistedstate);
 app.use(pinia);
 
 // 使用路由

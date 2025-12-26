@@ -429,13 +429,19 @@
   });
 
   // 场景选项
-  const sceneOptions = computed(() => enumsStore.sceneOptions);
+  const sceneOptions = computed(() => {
+    return enumsStore?.getOptions?.('occasions') || [];
+  });
 
   // 季节选项
-  const seasonOptions = computed(() => enumsStore.seasonOptions);
+  const seasonOptions = computed(() => {
+    return enumsStore?.getOptions?.('seasons') || [];
+  });
 
   // 风格选项
-  const styleOptions = computed(() => enumsStore.styleOptions);
+  const styleOptions = computed(() => {
+    return enumsStore?.getOptions?.('styles') || [];
+  });
 
   // 场景、季节和风格的多选处理函数
   function toggleScene(value) {

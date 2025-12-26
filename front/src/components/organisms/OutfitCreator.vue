@@ -7,7 +7,7 @@
         v-model:outfitScene="service.outfitScene"
         v-model:outfitSeason="service.outfitSeason"
         v-model:outfitStyle="service.outfitStyle"
-        :selectedClothes="clothingItems"
+        :selectedClothes="selectedClothes"
         @remove-cloth="service.removeCloth"
         @reset-clothes="service.resetClothes"
         @save-outfit="service.saveOutfit"
@@ -18,17 +18,17 @@
     <!-- 右侧：衣物选择 -->
     <div class="lg:col-span-2">
       <ClothingSelectionPanel
-        :selected-clothes="service.selectedClothes"
-        :categories="service.categories"
-        :tags="service.tags"
-        :active-category="service.inspirationStore.filters.category"
-        :active-tag="service.inspirationStore.filters.tag"
-        :clothes="service.inspirationStore.clothes"
-        :filtered-clothes="service.filteredClothes"
-        @category-change="service.setCategory"
-        @tag-change="service.setTag"
-        @toggle-cloth="service.toggleCloth"
-        @reset-filters="service.resetFilters"
+        :selected-clothes="selectedClothes"
+        :categories="categories"
+        :tags="tags"
+        :active-category="inspirationStore.filters.category"
+        :active-tag="inspirationStore.filters.tag"
+        :clothes="filteredClothes"
+        :filtered-clothes="filteredClothes"
+        @category-change="inspirationStore.setCategory"
+        @tag-change="inspirationStore.setTag"
+        @toggle-cloth="toggleCloth"
+        @reset-filters="inspirationStore.resetFilters"
       />
     </div>
   </div>
@@ -39,9 +39,12 @@
   import { useOutfitCreator } from '@/services/business/outfitCreatorService';
   import OutfitPreviewPanel from './OutfitPreviewPanel.vue';
   import ClothingSelectionPanel from './ClothingSelectionPanel.vue';
-  import { useClothingStore } from '@/stores/index';
+  import { useInspirationStore } from '@/stores/modules/inspirationStore';
   const service = useOutfitCreator();
-  const clothingStore = useClothingStore();
-  const clothingItems = computed(() => clothingStore.clothingItems);
+  const inspirationStore = useInspirationStore();
+  const categories = computed(() => inspirationStore.categories);
+  const tags = computed(() => inspirationStore.tags);
+  const filteredClothes = computed(() => inspirationStore.filteredClothes);
+  const selectedClothes = computed(() => service.selectedClothes);
 
 </script>
