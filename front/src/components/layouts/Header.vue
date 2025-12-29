@@ -267,11 +267,9 @@
 <script setup>
   import { ref, onMounted, onUnmounted } from 'vue';
   import { useRouter } from 'vue-router';
-  import { useUserStore } from '@/stores/modules/userStore';
   import { useAuthStore } from '@/stores/authStore.js';
 
   const router = useRouter();
-  const userStore = useUserStore();
   const authStore = useAuthStore();
 
   defineProps({
@@ -315,8 +313,7 @@
 
   // 处理退出登录
   const handleLogout = () => {
-    // 清除用户数据和认证状态
-    userStore.logout();
+    // 清除认证状态（包括用户数据和token）
     authStore.logout();
 
     // 跳转到登录页面

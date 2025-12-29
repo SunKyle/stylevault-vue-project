@@ -1,75 +1,93 @@
 import { defineStore } from 'pinia';
 import { authApi } from '../services/apiClient.js';
+import { storage, setAuthData, clearAuthData, setUserPreferences } from './storeUtils.js';
 
 export const useAuthStore = defineStore('auth', {
   state: () => ({
     user: authApi.getUser(),
     token: authApi.getToken(),
+    // 偏好设置
+    preferences: {
+      temperatureUnit: 'celsius', // 'celsius' 或 'fahrenheit'
+      colorScheme: 'light', // 'light'、'dark' 或 'auto'
+      defaultView: 'grid', // 'grid' 或 'list'
+      notifications: {
+        weatherAlerts: true,
+        outfitRecommendations: true,
+        laundryReminders: true,
+      },
+    },
+    loading: false,
+    error: null,
   }),
 
   getters: {
     isAuthenticated: state => !!state.token,
     currentUser: state => state.user,
+    // 偏好设置 Getters
+    temperatureUnit: state => state.preferences.temperatureUnit,
+    colorScheme: state => state.preferences.colorScheme,
+    defaultView: state => state.preferences.defaultView,
+    notificationSettings: state => state.preferences.notifications,
+    userId: state => (state.user ? state.user.id : null),
+    userName: state => (state.user ? state.user.name : '游客'),
   },
 
   actions: {
+    // ========== 认证相关 Actions ==========
     async login(credentials) {
-      const response = await authApi.login(credentials);
+      this.setLoading(true);
+      this.clearError();
 
-      // 后端返回的数据已经被响应拦截器处理过
-      // 检查响应是否成功
-      if (response && response.success === true) {
-        // 从response.data中获取token和user，这是后端实际返回的结构
-        const token = response.data?.token;
-        const user = response.data?.user;
+      try {
+        const response = await authApi.login(credentials);
 
-        // 如果有token和user，保存它们
-        if (token) {
-          this.token = token;
-          authApi.setToken(token);
+        if (response && response.success === true) {
+          const authData = {
+            token: response.data?.token,
+            user: response.data?.user,
+          };
+          setAuthData(this, authData);
+          return response;
+        } else if (response && response.success === false) {
+          throw new Error(response.message || '登录失败');
+        } else {
+          console.warn('Unexpected response format from login API:', response);
+          return response;
         }
-        if (user) {
-          this.user = user;
-          authApi.setUser(user);
-        }
-        return response;
-      } else if (response && response.success === false) {
-        // 如果后端明确返回失败，抛出具体错误信息
-        throw new Error(response.message || '登录失败');
-      } else {
-        // 其他情况也认为成功，因为后端可能返回了其他格式的数据
-        console.warn('Unexpected response format from login API:', response);
-        return response;
+      } catch (error) {
+        this.setError('登录失败，请检查您的用户名和密码');
+        throw error;
+      } finally {
+        this.setLoading(false);
       }
     },
 
     async register(data) {
-      const response = await authApi.register(data);
+      this.setLoading(true);
+      this.clearError();
 
-      // 后端返回的数据已经被响应拦截器处理过
-      // 检查响应是否成功
-      if (response && response.success === true) {
-        // 从response.data中获取token和user，这是后端实际返回的结构
-        const token = response.data?.token;
-        const user = response.data?.user;
+      try {
+        const response = await authApi.register(data);
 
-        // 如果有token和user，保存它们
-        if (token) {
-          this.token = token;
-          authApi.setToken(token);
+        if (response && response.success === true) {
+          const authData = {
+            token: response.data?.token,
+            user: response.data?.user,
+          };
+          setAuthData(this, authData);
+          return response;
+        } else if (response && response.success === false) {
+          throw new Error(response.message || '注册失败');
+        } else {
+          console.warn('Unexpected response format from register API:', response);
+          return response;
         }
-        if (user) {
-          this.user = user;
-          authApi.setUser(user);
-        }
-        return response;
-      } else if (response && response.success === false) {
-        // 如果后端明确返回失败，抛出具体错误信息
-        throw new Error(response.message || '注册失败');
-      } else {
-        // 其他情况也认为成功，因为后端可能返回了其他格式的数据
-        console.warn('Unexpected response format from register API:', response);
-        return response;
+      } catch (error) {
+        this.setError('注册失败，请稍后重试');
+        throw error;
+      } finally {
+        this.setLoading(false);
       }
     },
 
@@ -78,12 +96,10 @@ export const useAuthStore = defineStore('auth', {
         await authApi.logout();
       } catch (error) {
         console.error('Logout failed:', error);
-        // 即使API调用失败，也清除本地存储
       }
       authApi.removeToken();
       authApi.removeUser();
-      this.token = null;
-      this.user = null;
+      clearAuthData(this);
     },
 
     checkAuth() {
@@ -97,6 +113,95 @@ export const useAuthStore = defineStore('auth', {
       }
 
       return false;
+    },
+
+    // ========== 偏好设置 Actions ==========
+    setLoading(status) {
+      this.loading = status;
+    },
+
+    setError(error) {
+      this.error = error;
+    },
+
+    clearError() {
+      this.error = null;
+    },
+
+    updatePreferences(newPreferences) {
+      setUserPreferences(this, newPreferences);
+
+      // 如果用户已登录，同时更新用户信息中的偏好设置
+      if (this.user) {
+        this.user.preferences = this.preferences;
+      }
+    },
+
+    updateNotificationSettings(newSettings) {
+      this.preferences.notifications = { ...this.preferences.notifications, ...newSettings };
+
+      if (this.user) {
+        this.user.preferences.notifications = this.preferences.notifications;
+      }
+
+      storage.set('userPreferences', this.preferences);
+    },
+
+    toggleTemperatureUnit() {
+      const newUnit = this.preferences.temperatureUnit === 'celsius' ? 'fahrenheit' : 'celsius';
+      this.updatePreferences({ temperatureUnit: newUnit });
+    },
+
+    toggleColorScheme() {
+      let newScheme;
+      switch (this.preferences.colorScheme) {
+        case 'light':
+          newScheme = 'dark';
+          break;
+        case 'dark':
+          newScheme = 'auto';
+          break;
+        case 'auto':
+          newScheme = 'light';
+          break;
+        default:
+          newScheme = 'light';
+      }
+      this.updatePreferences({ colorScheme: newScheme });
+    },
+
+    toggleDefaultView() {
+      const newView = this.preferences.defaultView === 'grid' ? 'list' : 'grid';
+      this.updatePreferences({ defaultView: newView });
+    },
+
+    toggleNotificationSetting(settingName) {
+      if (settingName in this.preferences.notifications) {
+        const newSettings = {
+          ...this.preferences.notifications,
+          [settingName]: !this.preferences.notifications[settingName],
+        };
+        this.updateNotificationSettings(newSettings);
+      }
+    },
+
+    async initializeUser() {
+      this.setLoading(true);
+      this.clearError();
+
+      try {
+        // 从本地存储恢复偏好设置
+        const savedPreferences = storage.get('userPreferences');
+        if (savedPreferences) {
+          this.updatePreferences(savedPreferences);
+        }
+        return this.user;
+      } catch (error) {
+        this.setError('初始化用户数据失败');
+        throw error;
+      } finally {
+        this.setLoading(false);
+      }
     },
   },
 });

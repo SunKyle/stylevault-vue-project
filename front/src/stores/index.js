@@ -5,7 +5,7 @@ export { useClothingStore } from './modules/clothingStore';
 export { useEnumsStore } from './modules/enumsStore';
 export { useInspirationStore } from './modules/inspirationStore';
 export { useOutfitStore } from './modules/outfitStore';
-export { useUserStore } from './modules/userStore';
+// userStore 已合并到 authStore，不再独立导出
 export { useUiStore } from './modules/uiStore';
 export { useWeatherStore } from './modules/weatherStore';
 
@@ -13,19 +13,19 @@ export { useWeatherStore } from './modules/weatherStore';
 export const initializeStores = async () => {
   try {
     // 按需初始化核心 store
-    const { useUserStore } = await import('./modules/userStore');
+    const { useAuthStore } = await import('./authStore');
     const { useUiStore } = await import('./modules/uiStore');
     const { useEnumsStore } = await import('./modules/enumsStore');
 
-    const userStore = useUserStore();
+    const authStore = useAuthStore();
     const uiStore = useUiStore();
     const enumsStore = useEnumsStore();
 
     // 初始化用户偏好设置
-    await userStore.initializeUser();
+    await authStore.initializeUser();
 
-    // 设置 UI 主题
-    uiStore.setTheme(userStore.preferences.colorScheme);
+    // 设置 UI 主题 (使用 authStore 中的 colorScheme)
+    uiStore.setTheme(authStore.colorScheme);
 
     // 初始化枚举数据
     try {
