@@ -376,9 +376,10 @@ export const useInspirationStore = defineStore('inspiration', () => {
    * 保存当前选中的衣物组合为新搭配
    * @param {object} outfitInfo - 搭配信息对象
    * @param {string} outfitInfo.name - 搭配名称
-   * @param {string} [outfitInfo.description] - 搭配描述
-   * @param {string} [outfitInfo.scene] - 适用场景
-   * @param {string} [outfitInfo.tag] - 搭配标签
+   * @param {string} outfitInfo.description - 搭配描述
+   * @param {array} [outfitInfo.scenes] - 适用场景数组
+   * @param {array} [outfitInfo.seasons] - 适用季节数组
+   * @param {array} [outfitInfo.styles] - 适用风格数组
    * @throws {Error} 未选择任何衣物时抛出
    */
   const saveOutfit = async (outfitInfo) => {
@@ -387,17 +388,19 @@ export const useInspirationStore = defineStore('inspiration', () => {
     }
 
     const newOutfit = {
-      id: `outfit_${Date.now()}`,
+      id: `outfit_${Date.now()}`, 
       title: outfitInfo.name,
       description: outfitInfo.description || '',
       items: [...selectedClothes.value],
-      occasion: outfitInfo.scene || '日常',
-      tag: outfitInfo.tag || '未分类',
+      scenes: outfitInfo.scenes || [],
+      seasons: outfitInfo.seasons || [],
+      styles: outfitInfo.styles || [],
+      // tag: outfitInfo.tag || '未分类',
       liked: false,
       likes: 0,
       createdAt: new Date().toISOString(),
     };
-
+    console.log('newOutfit', newOutfit);
     await outfitStore.addOutfit(newOutfit);
     resetClothes();
   };

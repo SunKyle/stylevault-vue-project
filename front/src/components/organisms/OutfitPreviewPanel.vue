@@ -185,16 +185,16 @@
                 <div class="grid grid-cols-3 gap-2">
                   <button
                     v-for="scene in sceneOptions"
-                    :key="scene.id"
-                    @click="toggleScene(scene.id)"
+                    :key="scene.value"
+                    @click="toggleScene(scene.value)"
                     class="py-2 px-3 rounded-lg text-sm font-medium transition-all duration-300 flex items-center justify-center"
                     :class="
-                      outfitScene && Array.isArray(outfitScene) && outfitScene.includes(scene.id)
+                      outfitScene && Array.isArray(outfitScene) && outfitScene.includes(scene.value)
                         ? 'bg-teal-500 text-white shadow-md'
                         : 'bg-teal-50 text-teal-700 hover:bg-teal-100 border border-teal-100'
                     "
                   >
-                    <span>{{ scene.name }}</span>
+                    <span>{{ scene.label }}</span>
                   </button>
                 </div>
               </div>
@@ -205,18 +205,18 @@
                 <div class="grid grid-cols-2 gap-2">
                   <button
                     v-for="season in seasonOptions"
-                    :key="season.id"
-                    @click="toggleSeason(season.id)"
+                    :key="season.value"
+                    @click="toggleSeason(season.value)"
                     class="py-2 px-3 rounded-lg text-sm font-medium transition-all duration-300 flex items-center justify-center"
                     :class="
                       outfitSeason &&
                       Array.isArray(outfitSeason) &&
-                      outfitSeason.includes(season.id)
+                      outfitSeason.includes(season.value)
                         ? 'bg-indigo-500 text-white shadow-md'
                         : 'bg-indigo-50 text-indigo-700 hover:bg-indigo-100 border border-indigo-100'
                     "
                   >
-                    <span>{{ season.name }}</span>
+                    <span>{{ season.label }}</span>
                   </button>
                 </div>
               </div>
@@ -227,16 +227,16 @@
                 <div class="grid grid-cols-3 gap-2">
                   <button
                     v-for="style in styleOptions"
-                    :key="style.id"
-                    @click="toggleStyle(style.id)"
+                    :key="style.value"
+                    @click="toggleStyle(style.value)"
                     class="py-2 px-3 rounded-lg text-sm font-medium transition-all duration-300 flex items-center justify-center"
                     :class="
-                      outfitStyle && Array.isArray(outfitStyle) && outfitStyle.includes(style.id)
+                      outfitStyle && Array.isArray(outfitStyle) && outfitStyle.includes(style.value)
                         ? 'bg-purple-500 text-white shadow-md'
                         : 'bg-purple-50 text-purple-700 hover:bg-purple-100 border border-purple-100'
                     "
                   >
-                    <span>{{ style.name }}</span>
+                    <span>{{ style.label }}</span>
                   </button>
                 </div>
               </div>
@@ -387,17 +387,13 @@
   // Model 定义 (v-model)
   // ============================================
 
+  const enumsStore = useEnumsStore();
   const outfitName = defineModel('outfitName', { default: '' });
   const outfitScene = defineModel('outfitScene', { default: () => [] });
   const outfitSeason = defineModel('outfitSeason', { default: () => [] });
   const outfitStyle = defineModel('outfitStyle', { default: () => [] });
-
   // ============================================
-  // Store
-  // ============================================
-
-  const enumsStore = useEnumsStore();
-
+ 
   // ============================================
   // 计算属性
   // ============================================
@@ -409,11 +405,6 @@
     const name = outfitName.value ?? '';
     return String(name).trim();
   });
-
-  /**
-   * 已选衣物数量
-   */
-  const selectedClothesCount = computed(() => props.selectedClothes.length);
 
   /**
    * 安全获取已选衣物列表
@@ -447,7 +438,7 @@
    * 使用场景选项列表
    */
   const sceneOptions = computed(() => {
-    return enumsStore.getOptions?.('occasions') || [];
+    return enumsStore.getOptions?.('scenes') || [];
   });
 
   /**
@@ -529,7 +520,6 @@
       show: true,
       mainImageUrl: item.mainImageUrl,
       name: item.name,
-      type: item.type,
     };
   }
 
@@ -622,7 +612,7 @@
   function toggleSeason(value) {
     const currentSeasons = outfitSeason.value ?? [];
     const index = currentSeasons.indexOf(value);
-
+    console.log('index', index);
     if (index > -1) {
       outfitSeason.value = currentSeasons.filter((_, i) => i !== index);
     } else {
@@ -658,9 +648,9 @@
       name: outfitName.value ?? '',
       scenes: outfitScene.value ?? [],
       seasons: outfitSeason.value ?? [],
-      styles: outfitStyle.value ?? []
+      styles: outfitStyle.value ?? [],
+      safeSelectedClothes: safeSelectedClothes.value ?? []
     };
-
     emit('save-outfit', saveData);
   }
 

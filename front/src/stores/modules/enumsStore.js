@@ -6,7 +6,7 @@ import { enumsApi } from '../../services/apiClient';
 const ENUM_TYPES = [
   'categories', 'styles', 'colors', 'seasons',
   'materials', 'patterns', 'sizes', 'conditions',
-  'statuses', 'occasions'
+  'statuses', 'occasions', 'scenes'
 ];
 
 export const useEnumsStore = defineStore('enums', () => {
@@ -70,6 +70,7 @@ export const useEnumsStore = defineStore('enums', () => {
   const sizeOptions = computed(() => createEnumOptions(enumsData.value.sizes));
   const conditionOptions = computed(() => createEnumOptions(enumsData.value.patterns));
   const statusOptions = computed(() => createEnumOptions(enumsData.value.statuses));
+  const sceneOptions = computed(() => createEnumOptions(enumsData.value.scenes));
 
   // 获取选项列表
   const getOptions = (type) => {
@@ -85,7 +86,8 @@ export const useEnumsStore = defineStore('enums', () => {
       sizes: sizeOptions.value,
       conditions: conditionOptions.value,
       patterns: enumsData.value.patterns,
-      statuses: statusOptions.value
+      statuses: statusOptions.value,
+      scenes: sceneOptions.value
     };
     
     return optionsMap[type] || enumsData.value[type];
@@ -200,6 +202,7 @@ export const useEnumsStore = defineStore('enums', () => {
     conditionOptions,
     patternOptions: enumsData.value.patterns,
     statusOptions,
+    sceneOptions,
 
     // 方法
     fetchAllEnums,
