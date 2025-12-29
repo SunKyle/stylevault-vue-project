@@ -275,6 +275,24 @@ export const useInspirationStore = defineStore('inspiration', () => {
   };
 
   /**
+   * 设置分类筛选
+   * @param {string} category - 分类名称
+   */
+  const setCategory = (category) => {
+    filters.category = category;
+    pagination.page = 1;
+  };
+
+  /**
+   * 设置标签筛选
+   * @param {string} tag - 标签名称
+   */
+  const setTag = (tag) => {
+    filters.tag = tag;
+    pagination.page = 1;
+  };
+
+  /**
    * 切换数组中的筛选值（添加或移除）
    * @param {array} arr - 目标数组
    * @param {*} value - 要切换的值
@@ -442,6 +460,8 @@ export const useInspirationStore = defineStore('inspiration', () => {
 
     // 方法
     setFilter,
+    setCategory,
+    setTag,
     resetFilters,
     toggleCloth,
     removeCloth,

@@ -68,7 +68,7 @@
                 <!-- 衣物图片 -->
                 <div class="img-wrapper">
                   <img
-                    :src="item.img"
+                    :src="item.mainImageUrl"
                     :alt="item.name"
                     class="cloth-img"
                     loading="lazy"
@@ -85,12 +85,6 @@
                     :icon="isItemSelected(item) ? ['fas', 'check'] : ['fas', 'plus']" 
                     class="indicator-icon"
                   />
-                </div>
-
-                <!-- 衣物信息（图片下方） -->
-                <div class="card-info">
-                  <p class="name">{{ item.name }}</p>
-                  <p class="type">{{ item.type }}</p>
                 </div>
               </div>
 
@@ -128,7 +122,7 @@ import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome';
 
 // ===================== 核心类型与常量 =====================
 // 衣物对象基础类型（精简定义）
-const CLOTH_ITEM_KEYS = ['id', 'name', 'type', 'img', 'category', 'tags', 'isFavorite'];
+const CLOTH_ITEM_KEYS = ['id', 'name', 'type', 'mainImageUrl', 'category', 'tags', 'isFavorite'];
 
 // ===================== Props 定义 =====================
 const props = defineProps({
@@ -162,7 +156,7 @@ const safeSelectedClothes = computed(() =>
     id: item.id,
     name: item.name,
     type: item.type,
-    img: item.img
+    mainImageUrl: item.mainImageUrl
   }))
 );
 
@@ -178,7 +172,7 @@ const isItemSelected = (item) =>
 // 处理拖拽开始
 const handleDragStart = (event, item) => {
   // 序列化核心数据（避免循环引用）
-  const serializableItem = { id: item.id, name: item.name, type: item.type, img: item.img };
+  const serializableItem = { id: item.id, name: item.name, type: item.type, mainImageUrl: item.mainImageUrl };
   event.dataTransfer.setData('text/plain', JSON.stringify(serializableItem));
   
   // 设置拖拽状态
@@ -186,7 +180,7 @@ const handleDragStart = (event, item) => {
   event.dataTransfer.effectAllowed = 'copy';
   
   // 创建拖拽预览图
-  const dragIcon = createDragIcon(item.img);
+  const dragIcon = createDragIcon(item.mainImageUrl);
   event.dataTransfer.setDragImage(dragIcon, 40, 40);
   event.target.classList.add('dragging');
   
@@ -478,31 +472,6 @@ const createDragIcon = (imgSrc) => {
 }
 .indicator.selected .indicator-icon {
   color: white;
-}
-
-/* 卡片内信息 */
-.card-info {
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  padding: 0.75rem;
-  background: linear-gradient(to top, rgba(0,0,0,0.8), transparent);
-}
-.card-info .name {
-  color: white;
-  font-size: 0.875rem;
-  font-weight: 600;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-.card-info .type {
-  color: rgba(255, 255, 255, 0.9);
-  font-size: 0.75rem;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
 }
 
 /* 卡片下信息 */
