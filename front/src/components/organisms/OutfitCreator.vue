@@ -27,7 +27,7 @@
         :filtered-clothes="filteredClothes"
         @category-change="inspirationStore.setCategory"
         @tag-change="inspirationStore.setTag"
-        @toggle-cloth="toggleCloth"
+        @toggle-cloth="inspirationStore.toggleCloth"
         @reset-filters="inspirationStore.resetFilters"
       />
     </div>

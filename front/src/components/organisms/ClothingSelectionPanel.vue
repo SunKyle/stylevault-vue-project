@@ -20,12 +20,12 @@
           <div class="category-list">
             <button
               v-for="cat in safeCategories"
-              :key="cat"
+              :key="cat.id"
               class="category-btn"
-              :class="{ active: activeCategory === cat }"
-              @click="$emit('category-change', cat)"
+              :class="{ active: activeCategory === cat.id }"
+              @click="$emit('category-change', cat.id)"
             >
-              {{ cat }}
+              {{ cat.displayName }}
             </button>
           </div>
         </div>
@@ -128,7 +128,7 @@ const CLOTH_ITEM_KEYS = ['id', 'name', 'type', 'mainImageUrl', 'category', 'tags
 const props = defineProps({
   categories: { type: Array, default: () => [] },
   tags: { type: Array, default: () => [] },
-  activeCategory: { type: String, default: '全部' },
+  activeCategory: { type: String, default: '0' },
   activeTag: { type: String, default: '' },
   clothes: { type: Array, default: () => [] },
   filteredClothes: { type: Array, default: () => [] },

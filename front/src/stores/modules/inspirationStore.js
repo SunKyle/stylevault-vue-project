@@ -62,7 +62,7 @@ function generateFilterCacheKey(filters) {
 const DEFAULT_PAGE_SIZE = 12;
 
 /** 默认分类选项 */
-const DEFAULT_CATEGORY = '全部';
+const DEFAULT_CATEGORY = '0';
 
 /** 默认标签选项 */
 const DEFAULT_TAG = '最近穿着';
@@ -144,8 +144,7 @@ export const useInspirationStore = defineStore('inspiration', () => {
    * @returns {string[]} 包含"全部"选项的分类名称数组
    */
   const categories = computed(() => {
-    const categoryNames = clothingStore.categories.map(c => c.name);
-    return [DEFAULT_CATEGORY, ...categoryNames];
+    return [{ id: DEFAULT_CATEGORY, displayName: '全部' }, ...clothingStore.categories];
   });
 
   /**
@@ -281,6 +280,7 @@ export const useInspirationStore = defineStore('inspiration', () => {
   const setCategory = (category) => {
     filters.category = category;
     pagination.page = 1;
+    console.log('setCategory', category);
   };
 
   /**
