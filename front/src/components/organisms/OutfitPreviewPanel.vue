@@ -62,16 +62,11 @@
           class="w-full h-full flex flex-wrap justify-center items-center gap-3 md:gap-4 relative z-10"
         >
           <div
-            v-for="(item, idx) in safeSelectedClothes.slice(0, 8)"
+            v-for="(item, idx) in previewClothes"
             :key="idx"
             class="relative group transform transition-all duration-500 hover:z-10 outfit-item"
-            :class="idx >= 6 ? 'opacity-70 scale-95' : ''"
-            :style="{
-              transform: `translateY(${((idx % 3) - 1) * 10}px) rotate(${
-                (idx % 2 === 0 ? -1 : 1) * (idx % 3)
-              }deg)`,
-              '--index': idx,
-            }"
+            :class="{ 'opacity-70 scale-95': idx >= 6 }"
+            :style="getItemTransformStyle(idx, safeSelectedClothes.length)"
             :data-index="idx"
             @click="openImagePreview(item)"
           >
@@ -84,11 +79,12 @@
               class="w-16 h-16 md:w-20 md:h-20 rounded-xl object-cover shadow-lg border-2 border-white relative z-10 transition-transform duration-300 group-hover:scale-110"
               loading="lazy"
             />
+            <!-- 更多衣物提示 -->
             <div
-              v-if="idx === 7 && safeSelectedClothes.length > 8"
+              v-if="idx === 7 && showMoreClothesCount"
               class="absolute inset-0 bg-black/80 rounded-xl flex items-center justify-center text-white text-xs font-bold z-20"
             >
-              +{{ safeSelectedClothes.length - 8 }}
+              +{{ extraClothesCount }}
             </div>
             <div
               class="absolute inset-x-0 -bottom-7 bg-black/80 backdrop-blur-sm text-white text-xs py-1 px-2 rounded-lg opacity-0 group-hover:opacity-100 transition-all duration-300 pointer-events-none text-center truncate z-20 whitespace-nowrap shadow-lg"
@@ -345,90 +341,189 @@
   import { showToast } from '../../utils/toast';
   import { useEnumsStore } from '@/stores/modules/enumsStore';
 
-  // 定义模型
-  const outfitName = defineModel('outfitName', { type: String, default: '' });
+  // ============================================
+  // 类型定义 (JSDoc)
+  // ============================================
 
-  // 计算属性处理 outfitName 的 trim 操作
-  const trimmedOutfitName = computed(() => {
-    // 确保 outfitName 是字符串类型
-    const name = String(outfitName.value || '');
-    return name.trim();
+  /**
+   * 衣物项数据类型
+   * @typedef {Object} ClothingItem
+   * @property {string} id - 衣物ID
+   * @property {string} name - 衣物名称
+   * @property {string} type - 衣物类型
+   * @property {string} mainImageUrl - 主图URL
+   * @property {string} [key] - 额外属性
+   */
+
+  /**
+   * 枚举选项数据类型
+   * @typedef {Object} EnumOption
+   * @property {string} id - 选项ID
+   * @property {string} name - 选项显示名称
+   */
+
+  /**
+   * 搭配保存数据结构
+   * @typedef {Object} OutfitSaveData
+   * @property {string} name - 搭配名称
+   * @property {string[]} scenes - 使用场景列表
+   * @property {string[]} seasons - 适用季节列表
+   * @property {string[]} styles - 风格列表
+   */
+
+  // ============================================
+  // Props 定义
+  // ============================================
+
+  const props = defineProps({
+    /** @type {ClothingItem[]} */
+    selectedClothes: {
+      type: Array,
+      default: () => []
+    }
   });
-  const outfitScene = defineModel('outfitScene', { type: Array, default: () => [] });
-  const outfitSeason = defineModel('outfitSeason', { type: Array, default: () => [] });
-  const outfitStyle = defineModel('outfitStyle', { type: Array, default: () => [] });
+
+  // ============================================
+  // Model 定义 (v-model)
+  // ============================================
+
+  const outfitName = defineModel('outfitName', { default: '' });
+  const outfitScene = defineModel('outfitScene', { default: () => [] });
+  const outfitSeason = defineModel('outfitSeason', { default: () => [] });
+  const outfitStyle = defineModel('outfitStyle', { default: () => [] });
+
+  // ============================================
+  // Store
+  // ============================================
 
   const enumsStore = useEnumsStore();
 
-  // 组件加载时获取枚举值
+  // ============================================
+  // 计算属性
+  // ============================================
+
+  /**
+   * 处理搭配名称的去除空格操作（带缓存）
+   */
+  const trimmedOutfitName = computed(() => {
+    const name = outfitName.value ?? '';
+    return String(name).trim();
+  });
+
+  /**
+   * 已选衣物数量
+   */
+  const selectedClothesCount = computed(() => props.selectedClothes.length);
+
+  /**
+   * 安全获取已选衣物列表
+   */
+  const safeSelectedClothes = computed(() => {
+    return Array.isArray(props.selectedClothes) ? props.selectedClothes : [];
+  });
+
+  /**
+   * 预览显示的衣物列表（最多显示8件）
+   */
+  const previewClothes = computed(() => {
+    return safeSelectedClothes.value.slice(0, 8);
+  });
+
+  /**
+   * 是否显示更多衣物提示
+   */
+  const showMoreClothesCount = computed(() => {
+    return safeSelectedClothes.value.length > 8;
+  });
+
+  /**
+   * 额外衣物数量
+   */
+  const extraClothesCount = computed(() => {
+    return Math.max(0, safeSelectedClothes.value.length - 8);
+  });
+
+  /**
+   * 使用场景选项列表
+   */
+  const sceneOptions = computed(() => {
+    return enumsStore.getOptions?.('occasions') || [];
+  });
+
+  /**
+   * 季节选项列表
+   */
+  const seasonOptions = computed(() => {
+    return enumsStore.getOptions?.('seasons') || [];
+  });
+
+  /**
+   * 风格选项列表
+   */
+  const styleOptions = computed(() => {
+    return enumsStore.getOptions?.('styles') || [];
+  });
+
+  // ============================================
+  // 响应式状态
+  // ============================================
+
+  /**
+   * 图片预览状态
+   * @typedef {Object} PreviewImageState
+   * @property {boolean} show - 是否显示
+   * @property {string} mainImageUrl - 图片URL
+   * @property {string} name - 名称
+   * @property {string} type - 类型
+   */
+
+  /** @type {import('vue').Ref<PreviewImageState>} */
+  const previewImage = ref({
+    show: false,
+    mainImageUrl: '',
+    name: '',
+    type: ''
+  });
+
+  /**
+   * 拖放状态
+   */
+  const isDragOver = ref(false);
+
+  // ============================================
+  // Emit 定义
+  // ============================================
+
+  const emit = defineEmits([
+    /** 移除衣物事件 */
+    'remove-cloth',
+    /** 清空所有衣物事件 */
+    'reset-clothes',
+    /** 保存搭配事件 */
+    'save-outfit',
+    /** 添加衣物事件 */
+    'add-cloth'
+  ]);
+
+  // ============================================
+  // 生命周期
+  // ============================================
+
+  /**
+   * 组件挂载时获取枚举数据
+   */
   onMounted(() => {
     enumsStore.fetchAllEnums();
   });
 
-  // 场景选项
-  const sceneOptions = computed(() => {
-    return enumsStore?.getOptions?.('occasions') || [];
-  });
+  // ============================================
+  // 方法
+  // ============================================
 
-  // 季节选项
-  const seasonOptions = computed(() => {
-    return enumsStore?.getOptions?.('seasons') || [];
-  });
-
-  // 风格选项
-  const styleOptions = computed(() => {
-    return enumsStore?.getOptions?.('styles') || [];
-  });
-
-  // 场景、季节和风格的多选处理函数
-  function toggleScene(value) {
-    if (!Array.isArray(outfitScene.value)) {
-      outfitScene.value = [];
-    }
-    const index = outfitScene.value.indexOf(value);
-    if (index > -1) {
-      outfitScene.value.splice(index, 1);
-    } else {
-      outfitScene.value.push(value);
-    }
-  }
-
-  function toggleSeason(value) {
-    if (!Array.isArray(outfitSeason.value)) {
-      outfitSeason.value = [];
-    }
-    const index = outfitSeason.value.indexOf(value);
-    if (index > -1) {
-      outfitSeason.value.splice(index, 1);
-    } else {
-      outfitSeason.value.push(value);
-    }
-  }
-
-  function toggleStyle(value) {
-    if (!Array.isArray(outfitStyle.value)) {
-      outfitStyle.value = [];
-    }
-    const index = outfitStyle.value.indexOf(value);
-    if (index > -1) {
-      outfitStyle.value.splice(index, 1);
-    } else {
-      outfitStyle.value.push(value);
-    }
-  }
-
-  // 图片预览状态
-  const previewImage = ref({
-    show: false,
-    url: '',
-    name: '',
-    type: '',
-  });
-
-  // 拖放状态
-  const isDragOver = ref(false);
-
-  // 打开图片预览
+  /**
+   * 打开图片预览模态框
+   * @param {ClothingItem} item - 衣物项数据
+   */
   function openImagePreview(item) {
     previewImage.value = {
       show: true,
@@ -438,45 +533,66 @@
     };
   }
 
-  // 关闭图片预览
+  /**
+   * 关闭图片预览模态框
+   */
   function closeImagePreview() {
     previewImage.value.show = false;
   }
 
-  // 处理拖拽悬停
+  /**
+   * 处理拖拽悬停事件
+   * @param {DragEvent} event - 拖拽事件对象
+   */
   function handleDragOver(event) {
-    // 阻止默认行为以允许放置
     event.preventDefault();
     isDragOver.value = true;
-    event.currentTarget.classList.add('drag-over');
   }
 
-  // 处理拖拽离开
+  /**
+   * 处理拖拽离开事件
+   * @param {DragEvent} event - 拖拽事件对象
+   */
   function handleDragLeave(event) {
     // 只有当鼠标真正离开预览区域时才隐藏提示
-    // 检查相关目标是否是预览区域的子元素
-    if (!event.currentTarget.contains(event.relatedTarget)) {
+    const relatedTarget = event.relatedTarget;
+    const previewArea = event.currentTarget;
+
+    if (!previewArea.contains(relatedTarget)) {
       isDragOver.value = false;
-      event.currentTarget.classList.remove('drag-over');
     }
   }
 
-  // 处理拖放
+  /**
+   * 处理拖放事件
+   * @param {DragEvent} event - 拖放事件对象
+   */
   function handleDrop(event) {
-    // 阻止默认行为
     event.preventDefault();
-
     isDragOver.value = false;
-    event.currentTarget.classList.remove('drag-over');
 
     try {
-      // 获取拖拽的数据
-      const itemData = JSON.parse(event.dataTransfer.getData('text/plain'));
+      const dataTransfer = event.dataTransfer;
+      if (!dataTransfer) {
+        throw new Error('数据传递对象不存在');
+      }
+
+      const jsonData = dataTransfer.getData('text/plain');
+      if (!jsonData) {
+        showToast('无效的拖拽数据', 'error');
+        return;
+      }
+
+      const itemData = JSON.parse(jsonData);
+
+      // 验证必要字段
+      if (!itemData.mainImageUrl || !itemData.name) {
+        showToast('衣物数据不完整', 'error');
+        return;
+      }
 
       // 触发添加衣物事件
       emit('add-cloth', itemData);
-
-      // 添加成功反馈
       showToast('已添加到搭配', 'success');
     } catch (error) {
       console.error('处理拖放数据失败:', error);
@@ -484,42 +600,100 @@
     }
   }
 
-  // 定义emit
-  const emit = defineEmits(['remove-cloth', 'reset-clothes', 'save-outfit', 'add-cloth']);
+  /**
+   * 切换场景选择状态
+   * @param {string} value - 场景ID
+   */
+  function toggleScene(value) {
+    const currentScenes = outfitScene.value ?? [];
+    const index = currentScenes.indexOf(value);
 
-  // 处理保存搭配
+    if (index > -1) {
+      outfitScene.value = currentScenes.filter((_, i) => i !== index);
+    } else {
+      outfitScene.value = [...currentScenes, value];
+    }
+  }
+
+  /**
+   * 切换季节选择状态
+   * @param {string} value - 季节ID
+   */
+  function toggleSeason(value) {
+    const currentSeasons = outfitSeason.value ?? [];
+    const index = currentSeasons.indexOf(value);
+
+    if (index > -1) {
+      outfitSeason.value = currentSeasons.filter((_, i) => i !== index);
+    } else {
+      outfitSeason.value = [...currentSeasons, value];
+    }
+  }
+
+  /**
+   * 切换风格选择状态
+   * @param {string} value - 风格ID
+   */
+  function toggleStyle(value) {
+    const currentStyles = outfitStyle.value ?? [];
+    const index = currentStyles.indexOf(value);
+
+    if (index > -1) {
+      outfitStyle.value = currentStyles.filter((_, i) => i !== index);
+    } else {
+      outfitStyle.value = [...currentStyles, value];
+    }
+  }
+
+  /**
+   * 保存搭配
+   */
   function handleSaveOutfit() {
     if (!trimmedOutfitName.value) {
-      alert('请输入搭配名称');
+      showToast('请输入搭配名称', 'warning');
       return;
     }
 
-    emit('save-outfit', {
-      name: outfitName.value,
-      scenes: outfitScene.value,
-      seasons: outfitSeason.value,
-      styles: outfitStyle.value,
-    });
+    const saveData = {
+      name: outfitName.value ?? '',
+      scenes: outfitScene.value ?? [],
+      seasons: outfitSeason.value ?? [],
+      styles: outfitStyle.value ?? []
+    };
+
+    emit('save-outfit', saveData);
   }
 
-  // 移除衣物
+  /**
+   * 从搭配中移除衣物
+   * @param {number} index - 衣物索引
+   */
   function removeItem(index) {
     emit('remove-cloth', index);
     showToast('已从搭配中移除', 'info');
   }
 
-  // 定义组件的属性
-  const props = defineProps({
-    selectedClothes: {
-      type: Array,
-      default: () => [],
-    },
-  });
+  // ============================================
+  // 工具函数
+  // ============================================
 
-  // 确保 selectedClothes 始终是数组类型
-  const safeSelectedClothes = computed(() => {
-    return Array.isArray(props.selectedClothes) ? props.selectedClothes : [];
-  });
+  /**
+   * 获取衣物项的样式变换
+   * @param {number} idx - 索引
+   * @param {number} totalLength - 列表总长度
+   * @returns {Object} 样式对象
+   */
+  function getItemTransformStyle(idx, totalLength) {
+    const translateY = ((idx % 3) - 1) * 10;
+    const rotate = ((idx % 2 === 0 ? -1 : 1) * (idx % 3));
+    const isHidden = idx >= 6;
+
+    return {
+      transform: `translateY(${translateY}px) rotate(${rotate}deg)`,
+      opacity: isHidden ? '0.7' : '1',
+      transformOrigin: 'center center',
+    };
+  }
 </script>
 
 <style scoped>
