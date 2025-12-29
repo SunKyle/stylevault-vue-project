@@ -3,15 +3,15 @@
     <!-- 左侧：穿搭预览 -->
     <div class="lg:col-span-1">
       <OutfitPreviewPanel
-        v-model:outfitName="service.outfitName"
-        v-model:outfitScene="service.outfitScene"
-        v-model:outfitSeason="service.outfitSeason"
-        v-model:outfitStyle="service.outfitStyle"
+        v-model:outfitName="inspirationStore.outfitName"
+        v-model:outfitScene="inspirationStore.outfitScene"
+        v-model:outfitSeason="inspirationStore.outfitSeason"
+        v-model:outfitStyle="inspirationStore.outfitStyle"
         :selectedClothes="selectedClothes"
-        @remove-cloth="service.removeCloth"
-        @reset-clothes="service.resetClothes"
-        @save-outfit="service.saveOutfit"
-        @add-cloth="service.toggleCloth"
+        @remove-cloth="inspirationStore.removeCloth"
+        @reset-clothes="inspirationStore.resetClothes"
+        @save-outfit="inspirationStore.saveOutfit"
+        @add-cloth="inspirationStore.toggleCloth"
       />
     </div>
 

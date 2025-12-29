@@ -79,7 +79,7 @@
               class="absolute -inset-1 bg-gradient-to-r from-primary/30 to-secondary/30 rounded-xl blur-sm opacity-0 group-hover:opacity-100 transition-opacity duration-300"
             ></div>
             <img
-              :src="item.img"
+              :src="item.mainImageUrl"
               :alt="item.name"
               class="w-16 h-16 md:w-20 md:h-20 rounded-xl object-cover shadow-lg border-2 border-white relative z-10 transition-transform duration-300 group-hover:scale-110"
               loading="lazy"
@@ -125,7 +125,7 @@
           >
             <div class="relative max-w-4xl max-h-[90vh] animate-fade-in" @click.stop>
               <img
-                :src="previewImage.url"
+                :src="previewImage.mainImageUrl"
                 :alt="previewImage.name"
                 class="max-w-full max-h-full object-contain rounded-xl shadow-2xl"
               />
@@ -150,69 +150,7 @@
       <div
         class="bg-gradient-to-br from-indigo-50/50 via-white to-purple-50/50 rounded-2xl p-5 mb-5 border border-indigo-100 shadow-sm backdrop-blur-sm"
       >
-        <div class="p-4 flex items-center justify-between bg-indigo-600 rounded-lg shadow-lg">
-          <h3 class="text-white font-bold">
-            <font-awesome-icon :icon="['fas', 'lightbulb']" class="text-white text-sm" />
-            搭配建议
-          </h3>
-          <div class="flex items-center space-x-2">
-            <span class="text-white text-sm opacity-80">查看全部</span>
-            <font-awesome-icon :icon="['fas', 'chevron-right']" class="text-white text-xs" />
-          </div>
-        </div>
-        <!-- 预览区域 -->
-        <div class="mt-4 p-6 bg-white rounded-xl shadow-sm border border-gray-100">
-          <div class="flex items-center justify-between mb-6">
-            <h4 class="text-lg font-bold text-indigo-900">当前搭配</h4>
-            <button
-              @click="toggleFullscreen"
-              class="text-indigo-600 hover:text-indigo-800 transition-colors"
-            >
-              <font-awesome-icon :icon="['fas', 'expand-arrows-alt']" class="text-sm" />
-            </button>
-          </div>
-          <!-- 预览画布 -->
-          <div
-            class="relative w-full aspect-[4/3] bg-gray-50 rounded-lg overflow-hidden shadow-sm border border-gray-200 mb-6"
-          >
-            <!-- 顶部天气提示 -->
-            <div
-              class="absolute top-3 left-3 bg-white/90 backdrop-blur-sm px-3 py-1.5 rounded-full text-xs text-gray-700 shadow-sm flex items-center"
-            >
-              <font-awesome-icon
-                :icon="['fas', 'cloud-sun']"
-                class="text-yellow-500 mr-1.5 text-xs"
-              />
-              今日天气：{{ weatherInfo?.description }}
-            </div>
-            <!-- 人体模型 -->
-            <div class="absolute inset-0 flex items-center justify-center">
-              <div class="relative w-24 h-36">
-                <!-- 衣物预览位置 -->
-                <div
-                  class="absolute top-1/4 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-32 h-24"
-                >
-                  <!-- 上衣预览占位 -->
-                  <div
-                    class="w-full h-full flex items-center justify-center bg-gray-100 rounded-lg"
-                  >
-                    <font-awesome-icon :icon="['fas', 'tshirt']" class="text-primary text-3xl" />
-                  </div>
-                </div>
-                <!-- 裤子预览位置 -->
-                <div
-                  class="absolute top-2/3 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-24 h-16"
-                >
-                  <!-- 裤子预览占位 -->
-                  <div
-                    class="w-full h-full flex items-center justify-center bg-gray-100 rounded-lg"
-                  >
-                    <font-awesome-icon :icon="['fas', 'pants']" class="text-primary text-3xl" />
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
+                 
           <!-- 搭配信息编辑 -->
           <div class="space-y-4">
             <h4 class="text-sm font-bold text-indigo-900 flex items-center">
@@ -308,7 +246,6 @@
               </div>
             </div>
           </div>
-        </div>
       </div>
 
       <!-- 衣物列表 -->
@@ -348,7 +285,7 @@
                 class="absolute -inset-1 bg-gradient-to-r from-indigo-200/20 to-purple-200/20 rounded-lg blur-sm opacity-0 group-hover:opacity-100 transition-opacity duration-300"
               ></div>
               <img
-                :src="item.img"
+                :src="item.mainImageUrl"
                 :alt="item.name"
                 class="w-12 h-12 rounded-lg object-cover shadow-sm relative z-10"
                 loading="lazy"
@@ -495,7 +432,7 @@
   function openImagePreview(item) {
     previewImage.value = {
       show: true,
-      url: item.img,
+      mainImageUrl: item.mainImageUrl,
       name: item.name,
       type: item.type,
     };
