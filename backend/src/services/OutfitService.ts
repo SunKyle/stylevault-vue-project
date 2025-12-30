@@ -21,11 +21,6 @@ export interface OutfitCreateData {
   imageUrls?: string[];
   isPublic?: boolean;
   metadata?: any;
-  // 新增多选字段
-  scenes?: string[];
-  seasons?: string[];
-  styles?: string[];
-  likes?: number;
   items?: Array<{
     id: number;
     name?: string;
@@ -68,26 +63,22 @@ export class OutfitService {
    * 创建新搭配
    */
   async createOutfit(data: OutfitCreateData): Promise<any> {
+    // console.log('createOutfit data:', data);
     try {
       const outfitData: any = {
         userId: data.userId,
         name: data.name.trim(),
         description: data.description?.trim(),
-        season: data.season,
-        occasion: data.occasion,
-        style: data.style,
         coverImageUrl: data.coverImageUrl?.trim(),
         imageUrls: Array.isArray(data.imageUrls) ? data.imageUrls.filter(url => url && url.trim()) : [],
         isPublic: data.isPublic || false,
         status: 'draft',
-        metadata: data.metadata || {},
-        // 新增多选字段
-        scenes: Array.isArray(data.scenes) ? data.scenes : [],
-        seasons: Array.isArray(data.seasons) ? data.seasons : [],
-        styles: Array.isArray(data.styles) ? data.styles : [],
-        likes: data.likes || 0
+        items: data.items || [],
+        occasion: Array.isArray(data.occasion) ? data.occasion : [],
+        season: Array.isArray(data.season) ? data.season : [],
+        style: Array.isArray(data.style) ? data.style : [],
       };
-
+      console.log('createOutfit outfitData:', outfitData);
       const outfit = await outfitRepository.create(outfitData);
 
       // 如果有items，批量添加到搭配

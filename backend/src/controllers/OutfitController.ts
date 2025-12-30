@@ -10,6 +10,7 @@ export class OutfitController {
    * 创建新搭配
    */
   async createOutfit(req: Request, res: Response): Promise<void> {
+    // console.log('createOutfit req.body:', req.body);
     try {
       // 验证请求参数
       const errors = validationResult(req);
@@ -30,20 +31,15 @@ export class OutfitController {
       // 支持新旧两种请求格式，处理title->name映射
       const outfitData: OutfitCreateData = {
         userId,
-        name: req.body.name || req.body.title, // 支持title字段映射到name
+        name: req.body.name || req.body.title, 
         description: req.body.description,
-        season: req.body.season,
-        occasion: req.body.occasion,
-        style: req.body.style,
         coverImageUrl: req.body.coverImageUrl,
         imageUrls: req.body.imageUrls,
         isPublic: req.body.isPublic,
         metadata: req.body.metadata,
-        // 新格式字段
-        scenes: req.body.scenes,
-        seasons: req.body.seasons,
-        styles: req.body.styles,
-        likes: req.body.likes,
+        occasion: req.body.scenes || req.body.occasion,
+        season: req.body.seasons || req.body.season,
+        style: req.body.styles || req.body.style,
         items: req.body.items
       };
 
