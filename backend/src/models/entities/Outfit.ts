@@ -169,6 +169,49 @@ export class Outfit extends BaseModel<Outfit> {
   })
   isPublic!: boolean;
 
+  /**
+   * 多选季节数组（存储season的多个选项）
+   */
+  @Column({
+    type: DataType.JSON,
+    field: 'seasons',
+    defaultValue: [],
+    comment: '季节数组（多选）'
+  })
+  seasons?: string[];
+
+  /**
+   * 多选场合数组（存储occasion的多个选项）
+   */
+  @Column({
+    type: DataType.JSON,
+    field: 'scenes',
+    defaultValue: [],
+    comment: '场合数组（多选）'
+  })
+  scenes?: string[];
+
+  /**
+   * 多选风格数组（存储style的多个选项）
+   */
+  @Column({
+    type: DataType.JSON,
+    field: 'styles',
+    defaultValue: [],
+    comment: '风格数组（多选）'
+  })
+  styles?: string[];
+
+  /**
+   * 点赞数
+   */
+  @Default(0)
+  @Column({
+    type: DataType.INTEGER,
+    comment: '点赞数'
+  })
+  likes!: number;
+
   // ==================== 关联关系 ====================
 
   /**

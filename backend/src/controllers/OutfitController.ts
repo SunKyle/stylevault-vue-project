@@ -26,9 +26,11 @@ export class OutfitController {
       }
 
       const userId = (req as any).user.userId; // 从authMiddleware获取用户ID
+      
+      // 支持新旧两种请求格式，处理title->name映射
       const outfitData: OutfitCreateData = {
         userId,
-        name: req.body.name,
+        name: req.body.name || req.body.title, // 支持title字段映射到name
         description: req.body.description,
         season: req.body.season,
         occasion: req.body.occasion,
@@ -36,7 +38,13 @@ export class OutfitController {
         coverImageUrl: req.body.coverImageUrl,
         imageUrls: req.body.imageUrls,
         isPublic: req.body.isPublic,
-        metadata: req.body.metadata
+        metadata: req.body.metadata,
+        // 新格式字段
+        scenes: req.body.scenes,
+        seasons: req.body.seasons,
+        styles: req.body.styles,
+        likes: req.body.likes,
+        items: req.body.items
       };
 
       const outfit = await outfitService.createOutfit(outfitData);

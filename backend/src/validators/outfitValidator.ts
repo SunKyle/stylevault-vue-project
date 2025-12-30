@@ -9,11 +9,25 @@ export const outfitValidation = {
    * 创建搭配验证规则
    */
   createOutfit: [
+    // 支持 name 或 title 字段
     body('name')
+      .optional()
       .notEmpty()
       .withMessage('搭配名称不能为空')
       .isLength({ max: 100 })
       .withMessage('搭配名称不能超过100个字符'),
+    body('title')
+      .optional()
+      .notEmpty()
+      .withMessage('搭配标题不能为空')
+      .isLength({ max: 100 })
+      .withMessage('搭配标题不能超过100个字符'),
+    // 确保至少有一个名称字段
+    body()
+      .custom((value, { req }) => {
+        return req.body.name || req.body.title;
+      })
+      .withMessage('必须提供搭配名称或标题'),
     body('description')
       .optional()
       .isLength({ max: 500 })
@@ -30,6 +44,27 @@ export const outfitValidation = {
       .optional()
       .isInt()
       .withMessage('风格必须是数字ID'),
+    // 新增多选字段验证
+    body('scenes')
+      .optional()
+      .isArray()
+      .withMessage('场合数组必须是数组格式'),
+    body('seasons')
+      .optional()
+      .isArray()
+      .withMessage('季节数组必须是数组格式'),
+    body('styles')
+      .optional()
+      .isArray()
+      .withMessage('风格数组必须是数组格式'),
+    body('likes')
+      .optional()
+      .isInt({ min: 0 })
+      .withMessage('点赞数必须是非负整数'),
+    body('items')
+      .optional()
+      .isArray()
+      .withMessage('衣物列表必须是数组格式'),
     body('coverImageUrl')
       .optional()
       .isURL()

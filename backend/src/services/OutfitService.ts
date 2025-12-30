@@ -21,6 +21,18 @@ export interface OutfitCreateData {
   imageUrls?: string[];
   isPublic?: boolean;
   metadata?: any;
+  // 新增多选字段
+  scenes?: string[];
+  seasons?: string[];
+  styles?: string[];
+  likes?: number;
+  items?: Array<{
+    id: number;
+    name?: string;
+    mainImageUrl?: string;
+    category?: number;
+    isFavorite?: boolean;
+  }>;
 }
 
 // 搭配更新数据接口
@@ -68,10 +80,39 @@ export class OutfitService {
         imageUrls: Array.isArray(data.imageUrls) ? data.imageUrls.filter(url => url && url.trim()) : [],
         isPublic: data.isPublic || false,
         status: 'draft',
-        metadata: data.metadata || {}
+        metadata: data.metadata || {},
+        // 新增多选字段
+        scenes: Array.isArray(data.scenes) ? data.scenes : [],
+        seasons: Array.isArray(data.seasons) ? data.seasons : [],
+        styles: Array.isArray(data.styles) ? data.styles : [],
+        likes: data.likes || 0
       };
 
       const outfit = await outfitRepository.create(outfitData);
+
+      // 如果有items，批量添加到搭配
+      if (Array.isArray(data.items) && data.items.length > 0) {
+        const clothingIds = data.items.map(item => item.id);
+        await outfitClothingRepository.addClothesToOutfit(outfit.id, clothingIds);
+        
+        // 可选：更新metadata中的items信息
+        const itemsMetadata = data.items.map((item, index) => ({
+          clothingId: item.id,
+          name: item.name,
+          mainImageUrl: item.mainImageUrl,
+          category: item.category,
+          isFavorite: item.isFavorite,
+          orderIndex: index
+        }));
+        
+        await outfitRepository.update(outfit.id, {
+          metadata: {
+            ...outfitData.metadata,
+            items: itemsMetadata
+          }
+        });
+      }
+
       logger.info(`用户 ${data.userId} 创建了新搭配: ${outfit.id}`);
       return outfit;
     } catch (error) {
