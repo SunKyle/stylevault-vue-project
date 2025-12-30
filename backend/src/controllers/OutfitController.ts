@@ -37,9 +37,9 @@ export class OutfitController {
         imageUrls: req.body.imageUrls,
         isPublic: req.body.isPublic,
         metadata: req.body.metadata,
-        occasion: req.body.scenes || req.body.occasion,
-        season: req.body.seasons || req.body.season,
-        style: req.body.styles || req.body.style,
+        scenes: req.body.scenes || req.body.scene,
+        seasons: req.body.seasons || req.body.season,
+        styles: req.body.styles || req.body.style,
         items: req.body.items
       };
 
@@ -174,9 +174,9 @@ export class OutfitController {
       const updateData: OutfitUpdateData = {
         name: req.body.name,
         description: req.body.description,
-        season: req.body.season,
-        occasion: req.body.occasion,
-        style: req.body.style,
+        scenes: req.body.scenes,
+        seasons: req.body.seasons,
+        styles: req.body.styles,
         coverImageUrl: req.body.coverImageUrl,
         imageUrls: req.body.imageUrls,
         isPublic: req.body.isPublic,

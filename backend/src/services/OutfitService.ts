@@ -6,7 +6,6 @@ import { ClothingRepository } from '../repositories/ClothingRepository';
 const outfitRepository = new OutfitRepository();
 const outfitClothingRepository = new OutfitClothingRepository();
 const clothingRepository = new ClothingRepository();
-import { User } from '../models/entities/User';
 import logger from '../utils/logger';
 
 // 搭配创建数据接口
@@ -14,9 +13,9 @@ export interface OutfitCreateData {
   userId: number;
   name: string;
   description?: string;
-  season?: number;
-  occasion?: number;
-  style?: number;
+  seasons?: string[];
+  scenes?: string[];
+  styles?: string[];
   coverImageUrl?: string;
   imageUrls?: string[];
   isPublic?: boolean;
@@ -34,9 +33,9 @@ export interface OutfitCreateData {
 export interface OutfitUpdateData {
   name?: string;
   description?: string;
-  season?: number;
-  occasion?: number;
-  style?: number;
+  seasons?: string[];
+  scenes?: string[];
+  styles?: string[];
   coverImageUrl?: string;
   imageUrls?: string[];
   isPublic?: boolean;
@@ -63,7 +62,6 @@ export class OutfitService {
    * 创建新搭配
    */
   async createOutfit(data: OutfitCreateData): Promise<any> {
-    // console.log('createOutfit data:', data);
     try {
       const outfitData: any = {
         userId: data.userId,
@@ -74,11 +72,11 @@ export class OutfitService {
         isPublic: data.isPublic || false,
         status: 'draft',
         items: data.items || [],
-        occasion: Array.isArray(data.occasion) ? data.occasion : [],
-        season: Array.isArray(data.season) ? data.season : [],
-        style: Array.isArray(data.style) ? data.style : [],
+        scenes: Array.isArray(data.scenes) ? data.scenes : [],
+        seasons: Array.isArray(data.seasons) ? data.seasons : [],
+        styles: Array.isArray(data.styles) ? data.styles : [],
       };
-      console.log('createOutfit outfitData:', outfitData);
+      console.log('createOutfit data:', data);
       const outfit = await outfitRepository.create(outfitData);
 
       // 如果有items，批量添加到搭配
@@ -175,9 +173,9 @@ export class OutfitService {
       const updateData: any = {};
       if (data.name !== undefined) updateData.name = data.name.trim();
       if (data.description !== undefined) updateData.description = data.description.trim();
-      if (data.season !== undefined) updateData.season = String(data.season);
-      if (data.occasion !== undefined) updateData.occasion = String(data.occasion);
-      if (data.style !== undefined) updateData.style = String(data.style);
+      if (data.seasons !== undefined) updateData.seasons = data.seasons;
+      if (data.scenes !== undefined) updateData.scenes = data.scenes;
+      if (data.styles !== undefined) updateData.styles = data.styles;
       if (data.coverImageUrl !== undefined) updateData.coverImageUrl = data.coverImageUrl.trim();
       if (data.imageUrls !== undefined) {
         updateData.imageUrls = Array.isArray(data.imageUrls) ? 

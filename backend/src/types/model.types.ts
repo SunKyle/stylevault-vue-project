@@ -416,6 +416,8 @@ export interface OutfitMetadata {
   lastWornAt?: Date;
   lastUsedAt?: Date;
   lastRatedAt?: Date;
+  lastLikedAt?: Date;
+  lastUnlikedAt?: Date;
   ratingCount?: number;
   tags?: string[];
   publishedAt?: Date;

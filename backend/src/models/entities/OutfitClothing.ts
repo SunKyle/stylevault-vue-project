@@ -15,7 +15,7 @@ import { Clothing } from './Clothing';
     { name: 'idx_outfit_clothing_outfit_id', fields: ['outfit_id'] },
     { name: 'idx_outfit_clothing_clothing_id', fields: ['clothing_id'] },
     { name: 'idx_outfit_clothing_unique', fields: ['outfit_id', 'clothing_id'], unique: true },
-    { name: 'idx_outfit_clothing_order', fields: ['outfit_id', 'order_index'] }
+    { name: 'idx_outfit_clothing_order', fields: ['outfit_id', 'position'] }
   ]
 })
 export class OutfitClothing extends BaseModel<OutfitClothing> {
@@ -44,40 +44,29 @@ export class OutfitClothing extends BaseModel<OutfitClothing> {
   clothingId!: number;
 
   /**
-   * 排序权重（用于衣物在搭配中的展示顺序）
+   * 位置权重（用于衣物在搭配中的展示顺序）
    */
   @AllowNull(false)
   @Column({
     type: DataType.INTEGER,
-    field: 'order_index',
+    field: 'position',
     defaultValue: 0,
-    comment: '排序权重（用于衣物在搭配中的展示顺序）'
+    comment: '位置权重（用于衣物在搭配中的展示顺序）'
   })
-  orderIndex!: number;
+  position!: number;
 
   /**
-   * 衣物在搭配中的角色（top, bottom, outerwear, shoes, accessories, etc.）
+   * 衣物在搭配中的区域类型（如上身、下身、外套、鞋子、配饰等）
    */
   @Column({
-    type: DataType.STRING(50),
+    type: DataType.STRING(20),
+    field: 'area',
     validate: {
-      len: [0, 50]
+      len: [0, 20]
     },
-    comment: '衣物在搭配中的角色'
+    comment: '衣物在搭配中的区域类型'
   })
-  role?: string;
-
-  /**
-   * 备注信息（针对该衣物在搭配中的特殊说明）
-   */
-  @Column({
-    type: DataType.TEXT,
-    validate: {
-      len: [0, 500]
-    },
-    comment: '备注信息'
-  })
-  notes?: string;
+  area?: string;
 
   // ==================== 关联关系 ====================
 
@@ -114,9 +103,8 @@ export class OutfitClothing extends BaseModel<OutfitClothing> {
       id: this.id,
       outfitId: this.outfitId,
       clothingId: this.clothingId,
-      orderIndex: this.orderIndex,
-      role: this.role,
-      notes: this.notes,
+      position: this.position,
+      area: this.area,
       outfit: outfit ? {
         id: outfit.id,
         name: outfit.name,
@@ -130,7 +118,8 @@ export class OutfitClothing extends BaseModel<OutfitClothing> {
         price: clothing.price
       } : null,
       createdAt: this.createdAt,
-      updatedAt: this.updatedAt
+      updatedAt: this.updatedAt,
+      deletedAt: this.deletedAt
     };
   }
 
@@ -148,7 +137,7 @@ export class OutfitClothing extends BaseModel<OutfitClothing> {
           as: 'clothing'
         }
       ],
-      order: [['orderIndex', 'ASC']]
+      order: [['position', 'ASC']]
     });
   }
 
@@ -190,12 +179,12 @@ export class OutfitClothing extends BaseModel<OutfitClothing> {
   /**
    * 批量添加衣物到搭配
    */
-  static async addClothingToOutfit(outfitId: number, clothingIds: number[], roles?: string[]): Promise<OutfitClothing[]> {
+  static async addClothingToOutfit(outfitId: number, clothingIds: number[], areas?: string[]): Promise<OutfitClothing[]> {
     const associations = clothingIds.map((clothingId, index) => ({
       outfitId,
       clothingId,
-      orderIndex: index,
-      role: roles?.[index] || null
+      position: index,
+      area: areas?.[index] || null
     }));
 
     return this.bulkCreate(associations as any, {
@@ -218,10 +207,10 @@ export class OutfitClothing extends BaseModel<OutfitClothing> {
   /**
    * 更新衣物在搭配中的排序
    */
-  static async updateOrder(outfitId: number, clothingOrders: { clothingId: number; orderIndex: number }[]): Promise<void> {
-    const promises = clothingOrders.map(({ clothingId, orderIndex }) =>
+  static async updateOrder(outfitId: number, clothingOrders: { clothingId: number; position: number }[]): Promise<void> {
+    const promises = clothingOrders.map(({ clothingId, position }) =>
       this.update(
-        { orderIndex },
+        { position },
         { where: { outfitId, clothingId } }
       )
     );

@@ -152,7 +152,7 @@ export class OutfitClothingRepository {
           attributes: ['id', 'name', 'category', 'imageUrl', 'price']
         }
       ],
-      order: [['orderIndex', 'ASC']]
+      order: [['position', 'ASC']]
     });
   }
 
@@ -179,13 +179,13 @@ export class OutfitClothingRepository {
    * 添加服装到搭配
    * @param outfitId 搭配ID
    * @param clothingId 服装ID
-   * @param orderIndex 顺序索引
+   * @param position 位置权重
    * @returns 创建的关联对象
    */
   async addClothingToOutfit(
     outfitId: number,
     clothingId: number,
-    orderIndex: number = 0
+    position: number = 0
   ): Promise<OutfitClothing> {
     // 先检查是否已经存在该关联
     const existing = await OutfitClothing.findOne({
@@ -193,15 +193,15 @@ export class OutfitClothingRepository {
     });
     
     if (existing) {
-      // 如果已存在，则更新顺序索引
-      return existing.update({ orderIndex });
+      // 如果已存在，则更新位置权重
+      return existing.update({ position });
     }
     
     // 否则创建新关联
     return OutfitClothing.create({
       outfitId,
       clothingId,
-      orderIndex
+      position
     } as any);
   }
 
@@ -241,7 +241,7 @@ export class OutfitClothingRepository {
       .map((id, index) => ({
         outfitId,
         clothingId: id,
-        orderIndex: index
+        position: index
       }));
     
     if (newRelations.length === 0) {
@@ -255,7 +255,7 @@ export class OutfitClothingRepository {
   /**
    * 重新排序搭配中的服装
    * @param outfitId 搭配ID
-   * @param clothingOrder 服装ID和顺序索引的映射
+   * @param clothingOrder 服装ID和位置权重的映射
    * @returns 更新后的关联对象列表
    */
   async reorderClothesInOutfit(
@@ -270,7 +270,7 @@ export class OutfitClothingRepository {
     });
     
     const updates = relations.map(rel => 
-      rel.update({ orderIndex: clothingOrder[rel.clothingId] || 0 })
+      rel.update({ position: clothingOrder[rel.clothingId] || 0 })
     );
     
     return Promise.all(updates);
