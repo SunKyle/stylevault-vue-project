@@ -55,9 +55,10 @@ export const useOutfitStore = defineStore('outfit', {
       this.clearError();
 
       try {
-        const outfits = await outfitApi.getOutfits();
-        this.outfits = outfits;
-        return outfits;
+        const result = await outfitApi.getOutfits();
+        // 修复：使用result.data而不是整个result
+        this.outfits = result.data;
+        return result.data;
       } catch (error) {
         this.setError('获取搭配列表失败');
         showToast('获取搭配列表失败', 'error');
@@ -73,8 +74,8 @@ export const useOutfitStore = defineStore('outfit', {
       this.clearError();
 
       try {
-        const outfits = await outfitApi.getOutfitsByTag(tag);
-        return outfits;
+        const result = await outfitApi.getOutfitsByTag(tag);
+        return result.data;
       } catch (error) {
         this.setError(`获取标签为"${tag}"的搭配失败`);
         showToast(`获取标签为"${tag}"的搭配失败`, 'error');
@@ -90,10 +91,10 @@ export const useOutfitStore = defineStore('outfit', {
       this.clearError();
 
       try {
-        const newOutfit = await outfitApi.addOutfit(outfit);
-        this.outfits.push(newOutfit);
+        const result = await outfitApi.addOutfit(outfit);
+        this.outfits.push(result.data);
         showToast('搭配添加成功', 'success');
-        return newOutfit;
+        return result.data;
       } catch (error) {
         this.setError('添加搭配失败');
         showToast('添加搭配失败', 'error');
@@ -109,12 +110,12 @@ export const useOutfitStore = defineStore('outfit', {
       this.clearError();
 
       try {
-        const removedOutfit = await outfitApi.deleteOutfit(outfitId);
-        if (removedOutfit) {
+        const result = await outfitApi.deleteOutfit(outfitId);
+        if (result.data) {
           this.outfits = this.outfits.filter(outfit => outfit.id !== outfitId);
           showToast('搭配删除成功', 'success');
         }
-        return removedOutfit;
+        return result.data;
       } catch (error) {
         this.setError('删除搭配失败');
         showToast('删除搭配失败', 'error');
@@ -130,16 +131,16 @@ export const useOutfitStore = defineStore('outfit', {
       this.clearError();
 
       try {
-        const updatedOutfit = await outfitApi.toggleLike(outfitId);
-        if (updatedOutfit) {
+        const result = await outfitApi.toggleLike(outfitId);
+        if (result.data) {
           const index = this.outfits.findIndex(outfit => outfit.id === outfitId);
           if (index !== -1) {
             // 使用splice替换数组中的元素，确保Vue能够检测到变化
-            this.outfits.splice(index, 1, updatedOutfit);
+            this.outfits.splice(index, 1, result.data);
           }
-          showToast(`搭配${updatedOutfit.liked ? '已收藏' : '已取消收藏'}`, 'success');
+          showToast(`搭配${result.data.liked ? '已收藏' : '已取消收藏'}`, 'success');
         }
-        return updatedOutfit;
+        return result.data;
       } catch (error) {
         this.setError('切换喜欢状态失败');
         showToast('切换喜欢状态失败', 'error');
