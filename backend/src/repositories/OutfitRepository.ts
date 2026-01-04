@@ -121,7 +121,7 @@ export class OutfitRepository {
         model: Clothing,
         as: 'clothes',
         through: {
-          attributes: ['orderIndex', 'role']
+          attributes: ['position', 'area']
         },
         attributes: ['id', 'name', 'category', 'imageUrl']
       });
@@ -158,7 +158,7 @@ export class OutfitRepository {
         model: Clothing,
         as: 'clothes',
         through: {
-          attributes: ['orderIndex', 'role']
+          attributes: ['position', 'area']
         },
         attributes: ['id', 'name', 'category', 'imageUrl']
       });
