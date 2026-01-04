@@ -1,5 +1,7 @@
 import apiClient from '../core/axiosConfig';
 import { API_ENDPOINTS } from '../core/apiEndpoints';
+// 导入storage工具
+import { storage } from '../../stores/storeUtils';
 
 // 认证API
 const authApi = {
@@ -17,23 +19,22 @@ const authApi = {
   },
   // 本地存储相关方法
   getToken: () => {
-    return localStorage.getItem('token');
+    return storage.get('token');
   },
   setToken: token => {
-    localStorage.setItem('token', token);
+    storage.set('token', token);
   },
   removeToken: () => {
-    localStorage.removeItem('token');
+    storage.remove('token');
   },
   getUser: () => {
-    const userStr = localStorage.getItem('user');
-    return userStr ? JSON.parse(userStr) : null;
+    return storage.get('user_info');
   },
   setUser: user => {
-    localStorage.setItem('user', JSON.stringify(user));
+    storage.set('user_info', user);
   },
   removeUser: () => {
-    localStorage.removeItem('user');
+    storage.remove('user_info');
   },
 };
 

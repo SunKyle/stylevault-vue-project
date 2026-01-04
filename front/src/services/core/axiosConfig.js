@@ -1,4 +1,6 @@
 import axios from 'axios';
+// 导入storage工具
+import { storage } from '../../stores/storeUtils';
 
 // 创建axios实例
 const apiClient = axios.create({
@@ -13,7 +15,7 @@ const apiClient = axios.create({
 apiClient.interceptors.request.use(
   config => {
     // 添加token等认证信息
-    const token = localStorage.getItem('token');
+    const token = storage.get('token');
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
     }

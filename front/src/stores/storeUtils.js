@@ -80,7 +80,7 @@ export const setAuthData = (store, data) => {
   store.user = data.user || null;
   store.token = data.token || null;
   store.isAuthenticated = !!data.token && !!data.user;
-  storage.set('auth_token', data.token);
+  storage.set('token', data.token); // 修改：将 'auth_token' 改为 'token'
   storage.set('user_info', data.user);
 };
 
@@ -89,7 +89,7 @@ export const clearAuthData = (store) => {
   store.user = null;
   store.token = null;
   store.isAuthenticated = false;
-  storage.remove('auth_token');
+  storage.remove('token'); // 修改：将 'auth_token' 改为 'token'
   storage.remove('user_info');
 };
 
@@ -108,7 +108,7 @@ export const setUserPreferences = (store, preferences) => {
 
 // 统一 Setter 方法 - 加载本地存储的认证信息
 export const loadStoredAuth = (store) => {
-  const token = storage.get('auth_token');
+  const token = storage.get('token'); // 修改：将 'auth_token' 改为 'token'
   const user = storage.get('user_info');
   const preferences = storage.get('user_preferences', {
     temperatureUnit: 'celsius',
