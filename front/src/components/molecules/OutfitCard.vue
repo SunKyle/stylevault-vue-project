@@ -109,7 +109,7 @@
           @mouseleave="resetStack"
           style="height: 220px"
         >
-          <div v-if="(outfit?.items?.length || 0) === 0" class="text-center text-indigo-400">
+          <div v-if="(outfit.metadata?.items?.length || 0) === 0" class="text-center text-indigo-400">
             <div
               class="w-16 h-16 rounded-2xl bg-gradient-to-br from-indigo-100/80 to-purple-100/50 backdrop-blur-sm flex items-center justify-center mx-auto mb-3 shadow-lg border border-indigo-100/50"
             >
@@ -120,9 +120,9 @@
           <div v-else class="relative w-full h-full overflow-visible">
             <!-- 衣物图片堆叠效果 - 重新设计 -->
             <div class="relative w-full h-full flex items-center justify-center">
-              <template v-for="(item, idx) in (outfit?.items || []).slice(0, 4)" :key="idx">
+              <template v-for="(item, idx) in (outfit.metadata?.items || []).slice(0, 4)" :key="idx">
                 <div
-                  v-if="item.img"
+                  v-if="item.mainImageUrl"
                   class="absolute w-28 h-36 bg-gradient-to-br from-white to-indigo-50/50 rounded-xl shadow-lg overflow-hidden transition-all duration-500 ease-out cursor-pointer border-2 border-white/80 backdrop-blur-sm"
                   :class="{ 'ring-2 ring-indigo-400/30 ring-offset-1': hoveredIndex === idx }"
                   :style="getItemStyle(idx)"
@@ -130,7 +130,7 @@
                   @click="openImagePreview(item)"
                 >
                   <img
-                    :src="item.img"
+                    :src="item.mainImageUrl"
                     :alt="item.name"
                     class="w-full h-full object-cover"
                     loading="lazy"
@@ -171,7 +171,7 @@
           >
             <font-awesome-icon :icon="['fas', 'layer-group']" class="text-indigo-600 text-xs" />
           </div>
-          {{ outfit?.items?.length || 0 }}件衣物
+          {{ outfit.metadata?.items?.length || 0 }}件衣物
         </span>
         <!-- 操作按钮 -->
         <div class="flex gap-2">
@@ -391,13 +391,11 @@
   });
 
   // 场景选项映射 - 从enumsStore获取
-  const sceneOptions = computed(() => enumsStore.enumsData.occasions || []);
-
-  // 季节选项映射
-  const seasonOptions = computed(() => enumsStore.enumsData.seasons || []);
-
-  // 风格选项映射
-  const styleOptions = computed(() => enumsStore.enumsData.styles || []);
+  const sceneOptions = computed(() => enumsStore.getOptions('scenes') || []);
+  // 季节选项映射 - 从enumsStore获取
+  const seasonOptions = computed(() => enumsStore.getOptions('seasons') || []);
+  // 风格选项映射 - 从enumsStore获取
+  const styleOptions = computed(() => enumsStore.getOptions('styles') || []);
 
   // 获取场景标签
   function getSceneLabel(value) {

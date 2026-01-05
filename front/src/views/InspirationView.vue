@@ -12,11 +12,11 @@
         <div v-else>
           <!-- 已保存搭配展示区域 -->
           <SavedOutfits
-      :loadMore="loadMoreOutfits"
-      :onLoadOutfit="loadOutfit"
-      :onDeleteOutfit="deleteOutfit"
-      @scroll-to-create="scrollToCreateSection"
-    />
+          :loadMore="loadMoreOutfits"
+          :onLoadOutfit="loadOutfit"
+          :onDeleteOutfit="deleteOutfit"
+          @scroll-to-create="scrollToCreateSection"
+          />
 
           <!-- 创建搭配区域 -->
           <div v-if="clothingItems.length > 0">

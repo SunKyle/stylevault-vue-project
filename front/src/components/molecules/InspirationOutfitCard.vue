@@ -277,15 +277,12 @@
     },
   });
 
-
-
-  // 状态管理
-  // const expanded = ref(false); // 暂时未使用，因为toggleExpand函数已注释
-
   const enumsStore = useEnumsStore();
 
   // 组件加载时获取枚举值
   onMounted(() => {
+    console.log("props.outfit:", props.outfit);
+    
     enumsStore.fetchAllEnums();
   });
 
@@ -312,14 +309,11 @@
 
   const hoveredIndex = ref(-1);
 
-  // 切换展开状态 - 暂时未使用
-  // function toggleExpand() {
-  //   expanded.value = !expanded.value;
-  // }
+
 
   // 获取堆叠样式
   function getItemStyle(index) {
-    const items = props.outfit?.items || [];
+    const items = props.outfit.metadata?.items || [];
     const totalItems = Math.min(items.length, 4);
     if (totalItems === 0) return {};
 
