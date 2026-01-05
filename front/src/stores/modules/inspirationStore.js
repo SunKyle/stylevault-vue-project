@@ -431,7 +431,6 @@ export const useInspirationStore = defineStore('inspiration', () => {
     try {
       await Promise.all([
         outfitStore.fetchOutfits(),
-        // force=true 表示强制刷新，不使用缓存
         clothingStore.fetchCategories(true),
         clothingStore.fetchClothingItems(true),
       ]);

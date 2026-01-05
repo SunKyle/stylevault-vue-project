@@ -56,8 +56,7 @@ export const useOutfitStore = defineStore('outfit', {
 
       try {
         const result = await outfitApi.getOutfits();
-        // 确保this.outfits是一个数组
-        // 修复：API返回的数据结构是{ status, message, data }，所以需要访问result.data
+        console.log('outfits!!!???', result);
         this.outfits = Array.isArray(result?.data) ? result.data : [];
         return this.outfits;
       } catch (error) {
@@ -94,7 +93,6 @@ export const useOutfitStore = defineStore('outfit', {
 
       try {
         const result = await outfitApi.addOutfit(outfit);
-        // 确保result.data是一个有效的搭配对象
         if (result && result.data) {
           this.outfits.push(result.data);
           showToast('搭配添加成功', 'success');

@@ -47,21 +47,16 @@
 
   const inspirationStore = useInspirationStore();
   const clothingStore = useClothingStore();
+  const { isLoading, loadMoreOutfits, loadOutfit, deleteOutfit, initialize } = inspirationStore;
 
-  // 直接从store解构，只包含使用的变量
-  const { isLoading } = inspirationStore;
   const clothingItems = computed(() => clothingStore.clothingItems);
 
 
-  // 方法直接委托给store，只包含使用的方法
-  const { loadMoreOutfits, loadOutfit, deleteOutfit, initialize } = inspirationStore;
 
   const scrollToCreateSection = () => {
     const element = document.getElementById('create-section');
     element?.scrollIntoView({ behavior: 'smooth' });
   };
-
-
 
   // 初始化数据
   onMounted(() => {

@@ -82,7 +82,7 @@
             我的搭配
           </h2>
           <span class="bg-primary/10 text-primary px-3 py-1 rounded-full text-sm font-medium ml-3">
-            {{ savedOutfits.length }}套方案
+            {{ visibleOutfits.length }}套方案
           </span>
         </div>
 
@@ -314,15 +314,15 @@
 
   const inspirationStore = useInspirationStore();
   const enumsStore = useEnumsStore();
+  const { savedOutfits, visibleOutfits, hasMore, isLoading } = inspirationStore;
+
 
   // 组件加载时获取枚举值
   onMounted(() => {
     enumsStore.fetchAllEnums();
-    inspirationStore.initialize();
+    console.log('SavedOutfits mounted:', inspirationStore.savedOutfits);
   });
 
-  // 从store获取数据
-  const { savedOutfits, visibleOutfits, hasMore, isLoading } = inspirationStore;
 
   // 事件定义
   defineEmits([
