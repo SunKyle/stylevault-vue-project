@@ -82,7 +82,7 @@
             我的搭配
           </h2>
           <span class="bg-primary/10 text-primary px-3 py-1 rounded-full text-sm font-medium ml-3">
-            {{ visibleOutfits.length }}套方案
+            {{ savedOutfits.length }}套方案
           </span>
         </div>
 
@@ -314,13 +314,19 @@
 
   const inspirationStore = useInspirationStore();
   const enumsStore = useEnumsStore();
-  const { savedOutfits, visibleOutfits, hasMore, isLoading } = inspirationStore;
-
+  const { hasMore, isLoading } = inspirationStore;
+  const savedOutfits = computed(() => inspirationStore.savedOutfits);
+  const visibleOutfits = computed(() => inspirationStore.visibleOutfits);
+  const seasonOptions = computed(() => enumsStore.getOptions('seasons'));
+  const styleOptions = computed(() => enumsStore.getOptions('styles'));
+  const sceneOptions = computed(() => enumsStore.getOptions('scenes'));
+  const searchQuery = computed(() => inspirationStore.filters.search);
+  const filters = computed(() => inspirationStore.filters);
+  const showFilterPanel = ref(false);
 
   // 组件加载时获取枚举值
   onMounted(() => {
     enumsStore.fetchAllEnums();
-    console.log('SavedOutfits mounted:', inspirationStore.savedOutfits);
   });
 
 
@@ -329,129 +335,13 @@
     'scroll-to-create'
   ]);
 
-  // 从store获取筛选相关数据
-  const searchQuery = computed(() => inspirationStore.filters.search);
-  const showFilterPanel = ref(false);
 
-  const filters = computed(() => inspirationStore.filters);
   const appliedFilters = ref({
     scene: [],
     season: [],
     style: [],
   });
 
-  // 筛选选项
-  const sceneOptions = [
-    { value: 'daily', label: '日常' },
-    { value: 'work', label: '工作' },
-    { value: 'party', label: '聚会' },
-    { value: 'date', label: '约会' },
-    { value: 'travel', label: '旅行' },
-    { value: 'sports', label: '运动' },
-  ];
-
-  const seasonOptions = computed(() => enumsStore.getOptions('seasons'));
-
-  const styleOptions = computed(() => enumsStore.getOptions('styles'));
-
-  // 计算过滤后的搭配
-  const filteredOutfits = computed(() => {
-    if (!savedOutfits.value || !Array.isArray(savedOutfits.value)) {
-      return [];
-    }
-    return savedOutfits.value.filter(outfit => {
-      // 基本过滤
-      if (!outfit || (!outfit.id && !outfit.title)) return false;
-
-      // 搜索过滤
-      if (searchQuery.value) {
-        const query = searchQuery.value.toLowerCase();
-        const nameMatch = outfit.title && outfit.title.toLowerCase().includes(query);
-        const sceneMatch = outfit.occasion && outfit.occasion.toLowerCase().includes(query);
-        const tagsMatch = outfit.tag && outfit.tag.toLowerCase().includes(query);
-
-        if (!nameMatch && !sceneMatch && !tagsMatch) return false;
-      }
-
-      // 筛选条件过滤
-      if (appliedFilters.value.scene.length > 0) {
-        if (
-          !outfit.occasion ||
-          !appliedFilters.value.scene.includes(outfit.occasion.toLowerCase())
-        ) {
-          return false;
-        }
-      }
-
-      if (appliedFilters.value.season.length > 0) {
-        if (!outfit.season || !appliedFilters.value.season.includes(outfit.season.toLowerCase())) {
-          return false;
-        }
-      }
-
-      if (appliedFilters.value.style.length > 0) {
-        if (!outfit.style || !appliedFilters.value.style.includes(outfit.style.toLowerCase())) {
-          return false;
-        }
-      }
-
-      return true;
-    });
-  });
-
-  // 监听筛选变化
-  watch([filteredOutfits], () => {
-    // 筛选变化时的逻辑可以在这里添加
-  });
-
-  // 格式化日期 - 暂时未使用
-  // function formatDate(date) {
-  //   const d = new Date(date);
-  //   return `${d.getFullYear()}/${(d.getMonth() + 1).toString().padStart(2, '0')}/${d
-  //     .getDate()
-  //     .toString()
-  //     .padStart(2, '0')}`;
-  // }
-
-  // 获取搭配衣物类型统计 - 暂时未使用
-  // function getOutfitStats(items) {
-  //   const stats = {};
-  //   items.forEach(item => {
-  //     // 提取类型（如"上衣"、"裤子"等）
-  //     const type = item.type.split(' · ')[0];
-  //     if (stats[type]) {
-  //       stats[type]++;
-  //     } else {
-  //       stats[type] = 1;
-  //     }
-  //   });
-  //   return stats;
-  // }
-
-  // 获取搭配标签 - 暂时未使用
-  // function getOutfitTags(items) {
-  //   const tags = new Set();
-  //   items.forEach(item => {
-  //     if (item.tags && Array.isArray(item.tags)) {
-  //       item.tags.forEach(tag => tags.add(tag));
-  //     }
-  //   });
-  //   return Array.from(tags);
-  // }
-
-  // 处理删除搭配事件 - 已移至props.onDeleteOutfit
-
-  // 处理编辑搭配事件 - 暂时移除
-
-  // 获取随机点赞数（模拟） - 暂时未使用
-  // function getRandomLikes() {
-  //   return Math.floor(Math.random() * 100) + 1;
-  // }
-
-  // 获取随机评论数（模拟） - 暂时未使用
-  // function getRandomComments() {
-  //   return Math.floor(Math.random() * 20) + 1;
-  // }
 
   // 筛选和搜索功能方法
   // 切换筛选面板显示
@@ -513,7 +403,7 @@
     let options = [];
     switch (type) {
       case 'scene':
-        options = (sceneOptions && sceneOptions.value) || [];
+        options = (sceneOptions.value && sceneOptions.value) || [];
         break;
       case 'season':
         options = (seasonOptions.value && seasonOptions.value) || [];
