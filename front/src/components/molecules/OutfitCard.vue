@@ -1,4 +1,5 @@
 <template>
+  <!-- OutfitCard 组件 - 展示搭配信息、支持编辑、删除和图片预览 -->
   <div
     class="bg-gradient-to-br from-indigo-50 via-white to-purple-50 rounded-2xl overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-500 group border border-indigo-100/80 flex flex-col transform hover:-translate-y-1.5"
   >
@@ -106,7 +107,7 @@
         <!-- 衣物预览区 - 堆叠效果 -->
         <div
           class="flex-1 flex items-center justify-center relative"
-          @mouseleave="resetStack"
+          @mouseleave="hoveredIndex = -1"
           style="height: 220px"
         >
           <div v-if="(outfit.metadata?.items?.length || 0) === 0" class="text-center text-indigo-400">
@@ -120,9 +121,8 @@
           <div v-else class="relative w-full h-full overflow-visible">
             <!-- 衣物图片堆叠效果 - 重新设计 -->
             <div class="relative w-full h-full flex items-center justify-center">
-              <template v-for="(item, idx) in (outfit.metadata?.items || []).slice(0, 4)" :key="idx">
+              <template v-for="(item, idx) in filteredItems" :key="idx">
                 <div
-                  v-if="item.mainImageUrl"
                   class="absolute w-28 h-36 bg-gradient-to-br from-white to-indigo-50/50 rounded-xl shadow-lg overflow-hidden transition-all duration-500 ease-out cursor-pointer border-2 border-white/80 backdrop-blur-sm"
                   :class="{ 'ring-2 ring-indigo-400/30 ring-offset-1': hoveredIndex === idx }"
                   :style="getItemStyle(idx)"
@@ -147,10 +147,10 @@
 
             <!-- 更多衣物指示器 -->
             <div
-              v-if="(outfit?.items?.length || 0) > 4"
+              v-if="(outfit?.metadata?.items?.length || 0) > 4"
               class="absolute bottom-2 right-2 w-8 h-8 rounded-full bg-indigo-500 text-white flex items-center justify-center text-xs font-bold shadow-lg z-10"
             >
-              +{{ (outfit?.items?.length || 0) - 4 }}
+              +{{ (outfit?.metadata?.items?.length || 0) - 4 }}
             </div>
           </div>
         </div>
@@ -190,11 +190,13 @@
             <font-awesome-icon :icon="['fas', 'copy']" class="text-xs" />
           </button>
           <button
-            @click="$emit('delete-outfit', outfit.id)"
+            @click="handleDelete"
             class="w-9 h-9 rounded-full bg-white/80 backdrop-blur-sm flex items-center justify-center text-red-500 hover:bg-red-500 hover:text-white transition-all duration-300 shadow-md hover:shadow-lg border border-indigo-100/50"
+            :disabled="isLoading"
             title="删除搭配"
           >
-            <font-awesome-icon :icon="['fas', 'trash']" class="text-xs" />
+            <font-awesome-icon v-if="!isLoading" :icon="['fas', 'trash']" class="text-xs" />
+            <div v-else class="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin text-xs"></div>
           </button>
         </div>
       </div>
@@ -256,9 +258,15 @@
                     v-model="editOutfit.name"
                     type="text"
                     class="w-full px-4 py-2.5 bg-white/70 backdrop-blur-sm border border-indigo-100/50 rounded-lg focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-400 text-sm shadow-sm transition-all duration-300"
+                    :class="{ 'border-red-300 focus:ring-red-500/20 focus:border-red-400': validationErrors.name }"
                     placeholder="输入搭配名称"
                   />
                 </div>
+                <!-- 验证错误信息 -->
+                <p v-if="validationErrors.name" class="mt-1 text-xs text-red-500 font-medium flex items-center">
+                  <font-awesome-icon :icon="['fas', 'exclamation-circle']" class="mr-1 text-xs" />
+                  {{ validationErrors.name }}
+                </p>
               </div>
               <div>
                 <!-- 场景选择 -->
@@ -363,11 +371,74 @@
         </div>
       </div>
     </teleport>
+
+    <!-- 图片预览模态框 -->
+    <teleport to="body">
+      <div
+        v-if="previewImage.show"
+        class="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4"
+        @click.self="previewImage.show = false"
+      >
+        <div class="relative max-w-4xl max-h-[90vh] w-full flex flex-col items-center justify-center"
+             @click.stop>
+          <!-- 关闭按钮 -->
+          <button
+            @click="previewImage.show = false"
+            class="absolute top-4 right-4 w-10 h-10 rounded-full bg-white/10 backdrop-blur-sm flex items-center justify-center text-white hover:bg-white/20 transition-all duration-300 z-10"
+            aria-label="关闭预览"
+          >
+            <font-awesome-icon :icon="['fas', 'times']" class="text-lg" />
+          </button>
+
+          <!-- 图片信息 -->
+          <div class="absolute top-4 left-4 bg-white/10 backdrop-blur-sm rounded-lg px-3 py-1.5 text-white text-sm z-10">
+            <div class="font-medium">{{ previewImage.name }}</div>
+            <div class="text-white/80">{{ previewImage.type }}</div>
+          </div>
+
+          <!-- 图片预览 -->
+          <div class="flex-1 flex items-center justify-center w-full">
+            <img
+              :src="previewImage.url"
+              :alt="previewImage.name"
+              class="max-w-full max-h-[80vh] object-contain rounded-lg shadow-2xl"
+              loading="lazy"
+            />
+          </div>
+        </div>
+      </div>
+    </teleport>
   </div>
 </template>
 
 <script setup>
-  import { ref, reactive, computed, onMounted } from 'vue';
+  /**
+   * OutfitCard 组件 - 服装搭配卡片组件
+   * 
+   * 功能说明：
+   * 1. 展示搭配基本信息（名称、场景、季节、风格）
+   * 2. 实现衣物堆叠预览效果，支持鼠标悬停交互
+   * 3. 提供编辑、删除、复制搭配功能
+   * 4. 支持衣物图片点击预览功能
+   * 5. 表单验证和错误处理
+   * 6. 加载状态和键盘导航支持
+   * 
+   * Props:
+   * @param {Object} outfit - 搭配数据对象
+   *   @property {string} id - 搭配ID
+   *   @property {string} name - 搭配名称
+   *   @property {string} scene - 适用场景（逗号分隔字符串）
+   *   @property {string} season - 适用季节
+   *   @property {string} style - 搭配风格
+   *   @property {Object} metadata - 搭配元数据
+   *     @property {Array} items - 衣物列表
+   * 
+   * Emits:
+   * @event {Function} load-outfit - 加载搭配详情
+   * @event {Function} delete-outfit - 删除搭配
+   * @event {Function} edit-outfit - 编辑搭配
+   */
+  import { ref, reactive, computed, onMounted, onUnmounted } from 'vue';
   import { useEnumsStore } from '@/stores/modules/enumsStore';
 
   // Props定义
@@ -382,8 +453,13 @@
   const emit = defineEmits(['load-outfit', 'delete-outfit', 'edit-outfit']);
 
   // 状态管理
-  // const expanded = ref(false); // 暂时未使用，因为toggleExpand函数已注释
   const enumsStore = useEnumsStore();
+
+  // 加载状态
+  const isLoading = ref(false);
+  
+  // 错误状态
+  const error = ref(null);
 
   // 组件加载时获取枚举值
   onMounted(() => {
@@ -415,49 +491,47 @@
     return style ? style.name : value;
   }
 
+  // 通用选择逻辑函数
+  function toggleSelection(array, value) {
+    const index = array.indexOf(value);
+    if (index > -1) {
+      array.splice(index, 1); // 如果已选中，则取消选择
+    } else {
+      array.push(value); // 添加到选择数组
+    }
+  }
+
   // 选择场景
   function selectScene(value) {
-    const index = editOutfit.scenes.indexOf(value);
-    if (index > -1) {
-      editOutfit.scenes.splice(index, 1); // 如果已选中，则取消选择
-    } else {
-      editOutfit.scenes.push(value); // 添加到选择数组
-    }
+    toggleSelection(editOutfit.scenes, value);
   }
 
   // 选择季节
   function selectSeason(value) {
-    const index = editOutfit.seasons.indexOf(value);
-    if (index > -1) {
-      editOutfit.seasons.splice(index, 1); // 如果已选中，则取消选择
-    } else {
-      editOutfit.seasons.push(value); // 添加到选择数组
-    }
+    toggleSelection(editOutfit.seasons, value);
   }
 
   // 选择风格
   function selectStyle(value) {
-    const index = editOutfit.styles.indexOf(value);
-    if (index > -1) {
-      editOutfit.styles.splice(index, 1); // 如果已选中，则取消选择
-    } else {
-      editOutfit.styles.push(value); // 添加到选择数组
-    }
+    toggleSelection(editOutfit.styles, value);
   }
   const hoveredIndex = ref(-1);
 
-  // 切换展开状态 - 暂时未使用
-  // function toggleExpand() {
-  //   expanded.value = !expanded.value;
-  // }
+  // 过滤出有图片的衣物并限制最多4个
+  const filteredItems = computed(() => {
+    return (props.outfit?.metadata?.items || [])
+      .filter(item => item.mainImageUrl)
+      .slice(0, 4);
+  });
 
-  // 获取堆叠样式
+  // 获取单个衣物的样式
   function getItemStyle(index) {
-    const totalItems = Math.min(props.outfit?.items?.length || 0, 4);
-    const maxRotation = 15; // 最大旋转角度
-    const maxOffset = 15; // 最大偏移量
-
-    // 根据索引计算位置和旋转
+    const totalItems = filteredItems.value.length;
+    const maxRotation = 15;
+    const maxOffset = 15;
+    
+    if (totalItems === 0) return {};
+    
     const rotation = (index - (totalItems - 1) / 2) * (maxRotation / totalItems);
     const offset = (index - (totalItems - 1) / 2) * (maxOffset / totalItems);
 
@@ -468,10 +542,9 @@
     };
   }
 
-  // 重置堆叠效果
-  function resetStack() {
-    hoveredIndex.value = -1;
-  }
+
+
+
 
   // 图片预览
   const previewImage = ref({
@@ -485,16 +558,15 @@
   function openImagePreview(item) {
     previewImage.value = {
       show: true,
-      url: item.img,
+      url: item.mainImageUrl,
       name: item.name,
       type: item.type,
     };
   }
 
-  // 关闭图片预览 - 暂时未使用
-  // function closeImagePreview() {
-  //   previewImage.value.show = false;
-  // }
+
+
+
 
   // 编辑状态
   const isEditing = ref(false);
@@ -506,10 +578,21 @@
     styles: [], // 改为数组，支持多选
   });
 
+  // 表单验证
+  const validationErrors = reactive({
+    name: '',
+  });
+
+  // 验证表单
+  function validateForm() {
+    validationErrors.name = !editOutfit.name.trim() ? '请输入搭配名称' : '';
+    return !validationErrors.name;
+  }
+
   // 切换编辑模式
   function toggleEditMode() {
     if (isEditing.value) {
-      cancelEdit();
+      isEditing.value = false;
     } else {
       // 进入编辑模式，初始化编辑数据
       editOutfit.id = props.outfit.id;
@@ -518,12 +601,18 @@
       editOutfit.scenes = props.outfit.scene ? props.outfit.scene.split(',') : [];
       editOutfit.seasons = props.outfit.season ? [props.outfit.season] : [];
       editOutfit.styles = props.outfit.style ? [props.outfit.style] : [];
+      // 清空验证错误
+      validationErrors.name = '';
       isEditing.value = true;
     }
   }
 
   // 保存编辑
   function saveEdit() {
+    if (!validateForm()) {
+      return;
+    }
+
     emit('edit-outfit', {
       id: editOutfit.id,
       name: editOutfit.name,
@@ -538,6 +627,49 @@
   // 取消编辑
   function cancelEdit() {
     isEditing.value = false;
+  }
+
+  // 键盘事件监听
+  function handleKeydown(event) {
+    if (event.key === 'Escape') {
+      if (isEditing.value) {
+        cancelEdit();
+      } else if (previewImage.value.show) {
+        previewImage.value.show = false;
+      }
+    }
+  }
+
+  // 组件挂载时添加键盘事件监听
+  onMounted(() => {
+    enumsStore.fetchAllEnums();
+    document.addEventListener('keydown', handleKeydown);
+  });
+
+  // 组件卸载时移除键盘事件监听
+  onUnmounted(() => {
+    document.removeEventListener('keydown', handleKeydown);
+  });
+
+  // 处理删除操作
+  async function handleDelete() {
+    try {
+      // 确认删除
+      if (!confirm(`确定要删除搭配 "${props.outfit.name}" 吗？此操作不可恢复。`)) {
+        return;
+      }
+
+      isLoading.value = true;
+      error.value = null;
+
+      // 发出删除事件
+      emit('delete-outfit', props.outfit.id);
+    } catch (err) {
+      error.value = '删除失败，请重试';
+      console.error('删除搭配时出错:', err);
+    } finally {
+      isLoading.value = false;
+    }
   }
 </script>
 
