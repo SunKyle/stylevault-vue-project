@@ -56,9 +56,10 @@ export const useOutfitStore = defineStore('outfit', {
 
       try {
         const result = await outfitApi.getOutfits();
-        // 修复：使用result.data而不是整个result
-        this.outfits = result.data;
-        return result.data;
+        // 确保this.outfits是一个数组
+        // 修复：API返回的数据结构是{ status, message, data }，所以需要访问result.data
+        this.outfits = Array.isArray(result?.data) ? result.data : [];
+        return this.outfits;
       } catch (error) {
         this.setError('获取搭配列表失败');
         showToast('获取搭配列表失败', 'error');
@@ -75,7 +76,8 @@ export const useOutfitStore = defineStore('outfit', {
 
       try {
         const result = await outfitApi.getOutfitsByTag(tag);
-        return result.data;
+        // 修复：API返回的数据结构是{ status, message, data }，所以需要访问result.data
+        return result?.data;
       } catch (error) {
         this.setError(`获取标签为"${tag}"的搭配失败`);
         showToast(`获取标签为"${tag}"的搭配失败`, 'error');
@@ -92,9 +94,14 @@ export const useOutfitStore = defineStore('outfit', {
 
       try {
         const result = await outfitApi.addOutfit(outfit);
-        this.outfits.push(result.data);
-        showToast('搭配添加成功', 'success');
-        return result.data;
+        // 确保result.data是一个有效的搭配对象
+        if (result && result.data) {
+          this.outfits.push(result.data);
+          showToast('搭配添加成功', 'success');
+          return result.data;
+        } else {
+          throw new Error('无效的搭配数据');
+        }
       } catch (error) {
         this.setError('添加搭配失败');
         showToast('添加搭配失败', 'error');
@@ -111,11 +118,12 @@ export const useOutfitStore = defineStore('outfit', {
 
       try {
         const result = await outfitApi.deleteOutfit(outfitId);
-        if (result.data) {
+        // 修复：API返回的数据结构是{ status, message, data }，所以需要访问result.data
+        if (result?.data) {
           this.outfits = this.outfits.filter(outfit => outfit.id !== outfitId);
           showToast('搭配删除成功', 'success');
         }
-        return result.data;
+        return result?.data;
       } catch (error) {
         this.setError('删除搭配失败');
         showToast('删除搭配失败', 'error');
@@ -132,7 +140,8 @@ export const useOutfitStore = defineStore('outfit', {
 
       try {
         const result = await outfitApi.toggleLike(outfitId);
-        if (result.data) {
+        // 修复：API返回的数据结构是{ status, message, data }，所以需要访问result.data
+        if (result?.data) {
           const index = this.outfits.findIndex(outfit => outfit.id === outfitId);
           if (index !== -1) {
             // 使用splice替换数组中的元素，确保Vue能够检测到变化
@@ -140,7 +149,7 @@ export const useOutfitStore = defineStore('outfit', {
           }
           showToast(`搭配${result.data.liked ? '已收藏' : '已取消收藏'}`, 'success');
         }
-        return result.data;
+        return result?.data;
       } catch (error) {
         this.setError('切换喜欢状态失败');
         showToast('切换喜欢状态失败', 'error');

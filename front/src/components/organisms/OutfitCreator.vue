@@ -36,14 +36,11 @@
 
 <script setup>
   import { computed } from 'vue';
-  import { useOutfitCreator } from '@/services/business/outfitCreatorService';
   import OutfitPreviewPanel from './OutfitPreviewPanel.vue';
   import ClothingSelectionPanel from './ClothingSelectionPanel.vue';
   import { useInspirationStore } from '@/stores/modules/inspirationStore';
 
-  const service = useOutfitCreator();
   const inspirationStore = useInspirationStore();
-
   const categories = computed(() => inspirationStore.categories);
   const tags = computed(() => inspirationStore.tags);
   const filteredClothes = computed(() => inspirationStore.filteredClothes);
