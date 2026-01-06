@@ -170,19 +170,65 @@
             />
           </div>
 
-          <!-- 加载更多按钮 -->
-          <div v-if="hasMore" class="flex justify-center mt-8">
-            <button
-              @click="props.loadMore"
-              :disabled="isLoading"
-              class="flex items-center gap-2 px-6 py-3 bg-primary hover:bg-primary/90 text-white rounded-lg transition-colors disabled:opacity-50"
-            >
-              <font-awesome-icon
-                :icon="['fas', isLoading ? 'spinner' : 'plus']"
-                :class="{ 'animate-spin': isLoading }"
-              />
-              {{ isLoading ? '加载中...' : '加载更多' }}
-            </button>
+          <!-- 分页控制 -->
+          <div class="mt-10 relative z-10">
+            <!-- 每页数量选择 -->
+            <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
+              <div class="flex items-center gap-2">
+                <span class="text-sm text-gray-600">每页显示:</span>
+                <select
+                  v-model="pageSize"
+                  @change="handlePageSizeChange"
+                  class="border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-primary focus:border-primary transition-colors"
+                >
+                  <option v-for="size in pageSizeOptions" :key="size" :value="size">
+                    {{ size }}
+                  </option>
+                </select>
+                <span class="text-sm text-gray-600">套</span>
+              </div>
+              <div class="text-sm text-gray-600">
+                共 {{ savedOutfits.length }} 套搭配，显示第 {{ startIndex }}-{{ endIndex }} 套
+              </div>
+            </div>
+
+            <!-- 分页导航 -->
+            <div class="flex justify-center">
+              <div class="inline-flex items-center gap-1">
+                <!-- 上一页按钮 -->
+                <button
+                  @click="goToPage(currentPage - 1)"
+                  :disabled="currentPage === 1"
+                  class="px-3 py-2 rounded-lg border border-gray-300 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                >
+                  <font-awesome-icon :icon="['fas', 'chevron-left']" class="text-sm" />
+                </button>
+
+                <!-- 页码按钮 -->
+                <button
+                  v-for="page in pageNumbers"
+                  :key="page"
+                  @click="goToPage(page)"
+                  :class="[
+                    'px-3 py-2 rounded-lg transition-colors',
+                    currentPage === page
+                      ? 'bg-primary text-white'
+                      : 'border border-gray-300 hover:bg-gray-50'
+                  ]"
+                >
+                  {{ page }}
+                </button>
+
+                <!-- 下一页按钮 -->
+                <button
+                  @click="goToPage(currentPage + 1)"
+                  :disabled="currentPage === totalPages"
+                  class="px-3 py-2 rounded-lg border border-gray-300 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                >
+                  <font-awesome-icon :icon="['fas', 'chevron-right']" class="text-sm" />
+                </button>
+              </div>
+            </div>
           </div>
         </div>
 
@@ -219,17 +265,13 @@
 </template>
 
 <script setup>
-  import { ref, computed, onMounted } from 'vue';
+  import { ref, computed, onMounted, watch } from 'vue';
   import { useInspirationStore } from '@/stores';
   import { useEnumsStore } from '@/stores/modules/enumsStore';
   import OutfitCard from '@/components/molecules/OutfitCard.vue';
 
   // 定义props
   const props = defineProps({
-    loadMore: {
-      type: Function,
-      required: true
-    },
     onLoadOutfit: {
       type: Function,
       required: true
@@ -242,7 +284,7 @@
 
   const inspirationStore = useInspirationStore();
   const enumsStore = useEnumsStore();
-  const { hasMore, isLoading } = inspirationStore;
+  const { isLoading } = inspirationStore;
   const savedOutfits = computed(() => inspirationStore.savedOutfits);
   const visibleOutfits = computed(() => inspirationStore.visibleOutfits);
   const seasonOptions = computed(() => enumsStore.getOptions('seasons'));
@@ -252,20 +294,86 @@
   const filters = computed(() => inspirationStore.filters);
   const showFilterPanel = ref(false);
 
+  // 分页相关状态
+  const pageSizeOptions = [4, 8, 12, 16, 20, 24];
+  const pageSize = computed({
+    get: () => inspirationStore.pagination.pageSize,
+    set: (value) => {
+      inspirationStore.pagination.pageSize = value;
+    }
+  });
+  const currentPage = computed({
+    get: () => inspirationStore.pagination.page,
+    set: (value) => {
+      inspirationStore.pagination.page = value;
+    }
+  });
+
+  // 计算属性
+  const totalPages = computed(() => {
+    return Math.ceil(savedOutfits.value.length / pageSize.value);
+  });
+
+  const startIndex = computed(() => {
+    return (currentPage.value - 1) * pageSize.value + 1;
+  });
+
+  const endIndex = computed(() => {
+    const end = currentPage.value * pageSize.value;
+    return Math.min(end, savedOutfits.value.length);
+  });
+
+  // 页码显示逻辑
+  const pageNumbers = computed(() => {
+    const pages = [];
+    const total = totalPages.value;
+    const current = currentPage.value;
+    
+    // 始终显示第一页
+    if (total > 0) {
+      pages.push(1);
+    }
+    
+    // 显示当前页附近的页码
+    if (current > 3) {
+      pages.push('...');
+    }
+    
+    for (let i = Math.max(2, current - 2); i <= Math.min(total - 1, current + 2); i++) {
+      pages.push(i);
+    }
+    
+    if (current < total - 2) {
+      pages.push('...');
+    }
+    
+    // 始终显示最后一页
+    if (total > 1) {
+      pages.push(total);
+    }
+    
+    return pages;
+  });
+
   // 组件加载时获取枚举值
   onMounted(() => {
     enumsStore.fetchAllEnums();
   });
 
+  // 监听筛选条件变化，重置分页
+  watch(() => [
+    filters.value.scene.length,
+    filters.value.season.length,
+    filters.value.style.length,
+    filters.value.search
+  ], () => {
+    currentPage.value = 1;
+  });
 
   // 事件定义
   defineEmits([
     'scroll-to-create'
   ]);
-
-
-
-
 
   // 筛选和搜索功能方法
   // 切换筛选面板显示
@@ -342,6 +450,27 @@
     season: filters.value.season || [],
     style: filters.value.style || [],
   }));
+
+  // 分页方法
+  function handlePageSizeChange() {
+    currentPage.value = 1;
+    // 滚动到顶部
+    window.scrollTo({
+      top: 0,
+      behavior: 'smooth'
+    });
+  }
+
+  function goToPage(page) {
+    if (page > 0 && page <= totalPages.value && page !== currentPage.value) {
+      currentPage.value = page;
+      // 滚动到顶部
+      window.scrollTo({
+        top: 0,
+        behavior: 'smooth'
+      });
+    }
+  }
 </script>
 
 <style scoped>

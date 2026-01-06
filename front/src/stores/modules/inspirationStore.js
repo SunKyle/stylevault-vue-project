@@ -212,8 +212,9 @@ export const useInspirationStore = defineStore('inspiration', () => {
    * @returns {object[]} 当前页的搭配数据
    */
   const visibleOutfits = computed(() => {
-    const end = pagination.page * pagination.pageSize;
-    return savedOutfits.value.slice(0, end);
+    const start = (pagination.page - 1) * pagination.pageSize;
+    const end = start + pagination.pageSize;
+    return savedOutfits.value.slice(start, end);
   });
 
   /**
