@@ -291,7 +291,7 @@
 </template>
 
 <script setup>
-  import { ref, computed, onMounted, watch } from 'vue';
+  import { ref, computed, onMounted } from 'vue';
   import { useInspirationStore } from '@/stores';
   import { useEnumsStore } from '@/stores/modules/enumsStore';
   import OutfitCard from '@/components/molecules/OutfitCard.vue';
@@ -336,11 +336,7 @@
   ]);
 
 
-  const appliedFilters = ref({
-    scene: [],
-    season: [],
-    style: [],
-  });
+
 
 
   // 筛选和搜索功能方法
@@ -359,60 +355,37 @@
     }
   }
 
-  // 应用筛选
+  // 应用筛选（仅关闭面板）
   function applyFilters() {
-    // 深拷贝当前筛选条件
-    appliedFilters.value = {
-      scene: [...filters.value.scene],
-      season: [...filters.value.season],
-      style: [...filters.value.style],
-    };
-    // 关闭筛选面板
     showFilterPanel.value = false;
   }
 
   // 重置筛选
   function resetFilters() {
-    filters.value = {
+    Object.assign(filters.value, {
       scene: [],
       season: [],
       style: [],
-    };
-    appliedFilters.value = {
-      scene: [],
-      season: [],
-      style: [],
-    };
+    });
   }
 
   // 移除单个筛选条件
   function removeFilter(type, value) {
-    const index = appliedFilters.value[type].indexOf(value);
+    const index = filters.value[type].indexOf(value);
     if (index > -1) {
-      appliedFilters.value[type].splice(index, 1);
-      // 同步更新当前筛选面板中的状态
-      const filterIndex = filters.value[type].indexOf(value);
-      if (filterIndex > -1) {
-        filters.value[type].splice(filterIndex, 1);
-      }
+      filters.value[type].splice(index, 1);
     }
   }
 
   // 获取筛选条件标签
   function getFilterLabel(type, value) {
-    let options = [];
-    switch (type) {
-      case 'scene':
-        options = (sceneOptions.value && sceneOptions.value) || [];
-        break;
-      case 'season':
-        options = (seasonOptions.value && seasonOptions.value) || [];
-        break;
-      case 'style':
-        options = (styleOptions.value && styleOptions.value) || [];
-        break;
-    }
-
+    const optionsMap = {
+      scene: sceneOptions.value || [],
+      season: seasonOptions.value || [],
+      style: styleOptions.value || []
+    };
+    
+    const options = optionsMap[type] || [];
     const option = options.find(opt => opt.value === value);
     return option ? option.label : value;
   }
@@ -432,22 +405,15 @@
 
   // 计算当前激活的筛选条件数量
   const activeFiltersCount = computed(() => {
-    return (
-      appliedFilters.value.scene.length +
-      appliedFilters.value.season.length +
-      appliedFilters.value.style.length
-    );
+    return filters.value.scene.length + filters.value.season.length + filters.value.style.length;
   });
 
   // 激活的筛选标签
-  const activeFilters = computed(() => {
-    const result = {
-      scene: appliedFilters.value.scene || [],
-      season: appliedFilters.value.season || [],
-      style: appliedFilters.value.style || [],
-    };
-    return result;
-  });
+  const activeFilters = computed(() => ({
+    scene: filters.value.scene || [],
+    season: filters.value.season || [],
+    style: filters.value.style || [],
+  }));
 </script>
 
 <style scoped>
