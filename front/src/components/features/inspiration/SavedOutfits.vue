@@ -174,12 +174,12 @@
           <div class="mt-10 relative z-10">
             <!-- 每页数量选择 -->
             <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
-              <div class="flex items-center gap-2">
+              <div class="flex items-center gap-3">
                 <span class="text-sm text-gray-600">每页显示:</span>
                 <select
                   v-model="pageSize"
                   @change="handlePageSizeChange"
-                  class="border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-primary focus:border-primary transition-colors"
+                  class="border border-gray-300 rounded-xl px-4 py-2.5 text-sm focus:ring-2 focus:ring-primary focus:border-primary transition-all duration-300 shadow-sm hover:shadow-md"
                 >
                   <option v-for="size in pageSizeOptions" :key="size" :value="size">
                     {{ size }}
@@ -187,19 +187,19 @@
                 </select>
                 <span class="text-sm text-gray-600">套</span>
               </div>
-              <div class="text-sm text-gray-600">
+              <div class="text-sm text-gray-600 font-medium">
                 共 {{ savedOutfits.length }} 套搭配，显示第 {{ startIndex }}-{{ endIndex }} 套
               </div>
             </div>
 
             <!-- 分页导航 -->
             <div class="flex justify-center">
-              <div class="inline-flex items-center gap-1">
+              <div class="inline-flex items-center gap-2">
                 <!-- 上一页按钮 -->
                 <button
                   @click="goToPage(currentPage - 1)"
                   :disabled="currentPage === 1"
-                  class="px-3 py-2 rounded-lg border border-gray-300 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                  class="w-10 h-10 flex items-center justify-center rounded-xl border border-gray-300 hover:border-primary hover:bg-primary/5 disabled:border-gray-200 disabled:bg-gray-50 disabled:text-gray-300 disabled:cursor-not-allowed transition-all duration-300 shadow-sm"
                 >
                   <font-awesome-icon :icon="['fas', 'chevron-left']" class="text-sm" />
                 </button>
@@ -210,10 +210,10 @@
                   :key="page"
                   @click="goToPage(page)"
                   :class="[
-                    'px-3 py-2 rounded-lg transition-colors',
+                    'w-10 h-10 flex items-center justify-center rounded-xl transition-all duration-300 shadow-sm',
                     currentPage === page
-                      ? 'bg-primary text-white'
-                      : 'border border-gray-300 hover:bg-gray-50'
+                      ? 'bg-primary text-white font-medium shadow-md'
+                      : 'border border-gray-300 hover:border-primary hover:bg-primary/5'
                   ]"
                 >
                   {{ page }}
@@ -223,7 +223,7 @@
                 <button
                   @click="goToPage(currentPage + 1)"
                   :disabled="currentPage === totalPages"
-                  class="px-3 py-2 rounded-lg border border-gray-300 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                  class="w-10 h-10 flex items-center justify-center rounded-xl border border-gray-300 hover:border-primary hover:bg-primary/5 disabled:border-gray-200 disabled:bg-gray-50 disabled:text-gray-300 disabled:cursor-not-allowed transition-all duration-300 shadow-sm"
                 >
                   <font-awesome-icon :icon="['fas', 'chevron-right']" class="text-sm" />
                 </button>
@@ -454,21 +454,21 @@
   // 分页方法
   function handlePageSizeChange() {
     currentPage.value = 1;
-    // 滚动到顶部
-    window.scrollTo({
-      top: 0,
-      behavior: 'smooth'
-    });
+    // 注释掉滚动到顶部的代码
+    // window.scrollTo({
+    //   top: 0,
+    //   behavior: 'smooth'
+    // });
   }
 
   function goToPage(page) {
     if (page > 0 && page <= totalPages.value && page !== currentPage.value) {
       currentPage.value = page;
-      // 滚动到顶部
-      window.scrollTo({
-        top: 0,
-        behavior: 'smooth'
-      });
+      // 注释掉滚动到顶部的代码
+      // window.scrollTo({
+      //   top: 0,
+      //   behavior: 'smooth'
+      // });
     }
   }
 </script>
