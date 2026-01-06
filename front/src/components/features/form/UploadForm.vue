@@ -100,7 +100,9 @@
               class="w-full px-4 py-3 rounded-xl border border-neutral-200 focus:border-primary focus:ring-2 focus:ring-primary/20 focus:outline-none transition-all"
               @blur="validateField('name')"
             />
-            <p v-if="validationErrors.name" class="mt-1 text-xs text-red-500">{{ validationErrors.name }}</p>
+            <p v-if="validationErrors.name" class="mt-1 text-xs text-red-500">
+              {{ validationErrors.name }}
+            </p>
           </div>
 
           <div>
@@ -126,7 +128,9 @@
                 暂无类别数据
               </option>
             </select>
-            <p v-if="validationErrors.category" class="mt-1 text-xs text-red-500">{{ validationErrors.category }}</p>
+            <p v-if="validationErrors.category" class="mt-1 text-xs text-red-500">
+              {{ validationErrors.category }}
+            </p>
           </div>
 
           <div>
@@ -137,11 +141,7 @@
             >
               <option value="" disabled v-if="enumsStore.loading">加载中...</option>
               <option value="" v-else>请选择风格</option>
-              <option
-                v-for="style in styleOptions"
-                :key="style.value"
-                :value="style.value"
-              >
+              <option v-for="style in styleOptions" :key="style.value" :value="style.value">
                 {{ style.label }}
               </option>
               <option value="" disabled v-if="!enumsStore.loading && styleOptions.length === 0">
@@ -177,11 +177,7 @@
             >
               <option value="" disabled v-if="enumsStore.loading">加载中...</option>
               <option value="" v-else>请选择颜色</option>
-              <option
-                v-for="color in colorOptions"
-                :key="color.value"
-                :value="color.value"
-              >
+              <option v-for="color in colorOptions" :key="color.value" :value="color.value">
                 {{ color.label }}
               </option>
               <option value="" disabled v-if="!enumsStore.loading && colorOptions.length === 0">
@@ -219,11 +215,7 @@
             >
               <option value="" disabled v-if="enumsStore.loading">加载中...</option>
               <option value="" v-else>请选择尺寸</option>
-              <option
-                v-for="size in sizeOptions"
-                :key="size.value"
-                :value="size.value"
-              >
+              <option v-for="size in sizeOptions" :key="size.value" :value="size.value">
                 {{ size.label }}
               </option>
               <option value="" disabled v-if="!enumsStore.loading && sizeOptions.length === 0">
@@ -260,7 +252,9 @@
               <span class="text-red-500">*</span>
             </label>
             <SeasonMultiSelect v-model="selectedSeasons" :options="seasonOptions" />
-            <p v-if="validationErrors.seasons" class="mt-1 text-xs text-red-500">{{ validationErrors.seasons }}</p>
+            <p v-if="validationErrors.seasons" class="mt-1 text-xs text-red-500">
+              {{ validationErrors.seasons }}
+            </p>
           </div>
         </div>
       </div>
@@ -283,7 +277,9 @@
               class="w-full px-4 py-3 rounded-xl border border-neutral-200 focus:border-primary focus:ring-2 focus:ring-primary/20 focus:outline-none transition-all"
               @blur="validateField('price')"
             />
-            <p v-if="validationErrors.price" class="mt-1 text-xs text-red-500">{{ validationErrors.price }}</p>
+            <p v-if="validationErrors.price" class="mt-1 text-xs text-red-500">
+              {{ validationErrors.price }}
+            </p>
           </div>
 
           <div>
@@ -295,7 +291,9 @@
               class="w-full px-4 py-3 rounded-xl border border-neutral-200 focus:border-primary focus:ring-2 focus:ring-primary/20 focus:outline-none transition-all"
               @blur="validateField('purchaseDate')"
             />
-            <p v-if="validationErrors.purchaseDate" class="mt-1 text-xs text-red-500">{{ validationErrors.purchaseDate }}</p>
+            <p v-if="validationErrors.purchaseDate" class="mt-1 text-xs text-red-500">
+              {{ validationErrors.purchaseDate }}
+            </p>
           </div>
         </div>
       </div>
@@ -335,166 +333,57 @@
 
   <!-- 图片预览弹窗 -->
   <teleport to="body">
-    <div v-if="showImagePreview" class="fixed inset-0 bg-black/80 flex items-center justify-center z-50 p-4" @click="showImagePreview = false">
+    <div
+      v-if="showImagePreview"
+      class="fixed inset-0 bg-black/80 flex items-center justify-center z-50 p-4"
+      @click="showImagePreview = false"
+    >
       <img :src="previewImageUrl" alt="大图预览" class="max-h-[90vh] max-w-[90vw] object-contain" />
     </div>
   </teleport>
 </template>
 
 <script setup>
-import { reactive, ref, computed, nextTick, onMounted, onUnmounted, watch } from 'vue';
-import { useClothingStore } from '@/stores';
-import { useEnumsStore } from '@/stores/modules/enumsStore';
-import  clothingApi  from '@/services/api/clothingApi';
-import { showToast } from '@/utils/toast';
-import SeasonMultiSelect from './SeasonMultiSelect.vue';
+  import { reactive, ref, computed, nextTick, onMounted, onUnmounted, watch } from 'vue';
+  import { useClothingStore } from '@/stores';
+  import { useEnumsStore } from '@/stores/modules/enumsStore';
+  import clothingApi from '@/services/api/clothingApi';
+  import { showToast } from '@/utils/toast';
+  import SeasonMultiSelect from './SeasonMultiSelect.vue';
 
-// 1. 常量定义（统一管理硬编码）
-const IMAGE_CONFIG = {
-  MAX_SIZE: 5 * 1024 * 1024, // 5MB
-  ACCEPT_TYPES: ['image/jpeg', 'image/jpg', 'image/png'],
-  PLACEHOLDER_URL: 'https://via.placeholder.com/300x400/6366f1/ffffff?text=Image'
-};
-const ROUTES = {
-  HOME: '/'
-};
+  // 1. 常量定义（统一管理硬编码）
+  const IMAGE_CONFIG = {
+    MAX_SIZE: 5 * 1024 * 1024, // 5MB
+    ACCEPT_TYPES: ['image/jpeg', 'image/jpg', 'image/png'],
+    PLACEHOLDER_URL: 'https://via.placeholder.com/300x400/6366f1/ffffff?text=Image',
+  };
+  const ROUTES = {
+    HOME: '/',
+  };
 
-// 2. Store 初始化
-const clothingStore = useClothingStore();
-const enumsStore = useEnumsStore();
+  // 2. Store 初始化
+  const clothingStore = useClothingStore();
+  const enumsStore = useEnumsStore();
 
-// 3. 枚举数据加载 + 状态判断
-onMounted(async () => {
-  await enumsStore.fetchAllEnums();
-});
+  // 3. 枚举数据加载 + 状态判断
+  onMounted(async () => {
+    await enumsStore.fetchAllEnums();
+  });
 
-// 4. 封装通用枚举获取函数（减少冗余）
-const getEnumOptions = (type) => {
-  return computed(() => enumsStore.getOptions(type));
-};
-const categoryOptions = getEnumOptions('categories');
-const styleOptions = getEnumOptions('styles');
-const seasonOptions = getEnumOptions('seasons');
-const materialOptions = getEnumOptions('materials');
-const colorOptions = getEnumOptions('colors');
-const sizeOptions = getEnumOptions('sizes');
-const conditionOptions = getEnumOptions('conditions');
+  // 4. 封装通用枚举获取函数（减少冗余）
+  const getEnumOptions = type => {
+    return computed(() => enumsStore.getOptions(type));
+  };
+  const categoryOptions = getEnumOptions('categories');
+  const styleOptions = getEnumOptions('styles');
+  const seasonOptions = getEnumOptions('seasons');
+  const materialOptions = getEnumOptions('materials');
+  const colorOptions = getEnumOptions('colors');
+  const sizeOptions = getEnumOptions('sizes');
+  const conditionOptions = getEnumOptions('conditions');
 
-// 5. 表单数据 + 响应式优化
-const clothingItem = reactive({
-  name: '',
-  category: '',
-  style: '',
-  color: '',
-  material: '',
-  size: '',
-  condition: '',
-  brand: '',
-  price: null,
-  purchaseDate: '',
-  notes: '',
-  image: '',
-});
-const selectedSeasons = ref([]);
-const hasImage = computed(() => {
-  const image = clothingItem.image;
-  return image && typeof image === 'string' && image.trim() !== '';
-});
-
-// 6. 图片处理相关响应式
-const fileInput = ref(null);
-const isDragging = ref(false);
-const imageObjectURLs = ref([]); // 存储生成的ObjectURL，用于卸载时释放
-const showImagePreview = ref(false);
-const previewImageUrl = ref('');
-const selectedFile = ref(null); // 存储用户选择的原始图片文件
-
-// 7. 状态管理
-const isSaving = ref(false);
-
-// 8. 工具方法
-// 触发文件选择
-const triggerFileInput = () => {
-  fileInput.value?.click();
-};
-
-// 处理文件选择
-const handleFileChange = event => {
-  const file = event.target.files[0];
-  if (file) {
-    processImageFile(file);
-    // 清空input值，避免重复选择同一文件不触发change事件
-    event.target.value = '';
-  }
-};
-
-// 处理拖拽悬停
-const handleDragOver = () => {
-  isDragging.value = true;
-};
-
-// 处理拖拽离开
-const handleDragLeave = () => {
-  isDragging.value = false;
-};
-
-// 处理文件拖放
-const handleDrop = event => {
-  isDragging.value = false;
-  const file = event.dataTransfer.files[0];
-  if (file && file.type.startsWith('image/')) {
-    processImageFile(file);
-  } else {
-    showToast('请上传图片文件', 'error');
-  }
-};
-
-// 处理图片文件（优化：使用ObjectURL替代FileReader，支持内存释放）
-const processImageFile = file => {
-  // 验证文件类型
-  if (!IMAGE_CONFIG.ACCEPT_TYPES.includes(file.type)) {
-    showToast(`请上传${IMAGE_CONFIG.ACCEPT_TYPES.map(type => type.split('/')[1]).join('/')}格式的图片`, 'error');
-    return;
-  }
-
-  // 验证文件大小
-  if (file.size > IMAGE_CONFIG.MAX_SIZE) {
-    showToast(`图片大小不能超过${IMAGE_CONFIG.MAX_SIZE / 1024 / 1024}MB`, 'error');
-    return;
-  }
-
-  try {
-    // 释放旧的URL
-    if (clothingItem.image && imageObjectURLs.value.includes(clothingItem.image)) {
-      URL.revokeObjectURL(clothingItem.image);
-    }
-    // 保存原始文件
-    selectedFile.value = file;
-    // 生成新的ObjectURL用于预览
-    const imageUrl = URL.createObjectURL(file);
-    clothingItem.image = imageUrl;
-    imageObjectURLs.value.push(imageUrl);
-    showToast('图片已选择', 'success');
-  } catch (error) {
-    showToast('图片处理失败，请重试', 'error');
-    console.error('图片处理错误:', error);
-  }
-};
-
-// 图片预览放大
-const openImagePreview = (url) => {
-  previewImageUrl.value = url;
-  showImagePreview.value = true;
-};
-
-// 表单重置（含内存释放）
-const resetForm = () => {
-  // 释放图片URL
-  if (clothingItem.image && imageObjectURLs.value.includes(clothingItem.image)) {
-    URL.revokeObjectURL(clothingItem.image);
-  }
-  // 清空表单数据
-  Object.assign(clothingItem, {
+  // 5. 表单数据 + 响应式优化
+  const clothingItem = reactive({
     name: '',
     category: '',
     style: '',
@@ -508,195 +397,322 @@ const resetForm = () => {
     notes: '',
     image: '',
   });
-  selectedSeasons.value = [];
-  imageObjectURLs.value = [];
-};
+  const selectedSeasons = ref([]);
+  const hasImage = computed(() => {
+    const image = clothingItem.image;
+    return image && typeof image === 'string' && image.trim() !== '';
+  });
 
-// 验证错误信息缓存
-const validationErrors = ref({
-  name: '',
-  category: '',
-  seasons: '',
-  price: '',
-  purchaseDate: ''
-});
+  // 6. 图片处理相关响应式
+  const fileInput = ref(null);
+  const isDragging = ref(false);
+  const imageObjectURLs = ref([]); // 存储生成的ObjectURL，用于卸载时释放
+  const showImagePreview = ref(false);
+  const previewImageUrl = ref('');
+  const selectedFile = ref(null); // 存储用户选择的原始图片文件
 
-// 单个字段校验（实时提示）
-const validateField = (field) => {
-  let error = '';
-  switch (field) {
-    case 'name':
-      error = clothingItem.name.trim() ? '' : '衣物名称不能为空';
-      break;
-    case 'category':
-      error = clothingItem.category ? '' : '衣物类别不能为空';
-      break;
-    case 'seasons':
-      error = selectedSeasons.value.length > 0 ? '' : '请选择至少一个适用季节';
-      break;
-    case 'price':
-      error = clothingItem.price === null || !isNaN(Number(clothingItem.price)) ? '' : '价格必须是有效数字';
-      break;
-    case 'purchaseDate':
-      error = !clothingItem.purchaseDate || new Date(clothingItem.purchaseDate) <= new Date() ? '' : '购买日期不能晚于今天';
-      break;
-    default:
-      error = '';
-  }
-  validationErrors.value[field] = error;
-  return error;
-};
+  // 7. 状态管理
+  const isSaving = ref(false);
 
-// 监听表单字段变化，自动更新验证
-watch(
-  [() => clothingItem.name, () => clothingItem.category, () => clothingItem.price, () => clothingItem.purchaseDate],
-  () => {
-    validateField('name');
-    validateField('category');
-    validateField('price');
-    validateField('purchaseDate');
-  },
-  { deep: true }
-);
+  // 8. 工具方法
+  // 触发文件选择
+  const triggerFileInput = () => {
+    fileInput.value?.click();
+  };
 
-// 监听季节变化，自动更新验证
-watch(
-  () => selectedSeasons.value,
-  () => {
-    validateField('seasons');
-  },
-  { deep: true }
-);
+  // 处理文件选择
+  const handleFileChange = event => {
+    const file = event.target.files[0];
+    if (file) {
+      processImageFile(file);
+      // 清空input值，避免重复选择同一文件不触发change事件
+      event.target.value = '';
+    }
+  };
 
-// 统一表单校验
-const validateForm = () => {
-  const errors = [];
-  if (!clothingItem.name.trim()) errors.push('衣物名称不能为空');
-  if (!clothingItem.category) errors.push('衣物类别不能为空');
-  if (selectedSeasons.value.length === 0) errors.push('请选择至少一个适用季节');
-  if (clothingItem.price !== null && isNaN(Number(clothingItem.price))) {
-    errors.push('价格必须是有效数字');
-  }
-  if (clothingItem.purchaseDate && new Date(clothingItem.purchaseDate) > new Date()) {
-    errors.push('购买日期不能晚于今天');
-  }
-  return errors;
-};
+  // 处理拖拽悬停
+  const handleDragOver = () => {
+    isDragging.value = true;
+  };
 
-// 取消按钮处理（含确认提示）
-const handleCancel = () => {
-  // 判断表单是否有未保存内容
-  const hasFormData = Object.values(clothingItem).some(val => 
-    val !== '' && val !== null && val !== undefined
-  ) || selectedSeasons.value.length > 0;
+  // 处理拖拽离开
+  const handleDragLeave = () => {
+    isDragging.value = false;
+  };
 
-  if (hasFormData) {
-    if (confirm('你输入的内容尚未保存，确定要取消吗？')) {
+  // 处理文件拖放
+  const handleDrop = event => {
+    isDragging.value = false;
+    const file = event.dataTransfer.files[0];
+    if (file && file.type.startsWith('image/')) {
+      processImageFile(file);
+    } else {
+      showToast('请上传图片文件', 'error');
+    }
+  };
+
+  // 处理图片文件（优化：使用ObjectURL替代FileReader，支持内存释放）
+  const processImageFile = file => {
+    // 验证文件类型
+    if (!IMAGE_CONFIG.ACCEPT_TYPES.includes(file.type)) {
+      showToast(
+        `请上传${IMAGE_CONFIG.ACCEPT_TYPES.map(type => type.split('/')[1]).join('/')}格式的图片`,
+        'error'
+      );
+      return;
+    }
+
+    // 验证文件大小
+    if (file.size > IMAGE_CONFIG.MAX_SIZE) {
+      showToast(`图片大小不能超过${IMAGE_CONFIG.MAX_SIZE / 1024 / 1024}MB`, 'error');
+      return;
+    }
+
+    try {
+      // 释放旧的URL
+      if (clothingItem.image && imageObjectURLs.value.includes(clothingItem.image)) {
+        URL.revokeObjectURL(clothingItem.image);
+      }
+      // 保存原始文件
+      selectedFile.value = file;
+      // 生成新的ObjectURL用于预览
+      const imageUrl = URL.createObjectURL(file);
+      clothingItem.image = imageUrl;
+      imageObjectURLs.value.push(imageUrl);
+      showToast('图片已选择', 'success');
+    } catch (error) {
+      showToast('图片处理失败，请重试', 'error');
+      console.error('图片处理错误:', error);
+    }
+  };
+
+  // 图片预览放大
+  const openImagePreview = url => {
+    previewImageUrl.value = url;
+    showImagePreview.value = true;
+  };
+
+  // 表单重置（含内存释放）
+  const resetForm = () => {
+    // 释放图片URL
+    if (clothingItem.image && imageObjectURLs.value.includes(clothingItem.image)) {
+      URL.revokeObjectURL(clothingItem.image);
+    }
+    // 清空表单数据
+    Object.assign(clothingItem, {
+      name: '',
+      category: '',
+      style: '',
+      color: '',
+      material: '',
+      size: '',
+      condition: '',
+      brand: '',
+      price: null,
+      purchaseDate: '',
+      notes: '',
+      image: '',
+    });
+    selectedSeasons.value = [];
+    imageObjectURLs.value = [];
+  };
+
+  // 验证错误信息缓存
+  const validationErrors = ref({
+    name: '',
+    category: '',
+    seasons: '',
+    price: '',
+    purchaseDate: '',
+  });
+
+  // 单个字段校验（实时提示）
+  const validateField = field => {
+    let error = '';
+    switch (field) {
+      case 'name':
+        error = clothingItem.name.trim() ? '' : '衣物名称不能为空';
+        break;
+      case 'category':
+        error = clothingItem.category ? '' : '衣物类别不能为空';
+        break;
+      case 'seasons':
+        error = selectedSeasons.value.length > 0 ? '' : '请选择至少一个适用季节';
+        break;
+      case 'price':
+        error =
+          clothingItem.price === null || !isNaN(Number(clothingItem.price))
+            ? ''
+            : '价格必须是有效数字';
+        break;
+      case 'purchaseDate':
+        error =
+          !clothingItem.purchaseDate || new Date(clothingItem.purchaseDate) <= new Date()
+            ? ''
+            : '购买日期不能晚于今天';
+        break;
+      default:
+        error = '';
+    }
+    validationErrors.value[field] = error;
+    return error;
+  };
+
+  // 监听表单字段变化，自动更新验证
+  watch(
+    [
+      () => clothingItem.name,
+      () => clothingItem.category,
+      () => clothingItem.price,
+      () => clothingItem.purchaseDate,
+    ],
+    () => {
+      validateField('name');
+      validateField('category');
+      validateField('price');
+      validateField('purchaseDate');
+    },
+    { deep: true }
+  );
+
+  // 监听季节变化，自动更新验证
+  watch(
+    () => selectedSeasons.value,
+    () => {
+      validateField('seasons');
+    },
+    { deep: true }
+  );
+
+  // 统一表单校验
+  const validateForm = () => {
+    const errors = [];
+    if (!clothingItem.name.trim()) errors.push('衣物名称不能为空');
+    if (!clothingItem.category) errors.push('衣物类别不能为空');
+    if (selectedSeasons.value.length === 0) errors.push('请选择至少一个适用季节');
+    if (clothingItem.price !== null && isNaN(Number(clothingItem.price))) {
+      errors.push('价格必须是有效数字');
+    }
+    if (clothingItem.purchaseDate && new Date(clothingItem.purchaseDate) > new Date()) {
+      errors.push('购买日期不能晚于今天');
+    }
+    return errors;
+  };
+
+  // 取消按钮处理（含确认提示）
+  const handleCancel = () => {
+    // 判断表单是否有未保存内容
+    const hasFormData =
+      Object.values(clothingItem).some(val => val !== '' && val !== null && val !== undefined) ||
+      selectedSeasons.value.length > 0;
+
+    if (hasFormData) {
+      if (confirm('你输入的内容尚未保存，确定要取消吗？')) {
+        resetForm();
+        window.location.href = ROUTES.HOME;
+      }
+    } else {
       resetForm();
       window.location.href = ROUTES.HOME;
     }
-  } else {
-    resetForm();
-    window.location.href = ROUTES.HOME;
-  }
-};
+  };
 
-// 保存衣物（含重试逻辑）
-const saveClothes = async () => {
-  if (isSaving.value) return;
-  isSaving.value = true;
+  // 保存衣物（含重试逻辑）
+  const saveClothes = async () => {
+    if (isSaving.value) return;
+    isSaving.value = true;
 
-  // 统一表单校验
-  const errors = validateForm();
-  if (errors.length > 0) {
-    showToast(errors.join('；'), 'error');
-    isSaving.value = false;
-    return;
-  }
+    // 统一表单校验
+    const errors = validateForm();
+    if (errors.length > 0) {
+      showToast(errors.join('；'), 'error');
+      isSaving.value = false;
+      return;
+    }
 
-  try {
-    const today = new Date().toISOString().split('T')[0];
-    let validatedMainImageUrl = null;
+    try {
+      const today = new Date().toISOString().split('T')[0];
+      let validatedMainImageUrl = null;
 
-    // 上传图片到服务器
-    if (selectedFile.value) {
-      // showToast('正在上传图片...', 'info');
-      const formData = new FormData();
-      formData.append('image', selectedFile.value);
-      
-      try {
+      // 上传图片到服务器
+      if (selectedFile.value) {
+        // showToast('正在上传图片...', 'info');
+        const formData = new FormData();
+        formData.append('image', selectedFile.value);
+
+        try {
           const uploadResponse = await clothingApi.uploadImage(formData);
           if (uploadResponse && uploadResponse.data && uploadResponse.data.imageUrl) {
             validatedMainImageUrl = uploadResponse.data.imageUrl;
           } else {
             throw new Error('图片上传失败，未获取到图片URL');
           }
-      } catch (uploadError) {
-        console.error('图片上传失败:', uploadError);
-        // showToast('图片上传失败，将使用占位符图片', 'warning');
+        } catch (uploadError) {
+          console.error('图片上传失败:', uploadError);
+          // showToast('图片上传失败，将使用占位符图片', 'warning');
+          validatedMainImageUrl = IMAGE_CONFIG.PLACEHOLDER_URL;
+        }
+      } else {
         validatedMainImageUrl = IMAGE_CONFIG.PLACEHOLDER_URL;
       }
-    } else {
-      validatedMainImageUrl = IMAGE_CONFIG.PLACEHOLDER_URL;
-    }
 
-    const seasonIds = [...selectedSeasons.value] || [];
-    const itemToSubmit = {
-      name: clothingItem.name,
-      category: clothingItem.category,
-      color: clothingItem.color || null,
-      style: clothingItem.style || null,
-      condition: clothingItem.condition || null,
-      brand: clothingItem.brand,
-      notes: clothingItem.notes,
-      imageUrls: validatedMainImageUrl ? [validatedMainImageUrl] : [],
-      mainImageUrl: validatedMainImageUrl,
-      purchaseDate: clothingItem.purchaseDate || today,
-      favorite: false,
-      season: seasonIds,
-      seasons: seasonIds,
-      material: clothingItem.material || null,
-      size: clothingItem.size || null,
-      price: clothingItem.price ? parseFloat(clothingItem.price) : null,
-    };
-    // 重试逻辑（最多2次）
-    let retryCount = 0;
-    const maxRetries = 2;
-    let submitSuccess = false;
+      const seasonIds = [...selectedSeasons.value] || [];
+      const itemToSubmit = {
+        name: clothingItem.name,
+        category: clothingItem.category,
+        color: clothingItem.color || null,
+        style: clothingItem.style || null,
+        condition: clothingItem.condition || null,
+        brand: clothingItem.brand,
+        notes: clothingItem.notes,
+        imageUrls: validatedMainImageUrl ? [validatedMainImageUrl] : [],
+        mainImageUrl: validatedMainImageUrl,
+        purchaseDate: clothingItem.purchaseDate || today,
+        favorite: false,
+        season: seasonIds,
+        seasons: seasonIds,
+        material: clothingItem.material || null,
+        size: clothingItem.size || null,
+        price: clothingItem.price ? parseFloat(clothingItem.price) : null,
+      };
+      // 重试逻辑（最多2次）
+      let retryCount = 0;
+      const maxRetries = 2;
+      let submitSuccess = false;
 
-    while (retryCount <= maxRetries && !submitSuccess) {
-      try {
-        await clothingStore.addClothingItem(itemToSubmit);
-        submitSuccess = true;
-      } catch (error) {
-        retryCount++;
-        if (retryCount > maxRetries) {
-          throw error;
+      while (retryCount <= maxRetries && !submitSuccess) {
+        try {
+          await clothingStore.addClothingItem(itemToSubmit);
+          submitSuccess = true;
+        } catch (error) {
+          retryCount++;
+          if (retryCount > maxRetries) {
+            throw error;
+          }
+          showToast(`提交失败，正在重试（${retryCount}/${maxRetries}）`, 'warning');
+          await new Promise(resolve => setTimeout(resolve, 1000));
         }
-        showToast(`提交失败，正在重试（${retryCount}/${maxRetries}）`, 'warning');
-        await new Promise(resolve => setTimeout(resolve, 1000));
       }
+
+      showToast('衣物添加成功', 'success');
+      await nextTick();
+
+      // 重置表单
+      // resetForm();
+    } catch (error) {
+      showToast('添加失败，请稍后重试', 'error');
+      console.error('添加衣物失败:', error);
+    } finally {
+      isSaving.value = false;
     }
+  };
 
-    showToast('衣物添加成功', 'success');
-    await nextTick();
-    
-    // 重置表单
-    // resetForm();
-  } catch (error) {
-    showToast('添加失败，请稍后重试', 'error');
-    console.error('添加衣物失败:', error);
-  } finally {
-    isSaving.value = false;
-  }
-};
-
-// 组件卸载时清理资源
-onUnmounted(() => {
-  // 释放所有生成的ObjectURL
-  imageObjectURLs.value.forEach(url => {
-    URL.revokeObjectURL(url);
+  // 组件卸载时清理资源
+  onUnmounted(() => {
+    // 释放所有生成的ObjectURL
+    imageObjectURLs.value.forEach(url => {
+      URL.revokeObjectURL(url);
+    });
+    imageObjectURLs.value = [];
   });
-  imageObjectURLs.value = [];
-});
 </script>

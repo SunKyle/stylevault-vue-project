@@ -35,8 +35,8 @@ clothingApi.batchUpdate = async items => {
 clothingApi.uploadImage = async formData => {
   return apiClient.post(API_ENDPOINTS.clothing.uploadImage, formData, {
     headers: {
-      'Content-Type': 'multipart/form-data'
-    }
+      'Content-Type': 'multipart/form-data',
+    },
   });
 };
 

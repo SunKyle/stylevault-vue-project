@@ -8,13 +8,13 @@ const mockWeatherData = {
     temperature: 25,
     humidity: 50,
     windSpeed: 10,
-    location: '北京'
+    location: '北京',
   },
   forecast: [
     { date: '2024-05-20', weather: '晴天', temperature: 26 },
     { date: '2024-05-21', weather: '多云', temperature: 24 },
-    { date: '2024-05-22', weather: '小雨', temperature: 20 }
-  ]
+    { date: '2024-05-22', weather: '小雨', temperature: 20 },
+  ],
 };
 
 // 模拟生成天气推荐搭配的函数
@@ -31,7 +31,7 @@ const generateMockOutfitRecommendations = (weather, clothes) => {
       items: [],
       weather: condition,
       temperature: temperature,
-      rating: Math.floor(Math.random() * 5) + 1
+      rating: Math.floor(Math.random() * 5) + 1,
     };
 
     // 根据温度添加合适的衣物
@@ -85,11 +85,11 @@ const weatherApi = {
       // 在实际项目中，这里应该调用真实的天气API
       // const response = await apiClient.get(`/weather/current?lat=${location.lat}&lon=${location.lng}`);
       // return response.data;
-      
+
       // 使用模拟数据
       return {
         ...mockWeatherData.currentWeather,
-        location: location.name
+        location: location.name,
       };
     } catch (error) {
       console.error('获取当前天气失败:', error);
@@ -103,7 +103,7 @@ const weatherApi = {
       // 在实际项目中，这里应该调用真实的天气API
       // const response = await apiClient.get(`/weather/forecast?lat=${location.lat}&lon=${location.lng}`);
       // return response.data;
-      
+
       // 使用模拟数据
       return mockWeatherData.forecast;
     } catch (error) {
@@ -118,14 +118,14 @@ const weatherApi = {
       // 在实际项目中，这里应该调用真实的推荐API
       // const response = await apiClient.post('/outfit-recommendations/weather', { weather, clothes });
       // return response.data;
-      
+
       // 使用模拟数据生成推荐
       return generateMockOutfitRecommendations(weather, clothes);
     } catch (error) {
       console.error('获取天气推荐搭配失败:', error);
       throw new Error('获取天气推荐搭配失败');
     }
-  }
+  },
 };
 
 export default weatherApi;

@@ -18,10 +18,7 @@
             class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
           />
           <div v-else class="text-center p-4">
-            <font-awesome-icon
-              :icon="['fas', 'image']"
-              class="text-gray-400 text-3xl mb-2"
-            />
+            <font-awesome-icon :icon="['fas', 'image']" class="text-gray-400 text-3xl mb-2" />
             <p class="text-xs text-gray-500">暂无图片</p>
           </div>
         </div>
@@ -57,87 +54,90 @@
 </template>
 
 <script setup>
-/**
- * 图片上传组件
- * 
- * 用于上传、预览和管理衣物图片，支持图片预览、清空和上传验证
- * 
- * @component
- * @example
- * <ImageUpload
- *   :image="form.image"
- *   :read-only="false"
- *   @update:image="updateImage"
- * />
- */
-import { ref, watch } from 'vue';
-import { showToast } from '@/utils/toast';
+  /**
+   * 图片上传组件
+   *
+   * 用于上传、预览和管理衣物图片，支持图片预览、清空和上传验证
+   *
+   * @component
+   * @example
+   * <ImageUpload
+   *   :image="form.image"
+   *   :read-only="false"
+   *   @update:image="updateImage"
+   * />
+   */
+  import { ref, watch } from 'vue';
+  import { showToast } from '@/utils/toast';
 
-const props = defineProps({
-  image: {
-    type: String,
-    default: '',
-  },
-  readOnly: {
-    type: Boolean,
-    default: false,
-  },
-  altText: {
-    type: String,
-    default: '',
-  },
-});
+  const props = defineProps({
+    image: {
+      type: String,
+      default: '',
+    },
+    readOnly: {
+      type: Boolean,
+      default: false,
+    },
+    altText: {
+      type: String,
+      default: '',
+    },
+  });
 
-const emit = defineEmits(['update:image']);
+  const emit = defineEmits(['update:image']);
 
-const localImage = ref(props.image);
-const fileInput = ref(null);
+  const localImage = ref(props.image);
+  const fileInput = ref(null);
 
-// 当props.image变化时，更新localImage
-watch(() => props.image, (newImage) => {
-  localImage.value = newImage;
-});
-
-// 当localImage变化时，更新props
-watch(localImage, (newImage) => {
-  emit('update:image', newImage);
-});
-
-// 触发文件选择
-const triggerFileInput = () => {
-  fileInput.value?.click();
-};
-
-// 清空图片
-const clearImage = () => {
-  localImage.value = '';
-};
-
-// 处理图片上传
-const handleImageUpload = (event) => {
-  const file = event.target.files[0];
-  if (file) {
-    // 验证文件大小（限制2MB）
-    if (file.size > 2 * 1024 * 1024) {
-      showToast('图片大小不能超过2MB', 'error');
-      return;
+  // 当props.image变化时，更新localImage
+  watch(
+    () => props.image,
+    newImage => {
+      localImage.value = newImage;
     }
+  );
 
-    // 验证文件类型
-    if (!file.type.startsWith('image/')) {
-      showToast('请选择图片文件', 'error');
-      return;
+  // 当localImage变化时，更新props
+  watch(localImage, newImage => {
+    emit('update:image', newImage);
+  });
+
+  // 触发文件选择
+  const triggerFileInput = () => {
+    fileInput.value?.click();
+  };
+
+  // 清空图片
+  const clearImage = () => {
+    localImage.value = '';
+  };
+
+  // 处理图片上传
+  const handleImageUpload = event => {
+    const file = event.target.files[0];
+    if (file) {
+      // 验证文件大小（限制2MB）
+      if (file.size > 2 * 1024 * 1024) {
+        showToast('图片大小不能超过2MB', 'error');
+        return;
+      }
+
+      // 验证文件类型
+      if (!file.type.startsWith('image/')) {
+        showToast('请选择图片文件', 'error');
+        return;
+      }
+
+      const reader = new FileReader();
+      reader.onload = e => {
+        const dataUrl = e.target.result;
+
+        // 显示实际的图片预览，不在上传时替换为占位符
+        // 占位符替换将在表单提交时进行
+        localImage.value = dataUrl;
+      };
+      reader.readAsDataURL(file);
     }
-
-    const reader = new FileReader();
-    reader.onload = e => {
-      const dataUrl = e.target.result;
-      
-      // 显示实际的图片预览，不在上传时替换为占位符
-      // 占位符替换将在表单提交时进行
-      localImage.value = dataUrl;
-    };
-    reader.readAsDataURL(file);
-  }
-};
+  };
 </script>

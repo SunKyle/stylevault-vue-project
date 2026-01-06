@@ -3,13 +3,10 @@
     <!-- 标题栏 -->
     <div class="flex items-center justify-between mb-3">
       <div class="flex items-center space-x-3">
-        <div class="w-10 h-10 rounded-full flex items-center justify-center 
-            bg-gradient-to-br from-white to-white/75 
-            text-primary shadow-xs hover:shadow-sm transition-all duration-300">          
-          <img
-            :src= "'/src/assets/icons/' + props.categoryIcon"
-            class="w-6 h-6 object-contain"
-          />
+        <div
+          class="w-10 h-10 rounded-full flex items-center justify-center bg-gradient-to-br from-white to-white/75 text-primary shadow-xs hover:shadow-sm transition-all duration-300"
+        >
+          <img :src="'/src/assets/icons/' + props.categoryIcon" class="w-6 h-6 object-contain" />
         </div>
         <div>
           <h2 class="text-xl font-bold">{{ categoryName }}</h2>
@@ -75,33 +72,32 @@
 </template>
 
 <script setup>
-const props = defineProps({
-  isSearchMode: Boolean,
-  categoryName: String,
-  itemCount: Number,
-  categoryIcon: String,
-  currentFilter: String,
-  currentSort: [String, null]
-});
+  const props = defineProps({
+    isSearchMode: Boolean,
+    categoryName: String,
+    itemCount: Number,
+    categoryIcon: String,
+    currentFilter: String,
+    currentSort: [String, null],
+  });
 
-
-const emit = defineEmits(['close', 'apply-filter', 'apply-sort']);
+  const emit = defineEmits(['close', 'apply-filter', 'apply-sort']);
 </script>
 
 <style scoped>
-/* 继承父组件的滚动条样式 */
-.custom-scrollbar {
-  scrollbar-width: thin;
-  scrollbar-color: rgba(255, 255, 255, 0.1) transparent;
-}
-.custom-scrollbar::-webkit-scrollbar {
-  height: 4px;
-}
-.custom-scrollbar::-webkit-scrollbar-track {
-  background: transparent;
-}
-.custom-scrollbar::-webkit-scrollbar-thumb {
-  background-color: rgba(255, 255, 255, 0.1);
-  border-radius: 2px;
-}
+  /* 继承父组件的滚动条样式 */
+  .custom-scrollbar {
+    scrollbar-width: thin;
+    scrollbar-color: rgba(255, 255, 255, 0.1) transparent;
+  }
+  .custom-scrollbar::-webkit-scrollbar {
+    height: 4px;
+  }
+  .custom-scrollbar::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  .custom-scrollbar::-webkit-scrollbar-thumb {
+    background-color: rgba(255, 255, 255, 0.1);
+    border-radius: 2px;
+  }
 </style>

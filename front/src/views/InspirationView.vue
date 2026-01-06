@@ -42,7 +42,9 @@
             ></div>
 
             <!-- 动态装饰点 - 增加灵动性 -->
-            <div class="absolute top-1/4 right-1/4 w-3 h-3 bg-primary rounded-full animate-ping"></div>
+            <div
+              class="absolute top-1/4 right-1/4 w-3 h-3 bg-primary rounded-full animate-ping"
+            ></div>
             <div
               class="absolute bottom-1/4 left-1/4 w-3 h-3 bg-secondary rounded-full animate-ping"
               style="animation-delay: 0.7s"
@@ -60,7 +62,9 @@
               </div>
 
               <!-- 标题文字 -->
-              <h1 class="text-3xl md:text-4xl lg:text-5xl font-bold mb-4 tracking-tight inline-block">
+              <h1
+                class="text-3xl md:text-4xl lg:text-5xl font-bold mb-4 tracking-tight inline-block"
+              >
                 <!-- 主标题文本 - 柔和渐变效果 -->
                 <span
                   class="bg-clip-text text-transparent bg-gradient-to-r from-primary via-primary-dark to-secondary"
@@ -88,17 +92,27 @@
               <button
                 @click="currentView = 'saved'"
                 class="px-6 py-2 rounded-full font-medium transition-all duration-300"
-                :class="currentView === 'saved' ? 'bg-white text-primary shadow-md' : 'text-gray-600 hover:text-gray-800'"
+                :class="
+                  currentView === 'saved'
+                    ? 'bg-white text-primary shadow-md'
+                    : 'text-gray-600 hover:text-gray-800'
+                "
               >
-                <i class="fas fa-heart mr-2"></i> 我的搭配
+                <i class="fas fa-heart mr-2"></i>
+                我的搭配
               </button>
               <button
                 @click="currentView = 'create'"
                 :disabled="clothingItems.length === 0"
                 class="px-6 py-2 rounded-full font-medium transition-all duration-300"
-                :class="currentView === 'create' ? 'bg-white text-primary shadow-md' : 'text-gray-600 hover:text-gray-800 disabled:opacity-50 disabled:cursor-not-allowed'"
+                :class="
+                  currentView === 'create'
+                    ? 'bg-white text-primary shadow-md'
+                    : 'text-gray-600 hover:text-gray-800 disabled:opacity-50 disabled:cursor-not-allowed'
+                "
               >
-                <i class="fas fa-plus mr-2"></i> 创建搭配
+                <i class="fas fa-plus mr-2"></i>
+                创建搭配
               </button>
             </div>
           </div>
@@ -106,10 +120,10 @@
           <!-- 已保存搭配展示区域 -->
           <div v-show="currentView === 'saved'" class="transition-all duration-500 ease-in-out">
             <SavedOutfits
-            :loadMore="loadMoreOutfits"
-            :onLoadOutfit="loadOutfit"
-            :onDeleteOutfit="deleteOutfit"
-            @scroll-to-create="switchToCreateView"
+              :loadMore="loadMoreOutfits"
+              :onLoadOutfit="loadOutfit"
+              :onDeleteOutfit="deleteOutfit"
+              @scroll-to-create="switchToCreateView"
             />
           </div>
 
@@ -124,8 +138,12 @@
               </div>
               <h3 class="text-xl font-semibold text-gray-800 mb-2">还没有添加衣物</h3>
               <p class="text-gray-600 mb-6">请先添加一些衣物，然后开始创建你的搭配方案</p>
-              <router-link to="/clothing/add" class="inline-flex items-center px-6 py-3 bg-primary text-white font-medium rounded-lg hover:bg-primary-dark transition-colors">
-                <i class="fas fa-plus mr-2"></i> 添加衣物
+              <router-link
+                to="/clothing/add"
+                class="inline-flex items-center px-6 py-3 bg-primary text-white font-medium rounded-lg hover:bg-primary-dark transition-colors"
+              >
+                <i class="fas fa-plus mr-2"></i>
+                添加衣物
               </router-link>
             </div>
           </div>

@@ -66,7 +66,7 @@ const createDebouncer = (func, delay) => {
 // 3. 统一错误处理（保留核心，简化非必要判断）
 const handleApiError = (error, defaultMessage, store) => {
   let errorMessage = defaultMessage;
-  
+
   if (!navigator.onLine) {
     errorMessage = '网络连接失败，请检查您的网络';
   } else if (error.response?.data?.message) {
@@ -77,7 +77,7 @@ const handleApiError = (error, defaultMessage, store) => {
 
   if (store) store.setError(errorMessage);
   showToast(errorMessage, 'error');
-  
+
   const apiError = new Error(errorMessage);
   apiError.original = error;
   throw apiError;
@@ -98,7 +98,7 @@ const utils = {
     const original = { ...list[index] };
     list[index] = { ...original, ...updates };
 
-    return { rollback: () => list[index] = original };
+    return { rollback: () => (list[index] = original) };
   },
 
   // 乐观添加（简化逻辑）
@@ -113,12 +113,12 @@ const utils = {
         const index = list.findIndex(i => i.id === tempId);
         if (index !== -1) list.splice(index, 1);
       },
-      replace: (newItem) => {
+      replace: newItem => {
         const index = list.findIndex(i => i.id === tempId);
         if (index !== -1) list.splice(index, 1, newItem);
-      }
+      },
     };
-  }
+  },
 };
 
 // 5. 常量定义（保留核心）
@@ -126,8 +126,8 @@ const CACHE_KEYS = {
   CATEGORIES: 'categories',
   CLOTHING_ITEMS: 'clothingItems',
   FAVORITE_ITEMS: 'favoriteItems',
-  ITEM_DETAIL: (id) => `item_${id}`,
-  CATEGORY_ITEMS: (categoryId) => `items_category_${categoryId}`
+  ITEM_DETAIL: id => `item_${id}`,
+  CATEGORY_ITEMS: categoryId => `items_category_${categoryId}`,
 };
 
 const DEFAULT_DEBOUNCE_DELAY = 300;
@@ -153,17 +153,17 @@ export const useClothingStore = defineStore('clothing', {
       itemsPerPage: 9999999,
       totalItems: 0,
       totalPages: 0,
-      useServerPagination: false
+      useServerPagination: false,
     },
 
     _fetchClothingItemsPromise: null,
-    _searchDebouncer: null
+    _searchDebouncer: null,
   }),
 
   getters: {
     // 获取选中的衣物（去掉冗余数组校验）
     selectedItems: state => {
-      return state.selectedCategory 
+      return state.selectedCategory
         ? state.clothingItems.filter(item => item && item.category === state.selectedCategory)
         : state.clothingItems;
     },
@@ -202,7 +202,7 @@ export const useClothingStore = defineStore('clothing', {
     // 分页衣物（简化）
     paginatedItems: state => {
       if (state.pagination.useServerPagination) return state.clothingItems;
-      
+
       const startIndex = (state.pagination.currentPage - 1) * state.pagination.itemsPerPage;
       const endIndex = startIndex + state.pagination.itemsPerPage;
       return state.clothingItems.slice(startIndex, endIndex);
@@ -210,8 +210,8 @@ export const useClothingStore = defineStore('clothing', {
 
     // 总页数（简化）
     totalPages: state => {
-      return state.pagination.useServerPagination 
-        ? state.pagination.totalPages 
+      return state.pagination.useServerPagination
+        ? state.pagination.totalPages
         : Math.ceil(state.clothingItems.length / state.pagination.itemsPerPage);
     },
 
@@ -220,12 +220,13 @@ export const useClothingStore = defineStore('clothing', {
       const totalValue = state.clothingItems.reduce((sum, item) => sum + (item?.price || 0), 0);
       return {
         total: state.clothingItems.length,
-        categories: [...new Set(state.clothingItems.map(item => item?.category).filter(Boolean))].length,
+        categories: [...new Set(state.clothingItems.map(item => item?.category).filter(Boolean))]
+          .length,
         totalValue,
         averagePrice: state.clothingItems.length ? totalValue / state.clothingItems.length : 0,
-        favoriteCount: state.clothingItems.filter(item => item?.isFavorite).length
+        favoriteCount: state.clothingItems.filter(item => item?.isFavorite).length,
       };
-    }
+    },
   },
 
   actions: {
@@ -299,13 +300,13 @@ export const useClothingStore = defineStore('clothing', {
       try {
         const response = await clothingApi.getCategories();
         const categoriesData = response.data || response || [];
-        
+
         this.categories = categoriesData.map(category => ({
           id: category.id,
           name: category.name || category.display_name || '未命名类别',
           icon: category.icon || 'shirt',
           enabled: category.enabled ?? category.is_active ?? true,
-          ...category
+          ...category,
         }));
 
         cacheManager.set(CACHE_KEYS.CATEGORIES, this.categories);
@@ -336,19 +337,21 @@ export const useClothingStore = defineStore('clothing', {
 
       try {
         // 简化分页参数
-        const fetchParams = this.pagination.useServerPagination 
+        const fetchParams = this.pagination.useServerPagination
           ? { page: this.pagination.currentPage, limit: this.pagination.itemsPerPage }
           : {};
 
         this._fetchClothingItemsPromise = clothingApi.getAll(fetchParams);
         const response = await this._fetchClothingItemsPromise;
-        
+
         const items = response.items || response.data?.items || response.data || response || [];
         this.clothingItems = items;
-        
+
         this.setPagination({
           totalItems: response.pagination?.totalItems || items.length,
-          totalPages: response.pagination?.totalPages || Math.ceil(items.length / this.pagination.itemsPerPage)
+          totalPages:
+            response.pagination?.totalPages ||
+            Math.ceil(items.length / this.pagination.itemsPerPage),
         });
 
         cacheManager.set(CACHE_KEYS.CLOTHING_ITEMS, this.clothingItems);
@@ -383,10 +386,10 @@ export const useClothingStore = defineStore('clothing', {
           const updatedItem = await clothingApi.update(id, data);
           const index = this.clothingItems.findIndex(item => item.id === id);
           if (index !== -1) this.clothingItems[index] = updatedItem;
-          
+
           cacheManager.delete(CACHE_KEYS.ITEM_DETAIL(id));
           cacheManager.delete(CACHE_KEYS.CLOTHING_ITEMS);
-          
+
           showToast('衣物更新成功', 'success');
           return updatedItem;
         } catch (error) {
@@ -434,7 +437,7 @@ export const useClothingStore = defineStore('clothing', {
         itemId = id;
         itemUpdates = updates;
       }
-      
+
       if (!itemId || !itemUpdates) {
         const error = new Error('更新数据不能为空');
         handleApiError(error, '更新衣物失败', this);
@@ -450,7 +453,7 @@ export const useClothingStore = defineStore('clothing', {
 
         cacheManager.delete(CACHE_KEYS.ITEM_DETAIL(itemId));
         cacheManager.delete(CACHE_KEYS.CLOTHING_ITEMS);
-        
+
         showToast('衣物更新成功', 'success');
         return updatedItem;
       } catch (error) {
@@ -477,11 +480,11 @@ export const useClothingStore = defineStore('clothing', {
         await clothingApi.delete(id);
         cacheManager.delete(CACHE_KEYS.ITEM_DETAIL(id));
         cacheManager.delete(CACHE_KEYS.CLOTHING_ITEMS);
-        
+
         if (deletedItem?.category) {
           cacheManager.delete(CACHE_KEYS.CATEGORY_ITEMS(deletedItem.category));
         }
-        
+
         showToast('衣物删除成功', 'success');
         return true;
       } catch (error) {
@@ -524,7 +527,7 @@ export const useClothingStore = defineStore('clothing', {
     async preloadData() {
       const isItemsExpired = !cacheManager.get(CACHE_KEYS.CLOTHING_ITEMS);
       const isCatesExpired = !cacheManager.get(CACHE_KEYS.CATEGORIES);
-      
+
       if (isItemsExpired || isCatesExpired) {
         await Promise.all([this.fetchCategories(), this.fetchClothingItems()]);
       }
@@ -550,7 +553,7 @@ export const useClothingStore = defineStore('clothing', {
         const items = await clothingApi.getByCategory(categoryId);
         this.itemsByCategory[categoryId] = items || [];
         cacheManager.set(cacheKey, this.itemsByCategory[categoryId]);
-        
+
         return this.itemsByCategory[categoryId];
       } catch (error) {
         handleApiError(error, '获取分类衣物失败', this);
@@ -594,21 +597,19 @@ export const useClothingStore = defineStore('clothing', {
       if (!targetItem) return;
 
       // 乐观更新，只更新favorite字段
-      const { rollback } = utils.optimisticUpdate(
-        this.clothingItems, 
-        id, 
-        { isFavorite: !targetItem.isFavorite }
-      );
+      const { rollback } = utils.optimisticUpdate(this.clothingItems, id, {
+        isFavorite: !targetItem.isFavorite,
+      });
 
       try {
         const updatedItem = await clothingApi.toggleFavorite(id);
-        
+
         // API调用成功后，我们不需要再次更新数组，因为乐观更新已经是正确的
         // 只需要更新缓存和显示提示即可
         cacheManager.delete(CACHE_KEYS.ITEM_DETAIL(id));
         cacheManager.delete(CACHE_KEYS.CLOTHING_ITEMS);
         cacheManager.delete(CACHE_KEYS.FAVORITE_ITEMS);
-        
+
         showToast(updatedItem.isFavorite ? '收藏成功' : '已取消收藏', 'success');
         return updatedItem;
       } catch (error) {
@@ -634,6 +635,6 @@ export const useClothingStore = defineStore('clothing', {
     destroy() {
       cacheManager.destroy();
       this.$reset();
-    }
-  }
+    },
+  },
 });

@@ -1,6 +1,5 @@
 <template>
   <div class="mb-12">
-
     <!-- 已保存搭配区域 -->
     <div class="mb-12">
       <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4">
@@ -173,7 +172,9 @@
           <!-- 分页控制 -->
           <div class="mt-10 relative z-10">
             <!-- 每页数量选择 -->
-            <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
+            <div
+              class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6"
+            >
               <div class="flex items-center gap-3">
                 <span class="text-sm text-gray-600">每页显示:</span>
                 <select
@@ -213,7 +214,7 @@
                     'w-10 h-10 flex items-center justify-center rounded-xl transition-all duration-300 shadow-sm',
                     currentPage === page
                       ? 'bg-primary text-white font-medium shadow-md'
-                      : 'border border-gray-300 hover:border-primary hover:bg-primary/5'
+                      : 'border border-gray-300 hover:border-primary hover:bg-primary/5',
                   ]"
                 >
                   {{ page }}
@@ -274,23 +275,27 @@
   const props = defineProps({
     onLoadOutfit: {
       type: Function,
-      required: true
+      required: true,
     },
     onDeleteOutfit: {
       type: Function,
-      required: true
-    }
+      required: true,
+    },
   });
 
   const inspirationStore = useInspirationStore();
   const enumsStore = useEnumsStore();
-  const { isLoading } = inspirationStore;
   const savedOutfits = computed(() => inspirationStore.savedOutfits);
   const visibleOutfits = computed(() => inspirationStore.visibleOutfits);
   const seasonOptions = computed(() => enumsStore.getOptions('seasons'));
   const styleOptions = computed(() => enumsStore.getOptions('styles'));
   const sceneOptions = computed(() => enumsStore.getOptions('scenes'));
-  const searchQuery = computed(() => inspirationStore.filters.search);
+  const searchQuery = computed({
+    get: () => inspirationStore.filters.search,
+    set: value => {
+      inspirationStore.filters.search = value;
+    },
+  });
   const filters = computed(() => inspirationStore.filters);
   const showFilterPanel = ref(false);
 
@@ -298,15 +303,15 @@
   const pageSizeOptions = [4, 8, 12, 16, 20, 24];
   const pageSize = computed({
     get: () => inspirationStore.pagination.pageSize,
-    set: (value) => {
+    set: value => {
       inspirationStore.pagination.pageSize = value;
-    }
+    },
   });
   const currentPage = computed({
     get: () => inspirationStore.pagination.page,
-    set: (value) => {
+    set: value => {
       inspirationStore.pagination.page = value;
-    }
+    },
   });
 
   // 计算属性
@@ -328,30 +333,30 @@
     const pages = [];
     const total = totalPages.value;
     const current = currentPage.value;
-    
+
     // 始终显示第一页
     if (total > 0) {
       pages.push(1);
     }
-    
+
     // 显示当前页附近的页码
     if (current > 3) {
       pages.push('...');
     }
-    
+
     for (let i = Math.max(2, current - 2); i <= Math.min(total - 1, current + 2); i++) {
       pages.push(i);
     }
-    
+
     if (current < total - 2) {
       pages.push('...');
     }
-    
+
     // 始终显示最后一页
     if (total > 1) {
       pages.push(total);
     }
-    
+
     return pages;
   });
 
@@ -361,19 +366,20 @@
   });
 
   // 监听筛选条件变化，重置分页
-  watch(() => [
-    filters.value.scene.length,
-    filters.value.season.length,
-    filters.value.style.length,
-    filters.value.search
-  ], () => {
-    currentPage.value = 1;
-  });
+  watch(
+    () => [
+      filters.value.scene.length,
+      filters.value.season.length,
+      filters.value.style.length,
+      filters.value.search,
+    ],
+    () => {
+      currentPage.value = 1;
+    }
+  );
 
   // 事件定义
-  defineEmits([
-    'scroll-to-create'
-  ]);
+  defineEmits(['scroll-to-create']);
 
   // 筛选和搜索功能方法
   // 切换筛选面板显示
@@ -418,9 +424,9 @@
     const optionsMap = {
       scene: sceneOptions.value || [],
       season: seasonOptions.value || [],
-      style: styleOptions.value || []
+      style: styleOptions.value || [],
     };
-    
+
     const options = optionsMap[type] || [];
     const option = options.find(opt => opt.value === value);
     return option ? option.label : value;

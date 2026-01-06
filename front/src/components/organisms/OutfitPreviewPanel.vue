@@ -146,102 +146,99 @@
       <div
         class="bg-gradient-to-br from-indigo-50/50 via-white to-purple-50/50 rounded-2xl p-5 mb-5 border border-indigo-100 shadow-sm backdrop-blur-sm"
       >
-                 
-          <!-- 搭配信息编辑 -->
+        <!-- 搭配信息编辑 -->
+        <div class="space-y-4">
+          <h4 class="text-sm font-bold text-indigo-900 flex items-center">
+            <div
+              class="w-6 h-6 rounded-full bg-gradient-to-r from-indigo-500/10 to-purple-500/10 flex items-center justify-center mr-2 shadow-sm"
+            >
+              <font-awesome-icon :icon="['fas', 'tag']" class="text-indigo-600 text-xs" />
+            </div>
+            搭配信息
+          </h4>
           <div class="space-y-4">
-            <h4 class="text-sm font-bold text-indigo-900 flex items-center">
-              <div
-                class="w-6 h-6 rounded-full bg-gradient-to-r from-indigo-500/10 to-purple-500/10 flex items-center justify-center mr-2 shadow-sm"
-              >
-                <font-awesome-icon :icon="['fas', 'tag']" class="text-indigo-600 text-xs" />
-              </div>
-              搭配信息
-            </h4>
-            <div class="space-y-4">
-              <div>
-                <label class="block text-xs font-medium text-indigo-700 mb-1.5">
-                  搭配名称
-                  <span class="text-red-500 font-bold ml-1">*</span>
-                </label>
-                <div class="relative">
-                  <input
-                    :value="outfitName"
-                    @input="$emit('update:outfitName', $event.target.value)"
-                    type="text"
-                    class="w-full px-4 py-3 border border-indigo-200 rounded-xl focus:ring-2 focus:ring-indigo-300/50 focus:border-indigo-400 text-sm bg-white/80 backdrop-blur-sm shadow-sm transition-all duration-300 hover:shadow-md"
-                    placeholder="为你的搭配起个名字"
-                  />
-                  <div
-                    class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none"
-                  >
-                    <font-awesome-icon :icon="['fas', 'pen']" class="text-indigo-400 text-xs" />
-                  </div>
-                </div>
-              </div>
-
-              <!-- 使用场景：从输入框改为多选按钮组，调整为一行显示3个 -->
-              <div>
-                <label class="block text-xs font-medium text-indigo-700 mb-1.5">使用场景</label>
-                <div class="grid grid-cols-3 gap-2">
-                  <button
-                    v-for="scene in sceneOptions"
-                    :key="scene.value"
-                    @click="toggleScene(scene.value)"
-                    class="py-2 px-3 rounded-lg text-sm font-medium transition-all duration-300 flex items-center justify-center"
-                    :class="
-                      outfitScene && Array.isArray(outfitScene) && outfitScene.includes(scene.value)
-                        ? 'bg-teal-500 text-white shadow-md'
-                        : 'bg-teal-50 text-teal-700 hover:bg-teal-100 border border-teal-100'
-                    "
-                  >
-                    <span>{{ scene.label }}</span>
-                  </button>
-                </div>
-              </div>
-
-              <!-- 季节选择：从单选改为多选 -->
-              <div>
-                <label class="block text-xs font-medium text-indigo-700 mb-1.5">适用季节</label>
-                <div class="grid grid-cols-2 gap-2">
-                  <button
-                    v-for="season in seasonOptions"
-                    :key="season.value"
-                    @click="toggleSeason(season.value)"
-                    class="py-2 px-3 rounded-lg text-sm font-medium transition-all duration-300 flex items-center justify-center"
-                    :class="
-                      outfitSeason &&
-                      Array.isArray(outfitSeason) &&
-                      outfitSeason.includes(season.value)
-                        ? 'bg-indigo-500 text-white shadow-md'
-                        : 'bg-indigo-50 text-indigo-700 hover:bg-indigo-100 border border-indigo-100'
-                    "
-                  >
-                    <span>{{ season.label }}</span>
-                  </button>
-                </div>
-              </div>
-
-              <!-- 风格选择：从单选改为多选 -->
-              <div>
-                <label class="block text-xs font-medium text-indigo-700 mb-1.5">搭配风格</label>
-                <div class="grid grid-cols-3 gap-2">
-                  <button
-                    v-for="style in styleOptions"
-                    :key="style.value"
-                    @click="toggleStyle(style.value)"
-                    class="py-2 px-3 rounded-lg text-sm font-medium transition-all duration-300 flex items-center justify-center"
-                    :class="
-                      outfitStyle && Array.isArray(outfitStyle) && outfitStyle.includes(style.value)
-                        ? 'bg-purple-500 text-white shadow-md'
-                        : 'bg-purple-50 text-purple-700 hover:bg-purple-100 border border-purple-100'
-                    "
-                  >
-                    <span>{{ style.label }}</span>
-                  </button>
+            <div>
+              <label class="block text-xs font-medium text-indigo-700 mb-1.5">
+                搭配名称
+                <span class="text-red-500 font-bold ml-1">*</span>
+              </label>
+              <div class="relative">
+                <input
+                  :value="outfitName"
+                  @input="$emit('update:outfitName', $event.target.value)"
+                  type="text"
+                  class="w-full px-4 py-3 border border-indigo-200 rounded-xl focus:ring-2 focus:ring-indigo-300/50 focus:border-indigo-400 text-sm bg-white/80 backdrop-blur-sm shadow-sm transition-all duration-300 hover:shadow-md"
+                  placeholder="为你的搭配起个名字"
+                />
+                <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
+                  <font-awesome-icon :icon="['fas', 'pen']" class="text-indigo-400 text-xs" />
                 </div>
               </div>
             </div>
+
+            <!-- 使用场景：从输入框改为多选按钮组，调整为一行显示3个 -->
+            <div>
+              <label class="block text-xs font-medium text-indigo-700 mb-1.5">使用场景</label>
+              <div class="grid grid-cols-3 gap-2">
+                <button
+                  v-for="scene in sceneOptions"
+                  :key="scene.value"
+                  @click="toggleScene(scene.value)"
+                  class="py-2 px-3 rounded-lg text-sm font-medium transition-all duration-300 flex items-center justify-center"
+                  :class="
+                    outfitScene && Array.isArray(outfitScene) && outfitScene.includes(scene.value)
+                      ? 'bg-teal-500 text-white shadow-md'
+                      : 'bg-teal-50 text-teal-700 hover:bg-teal-100 border border-teal-100'
+                  "
+                >
+                  <span>{{ scene.label }}</span>
+                </button>
+              </div>
+            </div>
+
+            <!-- 季节选择：从单选改为多选 -->
+            <div>
+              <label class="block text-xs font-medium text-indigo-700 mb-1.5">适用季节</label>
+              <div class="grid grid-cols-2 gap-2">
+                <button
+                  v-for="season in seasonOptions"
+                  :key="season.value"
+                  @click="toggleSeason(season.value)"
+                  class="py-2 px-3 rounded-lg text-sm font-medium transition-all duration-300 flex items-center justify-center"
+                  :class="
+                    outfitSeason &&
+                    Array.isArray(outfitSeason) &&
+                    outfitSeason.includes(season.value)
+                      ? 'bg-indigo-500 text-white shadow-md'
+                      : 'bg-indigo-50 text-indigo-700 hover:bg-indigo-100 border border-indigo-100'
+                  "
+                >
+                  <span>{{ season.label }}</span>
+                </button>
+              </div>
+            </div>
+
+            <!-- 风格选择：从单选改为多选 -->
+            <div>
+              <label class="block text-xs font-medium text-indigo-700 mb-1.5">搭配风格</label>
+              <div class="grid grid-cols-3 gap-2">
+                <button
+                  v-for="style in styleOptions"
+                  :key="style.value"
+                  @click="toggleStyle(style.value)"
+                  class="py-2 px-3 rounded-lg text-sm font-medium transition-all duration-300 flex items-center justify-center"
+                  :class="
+                    outfitStyle && Array.isArray(outfitStyle) && outfitStyle.includes(style.value)
+                      ? 'bg-purple-500 text-white shadow-md'
+                      : 'bg-purple-50 text-purple-700 hover:bg-purple-100 border border-purple-100'
+                  "
+                >
+                  <span>{{ style.label }}</span>
+                </button>
+              </div>
+            </div>
           </div>
+        </div>
       </div>
 
       <!-- 衣物列表 -->
@@ -308,10 +305,10 @@
         <!-- 操作按钮 -->
         <div class="mt-5 flex gap-3">
           <button
-              class="flex-1 bg-gradient-to-r from-indigo-500 to-purple-500 hover:from-indigo-600 hover:to-purple-600 text-white font-medium py-3.5 rounded-xl transition-all duration-300 transform hover:scale-[1.02] active:scale-[0.98] shadow-lg hover:shadow-xl flex items-center justify-center disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none relative overflow-hidden group/button"
-              @click="handleSaveOutfit"
-              :disabled="safeSelectedClothes.length === 0 || !trimmedOutfitName"
-            >
+            class="flex-1 bg-gradient-to-r from-indigo-500 to-purple-500 hover:from-indigo-600 hover:to-purple-600 text-white font-medium py-3.5 rounded-xl transition-all duration-300 transform hover:scale-[1.02] active:scale-[0.98] shadow-lg hover:shadow-xl flex items-center justify-center disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none relative overflow-hidden group/button"
+            @click="handleSaveOutfit"
+            :disabled="safeSelectedClothes.length === 0 || !trimmedOutfitName"
+          >
             <!-- 按钮装饰效果 -->
             <div
               class="absolute inset-0 bg-white/10 opacity-0 group-hover/button:opacity-100 transition-opacity duration-300"
@@ -379,8 +376,8 @@
     /** @type {ClothingItem[]} */
     selectedClothes: {
       type: Array,
-      default: () => []
-    }
+      default: () => [],
+    },
   });
 
   // ============================================
@@ -393,7 +390,7 @@
   const outfitSeason = defineModel('outfitSeason', { default: () => [] });
   const outfitStyle = defineModel('outfitStyle', { default: () => [] });
   // ============================================
- 
+
   // ============================================
   // 计算属性
   // ============================================
@@ -473,7 +470,7 @@
     show: false,
     mainImageUrl: '',
     name: '',
-    type: ''
+    type: '',
   });
 
   /**
@@ -493,7 +490,7 @@
     /** 保存搭配事件 */
     'save-outfit',
     /** 添加衣物事件 */
-    'add-cloth'
+    'add-cloth',
   ]);
 
   // ============================================
@@ -649,7 +646,7 @@
       scenes: outfitScene.value ?? [],
       seasons: outfitSeason.value ?? [],
       styles: outfitStyle.value ?? [],
-      safeSelectedClothes: safeSelectedClothes.value ?? []
+      safeSelectedClothes: safeSelectedClothes.value ?? [],
     };
     emit('save-outfit', saveData);
   }
@@ -675,7 +672,7 @@
    */
   function getItemTransformStyle(idx, totalLength) {
     const translateY = ((idx % 3) - 1) * 10;
-    const rotate = ((idx % 2 === 0 ? -1 : 1) * (idx % 3));
+    const rotate = (idx % 2 === 0 ? -1 : 1) * (idx % 3);
     const isHidden = idx >= 6;
 
     return {

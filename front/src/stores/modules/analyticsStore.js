@@ -65,9 +65,7 @@ export const useAnalyticsStore = defineStore('analytics', {
     async fetchUsageFrequency() {
       try {
         const clothingStore = useClothingStore();
-        const frequency = await analyticsApi.getUsageFrequency(
-          clothingStore.clothingItems
-        );
+        const frequency = await analyticsApi.getUsageFrequency(clothingStore.clothingItems);
         this.usageFrequency = frequency;
         return frequency;
       } catch (error) {
@@ -79,9 +77,7 @@ export const useAnalyticsStore = defineStore('analytics', {
     async fetchSeasonalAnalysis() {
       try {
         const clothingStore = useClothingStore();
-        const seasonal = await analyticsApi.getSeasonalAnalysis(
-          clothingStore.clothingItems
-        );
+        const seasonal = await analyticsApi.getSeasonalAnalysis(clothingStore.clothingItems);
         this.seasonalAnalysis = seasonal;
         return seasonal;
       } catch (error) {

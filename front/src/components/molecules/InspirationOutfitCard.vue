@@ -281,8 +281,8 @@
 
   // 组件加载时获取枚举值
   onMounted(() => {
-    console.log("props.outfit:", props.outfit);
-    
+    console.log('props.outfit:', props.outfit);
+
     enumsStore.fetchAllEnums();
   });
 
@@ -306,10 +306,7 @@
   const getSeasonLabel = value => getLabel(seasonOptions.value, value);
   const getStyleLabel = value => getLabel(styleOptions.value, value);
 
-
   const hoveredIndex = ref(-1);
-
-
 
   // 获取堆叠样式
   function getItemStyle(index) {
@@ -379,8 +376,6 @@
         isEditing.value = true;
       }
     },
-
-
 
     cancelEdit: () => {
       isEditing.value = false;

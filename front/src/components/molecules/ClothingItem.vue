@@ -5,7 +5,11 @@
       :class="{ 'border-primary/50 shadow-lg': item.favorite }"
     >
       <img
-        :src="item.mainImageUrl || (item.imageUrls && item.imageUrls[0]) || 'https://via.placeholder.com/300x300?text=No+Image'"
+        :src="
+          item.mainImageUrl ||
+          (item.imageUrls && item.imageUrls[0]) ||
+          'https://via.placeholder.com/300x300?text=No+Image'
+        "
         :alt="item.name"
         class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
       />
@@ -34,7 +38,7 @@
 </template>
 
 <script setup>
-  import {useEnumsStore}  from '@/stores/modules/enumsStore';
+  import { useEnumsStore } from '@/stores/modules/enumsStore';
 
   defineProps({
     item: {

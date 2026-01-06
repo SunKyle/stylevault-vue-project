@@ -18,7 +18,11 @@ class CacheManager {
    * @param {number} options.defaultDuration 默认缓存时长(毫秒)
    * @param {number} options.cleanupInterval 清理过期缓存的间隔(毫秒)
    */
-  init({ namespace = 'app', defaultDuration = 5 * 60 * 1000, cleanupInterval = 30 * 60 * 1000 } = {}) {
+  init({
+    namespace = 'app',
+    defaultDuration = 5 * 60 * 1000,
+    cleanupInterval = 30 * 60 * 1000,
+  } = {}) {
     this.namespace = namespace;
     this.defaultDuration = defaultDuration;
     this.startCleanupTimer(cleanupInterval);
@@ -82,12 +86,12 @@ class CacheManager {
     const nsKey = this.getNamespacedKey(key);
     const cached = this.cache.get(nsKey);
     if (!cached) return null;
-    
+
     if (Date.now() - cached.timestamp >= this.duration) {
       this.cache.delete(nsKey);
       return null;
     }
-    
+
     return cached.data;
   }
 
@@ -148,8 +152,11 @@ class CacheManager {
       const nsKey = this.getNamespacedKey(key);
       info[nsKey] = {
         timestamp: cached.timestamp,
-        remaining: Math.max(0, (cached.timestamp + (cached.duration || this.defaultDuration)) - Date.now()),
-        size: JSON.stringify(cached.data).length
+        remaining: Math.max(
+          0,
+          cached.timestamp + (cached.duration || this.defaultDuration) - Date.now()
+        ),
+        size: JSON.stringify(cached.data).length,
       };
     }
     return info;
@@ -160,7 +167,7 @@ class CacheManager {
 export const cacheManager = new CacheManager();
 
 // 便捷方法
-export const createCache = (options) => {
+export const createCache = options => {
   const cache = new CacheManager();
   cache.init(options);
   return cache;

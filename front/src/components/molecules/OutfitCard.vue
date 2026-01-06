@@ -110,7 +110,10 @@
           @mouseleave="hoveredIndex = -1"
           style="height: 220px"
         >
-          <div v-if="(outfit.metadata?.items?.length || 0) === 0" class="text-center text-indigo-400">
+          <div
+            v-if="(outfit.metadata?.items?.length || 0) === 0"
+            class="text-center text-indigo-400"
+          >
             <div
               class="w-16 h-16 rounded-2xl bg-gradient-to-br from-indigo-100/80 to-purple-100/50 backdrop-blur-sm flex items-center justify-center mx-auto mb-3 shadow-lg border border-indigo-100/50"
             >
@@ -196,7 +199,10 @@
             title="删除搭配"
           >
             <font-awesome-icon v-if="!isLoading" :icon="['fas', 'trash']" class="text-xs" />
-            <div v-else class="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin text-xs"></div>
+            <div
+              v-else
+              class="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin text-xs"
+            ></div>
           </button>
         </div>
       </div>
@@ -258,12 +264,18 @@
                     v-model="editOutfit.name"
                     type="text"
                     class="w-full px-4 py-2.5 bg-white/70 backdrop-blur-sm border border-indigo-100/50 rounded-lg focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-400 text-sm shadow-sm transition-all duration-300"
-                    :class="{ 'border-red-300 focus:ring-red-500/20 focus:border-red-400': validationErrors.name }"
+                    :class="{
+                      'border-red-300 focus:ring-red-500/20 focus:border-red-400':
+                        validationErrors.name,
+                    }"
                     placeholder="输入搭配名称"
                   />
                 </div>
                 <!-- 验证错误信息 -->
-                <p v-if="validationErrors.name" class="mt-1 text-xs text-red-500 font-medium flex items-center">
+                <p
+                  v-if="validationErrors.name"
+                  class="mt-1 text-xs text-red-500 font-medium flex items-center"
+                >
                   <font-awesome-icon :icon="['fas', 'exclamation-circle']" class="mr-1 text-xs" />
                   {{ validationErrors.name }}
                 </p>
@@ -379,8 +391,10 @@
         class="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4"
         @click.self="previewImage.show = false"
       >
-        <div class="relative max-w-4xl max-h-[90vh] w-full flex flex-col items-center justify-center"
-             @click.stop>
+        <div
+          class="relative max-w-4xl max-h-[90vh] w-full flex flex-col items-center justify-center"
+          @click.stop
+        >
           <!-- 关闭按钮 -->
           <button
             @click="previewImage.show = false"
@@ -391,7 +405,9 @@
           </button>
 
           <!-- 图片信息 -->
-          <div class="absolute top-4 left-4 bg-white/10 backdrop-blur-sm rounded-lg px-3 py-1.5 text-white text-sm z-10">
+          <div
+            class="absolute top-4 left-4 bg-white/10 backdrop-blur-sm rounded-lg px-3 py-1.5 text-white text-sm z-10"
+          >
             <div class="font-medium">{{ previewImage.name }}</div>
             <div class="text-white/80">{{ previewImage.type }}</div>
           </div>
@@ -414,7 +430,7 @@
 <script setup>
   /**
    * OutfitCard 组件 - 服装搭配卡片组件
-   * 
+   *
    * 功能说明：
    * 1. 展示搭配基本信息（名称、场景、季节、风格）
    * 2. 实现衣物堆叠预览效果，支持鼠标悬停交互
@@ -422,7 +438,7 @@
    * 4. 支持衣物图片点击预览功能
    * 5. 表单验证和错误处理
    * 6. 加载状态和键盘导航支持
-   * 
+   *
    * Props:
    * @param {Object} outfit - 搭配数据对象
    *   @property {string} id - 搭配ID
@@ -432,7 +448,7 @@
    *   @property {string} style - 搭配风格
    *   @property {Object} metadata - 搭配元数据
    *     @property {Array} items - 衣物列表
-   * 
+   *
    * Emits:
    * @event {Function} load-outfit - 加载搭配详情
    * @event {Function} delete-outfit - 删除搭配
@@ -457,7 +473,7 @@
 
   // 加载状态
   const isLoading = ref(false);
-  
+
   // 错误状态
   const error = ref(null);
 
@@ -519,9 +535,7 @@
 
   // 过滤出有图片的衣物并限制最多4个
   const filteredItems = computed(() => {
-    return (props.outfit?.metadata?.items || [])
-      .filter(item => item.mainImageUrl)
-      .slice(0, 4);
+    return (props.outfit?.metadata?.items || []).filter(item => item.mainImageUrl).slice(0, 4);
   });
 
   // 获取单个衣物的样式
@@ -529,9 +543,9 @@
     const totalItems = filteredItems.value.length;
     const maxRotation = 15;
     const maxOffset = 15;
-    
+
     if (totalItems === 0) return {};
-    
+
     const rotation = (index - (totalItems - 1) / 2) * (maxRotation / totalItems);
     const offset = (index - (totalItems - 1) / 2) * (maxOffset / totalItems);
 
@@ -541,10 +555,6 @@
       opacity: hoveredIndex.value === -1 || hoveredIndex.value === index ? 1 : 0.7,
     };
   }
-
-
-
-
 
   // 图片预览
   const previewImage = ref({
@@ -563,10 +573,6 @@
       type: item.type,
     };
   }
-
-
-
-
 
   // 编辑状态
   const isEditing = ref(false);

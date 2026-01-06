@@ -4,9 +4,17 @@ import { enumsApi } from '../../services/apiClient';
 
 // 枚举类型列表（统一管理，避免硬编码）
 const ENUM_TYPES = [
-  'categories', 'styles', 'colors', 'seasons',
-  'materials', 'patterns', 'sizes', 'conditions',
-  'statuses', 'occasions', 'scenes'
+  'categories',
+  'styles',
+  'colors',
+  'seasons',
+  'materials',
+  'patterns',
+  'sizes',
+  'conditions',
+  'statuses',
+  'occasions',
+  'scenes',
 ];
 
 export const useEnumsStore = defineStore('enums', () => {
@@ -36,12 +44,15 @@ export const useEnumsStore = defineStore('enums', () => {
     return null;
   };
 
-  const setCachedData = (data) => {
+  const setCachedData = data => {
     try {
-      localStorage.setItem(CACHE_KEY, JSON.stringify({
-        data,
-        timestamp: Date.now()
-      }));
+      localStorage.setItem(
+        CACHE_KEY,
+        JSON.stringify({
+          data,
+          timestamp: Date.now(),
+        })
+      );
     } catch (e) {
       console.error('保存枚举缓存失败:', e);
     }
@@ -73,9 +84,9 @@ export const useEnumsStore = defineStore('enums', () => {
   const sceneOptions = computed(() => createEnumOptions(enumsData.value.scenes));
 
   // 获取选项列表
-  const getOptions = (type) => {
+  const getOptions = type => {
     if (!ENUM_TYPES.includes(type)) return [];
-    
+
     const optionsMap = {
       categories: categoryOptions.value,
       styles: styleOptions.value,
@@ -87,9 +98,9 @@ export const useEnumsStore = defineStore('enums', () => {
       conditions: conditionOptions.value,
       patterns: enumsData.value.patterns,
       statuses: statusOptions.value,
-      scenes: sceneOptions.value
+      scenes: sceneOptions.value,
     };
-    
+
     return optionsMap[type] || enumsData.value[type];
   };
 
@@ -98,9 +109,7 @@ export const useEnumsStore = defineStore('enums', () => {
     if (!ENUM_TYPES.includes(type) || !id || !enumsData.value[type]?.length) {
       return id;
     }
-    const item = enumsData.value[type].find(item => 
-      item.value === String(id) || item.id === id
-    );
+    const item = enumsData.value[type].find(item => item.value === String(id) || item.id === id);
     return item?.label || item?.name || id;
   };
 
@@ -155,9 +164,9 @@ export const useEnumsStore = defineStore('enums', () => {
   };
 
   // 获取单个枚举值
-  const fetchEnum = async (type) => {
+  const fetchEnum = async type => {
     if (!ENUM_TYPES.includes(type)) return;
-    
+
     try {
       const data = await enumsApi.getEnumsByType(type);
       enumsData.value[type] = Array.isArray(data) ? data : [];
@@ -210,6 +219,6 @@ export const useEnumsStore = defineStore('enums', () => {
     setEnums,
     clearEnums,
     getOptions,
-    getLabel
+    getLabel,
   };
 });

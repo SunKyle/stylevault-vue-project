@@ -26,10 +26,7 @@
             ]"
           />
           <span class="text-sm flex items-center">
-            <font-awesome-icon
-              :icon="season.icon"
-              :class="season.colorClass + ' mr-1.5 text-xs'"
-            />
+            <font-awesome-icon :icon="season.icon" :class="season.colorClass + ' mr-1.5 text-xs'" />
             {{ season.label }}
           </span>
         </label>
@@ -62,87 +59,87 @@
 </template>
 
 <script setup>
-/**
- * 季节选择组件
- * 
- * 用于选择衣物适合的季节，支持多选和一键全选（四季通用）
- * 提供直观的季节选择界面，支持双向数据绑定和只读模式
- * 
- * @component
- * @example
- * <SeasonSelector
- *   v-model="form.seasons"
- *   :read-only="false"
- * />
- */
-import { ref, computed, watch } from 'vue';
+  /**
+   * 季节选择组件
+   *
+   * 用于选择衣物适合的季节，支持多选和一键全选（四季通用）
+   * 提供直观的季节选择界面，支持双向数据绑定和只读模式
+   *
+   * @component
+   * @example
+   * <SeasonSelector
+   *   v-model="form.seasons"
+   *   :read-only="false"
+   * />
+   */
+  import { ref, computed, watch } from 'vue';
 
-const props = defineProps({
-  seasons: {
-    type: Array,
-    default: () => [],
-  },
-  readOnly: {
-    type: Boolean,
-    default: false,
-  },
-});
+  const props = defineProps({
+    seasons: {
+      type: Array,
+      default: () => [],
+    },
+    readOnly: {
+      type: Boolean,
+      default: false,
+    },
+  });
 
-const emit = defineEmits(['update:seasons']);
+  const emit = defineEmits(['update:seasons']);
 
-// 硬编码季节选项，与后端季节ID对应
-const seasonsOptions = [
-  { value: 1, label: '春季', icon: ['fas', 'seedling'], colorClass: 'text-green-500' },
-  { value: 2, label: '夏季', icon: ['fas', 'sun'], colorClass: 'text-yellow-500' },
-  { value: 3, label: '秋季', icon: ['fas', 'leaf'], colorClass: 'text-orange-500' },
-  { value: 4, label: '冬季', icon: ['fas', 'snowflake'], colorClass: 'text-blue-500' },
-];
+  // 硬编码季节选项，与后端季节ID对应
+  const seasonsOptions = [
+    { value: 1, label: '春季', icon: ['fas', 'seedling'], colorClass: 'text-green-500' },
+    { value: 2, label: '夏季', icon: ['fas', 'sun'], colorClass: 'text-yellow-500' },
+    { value: 3, label: '秋季', icon: ['fas', 'leaf'], colorClass: 'text-orange-500' },
+    { value: 4, label: '冬季', icon: ['fas', 'snowflake'], colorClass: 'text-blue-500' },
+  ];
 
-// 使用本地ref存储季节数据
-const localSeasons = ref(Array.isArray(props.seasons) ? [...props.seasons] : []);
+  // 使用本地ref存储季节数据
+  const localSeasons = ref(Array.isArray(props.seasons) ? [...props.seasons] : []);
 
-// 监听props.seasons变化，同步到本地ref
-watch(
-  () => props.seasons,
-  (newSeasons) => {
-    if (Array.isArray(newSeasons)) {
-      localSeasons.value = [...newSeasons];
-    } else {
-      localSeasons.value = [];
-    }
-  },
-  { deep: true }
-);
+  // 监听props.seasons变化，同步到本地ref
+  watch(
+    () => props.seasons,
+    newSeasons => {
+      if (Array.isArray(newSeasons)) {
+        localSeasons.value = [...newSeasons];
+      } else {
+        localSeasons.value = [];
+      }
+    },
+    { deep: true }
+  );
 
-// 使用计算属性处理双向绑定
-const seasonsComputed = computed({
-  get() {
-    return localSeasons.value;
-  },
-  set(value) {
-    localSeasons.value = value;
-    emit('update:seasons', value);
-  },
-});
+  // 使用计算属性处理双向绑定
+  const seasonsComputed = computed({
+    get() {
+      return localSeasons.value;
+    },
+    set(value) {
+      localSeasons.value = value;
+      emit('update:seasons', value);
+    },
+  });
 
-// 全选季节
-const allSeasons = computed({
-  get() {
-    if (!localSeasons.value || !Array.isArray(localSeasons.value)) return false;
-    return (
-      localSeasons.value.length === 4 &&
-      localSeasons.value.includes(1) &&
-      localSeasons.value.includes(2) &&
-      localSeasons.value.includes(3) &&
-      localSeasons.value.includes(4)
-    );
-  },
-  set(value) {
-    if (value) {
-      seasonsComputed.value = [1, 2, 3, 4];
-    } else {
-      seasonsComputed.value = [];
-    }
-  },
-});
+  // 全选季节
+  const allSeasons = computed({
+    get() {
+      if (!localSeasons.value || !Array.isArray(localSeasons.value)) return false;
+      return (
+        localSeasons.value.length === 4 &&
+        localSeasons.value.includes(1) &&
+        localSeasons.value.includes(2) &&
+        localSeasons.value.includes(3) &&
+        localSeasons.value.includes(4)
+      );
+    },
+    set(value) {
+      if (value) {
+        seasonsComputed.value = [1, 2, 3, 4];
+      } else {
+        seasonsComputed.value = [];
+      }
+    },
+  });
 </script>

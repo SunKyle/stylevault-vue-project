@@ -20,31 +20,31 @@ export function useEnumProvider() {
   provide(ENUM_PROVIDER_KEY, {
     // 场景枚举
     scenes: computed(() => enumsStore.getOptions('scene')),
-    getSceneLabel: (value) => enumsStore.getLabel('scene', value),
+    getSceneLabel: value => enumsStore.getLabel('scene', value),
 
     // 季节枚举
     seasons: computed(() => enumsStore.getOptions('season')),
-    getSeasonLabel: (value) => enumsStore.getLabel('season', value),
+    getSeasonLabel: value => enumsStore.getLabel('season', value),
 
     // 风格枚举
     styles: computed(() => enumsStore.getOptions('style')),
-    getStyleLabel: (value) => enumsStore.getLabel('style', value),
+    getStyleLabel: value => enumsStore.getLabel('style', value),
 
     // 标签枚举
     tags: computed(() => enumsStore.getOptions('tag')),
-    getTagLabel: (value) => enumsStore.getLabel('tag', value),
+    getTagLabel: value => enumsStore.getLabel('tag', value),
 
     // 颜色枚举
     colors: computed(() => enumsStore.getOptions('color')),
-    getColorLabel: (value) => enumsStore.getLabel('color', value),
+    getColorLabel: value => enumsStore.getLabel('color', value),
 
     // 尺寸枚举
     sizes: computed(() => enumsStore.getOptions('size')),
-    getSizeLabel: (value) => enumsStore.getLabel('size', value),
+    getSizeLabel: value => enumsStore.getLabel('size', value),
 
     // 分类枚举（从clothingStore获取）
     categories: computed(() => enumsStore.getOptions('category')),
-    getCategoryLabel: (value) => enumsStore.getLabel('category', value),
+    getCategoryLabel: value => enumsStore.getLabel('category', value),
 
     // 刷新所有枚举数据
     refreshEnums: () => enumsStore.fetchAllEnums(),

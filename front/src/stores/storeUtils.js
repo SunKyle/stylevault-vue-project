@@ -64,7 +64,7 @@ export const storage = {
       return false;
     }
   },
-  remove: (key) => {
+  remove: key => {
     try {
       localStorage.removeItem(key);
       return true;
@@ -85,7 +85,7 @@ export const setAuthData = (store, data) => {
 };
 
 // 统一 Setter 方法 - 清除认证信息
-export const clearAuthData = (store) => {
+export const clearAuthData = store => {
   store.user = null;
   store.token = null;
   store.isAuthenticated = false;
@@ -107,7 +107,7 @@ export const setUserPreferences = (store, preferences) => {
 };
 
 // 统一 Setter 方法 - 加载本地存储的认证信息
-export const loadStoredAuth = (store) => {
+export const loadStoredAuth = store => {
   const token = storage.get('token'); // 修改：将 'auth_token' 改为 'token'
   const user = storage.get('user_info');
   const preferences = storage.get('user_preferences', {
