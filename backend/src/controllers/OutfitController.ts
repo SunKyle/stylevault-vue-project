@@ -73,7 +73,7 @@ export class OutfitController {
         isPublic: req.query.isPublic === 'true' ? true : req.query.isPublic === 'false' ? false : undefined,
         search: req.query.search as string,
         page: parseInt(req.query.page as string, 10) || 1,
-        limit: parseInt(req.query.limit as string, 10) || 10,
+        limit: req.query.limit ? parseInt(req.query.limit as string, 10) : undefined,
         sortBy: req.query.sortBy as string || 'createdAt',
         sortOrder: req.query.sortOrder as 'ASC' | 'DESC' || 'DESC'
       };

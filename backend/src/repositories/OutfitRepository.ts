@@ -65,7 +65,7 @@ export class OutfitRepository {
       isPublic,
       sortBy = 'createdAt', 
       sortOrder = 'DESC',
-      limit = 100,
+      limit,
       offset = 0,
       includeClothes = false,
       includeUser = false
@@ -99,10 +99,14 @@ export class OutfitRepository {
     
     const findOptions: any = {
       where,
-      order: [[sortBy, sortOrder]],
-      limit,
-      offset
+      order: [[sortBy, sortOrder]]
     };
+
+    // 只有当提供了 limit 时才添加分页参数
+    if (limit !== undefined) {
+      findOptions.limit = limit;
+      findOptions.offset = offset;
+    }
     
     const includes: any[] = [];
     

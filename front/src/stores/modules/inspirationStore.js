@@ -252,7 +252,7 @@ export const useInspirationStore = defineStore(
       // 其他类型（category, tag, scene, season, style）直接应用
       switch (type) {
         case 'category':
-          filters.category = value;
+          filters.category = String(value);
           break;
         case 'tag':
           filters.tag = value;
@@ -270,10 +270,10 @@ export const useInspirationStore = defineStore(
 
     /**
      * 设置分类筛选
-     * @param {string} category - 分类名称
+     * @param {string|number} category - 分类名称
      */
     const setCategory = category => {
-      filters.category = category;
+      filters.category = String(category);
       pagination.page = 1;
       console.log('setCategory', category);
     };
