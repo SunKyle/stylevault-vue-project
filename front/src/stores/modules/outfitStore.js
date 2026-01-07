@@ -116,12 +116,11 @@ export const useOutfitStore = defineStore('outfit', {
 
       try {
         const result = await outfitApi.deleteOutfit(outfitId);
-        // 修复：API返回的数据结构是{ status, message, data }，所以需要访问result.data
-        if (result?.data) {
-          this.outfits = this.outfits.filter(outfit => outfit.id !== outfitId);
-          showToast('搭配删除成功', 'success');
-        }
-        return result?.data;
+        // 修复：删除操作返回204 No Content，没有data字段
+        // 只要请求成功就从本地状态中移除搭配
+        this.outfits = this.outfits.filter(outfit => outfit.id !== outfitId);
+        showToast('搭配删除成功', 'success');
+        return result;
       } catch (error) {
         this.setError('删除搭配失败');
         showToast('删除搭配失败', 'error');

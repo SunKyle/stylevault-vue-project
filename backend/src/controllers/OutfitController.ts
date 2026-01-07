@@ -203,7 +203,7 @@ export class OutfitController {
    */
   async deleteOutfit(req: Request, res: Response): Promise<void> {
     try {
-      const userId = (req as any).user.id;
+      const userId = (req as any).user.userId;
       const outfitId = parseInt(req.params.id, 10);
 
       if (isNaN(outfitId)) {
@@ -233,7 +233,7 @@ export class OutfitController {
    */
   async addClothingToOutfit(req: Request, res: Response): Promise<void> {
     try {
-      const userId = (req as any).user.id;
+      const userId = (req as any).user.userId;
       const outfitId = parseInt(req.params.outfitId, 10);
       const clothingId = parseInt(req.params.clothingId, 10);
 
@@ -268,7 +268,7 @@ export class OutfitController {
    */
   async removeClothingFromOutfit(req: Request, res: Response): Promise<void> {
     try {
-      const userId = (req as any).user.id;
+      const userId = (req as any).user.userId;
       const outfitId = parseInt(req.params.outfitId, 10);
       const clothingId = parseInt(req.params.clothingId, 10);
 
@@ -299,7 +299,7 @@ export class OutfitController {
    */
   async reorderClothesInOutfit(req: Request, res: Response): Promise<void> {
     try {
-      const userId = (req as any).user.id;
+      const userId = (req as any).user.userId;
       const outfitId = parseInt(req.params.outfitId, 10);
       const clothesOrder = req.body.clothesOrder as number[];
 
@@ -334,7 +334,7 @@ export class OutfitController {
    */
   async getOutfitClothes(req: Request, res: Response): Promise<void> {
     try {
-      const userId = (req as any).user.id;
+      const userId = (req as any).user.userId;
       const outfitId = parseInt(req.params.outfitId, 10);
 
       if (isNaN(outfitId)) {
@@ -368,7 +368,7 @@ export class OutfitController {
    */
   async publishOutfit(req: Request, res: Response): Promise<void> {
     try {
-      const userId = (req as any).user.id;
+      const userId = (req as any).user.userId;
       const outfitId = parseInt(req.params.id, 10);
 
       if (isNaN(outfitId)) {
@@ -402,7 +402,7 @@ export class OutfitController {
    */
   async archiveOutfit(req: Request, res: Response): Promise<void> {
     try {
-      const userId = (req as any).user.id;
+      const userId = (req as any).user.userId;
       const outfitId = parseInt(req.params.id, 10);
 
       if (isNaN(outfitId)) {
@@ -436,7 +436,7 @@ export class OutfitController {
    */
   async setOutfitPublic(req: Request, res: Response): Promise<void> {
     try {
-      const userId = (req as any).user.id;
+      const userId = (req as any).user.userId;
       const outfitId = parseInt(req.params.id, 10);
 
       if (isNaN(outfitId)) {
@@ -470,7 +470,7 @@ export class OutfitController {
    */
   async setOutfitPrivate(req: Request, res: Response): Promise<void> {
     try {
-      const userId = (req as any).user.id;
+      const userId = (req as any).user.userId;
       const outfitId = parseInt(req.params.id, 10);
 
       if (isNaN(outfitId)) {
@@ -518,7 +518,7 @@ export class OutfitController {
         return;
       }
 
-      const userId = (req as any).user.id;
+      const userId = (req as any).user.userId;
       const outfitId = parseInt(req.params.id, 10);
       const rating = req.body.rating;
 
@@ -553,7 +553,7 @@ export class OutfitController {
    */
   async recordOutfitUsage(req: Request, res: Response): Promise<void> {
     try {
-      const userId = (req as any).user.id;
+      const userId = (req as any).user.userId;
       const outfitId = parseInt(req.params.id, 10);
 
       if (isNaN(outfitId)) {
@@ -587,7 +587,7 @@ export class OutfitController {
    */
   async getOutfitStats(req: Request, res: Response): Promise<void> {
     try {
-      const userId = (req as any).user.id;
+      const userId = (req as any).user.userId;
       const stats = await outfitService.getOutfitStats(userId);
       res.status(200).json({
         status: 'success',
