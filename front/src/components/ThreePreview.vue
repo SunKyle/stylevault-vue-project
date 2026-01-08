@@ -1,90 +1,135 @@
 <template>
-  <div class="3d-preview-container" ref="containerRef">
-    <div class="preview-controls">
-      <div class="control-group">
-        <label>视图预设：</label>
-        <button 
-          v-for="(view, name) in viewPresets" 
-          :key="name"
-          @click="setViewPreset(name)"
-          :class="{ active: currentView === name }"
-        >
-          {{ name }}
-        </button>
+  <div class="three-preview-container" ref="containerRef">
+    <!-- 模型展示控制区域 -->
+    <div class="model-display-control">
+      <div class="preview-controls">
+        <div class="control-group">
+          <label>视图预设：</label>
+          <button 
+            v-for="(view, name) in viewPresets" 
+            :key="name"
+            @click="setViewPreset(name)"
+            :class="{ active: currentView === name }"
+          >
+            {{ name }}
+          </button>
+        </div>
+        
+        <div class="control-group">
+          <label>质量等级：</label>
+          <select v-model="qualityLevel" @change="setQuality(qualityLevel)">
+            <option value="low">低</option>
+            <option value="medium">中</option>
+            <option value="high">高</option>
+          </select>
+        </div>
+        
+        <div class="control-group">
+          <label>光照：</label>
+          <select v-model="lighting" @change="setLighting(lighting)">
+            <option value="studio">工作室</option>
+            <option value="natural">自然光</option>
+            <option value="dramatic">戏剧光</option>
+          </select>
+        </div>
+        
+        <div class="control-group">
+          <label>背景：</label>
+          <select v-model="background" @change="setBackground(background)">
+            <option value="white">白色</option>
+            <option value="black">黑色</option>
+            <option value="gradient">渐变</option>
+            <option value="environment">环境</option>
+          </select>
+        </div>
+        
+        <div class="control-group">
+          <label>工具：</label>
+          <button 
+            v-for="tool in tools" 
+            :key="tool"
+            @click="setTool(tool)"
+            :class="{ active: currentTool === tool }"
+          >
+            {{ tool }}
+          </button>
+        </div>
+        
+        <div class="control-group">
+          <label>变换模式：</label>
+          <button 
+            v-for="mode in transformModes" 
+            :key="mode"
+            @click="setTransformMode(mode)"
+            :class="{ active: currentTransformMode === mode }"
+          >
+            {{ mode }}
+          </button>
+        </div>
+        
+        <div class="control-group">
+          <label>效果：</label>
+          <label class="checkbox">
+            <input type="checkbox" v-model="shadows" @change="toggleShadows(shadows)">
+            阴影
+          </label>
+          <label class="checkbox">
+            <input type="checkbox" v-model="postProcessing" @change="togglePostProcessing(postProcessing)">
+            后处理
+          </label>
+        </div>
+        
+        <div class="performance-stats">
+          <div data-value="{{ performance.fps }}">FPS:</div>
+          <div data-value="{{ Math.round(performance.renderTime) }}ms">渲染时间:</div>
+          <div data-value="{{ performance.drawCalls }}">绘制调用:</div>
+        </div>
       </div>
       
-      <div class="control-group">
-        <label>质量等级：</label>
-        <select v-model="qualityLevel" @change="setQuality(qualityLevel)">
-          <option value="low">低</option>
-          <option value="medium">中</option>
-          <option value="high">高</option>
-        </select>
-      </div>
-      
-      <div class="control-group">
-        <label>光照：</label>
-        <select v-model="lighting" @change="setLighting(lighting)">
-          <option value="studio">工作室</option>
-          <option value="natural">自然光</option>
-          <option value="dramatic">戏剧光</option>
-        </select>
-      </div>
-      
-      <div class="control-group">
-        <label>背景：</label>
-        <select v-model="background" @change="setBackground(background)">
-          <option value="white">白色</option>
-          <option value="black">黑色</option>
-          <option value="gradient">渐变</option>
-          <option value="environment">环境</option>
-        </select>
-      </div>
-      
-      <div class="control-group">
-        <label>工具：</label>
-        <button 
-          v-for="tool in tools" 
-          :key="tool"
-          @click="setTool(tool)"
-          :class="{ active: currentTool === tool }"
-        >
-          {{ tool }}
-        </button>
-      </div>
-      
-      <div class="control-group">
-        <label>变换模式：</label>
-        <button 
-          v-for="mode in transformModes" 
-          :key="mode"
-          @click="setTransformMode(mode)"
-          :class="{ active: currentTransformMode === mode }"
-        >
-          {{ mode }}
-        </button>
-      </div>
-      
-      <div class="control-group">
-        <label>效果：</label>
-        <label class="checkbox">
-          <input type="checkbox" v-model="shadows" @change="toggleShadows(shadows)">
-          阴影
-        </label>
-        <label class="checkbox">
-          <input type="checkbox" v-model="postProcessing" @change="togglePostProcessing(postProcessing)">
-          后处理
-        </label>
-      </div>
-      
-      <div class="performance-stats">
-        <div>FPS: {{ performance.fps }}</div>
-        <div>渲染时间: {{ Math.round(performance.renderTime) }}ms</div>
-        <div>绘制调用: {{ performance.drawCalls }}</div>
-      </div>
+      <div class="preview-canvas" ref="canvasRef"></div>
     </div>
     
-    <div class="preview-canvas" ref="canvasRef"></div>
+    <!-- 搭配信息展示区域 -->
+    <div class="outfit-info-display">
+      <h2 class="outfit-title">搭配信息</h2>
+      
+      <div class="outfit-details">
+        <div class="detail-item">
+          <span class="label">搭配ID：</span>
+          <span class="value">{{ outfitId || '未指定' }}</span>
+        </div>
+        <div class="detail-item">
+          <span class="label">模型路径：</span>
+          <span class="value">{{ bodyModelPath || '未指定' }}</span>
+        </div>
+        <div class="detail-item">
+          <span class="label">衣物数量：</span>
+          <span class="value">{{ clothingObjects.size }}</span>
+        </div>
+      </div>
+      
+      <div class="clothing-list">
+        <h3 class="section-title">包含衣物</h3>
+        <div v-if="clothingObjects.size > 0" class="clothing-items">
+          <div v-for="(object, id) in clothingObjects" :key="id" class="clothing-item">
+            <div class="clothing-id">{{ id }}</div>
+            <div class="clothing-actions">
+              <button class="action-btn" @click="selectClothing(id)">选择</button>
+            </div>
+          </div>
+        </div>
+        <div v-else class="empty-state">
+          <div class="empty-icon">📦</div>
+          <div class="empty-text">暂无衣物</div>
+          <div class="empty-subtext">请添加衣物到搭配中</div>
+        </div>
+      </div>
+      
+      <div class="outfit-actions">
+        <button class="primary-btn">保存搭配</button>
+        <button class="secondary-btn">导出模型</button>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -342,6 +387,13 @@ export default {
       previewStore.setPostProcessing(enabled);
     };
     
+    const selectClothing = (clothingId) => {
+      // 选择衣物的逻辑
+      console.log('Selecting clothing:', clothingId);
+      // 这里可以添加选中衣物的视觉反馈
+      // 例如高亮显示选中的衣物，或在 3D 视图中聚焦该衣物
+    };
+    
     onMounted(() => {
       initThreeEngine();
       window.addEventListener('resize', handleResize);
@@ -383,6 +435,7 @@ export default {
       performance,
       tools,
       transformModes,
+      clothingObjects,
       setViewPreset,
       setQuality,
       setLighting,
@@ -390,36 +443,59 @@ export default {
       setTool,
       setTransformMode,
       toggleShadows,
-      togglePostProcessing
+      togglePostProcessing,
+      selectClothing
     };
   }
 };
 </script>
 
 <style scoped>
-.3d-preview-container {
+.three-preview-container {
   width: 100%;
   height: 100vh;
+  display: flex;
+  background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+}
+
+/* 模型展示控制区域 */
+.model-display-control {
+  flex: 1;
   position: relative;
-  background: #f0f0f0;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background: #f1f5f9;
+  border-radius: 12px;
+  margin: 10px;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
 }
 
 .preview-controls {
   position: absolute;
-  top: 10px;
-  left: 10px;
-  background: rgba(255, 255, 255, 0.9);
-  padding: 10px;
-  border-radius: 8px;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-  z-index: 100;
-  max-width: 300px;
+  top: 20px;
+  left: 20px;
+  background: rgba(255, 255, 255, 0.98);
+  padding: 20px;
+  border-radius: 12px;
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+  z-index: 40;
+  max-width: 340px;
+  backdrop-filter: blur(10px);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.preview-controls:hover {
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+  transform: translateY(-4px);
 }
 
 .control-group {
-  margin-bottom: 10px;
-  padding-bottom: 10px;
-  border-bottom: 1px solid #eee;
+  margin-bottom: 20px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid #f1f5f9;
+  transition: all 0.3s ease;
 }
 
 .control-group:last-child {
@@ -430,59 +506,472 @@ export default {
 
 .control-group label {
   display: block;
-  margin-bottom: 5px;
-  font-weight: 500;
+  margin-bottom: 10px;
+  font-weight: 600;
   font-size: 12px;
+  color: #334155;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  position: relative;
+  padding-left: 20px;
+}
+
+.control-group label::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 4px;
+  height: 16px;
+  background: linear-gradient(180deg, #4f46e5 0%, #8b5cf6 100%);
+  border-radius: 2px;
 }
 
 .control-group button {
-  margin-right: 5px;
-  margin-bottom: 5px;
-  padding: 4px 8px;
-  border: 1px solid #ddd;
-  border-radius: 4px;
-  background: #fff;
+  margin-right: 8px;
+  margin-bottom: 8px;
+  padding: 6px 12px;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  background: #ffffff;
   cursor: pointer;
   font-size: 12px;
+  font-weight: 500;
+  color: #334155;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+  position: relative;
+  overflow: hidden;
+}
+
+.control-group button::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(79, 70, 229, 0.1), transparent);
+  transition: left 0.5s ease;
+}
+
+.control-group button:hover::before {
+  left: 100%;
+}
+
+.control-group button:hover {
+  background: #f8fafc;
+  border-color: #cbd5e1;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 }
 
 .control-group button.active {
-  background: #4f46e5;
+  background: linear-gradient(135deg, #4f46e5 0%, #8b5cf6 100%);
   color: white;
   border-color: #4f46e5;
+  box-shadow: 0 4px 12px rgba(79, 70, 229, 0.4);
 }
 
 .control-group select {
   width: 100%;
-  padding: 4px 8px;
-  border: 1px solid #ddd;
-  border-radius: 4px;
-  font-size: 12px;
+  padding: 10px 14px;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  font-size: 13px;
+  background: #ffffff;
+  color: #334155;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+  cursor: pointer;
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%2394a3b8'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+  background-size: 16px;
+}
+
+.control-group select:hover {
+  border-color: #cbd5e1;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.08);
+}
+
+.control-group select:focus {
+  outline: none;
+  border-color: #4f46e5;
+  box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%234f46e5'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E");
 }
 
 .checkbox {
   display: flex;
   align-items: center;
-  margin-right: 10px;
-  font-size: 12px;
+  margin-right: 16px;
+  font-size: 13px;
   cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  padding: 6px 12px;
+  border-radius: 8px;
+  border: 1px solid #e2e8f0;
+  position: relative;
+  overflow: hidden;
+}
+
+.checkbox:hover {
+  background: #f8fafc;
+  border-color: #cbd5e1;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
 }
 
 .checkbox input {
-  margin-right: 5px;
+  margin-right: 8px;
+  accent-color: #4f46e5;
+  transform: scale(1.1);
+  cursor: pointer;
+}
+
+.checkbox input:checked {
+  animation: checkPulse 0.3s ease;
+}
+
+@keyframes checkPulse {
+  0% {
+    transform: scale(1.1);
+  }
+  50% {
+    transform: scale(1.3);
+  }
+  100% {
+    transform: scale(1.1);
+  }
 }
 
 .performance-stats {
-  background: rgba(0, 0, 0, 0.7);
+  background: linear-gradient(135deg, rgba(15, 23, 42, 0.9) 0%, rgba(30, 41, 59, 0.9) 100%);
   color: white;
-  padding: 5px 10px;
-  border-radius: 4px;
-  font-size: 10px;
+  padding: 16px 20px;
+  border-radius: 12px;
+  font-size: 11px;
   font-family: monospace;
+  margin-top: 16px;
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s ease;
+}
+
+.performance-stats:hover {
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+  transform: translateY(-2px);
+}
+
+.performance-stats div {
+  margin-bottom: 4px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 2px 0;
+}
+
+.performance-stats div:last-child {
+  margin-bottom: 0;
+}
+
+.performance-stats div::after {
+  content: attr(data-value);
+  font-weight: 600;
+  color: #93c5fd;
 }
 
 .preview-canvas {
   width: 100%;
   height: 100%;
+  flex: 1;
+  position: relative;
+  background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s ease;
+}
+
+.preview-canvas::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: linear-gradient(90deg, #4f46e5 0%, #8b5cf6 50%, #ec4899 100%);
+  z-index: 1;
+}
+
+.preview-canvas:hover {
+  box-shadow: inset 0 4px 8px rgba(0, 0, 0, 0.15);
+}
+
+/* 搭配信息展示区域 */
+.outfit-info-display {
+  width: 350px;
+  background: #ffffff;
+  border-left: 1px solid #e2e8f0;
+  padding: 25px;
+  overflow-y: auto;
+  box-shadow: -4px 0 20px rgba(0, 0, 0, 0.05);
+  display: flex;
+  flex-direction: column;
+  gap: 25px;
+}
+
+.outfit-title {
+  font-size: 1.6rem;
+  font-weight: 600;
+  margin-bottom: 0;
+  color: #1e293b;
+  border-bottom: 3px solid #4f46e5;
+  padding-bottom: 12px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.outfit-title::before {
+  content: "👗";
+  font-size: 1.2rem;
+}
+
+.outfit-details {
+  background: #f8fafc;
+  padding: 20px;
+  border-radius: 10px;
+  border: 1px solid #e2e8f0;
+  transition: all 0.3s ease;
+}
+
+.outfit-details:hover {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+  transform: translateY(-2px);
+}
+
+.detail-item {
+  margin-bottom: 12px;
+  font-size: 14px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 6px 0;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.detail-item:last-child {
+  margin-bottom: 0;
+  border-bottom: none;
+}
+
+.detail-item .label {
+  font-weight: 500;
+  color: #64748b;
+  flex-shrink: 0;
+  min-width: 80px;
+}
+
+.detail-item .value {
+  color: #1e293b;
+  font-weight: 400;
+  text-align: right;
+  flex: 1;
+  word-break: break-all;
+}
+
+.section-title {
+  font-size: 1.1rem;
+  font-weight: 500;
+  margin-bottom: 18px;
+  color: #334155;
+  border-bottom: 1px solid #e2e8f0;
+  padding-bottom: 10px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.section-title::before {
+  content: "📋";
+  font-size: 0.9rem;
+}
+
+.clothing-list {
+  flex: 1;
+  min-height: 200px;
+}
+
+.clothing-items {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.clothing-item {
+  background: #f8fafc;
+  padding: 15px;
+  border-radius: 8px;
+  border-left: 4px solid #4f46e5;
+  transition: all 0.2s ease;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+.clothing-item:hover {
+  background: #f1f5f9;
+  transform: translateX(4px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+
+.clothing-id {
+  font-size: 14px;
+  color: #1e293b;
+  font-weight: 400;
+  flex: 1;
+}
+
+.clothing-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.action-btn {
+  padding: 4px 8px;
+  border: 1px solid #e2e8f0;
+  border-radius: 4px;
+  background: #ffffff;
+  cursor: pointer;
+  font-size: 12px;
+  color: #475569;
+  transition: all 0.2s ease;
+}
+
+.action-btn:hover {
+  background: #f8fafc;
+  border-color: #cbd5e1;
+}
+
+.empty-state {
+  text-align: center;
+  padding: 40px 20px;
+  color: #94a3b8;
+  background: #f8fafc;
+  border-radius: 10px;
+  border: 2px dashed #cbd5e1;
+  transition: all 0.3s ease;
+}
+
+.empty-state:hover {
+  border-color: #94a3b8;
+  background: #f1f5f9;
+}
+
+.empty-icon {
+  font-size: 3rem;
+  margin-bottom: 15px;
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.05);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+.empty-text {
+  font-size: 1.1rem;
+  font-weight: 500;
+  margin-bottom: 8px;
+  color: #64748b;
+}
+
+.empty-subtext {
+  font-size: 0.9rem;
+  color: #94a3b8;
+}
+
+.outfit-actions {
+  display: flex;
+  gap: 12px;
+  margin-top: 20px;
+}
+
+.primary-btn {
+  flex: 1;
+  padding: 12px 20px;
+  border: none;
+  border-radius: 8px;
+  background: #4f46e5;
+  color: white;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 4px rgba(79, 70, 229, 0.3);
+}
+
+.primary-btn:hover {
+  background: #4338ca;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(79, 70, 229, 0.4);
+}
+
+.secondary-btn {
+  flex: 1;
+  padding: 12px 20px;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  background: #ffffff;
+  color: #475569;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.secondary-btn:hover {
+  background: #f8fafc;
+  border-color: #cbd5e1;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* 响应式设计 */
+@media (max-width: 1024px) {
+  .outfit-info-display {
+    width: 300px;
+    padding: 20px;
+  }
+}
+
+@media (max-width: 768px) {
+  .three-preview-container {
+    flex-direction: column;
+  }
+  
+  .outfit-info-display {
+    width: 100%;
+    height: 40vh;
+    border-left: none;
+    border-top: 1px solid #e2e8f0;
+    box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.05);
+  }
+  
+  .model-display-control {
+    height: 60vh;
+  }
 }
 </style>

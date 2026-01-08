@@ -1,5 +1,5 @@
 <template>
-  <div class="3d-preview-page">
+  <div class="three-preview-page">
     <header class="page-header">
       <h1>3D搭配预览</h1>
       <div class="header-actions">
@@ -65,7 +65,6 @@ import { ref, computed, onMounted } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import ThreePreview from '../components/ThreePreview.vue';
 import { useOutfitStore } from '../stores/modules/outfitStore';
-import { useClothingStore } from '../stores/modules/clothingStore';
 
 export default {
   name: 'ThreePreviewPage',
@@ -76,7 +75,6 @@ export default {
     const route = useRoute();
     const router = useRouter();
     const outfitStore = useOutfitStore();
-    const clothingStore = useClothingStore();
     
     const outfitId = ref(route.params.id || '');
     const bodyModelPath = ref('/models/body.glb'); // 默认身体模型路径
@@ -140,153 +138,373 @@ export default {
 </script>
 
 <style scoped>
-.3d-preview-page {
+.three-preview-page {
   width: 100%;
   min-height: 100vh;
-  background: #f8f9fa;
+  background: linear-gradient(135deg, #f9fafb 0%, #f3f4f6 100%);
 }
 
 .page-header {
   background: white;
-  padding: 20px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  padding: 20px 30px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
   display: flex;
   justify-content: space-between;
   align-items: center;
+  transition: all 0.3s ease;
+  border-radius: 0 0 16px 16px;
+  margin-bottom: 2px;
 }
 
 .page-header h1 {
   margin: 0;
   font-size: 24px;
-  color: #333;
+  color: #1f2937;
+  font-weight: 600;
+  line-height: 1.3;
 }
 
 .header-actions {
   display: flex;
-  gap: 10px;
+  gap: 12px;
 }
 
 .btn {
-  padding: 8px 16px;
+  padding: 10px 20px;
   border: none;
-  border-radius: 4px;
+  border-radius: 8px;
   cursor: pointer;
   font-size: 14px;
+  font-weight: 500;
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+  user-select: none;
+}
+
+.btn::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+  transition: left 0.6s ease;
+}
+
+.btn:hover::before {
+  left: 100%;
+}
+
+.btn:hover {
+  transform: translateY(-1px);
+}
+
+.btn:active {
+  transform: translateY(0);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 .btn-primary {
-  background: #4f46e5;
+  background: #3b82f6;
   color: white;
+  box-shadow: 0 2px 4px rgba(59, 130, 246, 0.3);
+}
+
+.btn-primary:hover {
+  background: #2563eb;
+  box-shadow: 0 4px 8px rgba(59, 130, 246, 0.4);
+}
+
+.btn-primary:active {
+  background: #1d4ed8;
 }
 
 .btn-secondary {
-  background: #6c757d;
+  background: #6b7280;
   color: white;
+  box-shadow: 0 2px 4px rgba(107, 114, 128, 0.3);
+}
+
+.btn-secondary:hover {
+  background: #4b5563;
+  box-shadow: 0 4px 8px rgba(107, 114, 128, 0.4);
+}
+
+.btn-secondary:active {
+  background: #374151;
 }
 
 .btn-sm {
-  padding: 4px 8px;
+  padding: 6px 12px;
   font-size: 12px;
+  border-radius: 6px;
+}
+
+.btn-sm:hover {
+  transform: translateY(-1px);
+}
+
+.btn-sm:active {
+  transform: translateY(0);
 }
 
 .page-content {
   display: flex;
-  height: calc(100vh - 80px);
+  height: calc(100vh - 140px);
+  gap: 0;
+  margin: 0;
 }
 
 .preview-section {
   flex: 1;
   position: relative;
   overflow: hidden;
+  background: linear-gradient(135deg, #f3f4f6 0%, #e5e7eb 100%);
+  border-right: 1px solid #e5e7eb;
+  border-radius: 12px 0 0 12px;
+  margin: 20px 0 20px 20px;
+  box-shadow: inset 0 0 20px rgba(0, 0, 0, 0.03);
 }
 
 .outfit-info {
-  width: 300px;
+  width: 350px;
   background: white;
-  padding: 20px;
-  box-shadow: -2px 0 4px rgba(0, 0, 0, 0.1);
+  padding: 24px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
   overflow-y: auto;
+  border-left: 1px solid #e5e7eb;
+  border-radius: 0 12px 12px 0;
+  margin: 20px 20px 20px 0;
+  position: relative;
+  z-index: 1;
 }
 
 .outfit-info h2 {
   margin-top: 0;
-  margin-bottom: 20px;
-  font-size: 18px;
-  color: #333;
+  margin-bottom: 24px;
+  font-size: 20px;
+  color: #1f2937;
+  font-weight: 600;
+  position: relative;
+  padding-bottom: 12px;
+}
+
+.outfit-info h2::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 60px;
+  height: 3px;
+  background: linear-gradient(90deg, #3b82f6, #ec4899);
+  border-radius: 3px;
 }
 
 .outfit-info h3 {
-  margin-top: 30px;
-  margin-bottom: 15px;
+  margin-top: 36px;
+  margin-bottom: 18px;
   font-size: 16px;
-  color: #555;
+  color: #4b5563;
+  font-weight: 500;
 }
 
 .outfit-details {
-  margin-bottom: 20px;
+  margin-bottom: 24px;
+  background: #f9fafb;
+  padding: 20px;
+  border-radius: 12px;
+  border: 1px solid #e5e7eb;
 }
 
 .detail-item {
-  margin-bottom: 10px;
+  margin-bottom: 14px;
   display: flex;
   justify-content: space-between;
+  align-items: center;
+}
+
+.detail-item:last-child {
+  margin-bottom: 0;
 }
 
 .detail-item label {
   font-weight: 500;
-  color: #666;
+  color: #6b7280;
+  font-size: 14px;
 }
 
 .detail-item span {
-  color: #333;
+  color: #1f2937;
+  font-size: 14px;
+  font-weight: 400;
 }
 
 .clothing-list {
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 12px;
 }
 
 .clothing-item {
-  background: #f8f9fa;
-  padding: 10px;
-  border-radius: 4px;
+  background: #f9fafb;
+  padding: 16px;
+  border-radius: 12px;
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 14px;
+  border: 1px solid #e5e7eb;
+  transition: all 0.3s ease;
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
+}
+
+.clothing-item::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(59, 130, 246, 0.1), transparent);
+  transition: left 0.6s ease;
+}
+
+.clothing-item:hover::before {
+  left: 100%;
+}
+
+.clothing-item:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+  border-color: #d1d5db;
 }
 
 .clothing-image {
-  width: 60px;
-  height: 60px;
+  width: 70px;
+  height: 70px;
   object-fit: cover;
-  border-radius: 4px;
+  border-radius: 8px;
+  border: 2px solid #e5e7eb;
+  transition: all 0.3s ease;
+  position: relative;
+  z-index: 1;
+}
+
+.clothing-item:hover .clothing-image {
+  border-color: #3b82f6;
+  transform: scale(1.02);
 }
 
 .clothing-info {
   flex: 1;
+  position: relative;
+  z-index: 1;
 }
 
 .clothing-info h4 {
-  margin: 0 0 5px 0;
+  margin: 0 0 6px 0;
   font-size: 14px;
-  color: #333;
+  color: #1f2937;
+  font-weight: 500;
+  line-height: 1.4;
+  transition: color 0.3s ease;
+}
+
+.clothing-item:hover .clothing-info h4 {
+  color: #3b82f6;
 }
 
 .clothing-info p {
   margin: 0;
   font-size: 12px;
-  color: #666;
+  color: #6b7280;
+  line-height: 1.4;
+  transition: color 0.3s ease;
+}
+
+.clothing-item:hover .clothing-info p {
+  color: #4b5563;
+}
+
+@media (max-width: 1024px) {
+  .outfit-info {
+    width: 300px;
+  }
 }
 
 @media (max-width: 768px) {
+  .page-header {
+    padding: 16px 20px;
+    flex-direction: column;
+    gap: 12px;
+    align-items: stretch;
+    border-radius: 0 0 12px 12px;
+    margin-bottom: 1px;
+  }
+
+  .header-actions {
+    justify-content: center;
+    gap: 8px;
+  }
+
   .page-content {
     flex-direction: column;
+    height: auto;
+    min-height: calc(100vh - 180px);
+    margin: 0;
+  }
+  
+  .preview-section {
+    height: 50vh;
+    border-right: none;
+    border-bottom: 1px solid #e5e7eb;
+    border-radius: 12px 12px 0 0;
+    margin: 10px 10px 0 10px;
   }
   
   .outfit-info {
     width: 100%;
-    height: 300px;
+    height: 50vh;
+    border-left: none;
+    border-top: 1px solid #e5e7eb;
+    border-radius: 0 0 12px 12px;
+    margin: 0 10px 10px 10px;
+  }
+}
+
+@media (max-width: 480px) {
+  .btn {
+    padding: 8px 16px;
+    font-size: 13px;
+  }
+  
+  .outfit-info {
+    padding: 16px;
+  }
+  
+  .clothing-item {
+    padding: 12px;
+    gap: 10px;
+  }
+  
+  .clothing-image {
+    width: 60px;
+    height: 60px;
+  }
+  
+  .preview-section {
+    height: 45vh;
+    margin: 8px;
+    border-radius: 8px 8px 0 0;
+  }
+  
+  .outfit-info {
+    height: 45vh;
+    margin: 0 8px 8px 8px;
+    border-radius: 0 0 8px 8px;
   }
 }
 </style>
