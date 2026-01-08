@@ -31,6 +31,11 @@ export const useOutfitStore = defineStore('outfit', {
     popularOutfits: state => {
       return [...state.outfits].sort((a, b) => b.likes - a.likes).slice(0, 5);
     },
+
+    // 根据ID获取搭配
+    getOutfitById: state => id => {
+      return state.outfits.find(outfit => outfit.id === id);
+    },
   },
 
   actions: {

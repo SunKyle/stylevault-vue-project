@@ -6,6 +6,7 @@ import InspirationView from '../views/InspirationView.vue';
 import AnalysisView from '../views/AnalysisView.vue';
 import UploadView from '../views/UploadView.vue';
 import LoginPage from '../views/LoginPage.vue';
+import ThreePreviewPage from '../views/ThreePreviewPage.vue';
 
 const routes = [
   {
@@ -41,6 +42,16 @@ const routes = [
     path: '/upload',
     name: 'upload',
     component: UploadView,
+  },
+  {
+    path: '/preview/:id',
+    name: 'preview-detail',
+    component: ThreePreviewPage,
+  },
+  {
+    path: '/preview',
+    name: 'preview',
+    component: ThreePreviewPage,
   },
 ];
 

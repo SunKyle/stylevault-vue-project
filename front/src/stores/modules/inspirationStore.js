@@ -13,6 +13,7 @@
 
 import { defineStore } from 'pinia';
 import { ref, computed, reactive, watch } from 'vue';
+import { useRouter } from 'vue-router';
 import { useClothingStore } from './clothingStore';
 import { useOutfitStore } from './outfitStore';
 
@@ -74,6 +75,7 @@ export const useInspirationStore = defineStore(
 
     const clothingStore = useClothingStore();
     const outfitStore = useOutfitStore();
+    const router = useRouter();
 
     // --- 状态定义 ---
 
@@ -401,11 +403,13 @@ export const useInspirationStore = defineStore(
     };
 
     /**
-     * 加载已保存的搭配到选中列表
+     * 加载已保存的搭配到选中列表并跳转到详情页
      * @param {object} outfit - 搭配对象
      */
     const loadOutfit = outfit => {
       selectedClothes.value = [...(outfit.items || [])];
+      // 跳转到详情页
+      router.push(`/preview/${outfit.id}`);
     };
 
     /**
