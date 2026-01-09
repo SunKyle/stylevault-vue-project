@@ -1,96 +1,114 @@
 <template>
   <div class="three-preview-container" ref="containerRef">
     <!-- 模型展示控制区域 -->
-    <div class="model-display-control">
-      <div class="preview-controls">
-        <div class="control-group">
-          <label>视图预设：</label>
-          <button
-            v-for="(view, name) in viewPresets"
-            :key="name"
-            @click="setViewPreset(name)"
-            :class="{ active: currentView === name }"
-          >
-            {{ name }}
-          </button>
-        </div>
+    <div class="preview-canvas" ref="canvasRef"></div>
 
-        <div class="control-group">
-          <label>质量等级：</label>
-          <select v-model="qualityLevel" @change="setQuality(qualityLevel)">
-            <option value="low">低</option>
-            <option value="medium">中</option>
-            <option value="high">高</option>
-          </select>
-        </div>
-
-        <div class="control-group">
-          <label>光照：</label>
-          <select v-model="lighting" @change="setLighting(lighting)">
-            <option value="studio">工作室</option>
-            <option value="natural">自然光</option>
-            <option value="dramatic">戏剧光</option>
-          </select>
-        </div>
-
-        <div class="control-group">
-          <label>背景：</label>
-          <select v-model="background" @change="setBackground(background)">
-            <option value="white">白色</option>
-            <option value="black">黑色</option>
-            <option value="gradient">渐变</option>
-            <option value="environment">环境</option>
-          </select>
-        </div>
-
-        <div class="control-group">
-          <label>工具：</label>
-          <button
-            v-for="tool in tools"
-            :key="tool"
-            @click="setTool(tool)"
-            :class="{ active: currentTool === tool }"
-          >
-            {{ tool }}
-          </button>
-        </div>
-
-        <div class="control-group">
-          <label>变换模式：</label>
-          <button
-            v-for="mode in transformModes"
-            :key="mode"
-            @click="setTransformMode(mode)"
-            :class="{ active: currentTransformMode === mode }"
-          >
-            {{ mode }}
-          </button>
-        </div>
-
-        <div class="control-group">
-          <label>效果：</label>
-          <label class="checkbox">
-            <input type="checkbox" v-model="shadows" @change="toggleShadows(shadows)" />
-            阴影
-          </label>
-          <label class="checkbox">
-            <input
-              type="checkbox"
-              v-model="postProcessing"
-              @change="togglePostProcessing(postProcessing)"
-            />
-            后处理
-          </label>
-        </div>
-
-        <div class="performance-stats">
-          <div data-value="{{ performance.fps }}">FPS:</div>
-          <div data-value="{{ Math.round(performance.renderTime) }}ms">渲染时间:</div>
-          <div data-value="{{ performance.drawCalls }}">绘制调用:</div>
-        </div>
+    <div class="preview-controls" :class="{ collapsed: isCollapsed }">
+      <!-- 可折叠面板标题 -->
+      <div class="panel-header" @click="toggleCollapse">
+        <h2 class="panel-title">{{ isCollapsed ? '设置' : '视图与参数设置' }}</h2>
+        <button class="collapse-btn" :class="{ collapsed: isCollapsed }">
+          {{ isCollapsed ? '›' : '‹' }}
+        </button>
       </div>
 
-      <div class="preview-canvas" ref="canvasRef"></div>
+      <div v-if="!isCollapsed" class="panel-content">
+        <!-- 第一组：视图控制 -->
+        <div class="control-section">
+          <h3 class="section-title">视图控制</h3>
+          <div class="control-group">
+            <label>视图预设：</label>
+            <button
+              v-for="(view, name) in viewPresets"
+              :key="name"
+              @click="setViewPreset(name)"
+              :class="{ active: currentView === name }"
+            >
+              {{ name }}
+            </button>
+          </div>
+        </div>
+
+        <!-- 第二组：渲染参数 -->
+        <div class="control-section">
+          <h3 class="section-title">渲染参数</h3>
+          <div class="control-group">
+            <label>质量等级：</label>
+            <select v-model="qualityLevel" @change="setQuality(qualityLevel)">
+              <option value="low">低</option>
+              <option value="medium">中</option>
+              <option value="high">高</option>
+            </select>
+          </div>
+
+          <div class="control-group">
+            <label>光照：</label>
+            <select v-model="lighting" @change="setLighting(lighting)">
+              <option value="studio">工作室</option>
+              <option value="natural">自然光</option>
+              <option value="dramatic">戏剧光</option>
+            </select>
+          </div>
+
+          <div class="control-group">
+            <label>背景：</label>
+            <select v-model="background" @change="setBackground(background)">
+              <option value="white">白色</option>
+              <option value="black">黑色</option>
+              <option value="gradient">渐变</option>
+              <option value="environment">环境</option>
+            </select>
+          </div>
+
+          <div class="control-group">
+            <label>效果：</label>
+            <label class="checkbox">
+              <input type="checkbox" v-model="shadows" @change="toggleShadows(shadows)" />
+              阴影
+            </label>
+            <label class="checkbox">
+              <input
+                type="checkbox"
+                v-model="postProcessing"
+                @change="togglePostProcessing(postProcessing)"
+              />
+              后处理
+            </label>
+          </div>
+        </div>
+
+        <!-- 第三组：操作工具 -->
+        <div class="control-section">
+          <h3 class="section-title">操作工具</h3>
+          <div class="control-group">
+            <label>变换模式：</label>
+            <button
+              v-for="mode in transformModes"
+              :key="mode"
+              @click="setTransformMode(mode)"
+              :class="{ active: currentTransformMode === mode }"
+            >
+              {{ mode }}
+            </button>
+          </div>
+          <div class="control-group">
+            <label>工具：</label>
+            <button
+              v-for="tool in tools"
+              :key="tool"
+              @click="setTool(tool)"
+              :class="{ active: currentTool === tool }"
+            >
+              {{ tool }}
+            </button>
+          </div>
+          <div class="performance-stats">
+            <div data-value="{{ performance.fps }}">FPS:</div>
+            <div data-value="{{ Math.round(performance.renderTime) }}ms">渲染时间:</div>
+            <div data-value="{{ performance.drawCalls }}">绘制调用:</div>
+          </div>
+        </div>
+      </div>
     </div>
   </div>
 </template>
@@ -124,6 +142,12 @@
       const previewStore = usePreviewStore();
       const interactionStore = useInteractionStore();
       const outfitStore = useOutfitStore();
+
+      // 可折叠面板状态
+      const isCollapsed = ref(false);
+      const toggleCollapse = () => {
+        isCollapsed.value = !isCollapsed.value;
+      };
 
       let engine = null;
       let fitSystem = null;
@@ -408,6 +432,8 @@
         toggleShadows,
         togglePostProcessing,
         selectClothing,
+        isCollapsed,
+        toggleCollapse,
       };
     },
   };
@@ -417,7 +443,7 @@
   .three-preview-container {
     width: 100%;
     height: 100%;
-    display: flex;
+    position: relative;
     background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
   }
 
@@ -441,16 +467,128 @@
     top: 20px;
     left: 20px;
     background: rgba(255, 255, 255, 0.98);
-    padding: 20px;
+    padding: 0;
     border-radius: 12px;
     box-shadow:
       0 10px 25px -5px rgba(0, 0, 0, 0.1),
       0 10px 10px -5px rgba(0, 0, 0, 0.04);
     z-index: 40;
-    max-width: 340px;
+    max-width: 360px;
+    min-width: 280px;
     backdrop-filter: blur(10px);
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     border: 1px solid rgba(255, 255, 255, 0.2);
+    overflow: hidden;
+  }
+
+  /* 可折叠面板标题 */
+  .panel-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 16px 20px;
+    cursor: pointer;
+    background: linear-gradient(
+      135deg,
+      rgba(255, 255, 255, 0.98) 0%,
+      rgba(248, 250, 252, 0.98) 100%
+    );
+    border-bottom: 1px solid #f1f5f9;
+  }
+
+  .panel-title {
+    margin: 0;
+    font-size: 16px;
+    font-weight: 600;
+    color: #0f172a;
+  }
+
+  .collapse-btn {
+    background: none;
+    border: none;
+    font-size: 18px;
+    font-weight: bold;
+    color: #64748b;
+    cursor: pointer;
+    padding: 4px 8px;
+    border-radius: 4px;
+    transition: all 0.2s ease;
+  }
+
+  .collapse-btn:hover {
+    background: #f1f5f9;
+    color: #334155;
+  }
+
+  /* 面板内容 */
+  .panel-content {
+    padding: 16px 20px;
+    max-height: calc(100vh - 240px);
+    overflow-y: auto;
+    scrollbar-width: thin;
+    scrollbar-color: #cbd5e1 transparent;
+  }
+
+  /* 分组样式 */
+  .control-section {
+    margin-bottom: 24px;
+    padding-bottom: 16px;
+    border-bottom: 1px solid #e2e8f0;
+  }
+
+  .control-section:last-child {
+    border-bottom: none;
+    margin-bottom: 0;
+    padding-bottom: 0;
+  }
+
+  .section-title {
+    margin-top: 0;
+    margin-bottom: 12px;
+    font-size: 14px;
+    font-weight: 600;
+    color: #374151;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  /* 折叠状态 */
+  .preview-controls.collapsed {
+    min-width: auto;
+    max-width: auto;
+    width: 60px;
+  }
+
+  .preview-controls.collapsed .panel-header {
+    padding: 12px;
+    justify-content: center;
+  }
+
+  .preview-controls.collapsed .panel-title {
+    font-size: 12px;
+    text-align: center;
+  }
+
+  .preview-controls.collapsed .collapse-btn {
+    display: none;
+  }
+
+  .preview-controls.collapsed .panel-content {
+    display: none;
+  }
+
+  .preview-controls::-webkit-scrollbar {
+    width: 6px;
+  }
+
+  .preview-controls::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  .preview-controls::-webkit-scrollbar-thumb {
+    background-color: #cbd5e1;
+    border-radius: 3px;
+    border: 2px solid rgba(255, 255, 255, 0.98);
   }
 
   .preview-controls:hover {
@@ -461,8 +599,8 @@
   }
 
   .control-group {
-    margin-bottom: 20px;
-    padding-bottom: 16px;
+    margin-bottom: 12px;
+    padding-bottom: 8px;
     border-bottom: 1px solid #f1f5f9;
     transition: all 0.3s ease;
   }
@@ -475,7 +613,7 @@
 
   .control-group label {
     display: block;
-    margin-bottom: 10px;
+    margin-bottom: 8px;
     font-weight: 600;
     font-size: 12px;
     color: #334155;
@@ -498,14 +636,14 @@
   }
 
   .control-group button {
-    margin-right: 8px;
-    margin-bottom: 8px;
-    padding: 6px 12px;
+    margin-right: 6px;
+    margin-bottom: 6px;
+    padding: 5px 10px;
     border: 1px solid #e2e8f0;
-    border-radius: 8px;
+    border-radius: 6px;
     background: #ffffff;
     cursor: pointer;
-    font-size: 12px;
+    font-size: 11px;
     font-weight: 500;
     color: #334155;
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
@@ -620,11 +758,11 @@
   .performance-stats {
     background: linear-gradient(135deg, rgba(15, 23, 42, 0.9) 0%, rgba(30, 41, 59, 0.9) 100%);
     color: white;
-    padding: 16px 20px;
-    border-radius: 12px;
-    font-size: 11px;
+    padding: 12px 16px;
+    border-radius: 8px;
+    font-size: 10px;
     font-family: monospace;
-    margin-top: 16px;
+    margin-top: 12px;
     backdrop-filter: blur(12px);
     border: 1px solid rgba(255, 255, 255, 0.1);
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
@@ -657,13 +795,10 @@
   .preview-canvas {
     width: 100%;
     height: 100%;
-    flex: 1;
-    position: relative;
-    background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
-    border-radius: 8px;
-    overflow: hidden;
-    box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.1);
-    transition: all 0.3s ease;
+    position: absolute;
+    top: 0;
+    left: 0;
+    z-index: 1;
   }
 
   .preview-canvas::before {
@@ -674,273 +809,10 @@
     right: 0;
     height: 4px;
     background: linear-gradient(90deg, #4f46e5 0%, #8b5cf6 50%, #ec4899 100%);
-    z-index: 1;
+    z-index: 2;
   }
 
   .preview-canvas:hover {
     box-shadow: inset 0 4px 8px rgba(0, 0, 0, 0.15);
-  }
-
-  /* 搭配信息展示区域 */
-  .outfit-info-display {
-    width: 350px;
-    background: #ffffff;
-    border-left: 1px solid #e2e8f0;
-    padding: 25px;
-    overflow-y: auto;
-    box-shadow: -4px 0 20px rgba(0, 0, 0, 0.05);
-    display: flex;
-    flex-direction: column;
-    gap: 25px;
-  }
-
-  .outfit-title {
-    font-size: 1.6rem;
-    font-weight: 600;
-    margin-bottom: 0;
-    color: #1e293b;
-    border-bottom: 3px solid #4f46e5;
-    padding-bottom: 12px;
-    display: flex;
-    align-items: center;
-    gap: 10px;
-  }
-
-  .outfit-title::before {
-    content: '👗';
-    font-size: 1.2rem;
-  }
-
-  .outfit-details {
-    background: #f8fafc;
-    padding: 20px;
-    border-radius: 10px;
-    border: 1px solid #e2e8f0;
-    transition: all 0.3s ease;
-  }
-
-  .outfit-details:hover {
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
-    transform: translateY(-2px);
-  }
-
-  .detail-item {
-    margin-bottom: 12px;
-    font-size: 14px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 6px 0;
-    border-bottom: 1px solid #f0f0f0;
-  }
-
-  .detail-item:last-child {
-    margin-bottom: 0;
-    border-bottom: none;
-  }
-
-  .detail-item .label {
-    font-weight: 500;
-    color: #64748b;
-    flex-shrink: 0;
-    min-width: 80px;
-  }
-
-  .detail-item .value {
-    color: #1e293b;
-    font-weight: 400;
-    text-align: right;
-    flex: 1;
-    word-break: break-all;
-  }
-
-  .section-title {
-    font-size: 1.1rem;
-    font-weight: 500;
-    margin-bottom: 18px;
-    color: #334155;
-    border-bottom: 1px solid #e2e8f0;
-    padding-bottom: 10px;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-  }
-
-  .section-title::before {
-    content: '📋';
-    font-size: 0.9rem;
-  }
-
-  .clothing-list {
-    flex: 1;
-    min-height: 200px;
-  }
-
-  .clothing-items {
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
-  }
-
-  .clothing-item {
-    background: #f8fafc;
-    padding: 15px;
-    border-radius: 8px;
-    border-left: 4px solid #4f46e5;
-    transition: all 0.2s ease;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
-  }
-
-  .clothing-item:hover {
-    background: #f1f5f9;
-    transform: translateX(4px);
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
-  }
-
-  .clothing-id {
-    font-size: 14px;
-    color: #1e293b;
-    font-weight: 400;
-    flex: 1;
-  }
-
-  .clothing-actions {
-    display: flex;
-    gap: 8px;
-  }
-
-  .action-btn {
-    padding: 4px 8px;
-    border: 1px solid #e2e8f0;
-    border-radius: 4px;
-    background: #ffffff;
-    cursor: pointer;
-    font-size: 12px;
-    color: #475569;
-    transition: all 0.2s ease;
-  }
-
-  .action-btn:hover {
-    background: #f8fafc;
-    border-color: #cbd5e1;
-  }
-
-  .empty-state {
-    text-align: center;
-    padding: 40px 20px;
-    color: #94a3b8;
-    background: #f8fafc;
-    border-radius: 10px;
-    border: 2px dashed #cbd5e1;
-    transition: all 0.3s ease;
-  }
-
-  .empty-state:hover {
-    border-color: #94a3b8;
-    background: #f1f5f9;
-  }
-
-  .empty-icon {
-    font-size: 3rem;
-    margin-bottom: 15px;
-    animation: pulse 2s infinite;
-  }
-
-  @keyframes pulse {
-    0% {
-      transform: scale(1);
-    }
-    50% {
-      transform: scale(1.05);
-    }
-    100% {
-      transform: scale(1);
-    }
-  }
-
-  .empty-text {
-    font-size: 1.1rem;
-    font-weight: 500;
-    margin-bottom: 8px;
-    color: #64748b;
-  }
-
-  .empty-subtext {
-    font-size: 0.9rem;
-    color: #94a3b8;
-  }
-
-  .outfit-actions {
-    display: flex;
-    gap: 12px;
-    margin-top: 20px;
-  }
-
-  .primary-btn {
-    flex: 1;
-    padding: 12px 20px;
-    border: none;
-    border-radius: 8px;
-    background: #4f46e5;
-    color: white;
-    font-weight: 500;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    box-shadow: 0 2px 4px rgba(79, 70, 229, 0.3);
-  }
-
-  .primary-btn:hover {
-    background: #4338ca;
-    transform: translateY(-2px);
-    box-shadow: 0 4px 8px rgba(79, 70, 229, 0.4);
-  }
-
-  .secondary-btn {
-    flex: 1;
-    padding: 12px 20px;
-    border: 1px solid #e2e8f0;
-    border-radius: 8px;
-    background: #ffffff;
-    color: #475569;
-    font-weight: 500;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
-  }
-
-  .secondary-btn:hover {
-    background: #f8fafc;
-    border-color: #cbd5e1;
-    transform: translateY(-2px);
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-  }
-
-  /* 响应式设计 */
-  @media (max-width: 1024px) {
-    .outfit-info-display {
-      width: 300px;
-      padding: 20px;
-    }
-  }
-
-  @media (max-width: 768px) {
-    .three-preview-container {
-      flex-direction: column;
-    }
-
-    .outfit-info-display {
-      width: 100%;
-      height: 40vh;
-      border-left: none;
-      border-top: 1px solid #e2e8f0;
-      box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.05);
-    }
-
-    .model-display-control {
-      height: 60vh;
-    }
   }
 </style>

@@ -1,64 +1,62 @@
 <template>
-  <div class="three-preview-page">
-    <header class="page-header">
-      <div class="header-content">
-        <h1 class="page-title">3D搭配预览</h1>
-        <div class="header-actions">
-          <button @click="goBack" class="btn btn-primary">
-            <span class="btn-text">返回</span>
-          </button>
-          <button @click="savePreview" class="btn btn-secondary">
-            <span class="btn-text">保存</span>
-          </button>
-          <button @click="exportImage" class="btn btn-secondary">
-            <span class="btn-text">导出</span>
-          </button>
-        </div>
-      </div>
-    </header>
-
     <main class="page-content">
+      <div class="preview-controls">
+        <button @click="goBack" class="btn btn-primary">
+          <span class="btn-text">返回</span>
+        </button>
+        <button @click="savePreview" class="btn btn-secondary">
+          <span class="btn-text">保存</span>
+        </button>
+        <button @click="exportImage" class="btn btn-secondary">
+          <span class="btn-text">导出</span>
+        </button>
+      </div>
+
       <div class="preview-section">
         <ThreePreview :bodyModelPath="bodyModelPath" :outfitId="outfitId" class="three-preview" />
       </div>
 
+      <!-- 搭配信息 -->
       <aside class="outfit-info">
-        <div class="info-card">
-          <h2 class="card-title">搭配信息</h2>
-          <div v-if="outfit" class="outfit-details">
-            <div class="detail-item">
-              <label class="detail-label">名称：</label>
-              <span class="detail-value">{{ outfit.title }}</span>
-            </div>
-            <div class="detail-item">
-              <label class="detail-label">创建时间：</label>
-              <span class="detail-value">{{ formatDate(outfit.createdAt) }}</span>
-            </div>
-            <div class="detail-item">
-              <label class="detail-label">元素数量：</label>
-              <span class="detail-value">{{ outfit.items.length }}</span>
+        <div class="outfit-info-header">
+          <h2 class="outfit-info-title">搭配信息</h2>
+        </div>
+        <div class="outfit-info-content">
+          <div class="info-card">
+            <div v-if="outfit" class="outfit-details">
+              <div class="detail-item">
+                <label class="detail-label">名称：</label>
+                <span class="detail-value">{{ outfit.title }}</span>
+              </div>
+              <div class="detail-item">
+                <label class="detail-label">创建时间：</label>
+                <span class="detail-value">{{ formatDate(outfit.createdAt) }}</span>
+              </div>
+              <div class="detail-item">
+                <label class="detail-label">元素数量：</label>
+                <span class="detail-value">{{ outfit.items.length }}</span>
+              </div>
             </div>
           </div>
-        </div>
 
-        <div class="info-card">
-          <h3 class="card-title">搭配元素</h3>
-          <div class="clothing-list">
-            <div v-for="item in outfit?.items" :key="item.id" class="clothing-item">
-              <img :src="item.imageUrl" :alt="item.name" class="clothing-image" />
-              <div class="clothing-info">
-                <h4 class="clothing-name">{{ item.name }}</h4>
-                <p class="clothing-category">{{ item.category }}</p>
+          <div class="info-card">
+            <h3 class="card-subtitle">搭配元素</h3>
+            <div class="clothing-list">
+              <div v-for="item in outfit?.items" :key="item.id" class="clothing-item">
+                <img :src="item.imageUrl" :alt="item.name" class="clothing-image" />
+                <div class="clothing-info">
+                  <h4 class="clothing-name">{{ item.name }}</h4>
+                  <p class="clothing-category">{{ item.category }}</p>
+                </div>
+                <button @click="focusOnClothing(item.id)" class="btn btn-sm btn-focus">
+                  <span class="btn-icon">🔍</span>
+                </button>
               </div>
-              <button @click="focusOnClothing(item.id)" class="btn btn-sm btn-focus">
-                <span class="btn-icon">🔍</span>
-              </button>
             </div>
           </div>
         </div>
       </aside>
     </main>
-  </div>
 </template>
 
 <script>
@@ -146,12 +144,21 @@
   .page-header {
     background: white;
     padding: 20px 32px;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+    box-shadow: 0 -4px 16px rgba(0, 0, 0, 0.1);
     display: flex;
     justify-content: space-between;
     align-items: center;
-    border-radius: 0 0 12px 12px;
-    margin-bottom: 20px;
+    border-radius: 16px 16px 0 0;
+    position: fixed;
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: calc(100% - 48px);
+    max-width: 1400px;
+    z-index: 100;
+    backdrop-filter: blur(10px);
+    background-color: rgba(255, 255, 255, 0.95);
+    transition: all 0.3s ease;
   }
 
   .header-content {
@@ -176,30 +183,53 @@
   }
 
   .btn {
-    padding: 10px 20px;
+    padding: 12px 24px;
     border: none;
-    border-radius: 8px;
+    border-radius: 10px;
     cursor: pointer;
-    font-size: 14px;
+    font-size: 15px;
     font-weight: 600;
-    transition: all 0.2s ease;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     user-select: none;
     display: flex;
     align-items: center;
     gap: 8px;
+    min-width: 100px;
+    justify-content: center;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .btn::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+    transition: left 0.5s ease;
+  }
+
+  .btn:hover::before {
+    left: 100%;
   }
 
   .btn-icon {
-    font-size: 16px;
+    font-size: 17px;
+    position: relative;
+    z-index: 1;
   }
 
   .btn-text {
-    font-weight: 500;
+    font-weight: 600;
+    position: relative;
+    z-index: 1;
   }
 
   .btn:hover {
-    transform: translateY(-1px);
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.18);
   }
 
   .btn:active {
@@ -209,12 +239,12 @@
   .btn-primary {
     background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
     color: white;
-    box-shadow: 0 4px 15px rgba(59, 130, 246, 0.3);
+    box-shadow: 0 6px 20px rgba(59, 130, 246, 0.35);
   }
 
   .btn-primary:hover {
     background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
-    box-shadow: 0 6px 20px rgba(59, 130, 246, 0.4);
+    box-shadow: 0 8px 28px rgba(59, 130, 246, 0.45);
   }
 
   .btn-primary:active {
@@ -224,12 +254,12 @@
   .btn-secondary {
     background: linear-gradient(135deg, #6b7280 0%, #4b5563 100%);
     color: white;
-    box-shadow: 0 4px 15px rgba(107, 114, 128, 0.3);
+    box-shadow: 0 6px 20px rgba(107, 114, 128, 0.35);
   }
 
   .btn-secondary:hover {
     background: linear-gradient(135deg, #4b5563 0%, #374151 100%);
-    box-shadow: 0 6px 20px rgba(107, 114, 128, 0.4);
+    box-shadow: 0 8px 28px rgba(107, 114, 128, 0.45);
   }
 
   .btn-secondary:active {
@@ -263,9 +293,14 @@
 
   .page-content {
     display: flex;
-    height: calc(100vh - 160px);
+    height: calc(100vh - 120px);
     gap: 0;
-    margin: 0;
+    margin: 24px;
+    margin-bottom: 120px;
+    position: relative;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
   }
 
   .preview-section {
@@ -273,10 +308,23 @@
     position: relative;
     overflow: hidden;
     background: linear-gradient(135deg, #f1f5f9 0%, #e2e8f0 100%);
-    border-right: 1px solid #e2e8f0;
-    border-radius: 16px 0 0 16px;
-    margin: 24px 0 24px 24px;
-    box-shadow: inset 0 0 30px rgba(0, 0, 0, 0.04);
+  }
+
+  .preview-controls {
+    position: absolute;
+    bottom: 30px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 50;
+    display: flex;
+    gap: 16px;
+    padding: 16px 24px;
+    background: rgba(255, 255, 255, 0.95);
+    border-radius: 12px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    transition: all 0.3s ease;
   }
 
   .preview-container {
@@ -290,17 +338,39 @@
     height: 100%;
   }
 
+  /* 搭配信息固定右侧样式 */
   .outfit-info {
-    width: 350px;
+    width: 380px;
+    height: 100%;
     background: white;
-    padding: 0;
-    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.05);
+    box-shadow: -4px 0 20px rgba(0, 0, 0, 0.1);
     overflow-y: auto;
-    border-left: 1px solid #e2e8f0;
-    border-radius: 0 12px 12px 0;
-    margin: 0 24px 24px 0;
-    position: relative;
-    z-index: 1;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .outfit-info-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px;
+    border-bottom: 1px solid #f1f5f9;
+    background: white;
+    position: sticky;
+    top: 0;
+    z-index: 10;
+  }
+
+  .outfit-info-title {
+    margin: 0;
+    font-size: 20px;
+    color: #0f172a;
+    font-weight: 600;
+  }
+
+  .outfit-info-content {
+    padding: 20px;
+    flex: 1;
   }
 
   .info-card {
@@ -420,146 +490,32 @@
     line-height: 1.3;
   }
 
-  @media (max-width: 1200px) {
-    .outfit-info {
-      width: 350px;
-    }
-  }
-
-  @media (max-width: 1024px) {
-    .outfit-info {
-      width: 320px;
-    }
-
-    .page-header {
-      padding: 20px 28px;
-    }
-
-    .page-title {
-      font-size: 24px;
-    }
-  }
-
+  /* 响应式设计 - 为浮动抽屉添加适配 */
   @media (max-width: 768px) {
-    .page-header {
-      padding: 16px 20px;
-      flex-direction: column;
-      gap: 12px;
-      align-items: stretch;
-      border-radius: 0 0 12px 12px;
-      margin-bottom: 16px;
-    }
-
-    .header-content {
-      flex-direction: column;
-      gap: 12px;
-    }
-
-    .header-actions {
-      justify-content: center;
-      gap: 10px;
-    }
-
-    .page-content {
-      flex-direction: column;
-      height: auto;
-      min-height: calc(100vh - 160px);
-      margin: 0;
-    }
-
-    .preview-section {
-      height: 50vh;
-      border-right: none;
-      border-bottom: 1px solid #e2e8f0;
-      border-radius: 12px 12px 0 0;
-      margin: 0 16px 0 16px;
-    }
-
-    .outfit-info {
+    .outfit-info-drawer {
       width: 100%;
-      height: 45vh;
-      border-left: none;
-      border-top: 1px solid #e2e8f0;
-      border-radius: 0 0 12px 12px;
-      margin: 0 16px 16px 16px;
+      max-width: 100%;
+      right: 0;
+      top: 0;
+      bottom: 0;
+      border-radius: 0;
     }
 
-    .info-card {
-      padding: 16px;
-    }
-
-    .card-title {
-      font-size: 16px;
-      margin-bottom: 16px;
-    }
-
-    .outfit-details {
-      padding: 12px;
+    .drawer-content {
+      max-height: calc(100vh - 64px);
     }
   }
 
   @media (max-width: 480px) {
-    .page-header {
-      padding: 16px 20px;
+    .drawer-toggle {
+      font-size: 12px;
+      padding: 10px;
+      flex-direction: column;
+      gap: 4px;
     }
 
-    .page-title {
-      font-size: 22px;
-    }
-
-    .btn {
-      padding: 10px 20px;
-      font-size: 13px;
-    }
-
-    .info-card {
-      padding: 20px;
-    }
-
-    .clothing-item {
-      padding: 16px;
-      gap: 12px;
-    }
-
-    .clothing-image {
-      width: 65px;
-      height: 65px;
-    }
-
-    .preview-section {
-      height: 50vh;
-      margin: 12px;
-      border-radius: 12px 12px 0 0;
-    }
-
-    .outfit-info {
-      height: 45vh;
-      margin: 0 12px 12px 12px;
-      border-radius: 0 0 12px 12px;
-    }
-
-    .card-title {
-      font-size: 18px;
-    }
-  }
-
-  @media (max-width: 360px) {
-    .header-actions {
-      flex-wrap: wrap;
-    }
-
-    .btn {
-      flex: 1;
-      min-width: 100px;
-    }
-
-    .clothing-item {
-      padding: 14px;
-    }
-
-    .clothing-image {
-      width: 55px;
-      height: 55px;
+    .drawer-toggle .btn-text {
+      font-size: 10px;
     }
   }
 </style>
