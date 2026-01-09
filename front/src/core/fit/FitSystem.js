@@ -18,15 +18,13 @@ class FitSystem {
     this.identifyBodyParts();
   }
 
-
-
   findBodyPart(partName) {
     // 简化实现，实际项目中可能需要更复杂的骨骼或顶点分析
     if (!this.bodyModel) return null;
 
     // 基于名称查找
     let part = null;
-    this.bodyModel.traverse((child) => {
+    this.bodyModel.traverse(child => {
       if (child.isMesh && child.name.toLowerCase().includes(partName)) {
         part = child;
       }
@@ -52,7 +50,7 @@ class FitSystem {
       shoulders: new THREE.Vector3(0, 1.3, 0),
       hands: new THREE.Vector3(0.5, 0.8, 0),
       neck: new THREE.Vector3(0, 1.4, 0),
-      wrists: new THREE.Vector3(0.3, 0.9, 0)
+      wrists: new THREE.Vector3(0.3, 0.9, 0),
     };
 
     return positions[partName] || new THREE.Vector3(0, 0, 0);
@@ -82,7 +80,7 @@ class FitSystem {
   basicFit(clothingObject, clothingItem, bodyParts) {
     // 基础位置调整
     const adjustments = this.fitStore.getAdjustments(clothingItem.id);
-    
+
     // 计算目标位置
     let targetPosition = new THREE.Vector3(0, 0, 0);
     let partCount = 0;
@@ -105,11 +103,13 @@ class FitSystem {
 
     // 应用调整
     if (adjustments.position) {
-      targetPosition.add(new THREE.Vector3(
-        adjustments.position.x || 0,
-        adjustments.position.y || 0,
-        adjustments.position.z || 0
-      ));
+      targetPosition.add(
+        new THREE.Vector3(
+          adjustments.position.x || 0,
+          adjustments.position.y || 0,
+          adjustments.position.z || 0
+        )
+      );
     }
 
     // 设置位置
@@ -145,13 +145,14 @@ class FitSystem {
 
     // 顶点变形（简化实现）
     const adjustments = this.fitStore.getAdjustments(clothingItem.id);
-    
-    clothingObject.traverse((child) => {
+
+    clothingObject.traverse(child => {
       if (child.isMesh && child.geometry) {
         const geometry = child.geometry;
         const positionAttribute = geometry.attributes.position;
-        const originalPositions = geometry.userData.originalPositions || positionAttribute.array.slice();
-        
+        const originalPositions =
+          geometry.userData.originalPositions || positionAttribute.array.slice();
+
         // 保存原始位置
         if (!geometry.userData.originalPositions) {
           geometry.userData.originalPositions = originalPositions;
@@ -173,21 +174,18 @@ class FitSystem {
               if (distance < 0.5) {
                 // 靠近身体部位的顶点进行微调
                 const factor = 1 - distance / 0.5;
-                deformation.add(new THREE.Vector3(
-                  (adjustments.deformation?.x || 0) * factor,
-                  (adjustments.deformation?.y || 0) * factor,
-                  (adjustments.deformation?.z || 0) * factor
-                ));
+                deformation.add(
+                  new THREE.Vector3(
+                    (adjustments.deformation?.x || 0) * factor,
+                    (adjustments.deformation?.y || 0) * factor,
+                    (adjustments.deformation?.z || 0) * factor
+                  )
+                );
               }
             }
           });
 
-          positionAttribute.setXYZ(
-            i,
-            x + deformation.x,
-            y + deformation.y,
-            z + deformation.z
-          );
+          positionAttribute.setXYZ(i, x + deformation.x, y + deformation.y, z + deformation.z);
         }
 
         positionAttribute.needsUpdate = true;
@@ -210,7 +208,7 @@ class FitSystem {
   autoScale(clothingObject, bodyParts) {
     // 计算身体部位的边界盒
     const bbox = new THREE.Box3();
-    
+
     bodyParts.forEach(partName => {
       const part = this.bodyParts[partName];
       if (part) {
@@ -224,16 +222,16 @@ class FitSystem {
 
     // 计算服装的边界盒
     const clothingBbox = new THREE.Box3().setFromObject(clothingObject);
-    
+
     // 计算缩放比例
     const bodySize = new THREE.Vector3();
     const clothingSize = new THREE.Vector3();
     bbox.getSize(bodySize);
     clothingBbox.getSize(clothingSize);
 
-    const scaleX = bodySize.x / clothingSize.x * 0.9;
-    const scaleY = bodySize.y / clothingSize.y * 0.9;
-    const scaleZ = bodySize.z / clothingSize.z * 0.9;
+    const scaleX = (bodySize.x / clothingSize.x) * 0.9;
+    const scaleY = (bodySize.y / clothingSize.y) * 0.9;
+    const scaleZ = (bodySize.z / clothingSize.z) * 0.9;
     const scale = Math.min(scaleX, scaleY, scaleZ);
 
     clothingObject.scale.set(scale, scale, scale);
@@ -242,7 +240,7 @@ class FitSystem {
   updateFit(clothingObject, clothingItem) {
     const strategy = this.fitStore.getCurrentStrategy();
     const bodyParts = this.mapClothingToBody(clothingItem);
-    
+
     switch (strategy) {
       case 'advanced':
         return this.advancedFit(clothingObject, clothingItem, bodyParts);
@@ -283,7 +281,7 @@ class FitSystem {
 
     if (partCount === 0) return 0;
     const avgDistance = totalDistance / partCount;
-    
+
     // 转换为0-100的质量分数
     const quality = Math.max(0, 100 - avgDistance * 100);
     return Math.round(quality);
@@ -299,7 +297,7 @@ class FitSystem {
       this.fitStore.setFitStrategy(strategy);
       this.updateFit(clothingObject, clothingItem);
       const quality = this.getFitQuality(clothingObject, clothingItem);
-      
+
       if (quality > bestQuality) {
         bestQuality = quality;
         bestStrategy = strategy;
@@ -309,10 +307,10 @@ class FitSystem {
     // 应用最佳策略
     this.fitStore.setFitStrategy(bestStrategy);
     this.updateFit(clothingObject, clothingItem);
-    
+
     return {
       strategy: bestStrategy,
-      quality: bestQuality
+      quality: bestQuality,
     };
   }
 
@@ -320,7 +318,7 @@ class FitSystem {
     // 简化的身体部位识别
     if (!this.bodyModel) return;
 
-    this.bodyModel.traverse((child) => {
+    this.bodyModel.traverse(child => {
       if (child.isMesh) {
         const name = child.name.toLowerCase();
         if (name.includes('head')) {
@@ -364,13 +362,14 @@ class FitSystem {
   cacheFitResult(clothingId, result) {
     this.fitCache[clothingId] = {
       result,
-      timestamp: Date.now()
+      timestamp: Date.now(),
     };
   }
 
   getCachedFit(clothingId) {
     const cached = this.fitCache[clothingId];
-    if (cached && (Date.now() - cached.timestamp) < 300000) { // 5分钟缓存
+    if (cached && Date.now() - cached.timestamp < 300000) {
+      // 5分钟缓存
       return cached.result;
     }
     return null;

@@ -28,19 +28,19 @@ class ThreeEngine {
   async initialize(container, options = {}) {
     try {
       this.store.setLoading(true);
-      
+
       // 初始化场景
       this.scene = new THREE.Scene();
       this.scene.background = new THREE.Color(options.background || 0xffffff);
       this.store.setScene(this.scene);
 
       // 强制获取容器真实尺寸（核心修复）
-      const getValidSize = (container) => {
+      const getValidSize = container => {
         // 方法1：使用getBoundingClientRect获取更准确的尺寸
         const rect = container.getBoundingClientRect();
         let width = Math.max(rect.width, container.clientWidth);
         let height = Math.max(rect.height, container.clientHeight);
-        
+
         // 方法2：如果尺寸仍为0，使用默认值或父容器尺寸
         if (width <= 0 || height <= 0) {
           // 尝试从父容器获取尺寸
@@ -55,7 +55,7 @@ class ThreeEngine {
             height = 600;
           }
         }
-        
+
         return { width, height };
       };
 
@@ -75,7 +75,7 @@ class ThreeEngine {
       // 初始化渲染器
       this.renderer = new THREE.WebGLRenderer({
         antialias: options.antialias !== false,
-        alpha: options.alpha || false
+        alpha: options.alpha || false,
       });
       this.renderer.setSize(width, height);
       this.renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
@@ -182,12 +182,12 @@ class ThreeEngine {
       frameCount: 0,
       renderTime: 0,
       drawCalls: 0,
-      memory: 0
+      memory: 0,
     };
   }
 
   startRenderLoop() {
-    const render = (timestamp) => {
+    const render = timestamp => {
       this.animationId = requestAnimationFrame(render);
 
       // 更新控制器
@@ -219,7 +219,7 @@ class ThreeEngine {
       this.store.updatePerformance({
         fps: this.fps,
         renderTime: this.performanceMonitor.renderTime,
-        drawCalls: this.performanceMonitor.drawCalls
+        drawCalls: this.performanceMonitor.drawCalls,
       });
     };
 
@@ -242,7 +242,7 @@ class ThreeEngine {
     return new Promise((resolve, reject) => {
       loader.load(
         url,
-        (object) => {
+        object => {
           if (options.scene) {
             object.scene ? this.scene.add(object.scene) : this.scene.add(object);
           }
@@ -252,13 +252,16 @@ class ThreeEngine {
           }
           resolve(object.scene || object);
         },
-        (xhr) => {
-          console.log((xhr.loaded / xhr.total * 100) + '% loaded');
+        xhr => {
+          console.log((xhr.loaded / xhr.total) * 100 + '% loaded');
         },
-        (error) => {
+        error => {
           console.error('Error loading model:', error);
           // 检查是否是HTML错误页面导致的解析错误
-          if (error.message && (error.message.includes('Unexpected token') || error.message.includes('<!DOCTYPE'))) {
+          if (
+            error.message &&
+            (error.message.includes('Unexpected token') || error.message.includes('<!DOCTYPE'))
+          ) {
             console.error('Model file not found or returned HTML instead of model data');
             console.error('URL:', url);
             // 创建一个简单的占位符对象
@@ -280,7 +283,7 @@ class ThreeEngine {
     return new Promise((resolve, reject) => {
       this.loaders.texture.load(
         url,
-        (texture) => {
+        texture => {
           if (options.id) {
             this.textures[options.id] = texture;
             this.store.addTexture(options.id, texture);
@@ -288,7 +291,7 @@ class ThreeEngine {
           resolve(texture);
         },
         undefined,
-        (error) => {
+        error => {
           console.error('Error loading texture:', error);
           reject(error);
         }
@@ -343,14 +346,14 @@ class ThreeEngine {
     if (!this.camera || !this.renderer) return;
 
     const container = this.renderer.domElement.parentElement;
-    
+
     // 使用相同的尺寸获取逻辑
-    const getValidSize = (container) => {
+    const getValidSize = container => {
       // 方法1：使用getBoundingClientRect获取更准确的尺寸
       const rect = container.getBoundingClientRect();
       let width = Math.max(rect.width, container.clientWidth);
       let height = Math.max(rect.height, container.clientHeight);
-      
+
       // 方法2：如果尺寸仍为0，使用默认值或父容器尺寸
       if (width <= 0 || height <= 0) {
         // 尝试从父容器获取尺寸
@@ -365,7 +368,7 @@ class ThreeEngine {
           height = 600;
         }
       }
-      
+
       return { width, height };
     };
 

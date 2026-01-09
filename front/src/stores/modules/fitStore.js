@@ -11,32 +11,32 @@ export const useFitStore = defineStore('fit', {
       hat: ['head'],
       glasses: ['face'],
       bag: ['shoulders', 'waist'],
-      accessories: ['hands', 'neck', 'wrists']
+      accessories: ['hands', 'neck', 'wrists'],
     },
     fitStrategies: {
       basic: 'position',
       intermediate: 'deformation',
-      advanced: 'physics'
+      advanced: 'physics',
     },
     currentStrategy: 'intermediate',
     adjustments: {},
     loading: false,
-    error: null
+    error: null,
   }),
 
   getters: {
-    getFitPoints: (state) => (clothingId) => {
+    getFitPoints: state => clothingId => {
       return state.fitPoints[clothingId] || [];
     },
-    getMappingForCategory: (state) => (category) => {
+    getMappingForCategory: state => category => {
       return state.mappingRules[category] || [];
     },
-    getCurrentStrategy: (state) => {
+    getCurrentStrategy: state => {
       return state.currentStrategy;
     },
-    getAdjustments: (state) => (clothingId) => {
+    getAdjustments: state => clothingId => {
       return state.adjustments[clothingId] || {};
-    }
+    },
   },
 
   actions: {
@@ -72,7 +72,7 @@ export const useFitStore = defineStore('fit', {
       }
       this.adjustments[clothingId] = {
         ...this.adjustments[clothingId],
-        ...adjustment
+        ...adjustment,
       };
     },
 
@@ -97,7 +97,7 @@ export const useFitStore = defineStore('fit', {
             part,
             position: { x: 0, y: 0, z: 0 },
             rotation: { x: 0, y: 0, z: 0 },
-            scale: { x: 1, y: 1, z: 1 }
+            scale: { x: 1, y: 1, z: 1 },
           }));
 
           this.setFitPoints(clothingItem.id, fitPoints);
@@ -109,6 +109,6 @@ export const useFitStore = defineStore('fit', {
           this.setLoading(false);
         }
       });
-    }
-  }
+    },
+  },
 });

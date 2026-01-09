@@ -13,7 +13,7 @@ export const useInteractionStore = defineStore('interaction', {
       front: { position: [0, 0, 5], target: [0, 0, 0] },
       side: { position: [5, 0, 0], target: [0, 0, 0] },
       top: { position: [0, 5, 0], target: [0, 0, 0] },
-      back: { position: [0, 0, -5], target: [0, 0, 0] }
+      back: { position: [0, 0, -5], target: [0, 0, 0] },
     },
     keyboardShortcuts: {
       camera: 'c',
@@ -27,35 +27,35 @@ export const useInteractionStore = defineStore('interaction', {
       backView: '4',
       zoomIn: '+',
       zoomOut: '-',
-      reset: 'space'
+      reset: 'space',
     },
     mouseSensitivity: {
       rotation: 1,
       zoom: 1,
-      pan: 1
+      pan: 1,
     },
     touchSensitivity: {
       rotation: 1,
       zoom: 1,
-      pan: 1
+      pan: 1,
     },
     loading: false,
-    error: null
+    error: null,
   }),
 
   getters: {
-    isInteracting: (state) => state.isDragging || state.isSelecting,
-    getCurrentTool: (state) => state.currentTool,
-    getCurrentTransformMode: (state) => state.currentTransformMode,
-    getSelectedObject: (state) => state.selectedObject,
-    getCameraPosition: (state) => state.cameraPosition,
-    getCameraTarget: (state) => state.cameraTarget,
-    getViewPreset: (state) => (presetName) => {
+    isInteracting: state => state.isDragging || state.isSelecting,
+    getCurrentTool: state => state.currentTool,
+    getCurrentTransformMode: state => state.currentTransformMode,
+    getSelectedObject: state => state.selectedObject,
+    getCameraPosition: state => state.cameraPosition,
+    getCameraTarget: state => state.cameraTarget,
+    getViewPreset: state => presetName => {
       return state.viewPresets[presetName] || state.viewPresets.front;
     },
-    getKeyboardShortcut: (state) => (action) => {
+    getKeyboardShortcut: state => action => {
       return state.keyboardShortcuts[action] || '';
-    }
+    },
   },
 
   actions: {
@@ -115,12 +115,12 @@ export const useInteractionStore = defineStore('interaction', {
         this.cameraPosition = {
           x: preset.position[0],
           y: preset.position[1],
-          z: preset.position[2]
+          z: preset.position[2],
         };
         this.cameraTarget = {
           x: preset.target[0],
           y: preset.target[1],
-          z: preset.target[2]
+          z: preset.target[2],
         };
       }
     },
@@ -150,13 +150,13 @@ export const useInteractionStore = defineStore('interaction', {
       this.mouseSensitivity = {
         rotation: 1,
         zoom: 1,
-        pan: 1
+        pan: 1,
       };
       this.touchSensitivity = {
         rotation: 1,
         zoom: 1,
-        pan: 1
+        pan: 1,
       };
-    }
-  }
+    },
+  },
 });

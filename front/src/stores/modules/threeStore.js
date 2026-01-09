@@ -14,41 +14,41 @@ export const useThreeStore = defineStore('three', {
     environment: {
       background: '#ffffff',
       ambientLight: 0xffffff,
-      ambientIntensity: 0.5
+      ambientIntensity: 0.5,
     },
     performance: {
       fps: 0,
       renderTime: 0,
       drawCalls: 0,
-      memory: 0
+      memory: 0,
     },
     quality: {
       level: 'medium',
       antialias: true,
       shadows: true,
-      postprocessing: true
+      postprocessing: true,
     },
     loading: false,
-    error: null
+    error: null,
   }),
 
   getters: {
-    isEngineInitialized: (state) => !!state.engine,
-    getModel: (state) => (modelId) => {
+    isEngineInitialized: state => !!state.engine,
+    getModel: state => modelId => {
       return state.models[modelId] || null;
     },
-    getTexture: (state) => (textureId) => {
+    getTexture: state => textureId => {
       return state.textures[textureId] || null;
     },
-    getMaterial: (state) => (materialId) => {
+    getMaterial: state => materialId => {
       return state.materials[materialId] || null;
     },
-    getCurrentQuality: (state) => {
+    getCurrentQuality: state => {
       return state.quality;
     },
-    getPerformance: (state) => {
+    getPerformance: state => {
       return state.performance;
-    }
+    },
   },
 
   actions: {
@@ -145,7 +145,7 @@ export const useThreeStore = defineStore('three', {
         fps: 0,
         renderTime: 0,
         drawCalls: 0,
-        memory: 0
+        memory: 0,
       };
     },
 
@@ -163,6 +163,6 @@ export const useThreeStore = defineStore('three', {
         this.setLoading(false);
         throw error;
       }
-    }
-  }
+    },
+  },
 });

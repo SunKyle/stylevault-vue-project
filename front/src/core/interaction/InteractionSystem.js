@@ -20,7 +20,7 @@ class InteractionSystem {
     this.keyboardState = {};
     this.gestureState = {
       isPinching: false,
-      previousDistance: 0
+      previousDistance: 0,
     };
   }
 
@@ -233,10 +233,7 @@ class InteractionSystem {
   }
 
   updateMousePosition(clientX, clientY) {
-    this.mouse.set(
-      (clientX / window.innerWidth) * 2 - 1,
-      -(clientY / window.innerHeight) * 2 + 1
-    );
+    this.mouse.set((clientX / window.innerWidth) * 2 - 1, -(clientY / window.innerHeight) * 2 + 1);
   }
 
   selectObject() {

@@ -82,9 +82,9 @@ class PreviewSystem {
           fps: this.fps,
           renderTime: this.renderTime,
           drawCalls: this.drawCalls,
-          memory: this.memory
+          memory: this.memory,
         };
-      }
+      },
     };
   }
 
@@ -138,20 +138,20 @@ class PreviewSystem {
         antialias: false,
         shadows: false,
         postprocessing: false,
-        pixelRatio: 1
+        pixelRatio: 1,
       },
       medium: {
         antialias: true,
         shadows: true,
         postprocessing: true,
-        pixelRatio: Math.min(window.devicePixelRatio, 1.5)
+        pixelRatio: Math.min(window.devicePixelRatio, 1.5),
       },
       high: {
         antialias: true,
         shadows: true,
         postprocessing: true,
-        pixelRatio: Math.min(window.devicePixelRatio, 2)
-      }
+        pixelRatio: Math.min(window.devicePixelRatio, 2),
+      },
     };
 
     const settings = qualitySettings[level] || qualitySettings.medium;
@@ -356,12 +356,14 @@ class PreviewSystem {
   }
 
   getPerformanceStats() {
-    return this.performanceMonitor ? this.performanceMonitor.getMetrics() : {
-      fps: 0,
-      renderTime: 0,
-      drawCalls: 0,
-      memory: 0
-    };
+    return this.performanceMonitor
+      ? this.performanceMonitor.getMetrics()
+      : {
+          fps: 0,
+          renderTime: 0,
+          drawCalls: 0,
+          memory: 0,
+        };
   }
 
   autoAdjustQuality() {

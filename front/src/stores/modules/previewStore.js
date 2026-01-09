@@ -8,54 +8,54 @@ export const usePreviewStore = defineStore('preview', {
     performance: {
       fps: 0,
       renderTime: 0,
-      drawCalls: 0
+      drawCalls: 0,
     },
     previewSettings: {
       lighting: 'studio',
       background: 'white',
       shadows: true,
-      postprocessing: true
+      postprocessing: true,
     },
     views: {
       front: {
         position: [0, 0, 5],
         target: [0, 0, 0],
-        up: [0, 1, 0]
+        up: [0, 1, 0],
       },
       side: {
         position: [5, 0, 0],
         target: [0, 0, 0],
-        up: [0, 1, 0]
+        up: [0, 1, 0],
       },
       top: {
         position: [0, 5, 0],
         target: [0, 0, 0],
-        up: [0, 0, 1]
+        up: [0, 0, 1],
       },
       back: {
         position: [0, 0, -5],
         target: [0, 0, 0],
-        up: [0, 1, 0]
+        up: [0, 1, 0],
       },
       threeQuarter: {
         position: [3, 1, 3],
         target: [0, 0, 0],
-        up: [0, 1, 0]
-      }
+        up: [0, 1, 0],
+      },
     },
     loading: false,
-    error: null
+    error: null,
   }),
 
   getters: {
-    isActive: (state) => state.isPreviewing,
-    getCurrentView: (state) => state.currentView,
-    getViewConfig: (state) => (viewName) => {
+    isActive: state => state.isPreviewing,
+    getCurrentView: state => state.currentView,
+    getViewConfig: state => viewName => {
       return state.views[viewName] || state.views.front;
     },
-    getViews: (state) => state.views,
-    getPreviewSettings: (state) => state.previewSettings,
-    getPerformance: (state) => state.performance
+    getViews: state => state.views,
+    getPreviewSettings: state => state.previewSettings,
+    getPerformance: state => state.performance,
   },
 
   actions: {
@@ -108,7 +108,7 @@ export const usePreviewStore = defineStore('preview', {
       this.views[name] = {
         position: config.position || [0, 0, 5],
         target: config.target || [0, 0, 0],
-        up: config.up || [0, 1, 0]
+        up: config.up || [0, 1, 0],
       };
     },
 
@@ -126,12 +126,12 @@ export const usePreviewStore = defineStore('preview', {
         lighting: 'studio',
         background: 'white',
         shadows: true,
-        postprocessing: true
+        postprocessing: true,
       };
       this.performance = {
         fps: 0,
         renderTime: 0,
-        drawCalls: 0
+        drawCalls: 0,
       };
     },
 
@@ -153,6 +153,6 @@ export const usePreviewStore = defineStore('preview', {
 
     setIsPreviewing(status) {
       this.isPreviewing = status;
-    }
-  }
+    },
+  },
 });
