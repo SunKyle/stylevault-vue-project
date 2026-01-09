@@ -1,61 +1,63 @@
 <template>
     <main class="page-content">
-      <div class="preview-controls">
-        <button @click="goBack" class="btn btn-primary">
-          <span class="btn-text">返回</span>
-        </button>
-        <button @click="savePreview" class="btn btn-secondary">
-          <span class="btn-text">保存</span>
-        </button>
-        <button @click="exportImage" class="btn btn-secondary">
-          <span class="btn-text">导出</span>
-        </button>
-      </div>
-
       <div class="preview-section">
         <ThreePreview :bodyModelPath="bodyModelPath" :outfitId="outfitId" class="three-preview" />
-      </div>
-
-      <!-- 搭配信息 -->
-      <aside class="outfit-info">
-        <div class="outfit-info-header">
-          <h2 class="outfit-info-title">搭配信息</h2>
+        <div class="preview-controls">
+          <button @click="goBack" class="btn btn-primary">
+            <span class="btn-text">返回</span>
+          </button>
+          <button @click="savePreview" class="btn btn-secondary">
+            <span class="btn-text">保存</span>
+          </button>
+          <button @click="exportImage" class="btn btn-secondary">
+            <span class="btn-text">导出</span>
+          </button>
         </div>
-        <div class="outfit-info-content">
-          <div class="info-card">
-            <div v-if="outfit" class="outfit-details">
-              <div class="detail-item">
-                <label class="detail-label">名称：</label>
-                <span class="detail-value">{{ outfit.title }}</span>
-              </div>
-              <div class="detail-item">
-                <label class="detail-label">创建时间：</label>
-                <span class="detail-value">{{ formatDate(outfit.createdAt) }}</span>
-              </div>
-              <div class="detail-item">
-                <label class="detail-label">元素数量：</label>
-                <span class="detail-value">{{ outfit.items.length }}</span>
-              </div>
-            </div>
+        
+        <!-- 搭配信息 -->
+        <aside class="outfit-info" :class="{ collapsed: !isSidebarOpen }">
+          <div class="outfit-info-header">
+            <h2 class="outfit-info-title">搭配信息</h2>
+            <button @click="toggleSidebar" class="btn btn-sm btn-toggle-sidebar">
+              <span class="btn-icon">{{ isSidebarOpen ? '▶' : '◀' }}</span>
+            </button>
           </div>
-
-          <div class="info-card">
-            <h3 class="card-subtitle">搭配元素</h3>
-            <div class="clothing-list">
-              <div v-for="item in outfit?.items" :key="item.id" class="clothing-item">
-                <img :src="item.imageUrl" :alt="item.name" class="clothing-image" />
-                <div class="clothing-info">
-                  <h4 class="clothing-name">{{ item.name }}</h4>
-                  <p class="clothing-category">{{ item.category }}</p>
+          <div class="outfit-info-content">
+            <div class="info-card">
+              <div v-if="outfit" class="outfit-details">
+                <div class="detail-item">
+                  <label class="detail-label">名称：</label>
+                  <span class="detail-value">{{ outfit.title }}</span>
                 </div>
-                <button @click="focusOnClothing(item.id)" class="btn btn-sm btn-focus">
-                  <span class="btn-icon">🔍</span>
-                </button>
+                <div class="detail-item">
+                  <label class="detail-label">创建时间：</label>
+                  <span class="detail-value">{{ formatDate(outfit.createdAt) }}</span>
+                </div>
+                <div class="detail-item">
+                  <label class="detail-label">元素数量：</label>
+                  <span class="detail-value">{{ outfit.items.length }}</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="info-card">
+              <h3 class="card-subtitle">搭配元素</h3>
+              <div class="clothing-list">
+                <div v-for="item in outfit?.items" :key="item.id" class="clothing-item">
+                  <img :src="item.imageUrl" :alt="item.name" class="clothing-image" />
+                  <div class="clothing-info">
+                    <h4 class="clothing-name">{{ item.name }}</h4>
+                    <p class="clothing-category">{{ item.category }}</p>
+                  </div>
+                  <button @click="focusOnClothing(item.id)" class="btn btn-sm btn-focus">
+                    <span class="btn-icon">🔍</span>
+                  </button>
+                </div>
               </div>
             </div>
           </div>
-        </div>
-      </aside>
+        </aside>
+      </div>
     </main>
 </template>
 
@@ -77,6 +79,11 @@
 
       const outfitId = ref(route.params.id || '');
       const bodyModelPath = ref('/models/body.glb'); // 默认身体模型路径
+      const isSidebarOpen = ref(true);
+      
+      const toggleSidebar = () => {
+        isSidebarOpen.value = !isSidebarOpen.value;
+      };
 
       const outfit = computed(() => {
         return outfitStore.getOutfitById(outfitId.value);
@@ -107,7 +114,8 @@
       const focusOnClothing = itemId => {
         // 聚焦到指定服装
         console.log(`Focusing on clothing: ${itemId}`);
-        // 实际项目中需要与ThreePreview组件通信
+        // 实际项目中可以通过ref或事件与ThreePreview组件通信
+        // 例如：threePreviewRef.value.focusOnItem(itemId);
       };
 
       onMounted(() => {
@@ -129,58 +137,15 @@
         savePreview,
         exportImage,
         focusOnClothing,
+        isSidebarOpen,
+        toggleSidebar,
       };
     },
   };
 </script>
 
 <style scoped>
-  .three-preview-page {
-    width: 100%;
-    min-height: 100vh;
-    background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
-  }
 
-  .page-header {
-    background: white;
-    padding: 20px 32px;
-    box-shadow: 0 -4px 16px rgba(0, 0, 0, 0.1);
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    border-radius: 16px 16px 0 0;
-    position: fixed;
-    bottom: 0;
-    left: 50%;
-    transform: translateX(-50%);
-    width: calc(100% - 48px);
-    max-width: 1400px;
-    z-index: 100;
-    backdrop-filter: blur(10px);
-    background-color: rgba(255, 255, 255, 0.95);
-    transition: all 0.3s ease;
-  }
-
-  .header-content {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    width: 100%;
-  }
-
-  .page-title {
-    margin: 0;
-    font-size: 26px;
-    color: #0f172a;
-    font-weight: 700;
-    line-height: 1.3;
-    letter-spacing: -0.02em;
-  }
-
-  .header-actions {
-    display: flex;
-    gap: 16px;
-  }
 
   .btn {
     padding: 12px 24px;
@@ -327,11 +292,7 @@
     transition: all 0.3s ease;
   }
 
-  .preview-container {
-    width: 100%;
-    height: 100%;
-    position: relative;
-  }
+
 
   .three-preview {
     width: 100%;
@@ -340,6 +301,9 @@
 
   /* 搭配信息固定右侧样式 */
   .outfit-info {
+    position: absolute;
+    top: 0;
+    right: 0;
     width: 380px;
     height: 100%;
     background: white;
@@ -347,6 +311,63 @@
     overflow-y: auto;
     display: flex;
     flex-direction: column;
+    z-index: 50;
+    transition: transform 0.3s ease;
+    transform: translateX(0);
+  }
+  
+  .outfit-info.collapsed {
+    transform: translateX(100%);
+  }
+  
+  .btn-toggle-sidebar {
+    background: linear-gradient(135deg, #94a3b8 0%, #64748b 100%);
+    color: white;
+    padding: 6px 10px;
+    font-size: 16px;
+    box-shadow: none;
+  }
+  
+  .btn-toggle-sidebar:hover {
+    background: linear-gradient(135deg, #64748b 0%, #475569 100%);
+    transform: none;
+    box-shadow: none;
+  }
+  
+  /* 响应式设计 */
+  @media (max-width: 768px) {
+    .outfit-info {
+      width: 320px;
+    }
+    
+    .preview-controls {
+      gap: 12px;
+      padding: 12px 18px;
+      bottom: 20px;
+    }
+    
+    .btn {
+      padding: 10px 20px;
+      font-size: 14px;
+      min-width: 80px;
+    }
+  }
+  
+  @media (max-width: 480px) {
+    .outfit-info {
+      width: 280px;
+    }
+    
+    .preview-controls {
+      gap: 8px;
+      padding: 10px 14px;
+    }
+    
+    .btn {
+      padding: 8px 16px;
+      font-size: 13px;
+      min-width: 70px;
+    }
   }
 
   .outfit-info-header {
@@ -382,26 +403,7 @@
     border-bottom: none;
   }
 
-  .card-title {
-    margin-top: 0;
-    margin-bottom: 20px;
-    font-size: 18px;
-    color: #0f172a;
-    font-weight: 600;
-    position: relative;
-    padding-bottom: 12px;
-  }
 
-  .card-title::after {
-    content: '';
-    position: absolute;
-    bottom: 0;
-    left: 0;
-    width: 50px;
-    height: 3px;
-    background: #3b82f6;
-    border-radius: 2px;
-  }
 
   .outfit-details {
     margin-bottom: 0;
@@ -490,32 +492,5 @@
     line-height: 1.3;
   }
 
-  /* 响应式设计 - 为浮动抽屉添加适配 */
-  @media (max-width: 768px) {
-    .outfit-info-drawer {
-      width: 100%;
-      max-width: 100%;
-      right: 0;
-      top: 0;
-      bottom: 0;
-      border-radius: 0;
-    }
 
-    .drawer-content {
-      max-height: calc(100vh - 64px);
-    }
-  }
-
-  @media (max-width: 480px) {
-    .drawer-toggle {
-      font-size: 12px;
-      padding: 10px;
-      flex-direction: column;
-      gap: 4px;
-    }
-
-    .drawer-toggle .btn-text {
-      font-size: 10px;
-    }
-  }
 </style>
