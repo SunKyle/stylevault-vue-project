@@ -51,7 +51,7 @@
                   <p class="clothing-category">{{ item.category }}</p>
                 </div>
                 <button @click="focusOnClothing(item.id)" class="btn btn-sm btn-focus">
-                  <span class="btn-icon">🔍</span>
+                  <span class="btn-icon"></span>
                 </button>
               </div>
             </div>
