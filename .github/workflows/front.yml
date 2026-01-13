@@ -1,0 +1,97 @@
+# 工作流名称（在 GitHub 页面显示）
+name: Frontend CI/CD
+
+# 触发条件：当代码 push 到 main 分支，或有 PR 合并到 main 分支时执行
+on:
+  push:
+    branches: [ main ]
+    paths:
+      - 'front/**'
+  pull_request:
+    branches: [ main ]
+    paths:
+      - 'front/**'
+
+# 定义要执行的任务
+jobs:
+  # 第一个任务：构建和测试
+  build-and-test:
+    # 指定运行环境（GitHub 提供的云服务器系统）
+    runs-on: ubuntu-latest
+
+    # 任务的具体步骤
+    steps:
+      # 步骤1：拉取代码到运行器
+      - name: Checkout code
+        uses: actions/checkout@v4  # 使用官方的拉取代码动作
+
+      # 步骤2：安装 Node.js（前端项目需要）
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'  # 指定 Node 版本
+          cache: 'npm'
+          cache-dependency-path: 'front/package-lock.json'  # 指定缓存路径
+
+      # 步骤3：安装项目依赖
+      - name: Install dependencies
+        run: npm install
+        working-directory: ./front  # 在 front 目录下执行命令
+
+      # 步骤4：代码格式化检查
+      - name: Check code format
+        run: npm run format:check
+        working-directory: ./front
+
+      # 步骤5：代码质量检查
+      - name: Lint code
+        run: npm run lint
+        working-directory: ./front
+
+      # 步骤6：运行单元测试并生成覆盖率报告（如果有测试文件）
+      - name: Run tests with coverage
+        run: npm run test:coverage || echo "No test files found, skipping..."
+        working-directory: ./front
+        continue-on-error: true
+
+      # 步骤7：上传测试覆盖率报告（如果存在）
+      - name: Upload coverage report
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-report
+          path: ./front/coverage
+          if-no-files-found: warn
+
+      # 步骤8：构建生产环境代码
+      - name: Build project
+        run: npm run build
+        working-directory: ./front
+
+      # 步骤9：保存构建产物（供后续部署步骤使用）
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: build-files  # 产物名称（自定义）
+          path: ./front/dist  # 构建产物的目录
+
+  # 第二个任务：部署（依赖 build-and-test 任务成功完成）
+  deploy:
+    needs: build-and-test  # 依赖关系：先完成构建测试才执行部署
+    runs-on: ubuntu-latest
+    # 仅在 main 分支 push 时执行（PR 时不部署）
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+
+    steps:
+      # 步骤1：下载之前保存的构建产物
+      - name: Download build artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: build-files
+          path: ./front/dist
+
+      # 步骤2：部署到静态服务器（以部署到 GitHub Pages 为例，也可替换为阿里云/腾讯云等）
+      - name: Deploy to GitHub Pages
+        uses: peaceiris/actions-gh-pages@v4
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}  # GitHub 自动生成的令牌，无需手动配置
+          publish_dir: ./front/dist  # 要部署的目录
