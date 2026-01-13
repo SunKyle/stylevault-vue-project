@@ -1,69 +1,74 @@
 <template>
-    <main class="page-content">
-      <div class="preview-section">
-        <ThreePreview :bodyModelPath="bodyModelPath" :outfitId="outfitId" class="three-preview" ref="threePreviewRef" />
-        <div class="preview-controls">
-          <button @click="goBack" class="btn btn-primary">
-            <span class="btn-text">返回</span>
-          </button>
-          <button @click="savePreview" class="btn btn-secondary">
-            <span class="btn-text">保存</span>
-          </button>
-          <button @click="exportImage" class="btn btn-secondary">
-            <span class="btn-text">导出</span>
-          </button>
+  <main class="page-content">
+    <div class="preview-section">
+      <ThreePreview
+        :bodyModelPath="bodyModelPath"
+        :outfitId="outfitId"
+        class="three-preview"
+        ref="threePreviewRef"
+      />
+      <div class="preview-controls">
+        <button @click="goBack" class="btn btn-primary">
+          <span class="btn-text">返回</span>
+        </button>
+        <button @click="savePreview" class="btn btn-secondary">
+          <span class="btn-text">保存</span>
+        </button>
+        <button @click="exportImage" class="btn btn-secondary">
+          <span class="btn-text">导出</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- 搭配信息 -->
+    <aside class="outfit-info" :class="{ open: isInfoPanelOpen }">
+      <div class="outfit-info-header">
+        <h2 class="outfit-info-title">搭配信息</h2>
+        <button @click="toggleInfoPanel" class="btn btn-sm btn-toggle">
+          <span class="btn-icon">{{ isInfoPanelOpen ? '‹' : '›' }}</span>
+        </button>
+      </div>
+      <div class="outfit-info-content">
+        <div class="info-card">
+          <div v-if="outfit" class="outfit-details">
+            <div class="detail-item">
+              <label class="detail-label">名称：</label>
+              <span class="detail-value">{{ outfit.title }}</span>
+            </div>
+            <div class="detail-item">
+              <label class="detail-label">创建时间：</label>
+              <span class="detail-value">{{ formatDate(outfit.createdAt) }}</span>
+            </div>
+            <div class="detail-item">
+              <label class="detail-label">元素数量：</label>
+              <span class="detail-value">{{ outfit.items.length }}</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="info-card">
+          <h3 class="card-subtitle">搭配元素</h3>
+          <div class="clothing-list">
+            <div v-for="item in outfit?.items" :key="item.id" class="clothing-item">
+              <img :src="item.imageUrl" :alt="item.name" class="clothing-image" />
+              <div class="clothing-info">
+                <h4 class="clothing-name">{{ item.name }}</h4>
+                <p class="clothing-category">{{ item.category }}</p>
+              </div>
+              <button @click="focusOnClothing(item.id)" class="btn btn-sm btn-focus">
+                <span class="btn-icon"></span>
+              </button>
+            </div>
+          </div>
         </div>
       </div>
+    </aside>
 
-      <!-- 搭配信息 -->
-      <aside class="outfit-info" :class="{ open: isInfoPanelOpen }">
-        <div class="outfit-info-header">
-          <h2 class="outfit-info-title">搭配信息</h2>
-          <button @click="toggleInfoPanel" class="btn btn-sm btn-toggle">
-            <span class="btn-icon">{{ isInfoPanelOpen ? '‹' : '›' }}</span>
-          </button>
-        </div>
-        <div class="outfit-info-content">
-          <div class="info-card">
-            <div v-if="outfit" class="outfit-details">
-              <div class="detail-item">
-                <label class="detail-label">名称：</label>
-                <span class="detail-value">{{ outfit.title }}</span>
-              </div>
-              <div class="detail-item">
-                <label class="detail-label">创建时间：</label>
-                <span class="detail-value">{{ formatDate(outfit.createdAt) }}</span>
-              </div>
-              <div class="detail-item">
-                <label class="detail-label">元素数量：</label>
-                <span class="detail-value">{{ outfit.items.length }}</span>
-              </div>
-            </div>
-          </div>
-
-          <div class="info-card">
-            <h3 class="card-subtitle">搭配元素</h3>
-            <div class="clothing-list">
-              <div v-for="item in outfit?.items" :key="item.id" class="clothing-item">
-                <img :src="item.imageUrl" :alt="item.name" class="clothing-image" />
-                <div class="clothing-info">
-                  <h4 class="clothing-name">{{ item.name }}</h4>
-                  <p class="clothing-category">{{ item.category }}</p>
-                </div>
-                <button @click="focusOnClothing(item.id)" class="btn btn-sm btn-focus">
-                  <span class="btn-icon"></span>
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-      </aside>
-      
-      <!-- 移动端信息面板切换按钮 -->
-      <button v-if="isMobile" @click="toggleInfoPanel" class="btn btn-primary btn-mobile-toggle">
-        <span class="btn-text">搭配信息</span>
-      </button>
-    </main>
+    <!-- 移动端信息面板切换按钮 -->
+    <button v-if="isMobile" @click="toggleInfoPanel" class="btn btn-primary btn-mobile-toggle">
+      <span class="btn-text">搭配信息</span>
+    </button>
+  </main>
 </template>
 
 <script>
@@ -516,7 +521,7 @@
       gap: 16px;
       padding: 16px;
     }
-    
+
     .outfit-info {
       width: 100%;
       height: 300px;
@@ -532,23 +537,23 @@
       padding: 0;
       gap: 0;
     }
-    
+
     .preview-section {
       border-radius: 0;
     }
-    
+
     .preview-controls {
       bottom: 20px;
       gap: 12px;
       padding: 12px 20px;
     }
-    
+
     .btn {
       padding: 10px 20px;
       font-size: 14px;
       min-width: 80px;
     }
-    
+
     .outfit-info {
       position: fixed;
       top: 0;
@@ -560,11 +565,11 @@
       box-shadow: -8px 0 32px rgba(0, 0, 0, 0.2);
       border-radius: 0;
     }
-    
+
     .outfit-info.open {
       transform: translateX(0);
     }
-    
+
     .outfit-info-content {
       padding: 16px;
     }
@@ -577,13 +582,13 @@
       gap: 10px;
       padding: 12px;
     }
-    
+
     .btn {
       padding: 10px 16px;
       font-size: 13px;
       min-width: 70px;
     }
-    
+
     .outfit-info {
       width: 100%;
     }
