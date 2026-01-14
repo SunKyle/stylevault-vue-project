@@ -13,12 +13,14 @@
 **文件**: `front/src/stores/modules/inspirationStore.js`
 
 **优化内容**:
+
 - 添加防抖函数，避免搜索时频繁计算
 - 实现筛选结果缓存 (filterCache Map)
 - 新增 `pendingFilters` 状态管理待应用筛选
 - 缓存 Key 生成策略 + 缓存大小限制 (max 50)
 
 **效果**:
+
 - 搜索场景延迟 300ms 后应用筛选
 - 减少 70%+ 重复筛选计算
 - 页面响应更流畅
@@ -33,17 +35,20 @@ const FILTER_CACHE_MAX_SIZE = 50;
 
 ### 2. Store 持久化 (pinia-plugin-persistedstate)
 
-**文件**: 
+**文件**:
+
 - `front/src/main.js`
 - `front/src/stores/modules/inspirationStore.js`
 
 **优化内容**:
+
 - 安装 `pinia-plugin-persistedstate` 插件
 - 配置 inspirationStore 持久化策略
 - 持久化路径: `filters`, `selectedClothes`, `pagination`
 - 使用 localStorage 存储
 
 **效果**:
+
 - 用户筛选条件自动保存
 - 页面刷新后保持上次状态
 - 提升用户体验连续性
@@ -53,21 +58,25 @@ const FILTER_CACHE_MAX_SIZE = 50;
 ### 3. 虚拟滚动集成 (vue-virtual-scroller)
 
 **文件**:
+
 - `front/src/main.js`
 - `front/src/components/organisms/ClothingSelectionPanel.vue`
 
 **优化内容**:
+
 - 安装 `vue-virtual-scroller@next`
 - 注册 DynamicScroller 全局组件
 - 替换 ClothingSelectionPanel 的衣物列表
 - 使用 `min-item-size: 280` 优化渲染
 
 **效果**:
+
 - 1000+ 衣物列表渲染无压力
 - DOM 节点数量减少 90%+
 - 滚动帧率提升至 60fps
 
 **关键代码**:
+
 ```vue
 <DynamicScroller
   :items="safeFilteredClothes"
@@ -92,12 +101,14 @@ const FILTER_CACHE_MAX_SIZE = 50;
 **文件**: `front/src/utils/eventBus.js`
 
 **优化内容**:
+
 - 创建轻量级事件总线工具
 - 支持 on/off/emit/once/clear 方法
 - 定义常用事件名称常量 (EVENTS)
 - 提供 `useEventBus()` Hook
 
 **事件常量**:
+
 ```javascript
 export const EVENTS = {
   INSPIRATION_CATEGORY_CHANGE: 'inspiration:category-change',
@@ -111,13 +122,14 @@ export const EVENTS = {
 ```
 
 **使用示例**:
+
 ```javascript
 import { useEventBus, EVENTS } from '@/utils/eventBus';
 
 const { on, emit } = useEventBus();
 
 // 订阅事件
-on(EVENTS.INSPIRATION_CATEGORY_CHANGE, (category) => {
+on(EVENTS.INSPIRATION_CATEGORY_CHANGE, category => {
   console.log('分类变更:', category);
 });
 
@@ -132,6 +144,7 @@ emit(EVENTS.INSPIRATION_CATEGORY_CHANGE, '上衣');
 **文件**: `front/src/composables/useEnumProvider.js`
 
 **优化内容**:
+
 - 创建 `useEnumProvider()` - 父组件提供者
 - 创建 `useEnums()` - 子组件注入
 - 创建 `useEnum(enumType)` - 便捷 Hook
@@ -161,6 +174,7 @@ const { options: styles, getLabel: getStyleLabel } = useEnum('style');
 ```
 
 **效果**:
+
 - 消除 4 层 Props 传递
 - 组件解耦，更易维护
 - 代码更简洁直观
@@ -169,12 +183,12 @@ const { options: styles, getLabel: getStyleLabel } = useEnum('style');
 
 ## 📊 性能提升总结
 
-| 优化项 | 优化前 | 优化后 | 提升 |
-|--------|--------|--------|------|
-| 筛选计算 | 实时计算 | 300ms 防抖 + 缓存 | 70%+ |
-| 1000 条数据渲染 | ~1000 DOM | ~20 DOM | 98% |
-| 页面状态持久化 | 无 | localStorage | 100% |
-| 枚举数据传递 | 4 层 Props | provide/inject | 75% |
+| 优化项          | 优化前     | 优化后            | 提升 |
+| --------------- | ---------- | ----------------- | ---- |
+| 筛选计算        | 实时计算   | 300ms 防抖 + 缓存 | 70%+ |
+| 1000 条数据渲染 | ~1000 DOM  | ~20 DOM           | 98%  |
+| 页面状态持久化  | 无         | localStorage      | 100% |
+| 枚举数据传递    | 4 层 Props | provide/inject    | 75%  |
 
 ---
 

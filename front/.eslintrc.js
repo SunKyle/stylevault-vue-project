@@ -3,11 +3,7 @@ module.exports = {
   env: {
     node: true,
   },
-  extends: [
-    'plugin:vue/vue3-essential',
-    'eslint:recommended',
-    'prettier'
-  ],
+  extends: ['plugin:vue/vue3-essential', 'eslint:recommended', 'prettier'],
   parserOptions: {
     ecmaVersion: 2020,
     sourceType: 'module',
@@ -24,15 +20,15 @@ module.exports = {
     // 允许未使用变量
     'no-unused-vars': 'warn',
     // 禁止直接修改props
-    'vue/no-mutating-props': 'error'
+    'vue/no-mutating-props': 'error',
   },
   overrides: [
     {
       files: ['*.vue'],
       rules: {
         'no-undef': 'off',
-        'vue/script-setup-uses-vars': 'error'
-      }
-    }
-  ]
+        'vue/script-setup-uses-vars': 'error',
+      },
+    },
+  ],
 };
