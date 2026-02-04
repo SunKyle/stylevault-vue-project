@@ -1,0 +1,127 @@
+# 工作流名称（在 GitHub 页面显示）
+name: Backend CI/CD
+
+# 触发条件：当代码 push 到 main 分支，或有 PR 合并到 main 分支时执行
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'backend/**'
+  pull_request:
+    branches: [main]
+    paths:
+      - 'backend/**'
+
+# 定义要执行的任务
+jobs:
+  # 第一个任务：构建和测试
+  build-and-test:
+    # 指定运行环境（GitHub 提供的云服务器系统）
+    runs-on: ubuntu-latest
+
+    # 任务的具体步骤
+    steps:
+      # 步骤1：拉取代码到运行器
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 # 拉取全量历史
+
+      # 步骤2：安装 Node.js（后端项目需要）
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20' # 指定 Node 版本
+          cache: 'npm'
+          cache-dependency-path: 'backend/package-lock.json' # 指定缓存路径
+
+      # 步骤3：安装项目依赖
+      - name: Install dependencies
+        run: npm install --target_arch=arm64
+        working-directory: ./backend # 在 backend 目录下执行命令
+
+      # 步骤4：代码质量检查
+      - name: Lint code
+        run: npm run lint
+        working-directory: ./backend
+
+      # 步骤5：运行单元测试
+      - name: Run tests
+        run: npm run test
+        working-directory: ./backend
+        continue-on-error: true # 测试失败不阻止构建
+
+      # 步骤6：构建项目
+      - name: Build project
+        run: npm run build
+        working-directory: ./backend
+        continue-on-error: false
+
+      # 步骤7：验证构建产物
+      - name: Verify build output
+        run: |
+          ls -la ./backend/dist
+          if [ ! -f "./backend/dist/app.js" ]; then
+            echo "Error: app.js not found in dist directory!"
+            exit 1
+          fi
+
+      # 步骤8：保存构建产物（供后续部署步骤使用）
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: backend-build-files # 产物名称（自定义）
+          path: ./backend/dist # 构建产物的目录
+
+  # 第二个任务：部署（依赖 build-and-test 任务成功完成）
+  deploy:
+    needs: build-and-test # 依赖关系：先完成构建测试才执行部署
+    runs-on: ubuntu-latest
+    # 仅在 main 分支 push 时执行（PR 时不部署）
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+
+    steps:
+      # 步骤1：拉取代码
+      - name: Checkout code for deploy
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      # 步骤2：下载之前保存的构建产物
+      - name: Download build artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: backend-build-files
+          path: ./backend/dist # 确保下载到正确路径
+
+      # 步骤3：验证dist目录存在
+      - name: Verify dist directory
+        run: |
+          ls -la ./backend/dist
+          if [ ! -d "./backend/dist" ]; then
+            echo "Error: dist directory not found!"
+            exit 1
+          fi
+          if [ ! -f "./backend/dist/app.js" ]; then
+            echo "Error: app.js not found in dist directory!"
+            exit 1
+          fi
+
+      # 步骤4：部署到服务器（这里需要根据实际部署环境修改）
+      # 注意：实际部署时需要配置服务器连接信息，例如使用 SSH 或其他部署工具
+      - name: Deploy to server
+        run: |
+          echo "Deploying backend to server..."
+          # 这里添加实际的部署命令，例如：
+          # ssh user@server "mkdir -p /app/stylevault/backend"
+          # scp -r ./backend/dist/* user@server:/app/stylevault/backend
+          # ssh user@server "systemctl restart stylevault-backend"
+        working-directory: ./backend
+        continue-on-error: true # 部署失败不阻止工作流完成
+
+      # 步骤5：部署完成通知
+      - name: Deploy notification
+        run: |
+          echo "Backend deployment completed!"
+          echo "Build SHA: ${{ github.sha }}"
+          echo "Build timestamp: $(date)"
