@@ -4,6 +4,7 @@ import { resolve } from 'path';
 
 export default defineConfig({
   plugins: [vue()],
+  base: '/stylevault-vue-project/', // 必须和仓库名一致，结尾带 /
   resolve: {
     alias: {
       '@': resolve(__dirname, 'src'),
@@ -18,7 +19,7 @@ export default defineConfig({
         target: 'http://localhost:3000',
         changeOrigin: true,
         secure: false,
-        rewrite: (path) => path
+        rewrite: path => path,
       },
       '/uploads': {
         target: 'http://localhost:3000',
@@ -29,6 +30,7 @@ export default defineConfig({
   },
   build: {
     outDir: 'dist',
+    assetsDir: 'assets', // 静态资源目录（和报错路径中的 assets 对应）
     sourcemap: false,
   },
 });
