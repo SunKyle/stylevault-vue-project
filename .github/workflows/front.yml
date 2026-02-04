@@ -21,9 +21,11 @@ jobs:
 
     # 任务的具体步骤
     steps:
-      # 步骤1：拉取代码到运行器
+      # 步骤1：拉取代码到运行器（关键修改：添加 fetch-depth: 0 拉取全量历史）
       - name: Checkout code
-        uses: actions/checkout@v4  # 使用官方的拉取代码动作
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # 修复Git操作权限/历史缺失导致的128错误
 
       # 步骤2：安装 Node.js（前端项目需要）
       - name: Set up Node.js
@@ -66,6 +68,9 @@ jobs:
       - name: Build project
         run: npm run build
         working-directory: ./front
+        # 新增：验证dist目录是否生成，提前排查路径问题
+        id: build-check
+        continue-on-error: false
 
       # 步骤9：保存构建产物（供后续部署步骤使用）
       - name: Upload build artifacts
@@ -82,16 +87,35 @@ jobs:
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
 
     steps:
-      # 步骤1：下载之前保存的构建产物
+      # 步骤1：拉取代码（部署环节也需要全量历史，关键修复）
+      - name: Checkout code for deploy
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      # 步骤2：下载之前保存的构建产物
       - name: Download build artifacts
         uses: actions/download-artifact@v4
         with:
           name: build-files
-          path: ./front/dist
+          path: ./front/dist  # 确保下载到正确路径
 
-      # 步骤2：部署到静态服务器（以部署到 GitHub Pages 为例，也可替换为阿里云/腾讯云等）
+      # 步骤3：验证dist目录存在（新增：排查部署前路径问题）
+      - name: Verify dist directory
+        run: |
+          ls -la ./front/dist
+          if [ ! -d "./front/dist" ]; then
+            echo "Error: dist directory not found!"
+            exit 1
+          fi
+
+      # 步骤4：部署到 GitHub Pages（关键修改：补充缺失参数，修复128错误）
       - name: Deploy to GitHub Pages
         uses: peaceiris/actions-gh-pages@v4
         with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}  # GitHub 自动生成的令牌，无需手动配置
-          publish_dir: ./front/dist  # 要部署的目录
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./front/dist
+          publish_branch: gh-pages  # 明确指定部署分支（默认也是，但显式配置更稳定）
+          user_name: 'github-actions[bot]'  # 固定提交者，避免权限识别问题
+          user_email: 'github-actions[bot]@users.noreply.github.com'  # 固定邮箱
+          commit_message: 'Deploy frontend: ${{ github.sha }}'  # 避免空提交信息导致报错
