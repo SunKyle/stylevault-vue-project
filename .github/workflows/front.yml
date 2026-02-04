@@ -12,6 +12,12 @@ on:
     paths:
       - 'front/**'
 
+# 核心修复：添加部署所需的写入权限（全局生效）
+permissions:
+  contents: write  # 必须：授予写入仓库内容（分支/提交）的权限
+  pages: write     # 可选：增强 GitHub Pages 相关操作权限
+  id-token: write  # 可选：避免身份验证相关问题
+
 # 定义要执行的任务
 jobs:
   # 第一个任务：构建和测试
@@ -85,6 +91,11 @@ jobs:
     runs-on: ubuntu-latest
     # 仅在 main 分支 push 时执行（PR 时不部署）
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    # 可选：部署任务单独声明权限（双重保障）
+    permissions:
+      contents: write
+      pages: write
+      id-token: write
 
     steps:
       # 步骤1：拉取代码（部署环节也需要全量历史，关键修复）
@@ -119,3 +130,5 @@ jobs:
           user_name: 'github-actions[bot]'  # 固定提交者，避免权限识别问题
           user_email: 'github-actions[bot]@users.noreply.github.com'  # 固定邮箱
           commit_message: 'Deploy frontend: ${{ github.sha }}'  # 避免空提交信息导致报错
+          # 新增：强制推送（解决历史冲突导致的推送失败）
+          force_orphan: true
