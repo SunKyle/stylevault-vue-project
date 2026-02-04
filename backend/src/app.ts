@@ -12,7 +12,7 @@ class App {
   public app: express.Application;
   // 抽离 CORS 配置（避免重复）
   private corsOptions = {
-    origin: process.env.FRONTEND_URL || ['http://localhost:8081', 'http://localhost:8082'],
+    origin: process.env.NODE_ENV === 'production' ? (process.env.FRONTEND_URL || ['http://localhost:8081', 'http://localhost:8082']) : '*',
     credentials: true,
   };
 
